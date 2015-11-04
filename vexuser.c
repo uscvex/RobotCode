@@ -45,6 +45,8 @@
 #include "ch.h"  		// needs for all ChibiOS programs
 #include "hal.h" 		// hardware abstraction layer header
 #include "vex.h"		// vex library header
+#include "pidlib.h"
+#include "robotc_glue.h"
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
@@ -64,23 +66,33 @@ static  vexDigiCfg  dConfig[kVexDigital_Num] = {
 
 static  vexMotorCfg mConfig[kVexMotorNum] = {
         { kVexMotor_1,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_2,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_3,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_2,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_3,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { kVexMotor_4,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_5,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_6,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_5,      kVexMotor393S,           kVexMotorNormal,       kVexSensorIME,         kImeChannel_2 },
+        { kVexMotor_6,      kVexMotor393S,           kVexMotorNormal,       kVexSensorIME,         kImeChannel_1 },
         { kVexMotor_7,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_8,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_9,      kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_8,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_9,      kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { kVexMotor_10,     kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 }
 };
 
-#define MotorDriveLF     kVexMotor_4
-#define MotorDriveLB     kVexMotor_6
-#define MotorDriveRF     kVexMotor_5
-#define MotorDriveRB     kVexMotor_7
+#define M_FEED_FRONT         kVexMotor_2
+#define M_DRIVE_FRONT_LEFT   kVexMotor_3
+#define M_DRIVE_BACK_LEFT    kVexMotor_4
+#define M_FLY_TOP            kVexMotor_5
+#define M_FLY_BOT            kVexMotor_6
+#define M_DRIVE_BACK_RIGHT   kVexMotor_7
+#define M_FEED_SHOOT         kVexMotor_8
+#define M_DRIVE_FRONT_RIGHT  kVexMotor_9
 
-void doMotorDrive() {
+#define S_IME_FLY_TOP kVexSensorIme_2
+#define S_IME_FLY_BOT kVexSensorIme_1
+
+pidController *pidcFlyTop;
+pidController *pidcFlyBot;
+
+/*void doMotorDrive() {
     int16_t xone, yone, rot;
     xone = vexControllerGet(Ch3);
     yone = vexControllerGet(Ch4);
@@ -90,7 +102,7 @@ void doMotorDrive() {
     vexMotorSet(MotorDriveRF, -yone - xone - rot);
     vexMotorSet(MotorDriveRB, -yone + xone - rot);
     vexMotorSet(MotorDriveLB,  yone + xone - rot);
-}
+}*/
 
 /*-----------------------------------------------------------------------------*/
 /** @brief      User setup                                                     */
@@ -116,7 +128,6 @@ vexUserSetup()
 void
 vexUserInit()
 {
-
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -142,6 +153,54 @@ vexAutonomous( void *arg )
     return (msg_t)0;
 }
 
+msg_t flyWheelTask(void *arg) {
+    (void)arg;
+
+    vexTaskRegister("flyWheelTask");
+
+    PidControllerMakeLut();
+
+    // initialize PID COntroller
+    pidcFlyTop = PidControllerInit(0.5, 0, 0, S_IME_FLY_TOP, true);
+    pidcFlyBot = PidControllerInit(0.5, 0, 0, S_IME_FLY_BOT, false);
+
+    vexSensorValueSet(S_IME_FLY_BOT, 0);
+    vexSensorValueSet(S_IME_FLY_TOP, 0);
+
+    int step = 0;
+    while(!chThdShouldTerminate()) {
+        if(vexControllerGet(Btn8D)) {
+            if(!pidcFlyTop->enabled) {
+                pidcFlyTop->enabled = true;
+                pidcFlyBot->enabled = true;
+                pidcFlyBot->target_value = 0;
+                pidcFlyTop->target_value = 0;
+                vexSensorValueSet(S_IME_FLY_BOT, 0);
+                vexSensorValueSet(S_IME_FLY_TOP, 0);
+            } else if(step <= 0) {
+                pidcFlyBot->target_value += 100;
+                pidcFlyTop->target_value += 100;
+                step = 100;
+            }
+        } else {
+            step = 0;
+            pidcFlyTop->enabled = false;
+            pidcFlyBot->enabled = false;
+        }
+        vex_printf("V=%d E=%f C=%d R=%d, ", pidcFlyTop->sensor_value, pidcFlyTop->error, pidcFlyTop->drive_cmd, pidcFlyTop->drive_raw);
+        vex_printf("V=%d E=%f C=%d R=%d\n", pidcFlyBot->sensor_value, pidcFlyBot->error, pidcFlyBot->drive_cmd, pidcFlyBot->drive_raw);
+        PidControllerUpdate(pidcFlyTop);
+        PidControllerUpdate(pidcFlyBot);
+        vexMotorSet(M_FLY_TOP, pidcFlyTop->drive_cmd);
+        vexMotorSet(M_FLY_BOT, pidcFlyBot->drive_cmd);
+
+        step--;
+        vexSleep(25);
+    }
+
+    return (msg_t)0;
+}
+
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
 /*-----------------------------------------------------------------------------*/
@@ -156,16 +215,13 @@ vexOperator( void *arg )
 	// Must call this
 	vexTaskRegister("operator");
 
-    //int flag = 0;
+    StartTask(flyWheelTask);
+
 	// Run until asked to terminate
 	while(!chThdShouldTerminate())
 	{
-        doMotorDrive();
-        //vexMotorSet(MotorDriveLF, vexControllerGet(Btn8U)?100:0);
-        //vexMotorSet(MotorDriveRF, vexControllerGet(Btn8R)?100:0);
-        //vexMotorSet(MotorDriveLB, vexControllerGet(Btn8L)?100:0);
-        //vexMotorSet(MotorDriveRB, vexControllerGet(Btn8D)?100:0);
-    	
+        vexMotorSet(M_FEED_FRONT, vexControllerGet(Btn8U)?100:0);
+        //doMotorDrive();
         vexSleep( 25 );
 	}
 
