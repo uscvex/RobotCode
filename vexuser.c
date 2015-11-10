@@ -178,8 +178,8 @@ msg_t flyWheelTask(void *arg) {
                 vexSensorValueSet(S_IME_FLY_BOT, 0);
                 vexSensorValueSet(S_IME_FLY_TOP, 0);
             } else if(step <= 0) {
-                pidcFlyBot->target_value += 100;
-                pidcFlyTop->target_value += 100;
+                pidcFlyBot->target_value += 1000;
+                pidcFlyTop->target_value += 1000;
                 step = 100;
             }
         } else {
