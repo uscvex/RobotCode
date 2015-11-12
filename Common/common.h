@@ -6,6 +6,6 @@
 #define ABS(v) (((v) < 0)?(-(v)):(v))
 #define SIGN(v) ((v)<0?-1:1)
 #define CLAMP(v, lower, upper) (MIN(MAX(ABS(v), (lower)), upper)*SIGN(v))
-#define CLAMPMOTOR(v, lower) (ABS(v) < lower?0:(v))
+#define VALLEY(v, low, high) (ABS(v) < low?0:(MIN(ABS(v), 127)*SIGN(v)))
 
 #endif
