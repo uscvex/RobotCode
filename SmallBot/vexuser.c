@@ -47,6 +47,7 @@
 #include "vex.h"		// vex library header
 #include "pidlib.h"
 #include "robotc_glue.h"
+#include "../Common/common.h"
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
@@ -95,13 +96,6 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
 #define J_FEED_D  Btn5D
 
 #define FEED_SPOOL_TIME 100
-
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-#define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
-#define ABS(v) (((v) < 0)?(-(v)):(v))
-#define SIGN(v) ((v)<0?-1:1)
-#define CLAMP(v, lower, upper) (MIN(MAX(ABS(v), (lower)), upper)*SIGN(v))
-#define CLAMPMOTOR(v, lower) (ABS(v) < lower?0:(v))
 
 pidController *pidcFly;
 
