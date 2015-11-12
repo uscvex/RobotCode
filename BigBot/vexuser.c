@@ -22,7 +22,8 @@
 
 // Joystick settings
 #define J_SHOOT     Btn8R
-#define J_FEED      Btn8L
+#define J_FEED_U    Btn6U
+#define J_FEED_D    Btn6D
 #define J_XDRIVE_X  Ch4
 #define J_XDRIVE_Y  Ch3
 #define J_XDRIVE_R  Ch1
@@ -51,8 +52,8 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
         { M_FEED_FRONT,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { M_DRIVE_FRONT_LEFT,  kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { M_DRIVE_BACK_LEFT,   kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { M_FLY_TOP,           kVexMotor393S,           kVexMotorReversed,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
-        { M_FLY_BOT,           kVexMotor393S,           kVexMotorReversed,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+        { M_FLY_TOP,           kVexMotor393S,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
+        { M_FLY_BOT,           kVexMotor393S,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
         { M_DRIVE_BACK_RIGHT,  kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
         { M_FEED_SHOOT,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
         { M_DRIVE_FRONT_RIGHT, kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
@@ -65,7 +66,7 @@ pidController *pidcFlyBot;
 
 void doMotorDrive(void) {
     int C1LX = VALLEY(vexControllerGet(J_XDRIVE_X), 45, 127);
-    int C1LY = VALLEY(vexControllerGet(J_XDRIVE_Y), 45, 127);
+    int C1LY = VALLEY(-vexControllerGet(J_XDRIVE_Y), 45, 127);
     int C1RX = VALLEY(vexControllerGet(J_XDRIVE_R), 45, 127);
 
     // Y component, X component, Rotation
@@ -132,11 +133,8 @@ msg_t flyWheelTask(void *arg) {
     PidControllerMakeLut();
 
     // initialize PID COntroller
-    pidcFlyTop = PidControllerInit(0.5, 0, 0, S_ENC_FLY_TOP, true);
+    pidcFlyTop = PidControllerInit(0.5, 0, 0, S_ENC_FLY_TOP, false);
     pidcFlyBot = PidControllerInit(0.5, 0, 0, S_ENC_FLY_BOT, true);
-
-    vexSensorValueSet(S_ENC_FLY_BOT, 0);
-    vexSensorValueSet(S_ENC_FLY_TOP, 0);
 
     int step = 0;
     while(!chThdShouldTerminate()) {
@@ -144,15 +142,15 @@ msg_t flyWheelTask(void *arg) {
             if(!pidcFlyTop->enabled) {
                 pidcFlyTop->enabled = true;
                 pidcFlyBot->enabled = true;
-                pidcFlyBot->target_value = 0;
-                pidcFlyTop->target_value = 0;
-                vexSensorValueSet(S_ENC_FLY_BOT, 0);
-                vexSensorValueSet(S_ENC_FLY_TOP, 0);
+                pidcFlyBot->target_value = vexSensorValueGet(S_ENC_FLY_BOT);
+                pidcFlyTop->target_value = vexSensorValueGet(S_ENC_FLY_TOP);
+                //vexSensorValueSet(S_ENC_FLY_BOT, 0);
+                //vexSensorValueSet(S_ENC_FLY_TOP, 0);
             } else if(step <= 0) {
                 //vexSensorValueSet(S_ENC_FLY_BOT, 0);
                 //vexSensorValueSet(S_ENC_FLY_TOP, 0);
-                pidcFlyBot->target_value = 600;
-                pidcFlyTop->target_value = 600;
+                pidcFlyBot->target_value += 600;
+                pidcFlyTop->target_value += 600;
                 step = 0;
             }
         } else {
@@ -196,7 +194,13 @@ vexOperator( void *arg )
 	while(!chThdShouldTerminate())
 	{
         doMotorDrive();
-        vexMotorSet(M_FEED_FRONT, vexControllerGet(J_FEED)?100:0);
+        if(vexControllerGet(J_FEED_U)) {
+            vexMotorSet(M_FEED_FRONT, 100);
+        } else if(vexControllerGet(J_FEED_D)) {
+            vexMotorSet(M_FEED_FRONT, -100);
+        } else {
+            vexMotorSet(M_FEED_FRONT, 0);
+        }
         if(vexControllerGet(J_SHOOT)) {
             if(feedSpoolCounter > FEED_SPOOL_TIME) {
                 vexMotorSet(M_FEED_SHOOT, 100);
