@@ -9,7 +9,8 @@ CONVEX_OPT  = yes
 
 # User C code files
 VEXUSERSRC = vexuser.c \
-             vexdefault.c
+             vexdefault.c \
+             ../Common/easing.c
 
 # Uncomment and add/modify user include files
 #VEXUSERINC = myfile.h

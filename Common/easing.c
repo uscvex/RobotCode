@@ -7,9 +7,9 @@
 
 static EasingConfig configs[MAX_EASING_CONFIGS];
 static int16_t nextEasingConfigPtr = 0;
-static Mutex configMutex;
+//static Mutex configMutex;
 
-EasingConfig *configEasing(tEasingOutput output, pidController *pidc, int16_t motorIndex, tEasingFunc func, int32_t duration) {
+EasingConfig *configEasing(tEasingOutput output, pidController *pidc, int16_t motorIndex, tEasingFunc func, int32_t duration, bool continuous) {
 	EasingConfig *conf = &configs[nextEasingConfigPtr++];
 	conf->output = output;
 	conf->pidc = pidc;
@@ -19,45 +19,59 @@ EasingConfig *configEasing(tEasingOutput output, pidController *pidc, int16_t mo
 	conf->start_time = 0;
 	conf->start = 0;
 	conf->target = 0;
+
+	conf->continuous = continuous;
+	conf->lastValue = 0;
 	conf->enabled = false;
+	conf->valleyOutput = false;
 	return conf;
 }
 
-EasingConfig *configMotorEasing(int16_t motorIndex, tEasingFunc func, int32_t duration) {
-	return configEasing(kMotor, NULL, motorIndex, func, duration);
+EasingConfig *configMotorEasing(int16_t motorIndex, tEasingFunc func, int32_t duration, bool continuous) {
+	return configEasing(kMotor, NULL, motorIndex, func, duration, continuous);
 }
 
-EasingConfig *configPidEasing(pidController *pidc, tEasingFunc func, int32_t duration) {
-	return configEasing(kPID, pidc, -1, func, duration);
+EasingConfig *configPidEasing(pidController *pidc, tEasingFunc func, int32_t duration, bool continuous) {
+	return configEasing(kPID, pidc, -1, func, duration, continuous);
+}
+
+void setOutputValley(EasingConfig *conf, int32_t valleyLow, int32_t valleyHigh) {
+	conf->valleyOutput = true;
+	conf->valleyLow = valleyLow;
+	conf->valleyHigh = valleyHigh;
 }
 
 void startEasing(EasingConfig *conf, int32_t target) {
-	chMtxLock(&configMutex);
-	if(conf->output == kMotor) {
-		conf->start = vexMotorGet(conf->motorIndex);
+	//chMtxLock(&configMutex);
+	if(conf->continuous) {
+		conf->start = conf->lastValue;
 	} else {
-		conf->start = conf->pidc->target_value;
+		if(conf->output == kMotor) {
+			conf->start = vexMotorGet(conf->motorIndex);
+		} else {
+			conf->start = conf->pidc->target_value;
+		}
 	}
 	conf->target = target;
 	conf->start_time = chTimeNow();
 	conf->enabled = true;
-	chMtxUnlock();
+	//chMtxUnlock();
 }
 
 void setEasingEnabled(EasingConfig *conf, bool enabled) {
-	chMtxLock(&configMutex);
+	//chMtxLock(&configMutex);
 	conf->enabled = enabled;
-	chMtxUnlock();
+	//chMtxUnlock();
 }
 
 msg_t easingTask(void *arg) {
 	(void)arg;
 
 	vexTaskRegister("easingTask");
-	chMtxInit(&configMutex);
+	//chMtxInit(&configMutex);
 
     while(!chThdShouldTerminate()) {
-    	if(chMtxTryLock(&configMutex)) {
+    	//if(chMtxTryLock(&configMutex)) {
     		int i;
 	    	for(i = 0;i < nextEasingConfigPtr;i++) {
 	    		EasingConfig *conf = &configs[i];
@@ -75,6 +89,12 @@ msg_t easingTask(void *arg) {
 	    				break;
 	    		}
 	    		int32_t value = conf->start + (conf->target-conf->start)*v;
+	    		vex_printf("value = %d ", value);
+	    		if(conf->valleyOutput) {
+	    			value = VALLEY(value, conf->valleyLow, conf->valleyHigh);
+	    		}
+	    		vex_printf("newvalue = %d\n", value);
+	    		conf->lastValue = value;
 
 	    		if(conf->output == kMotor) {
 	    			vexMotorSet(conf->motorIndex, value);
@@ -82,8 +102,8 @@ msg_t easingTask(void *arg) {
 	    			conf->pidc->target_value = value;
 	    		}
 	    	}
-	    	chMtxUnlock();
-    	}
+	    	//chMtxUnlock();
+    	//}
     	vexSleep(10);
     }
 

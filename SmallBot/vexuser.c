@@ -5,63 +5,60 @@
 #include "pidlib.h"
 #include "robotc_glue.h"
 #include "../Common/common.h"
+#include "../Common/easing.h"
 
 // Motor configs
-#define M_DRIVE_LEFT1     kVexMotor_2
-#define M_DRIVE_RIGHT1    kVexMotor_3
-#define M_FEED_SHOOT      kVexMotor_4
-#define M_FLY_WHEEL       kVexMotor_5
-#define M_FEED_FRONT      kVexMotor_7
-#define M_DRIVE_LEFT2     kVexMotor_8
-#define M_DRIVE_RIGHT2    kVexMotor_9
+#define M_DRIVE_RIGHT1    kVexMotor_2
+#define M_FLY_WHEEL       kVexMotor_3
+#define M_FEED_FRONT      kVexMotor_4
+#define M_DRIVE_RIGHT2    kVexMotor_5
+#define M_DRIVE_LEFT1     kVexMotor_6
+#define M_DRIVE_LEFT2     kVexMotor_7
+#define M_FEED_SHOOT      kVexMotor_8
 
 // Sensor channels
-#define S_ENC_FLY         kVexQuadEncoder_1
+#define P_ENC_FLY_A       kVexDigital_1
+#define P_ENC_FLY_B       kVexDigital_2
+#define S_ENC_FLY         kVexSensorDigital_2
+#define S_IME_DRIVE_RIGHT kVexSensorIme1
+#define S_IME_DRIVE_LEFT  kVexSensorIme2
 
 // Joystick settings
 #define J_DRIVE      Ch3
 #define J_TURN       Ch1
 #define J_SHOOT      Btn6U
 #define J_FEED_SHOOT Btn6D
-#define J_FEED_U     Btn5U
-#define J_FEED_D     Btn5D
+#define J_FEED_FRONT_U Btn5U
+#define J_FEED_FRONT_D Btn5D
 
 // Constants
 #define FEED_SPOOL_TIME 100
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
-        { kVexDigital_1,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    S_ENC_FLY},
-        { kVexDigital_2,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    S_ENC_FLY},
-        { kVexDigital_3,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_4,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_5,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_6,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_7,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_8,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_9,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_10,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_11,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_12,   kVexSensorDigitalInput,  kVexConfigInput,       0 }
+        { P_ENC_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
+        { P_ENC_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1}
 };
 
 // Motor Config
 static  vexMotorCfg mConfig[kVexMotorNum] = {
-        { kVexMotor_1,      kVexMotorUndefined,      kVexMotorNormal,     kVexSensorNone,        0 },
-        { M_DRIVE_LEFT1,    kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_1 },
-        { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_2 },
-        { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
-        { M_FLY_WHEEL,      kVexMotor393T,           kVexMotorReversed,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
-        { kVexMotor_6,      kVexMotorUndefined,      kVexMotorNormal,     kVexSensorNone,        0 },
-        { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
-        { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
-        { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
-        { kVexMotor_10,     kVexMotorUndefined,      kVexMotorNormal,     kVexSensorNone,        0 }
+    { M_DRIVE_LEFT1,    kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_2 },
+    { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_1 },
+    { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
+    { M_FLY_WHEEL,      kVexMotor393T,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+    { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
+    { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
+    { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 }
 };
 
 
 // PID Controllers
 pidController *pidcFly;
+
+EasingConfig *easingDriveLeft1;
+EasingConfig *easingDriveLeft2;
+EasingConfig *easingDriveRight1;
+EasingConfig *easingDriveRight2;
 
 void driveMotors(void) {
     short ld, rd ;
@@ -70,6 +67,11 @@ void driveMotors(void) {
     int turn    = VALLEY(vexControllerGet(J_TURN), 45, 127);
     ld = forward + turn;
     rd = forward - turn;
+
+    //startEasing(easingDriveLeft1,  ld);
+    //startEasing(easingDriveLeft2,  ld);
+    //startEasing(easingDriveRight1, rd);
+    //startEasing(easingDriveRight2, rd);
 
     vexMotorSet(M_DRIVE_LEFT1,  VALLEY(ld, 45, 127));
     vexMotorSet(M_DRIVE_LEFT2,  VALLEY(ld, 45, 127));
@@ -83,32 +85,24 @@ msg_t flyWheelTask(void *arg) {
 
     vexTaskRegister("flyWheelTask");
 
-    PidControllerMakeLut();
 
     // initialize PID COntroller
     pidcFly = PidControllerInit(0.5, 0, 0, S_ENC_FLY, true);
 
-    vexSensorValueSet(S_ENC_FLY, 0);
-
-    int step = 0;
     while(!chThdShouldTerminate()) {
         if(vexControllerGet(J_SHOOT)) {
             if(!pidcFly->enabled) {
                 pidcFly->enabled = true;
-                pidcFly->target_value = 0;
                 vexSensorValueSet(S_ENC_FLY, 0);
-            } else if(step <= 0) {
-                pidcFly->target_value = 700;
-                step = 0;
+                pidcFly->target_value = 0;
+            } else {
+                pidcFly->target_value += 700;
             }
         } else {
-            step = 0;
             pidcFly->enabled = false;
         }
         PidControllerUpdate(pidcFly);
         vexMotorSet(M_FLY_WHEEL, pidcFly->drive_cmd);
-
-        step--;
         vexSleep(25);
     }
 
@@ -139,6 +133,7 @@ vexUserSetup()
 void
 vexUserInit()
 {
+    PidControllerMakeLut();
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -164,6 +159,7 @@ vexAutonomous( void *arg )
     return (msg_t)0;
 }
 
+
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
 /*-----------------------------------------------------------------------------*/
@@ -175,33 +171,43 @@ vexOperator( void *arg )
 {
 	(void)arg;
 
+    //easingDriveLeft1 = configMotorEasing(M_DRIVE_LEFT1, kLinear, 100, true);
+    //setOutputValley(easingDriveLeft1, 45, 127);
+    //easingDriveLeft2 = configMotorEasing(M_DRIVE_LEFT2, kLinear, 100, true);
+    //setOutputValley(easingDriveLeft2, 45, 127);
+    //easingDriveRight1 = configMotorEasing(M_DRIVE_RIGHT1, kLinear, 100, true);
+    //setOutputValley(easingDriveRight1, 45, 127);
+    //easingDriveRight2 = configMotorEasing(M_DRIVE_RIGHT2, kLinear, 100, true);
+    //setOutputValley(easingDriveRight2, 45, 127);
+
 	// Must call this
 	vexTaskRegister("operator");
 
     StartTask(flyWheelTask);
+    //StartTask(easingTask);
 
 	// Run until asked to terminate
     //int feedSpoolCounter = 0;
 	while(!chThdShouldTerminate())
 	{
         driveMotors();
-        vexMotorSet(M_FEED_FRONT, vexControllerGet(J_FEED_U)?100:0);
-        vexMotorSet(M_FEED_FRONT, vexControllerGet(J_FEED_D)?-100:0);
-        vexMotorSet(M_FEED_SHOOT, vexControllerGet(J_FEED_SHOOT)?127:0);
-
-/*        if(vexControllerGet(J_SHOOT)) {
-            vexMotorSet(M_FLY_WHEEL, 100);
-            if(feedSpoolCounter > FEED_SPOOL_TIME) {
-                vexMotorSet(M_FEED_SHOOT, 100);
-            } else {
-                feedSpoolCounter++;
-            }
-        } else {
-            vexMotorSet(M_FLY_WHEEL, 0);
-            feedSpoolCounter = 0;
-            vexMotorSet(M_FEED_SHOOT, 0);
+        if(vexControllerGet(J_FEED_FRONT_U)) {
+            vexMotorSet(M_FEED_FRONT, 100);
+        } else if(vexControllerGet(J_FEED_FRONT_D)) {
+            vexMotorSet(M_FEED_FRONT, -100);
+        }  else {
+            vexMotorSet(M_FEED_FRONT, 0);
         }
-*/
+
+        if(vexControllerGet(J_FEED_SHOOT)) {
+            vexMotorSet(M_FEED_SHOOT, 127);
+            vexMotorSet(M_FEED_FRONT, 127);
+        } else {
+            vexMotorSet(M_FEED_SHOOT, 0);
+            if(!(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_FRONT_U))) {
+                vexMotorSet(M_FEED_FRONT, 0);
+            }
+        }
         vexSleep( 25 );
 	}
 

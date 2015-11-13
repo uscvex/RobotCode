@@ -17,8 +17,12 @@
 #define M_DRIVE_FRONT_RIGHT  kVexMotor_9
 
 // Sensor channels
-#define S_ENC_FLY_TOP kVexQuadEncoder_2
-#define S_ENC_FLY_BOT kVexQuadEncoder_1
+#define P_ENC_FLY_TOP_A kVexDigital_3
+#define P_ENC_FLY_TOP_B kVexDigital_4
+#define S_ENC_FLY_TOP   kVexSensorDigital_4
+#define P_ENC_FLY_BOT_A kVexDigital_1
+#define P_ENC_FLY_BOT_B kVexDigital_2
+#define S_ENC_FLY_BOT   kVexSensorDigital_2
 
 // Joystick settings
 #define J_SHOOT     Btn8R
@@ -33,22 +37,13 @@
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
-        { kVexDigital_1,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    S_ENC_FLY_BOT }, // bottom
-        { kVexDigital_2,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    S_ENC_FLY_BOT },
-        { kVexDigital_3,    kVexSensorQuadEncoder,   kVexConfigQuadEnc1,    S_ENC_FLY_TOP }, // top
-        { kVexDigital_4,    kVexSensorQuadEncoder,   kVexConfigQuadEnc2,    S_ENC_FLY_TOP },
-        { kVexDigital_5,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_6,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_7,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_8,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_9,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_10,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_11,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_12,   kVexSensorDigitalInput,  kVexConfigInput,       0 }
+        { P_ENC_FLY_BOT_A,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
+        { P_ENC_FLY_BOT_B,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
+        { P_ENC_FLY_TOP_A,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
+        { P_ENC_FLY_TOP_B,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2}
 };
 
 static  vexMotorCfg mConfig[kVexMotorNum] = {
-        { kVexMotor_1,         kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
         { M_FEED_FRONT,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { M_DRIVE_FRONT_LEFT,  kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { M_DRIVE_BACK_LEFT,   kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
@@ -57,7 +52,6 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
         { M_DRIVE_BACK_RIGHT,  kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
         { M_FEED_SHOOT,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
         { M_DRIVE_FRONT_RIGHT, kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
-        { kVexMotor_10,        kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 }
 };
 
 // PID Controlers
@@ -66,7 +60,7 @@ pidController *pidcFlyBot;
 
 void doMotorDrive(void) {
     int C1LX = VALLEY(vexControllerGet(J_XDRIVE_X), 45, 127);
-    int C1LY = VALLEY(-vexControllerGet(J_XDRIVE_Y), 45, 127);
+    int C1LY = VALLEY(vexControllerGet(J_XDRIVE_Y), 45, 127);
     int C1RX = VALLEY(vexControllerGet(J_XDRIVE_R), 45, 127);
 
     // Y component, X component, Rotation
@@ -136,36 +130,26 @@ msg_t flyWheelTask(void *arg) {
     pidcFlyTop = PidControllerInit(0.5, 0, 0, S_ENC_FLY_TOP, false);
     pidcFlyBot = PidControllerInit(0.5, 0, 0, S_ENC_FLY_BOT, true);
 
-    int step = 0;
     while(!chThdShouldTerminate()) {
         if(vexControllerGet(J_SHOOT)) {
             if(!pidcFlyTop->enabled) {
                 pidcFlyTop->enabled = true;
                 pidcFlyBot->enabled = true;
-                pidcFlyBot->target_value = vexSensorValueGet(S_ENC_FLY_BOT);
-                pidcFlyTop->target_value = vexSensorValueGet(S_ENC_FLY_TOP);
-                //vexSensorValueSet(S_ENC_FLY_BOT, 0);
-                //vexSensorValueSet(S_ENC_FLY_TOP, 0);
-            } else if(step <= 0) {
-                //vexSensorValueSet(S_ENC_FLY_BOT, 0);
-                //vexSensorValueSet(S_ENC_FLY_TOP, 0);
+                vexSensorValueSet(S_ENC_FLY_TOP, 0);
+                vexSensorValueSet(S_ENC_FLY_BOT, 0);
+                pidcFlyBot->target_value = 0;
+                pidcFlyTop->target_value = 0;
+            } else {
                 pidcFlyBot->target_value += 600;
                 pidcFlyTop->target_value += 600;
-                step = 0;
             }
         } else {
-            step = 0;
             pidcFlyTop->enabled = false;
             pidcFlyBot->enabled = false;
         }
-        //vex_printf("V=%d E=%f C=%d R=%d, ", pidcFlyTop->sensor_value, pidcFlyTop->error, pidcFlyTop->drive_cmd, pidcFlyTop->drive_raw);
-        //vex_printf("V=%d E=%f C=%d R=%d\n", pidcFlyBot->sensor_value, pidcFlyBot->error, pidcFlyBot->drive_cmd, pidcFlyBot->drive_raw);
-        PidControllerUpdate(pidcFlyTop);
         PidControllerUpdate(pidcFlyBot);
         vexMotorSet(M_FLY_TOP, pidcFlyTop->drive_cmd);
         vexMotorSet(M_FLY_BOT, pidcFlyBot->drive_cmd);
-
-        step--;
         vexSleep(25);
     }
 
