@@ -139,31 +139,69 @@ msg_t flyWheelTask(void *arg) {
     PidControllerMakeLut();
 
     // initialize PID COntroller
-    pidcFlyTop = PidControllerInit(1, 0, 0, S_ENC_FLY_TOP, false);
-    pidcFlyBot = PidControllerInit(1, 0, 0, S_ENC_FLY_BOT, true);
+    //pidcFlyTop = PidControllerInit(0.1, 0, 0, S_ENC_FLY_TOP, false);
+    //pidcFlyBot = PidControllerInit(0.1, 0, 0, S_ENC_FLY_BOT, true);
 
+    float kPTop = 10;
+    float kPBot = 50;
+    float topTargetVelocity = 8;
+    int32_t topLastValue;
+    float botTargetVelocity = 7.5;
+    int32_t botLastValue;
+
+    int32_t lastTime;
+    int32_t currentTime;
+
+    bool isRunning = false;
     while(!chThdShouldTerminate()) {
+        currentTime = chTimeNow();
         if(vexControllerGet(J_SHOOT)) {
-            if(!pidcFlyTop->enabled) {
-                pidcFlyTop->enabled = true;
-                pidcFlyBot->enabled = true;
-                vexSensorValueSet(S_ENC_FLY_TOP, 0);
+            if(!isRunning) {
                 vexSensorValueSet(S_ENC_FLY_BOT, 0);
-                pidcFlyBot->target_value = 0;
-                pidcFlyTop->target_value = 0;
+                vexSensorValueSet(S_ENC_FLY_TOP, 0);
+                topLastValue = 0;
+                botLastValue = 0;
+                isRunning = true;
             } else {
-                pidcFlyBot->target_value += 400;
-                pidcFlyTop->target_value += 400;
-            }
+                int32_t topCurrentValue = vexSensorValueGet(S_ENC_FLY_TOP);
+                float topVelocity = (topCurrentValue - topLastValue)/((float)(lastTime-currentTime));
+                float deltaV = topTargetVelocity - topVelocity;
+                vexMotorSet(M_FLY_TOP, deltaV * kPTop);
+                topLastValue = topCurrentValue;
 
-          } else {
-            pidcFlyTop->enabled = false;
-            pidcFlyBot->enabled = false;
+
+                int32_t botCurrentValue = vexSensorValueGet(S_ENC_FLY_BOT);
+                float botVelocity = (botCurrentValue - botLastValue)/((float)(lastTime-currentTime));
+                deltaV = botTargetVelocity - botVelocity;
+                vexMotorSet(M_FLY_BOT, deltaV * kPBot);
+                botLastValue = botCurrentValue;
+            }
+            //if(!pidcFlyTop->enabled) {
+            //    pidcFlyTop->enabled = true;
+            //    pidcFlyBot->enabled = true;
+            //    vexSensorValueSet(S_ENC_FLY_TOP, 0);
+            //    vexSensorValueSet(S_ENC_FLY_BOT, 0);
+            //    pidcFlyBot->target_value = 0;
+            //    pidcFlyTop->target_value = 0;
+            //    startTime = chTimeNow();
+            //} else {
+            //    pidcFlyBot->target_value = (chTimeNow()-startTime)*botSlope;
+            //    pidcFlyTop->target_value = (chTimeNow()-startTime)*topSlope;
+            //}
+
+        } else {
+            vexMotorSet(M_FLY_TOP, 0);
+            vexMotorSet(M_FLY_BOT, 0);
+            //vexMotorSet(M_FLY_BOT, 0);
+            isRunning = false;
+            //pidcFlyTop->enabled = false;
+            //pidcFlyBot->enabled = false;
         }
-        PidControllerUpdate(pidcFlyBot);
-        PidControllerUpdate(pidcFlyTop);
-        vexMotorSet(M_FLY_TOP, pidcFlyTop->drive_cmd);
-        vexMotorSet(M_FLY_BOT, pidcFlyBot->drive_cmd);
+        //PidControllerUpdate(pidcFlyBot);
+        //PidControllerUpdate(pidcFlyTop);
+        //vexMotorSet(M_FLY_TOP, pidcFlyTop->drive_cmd);
+        //vexMotorSet(M_FLY_BOT, pidcFlyBot->drive_cmd);
+        lastTime = currentTime;
         vexSleep(25);
     }
 
@@ -202,7 +240,7 @@ vexOperator( void *arg )
         }
         if(vexControllerGet(J_SHOOT)) {
             if(feedSpoolCounter > FEED_SPOOL_TIME) {
-                vexMotorSet(M_FEED_SHOOT, 100);
+                vexMotorSet(M_FEED_SHOOT, 127);
                 vexMotorSet(M_FEED_FRONT, 100);
             } else {
                 feedSpoolCounter++;
