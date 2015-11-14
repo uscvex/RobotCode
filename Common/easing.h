@@ -40,7 +40,7 @@ typedef struct _EasingConfig {
 #define MAX_EASING_CONFIGS 10
 
 EasingConfig *configMotorEasing(int16_t motorIndex, tEasingFunc func, int32_t duration, bool continuous);
-EasingConfig *configPidEasing(pidController *pidc, tEasingFunc func, int32_t duration, bool continuous);
+EasingConfig *configPidEasing(pidController *pidc, int16_t motorIndex, tEasingFunc func, int32_t duration, bool continuous);
 void setOutputValley(EasingConfig *conf, int32_t valleyLow, int32_t valleyHigh);
 void startEasing(EasingConfig *conf, int32_t target);
 void setEasingEnabled(EasingConfig *conf, bool enabled);

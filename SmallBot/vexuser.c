@@ -20,8 +20,8 @@
 #define P_ENC_FLY_A       kVexDigital_1
 #define P_ENC_FLY_B       kVexDigital_2
 #define S_ENC_FLY         kVexSensorDigital_2
-#define S_IME_DRIVE_RIGHT kVexSensorIme1
-#define S_IME_DRIVE_LEFT  kVexSensorIme2
+#define S_IME_DRIVE_RIGHT kVexSensorIme_1
+#define S_IME_DRIVE_LEFT  kVexSensorIme_2
 
 // Joystick settings
 #define J_DRIVE      Ch3
@@ -172,8 +172,8 @@ vexAutonomous( void *arg )
 	easingDriveRight1 = configPidEasing(pidcRD, M_DRIVE_RIGHT1, kMinJerk, 100, false);
 	easingDriveRight2 = configPidEasing(pidcRD, M_DRIVE_RIGHT2, kMinJerk, 100, false);
 
-	startEasing(easingDriveLeft1,  ld);
-	startEasing(easingDriveLeft2,  ld);
+	startEasing(easingDriveLeft1, ld);
+	startEasing(easingDriveLeft2, ld);
 	startEasing(easingDriveRight1, rd);
 	startEasing(easingDriveRight2, rd);
 
