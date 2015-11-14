@@ -145,9 +145,9 @@ msg_t flyWheelTask(void *arg) {
     // initialize PID COntroller
     float kPTop = 10;
     float kPBot = 50;
-    float topTargetVelocity = 7.5;
+    float topTargetVelocity = 6.5;
     int32_t topLastValue;
-    float botTargetVelocity = 7;
+    float botTargetVelocity = 6.5;
     int32_t botLastValue;
 
     int32_t lastTime;
