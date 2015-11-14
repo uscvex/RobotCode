@@ -225,11 +225,11 @@ vexOperator( void *arg )
         }
 
         if(vexControllerGet(J_FEED_SHOOT)) { //8D
-            vexMotorSet(M_FEED_SHOOT, -127);
+            vexMotorSet(M_FEED_SHOOT, 127);
             vexMotorSet(M_FEED_FRONT, 127);
         } else if(motorRunning) {
 			//vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-            vexMotorSet(M_FEED_FRONT, -1*DEFAULT_FEED_SPEED); 
+            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED); 
 		} else {
             vexMotorSet(M_FEED_SHOOT, 0);
             if(!(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_FRONT_U))) {
@@ -238,11 +238,13 @@ vexOperator( void *arg )
         }
 		
 		if(vexControllerGet(J_FEED_REV)) {
-            vexMotorSet(M_FEED_SHOOT, 127);
+            vexMotorSet(M_FEED_SHOOT, -127);
             vexMotorSet(M_FEED_FRONT, -127);
-        } else {
-			    vexMotorSet(M_FEED_SHOOT, 0);
-            vexMotorSet(M_FEED_FRONT, 0);
+        } else if(motorRunning) {
+            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED); 
+		} else {
+			vexMotorSet(M_FEED_SHOOT, 0);
+			vexMotorSet(M_FEED_FRONT, 0);
 		}
 		
         vexSleep( 25 );
