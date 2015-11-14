@@ -27,7 +27,8 @@
 #define J_DRIVE      Ch3
 #define J_TURN       Ch1
 #define J_SHOOT      Btn6U
-#define J_FEED_SHOOT Btn6D
+#define J_FEED_SHOOT Btn8D
+#define J_FEED_REV Btn6D
 #define J_FEED_FRONT_U Btn5U
 #define J_FEED_FRONT_D Btn5D
 
@@ -223,7 +224,7 @@ vexOperator( void *arg )
             vexMotorSet(M_FEED_FRONT, 0);
         }
 
-        if(vexControllerGet(J_FEED_SHOOT)) {
+        if(vexControllerGet(J_FEED_SHOOT)) { //8D
             vexMotorSet(M_FEED_SHOOT, -127);
             vexMotorSet(M_FEED_FRONT, 127);
         } else if(motorRunning) {
@@ -235,6 +236,15 @@ vexOperator( void *arg )
                 vexMotorSet(M_FEED_FRONT, 0);
             }
         }
+		
+		if(vexControllerGet(J_FEED_REV)) {
+            vexMotorSet(M_FEED_SHOOT, 127);
+            vexMotorSet(M_FEED_FRONT, -127);
+        } else {
+			    vexMotorSet(M_FEED_SHOOT, 0);
+            vexMotorSet(M_FEED_FRONT, 0);
+		}
+		
         vexSleep( 25 );
 	}
 
