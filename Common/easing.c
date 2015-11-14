@@ -31,8 +31,8 @@ EasingConfig *configMotorEasing(int16_t motorIndex, tEasingFunc func, int32_t du
 	return configEasing(kMotor, NULL, motorIndex, func, duration, continuous);
 }
 
-EasingConfig *configPidEasing(pidController *pidc, tEasingFunc func, int32_t duration, bool continuous) {
-	return configEasing(kPID, pidc, -1, func, duration, continuous);
+EasingConfig *configPidEasing(pidController *pidc, int16_t motorIndex, tEasingFunc func, int32_t duration, bool continuous) {
+	return configEasing(kPID, pidc, motorIndex, func, duration, continuous);
 }
 
 void setOutputValley(EasingConfig *conf, int32_t valleyLow, int32_t valleyHigh) {
@@ -100,6 +100,8 @@ msg_t easingTask(void *arg) {
 	    			vexMotorSet(conf->motorIndex, value);
 	    		} else {
 	    			conf->pidc->target_value = value;
+					pidcUpdate(conf->pidc);
+					vexMotorSet(conf->motorIndex, conf->pidc->driveCmd);
 	    		}
 	    	}
 	    	//chMtxUnlock();

@@ -1,3 +1,4 @@
+//keep feed front running when drive is on. keep is running for few seconds after drive stops.
 #include <stdlib.h>
 #include "ch.h"
 #include "hal.h"
@@ -54,41 +55,29 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
 
 // PID Controllers
 pidController *pidcFly;
-pidController *pidcLD;
-pidController *pidcRD;
 
 EasingConfig *easingDriveLeft1;
 EasingConfig *easingDriveLeft2;
 EasingConfig *easingDriveRight1;
 EasingConfig *easingDriveRight2;
 
-bool driveMotors(void) {
+void driveMotors(void) {
     short ld, rd ;
     //Calculate Motor Power
     int forward = VALLEY(vexControllerGet(J_DRIVE), 45, 127);
     int turn    = VALLEY(vexControllerGet(J_TURN), 45, 127);
-    ld = VALLEY(forward + turn, 45, 127);
-    rd = VALLEY(forward - turn, 45, 127);
+    ld = forward + turn;
+    rd = forward - turn;
 
-	/*pidcLD = PidControllerInit(1, 0, 0.5, S_IME_DRIVE_LEFT, false);
-	pidcRD = PidControllerInit(1, 0, 0.5, S_IME_DRIVE_RIGHT, false);
-	
-	easingDriveLeft1 = configPidEasing(pidcLD, func?, 100, true);
-	easingDriveLeft2 = configPidEasing(pidcLD, func?, 100, true);
-	easingDriveRight1 = configPidEasing(pidcRD, func?, 100, true);
-	easingDriveRight2 = configPidEasing(pidcRD, func?, 100, true);
-    
-	startEasing(easingDriveLeft1,  ld);
-    startEasing(easingDriveLeft2,  ld);
-    startEasing(easingDriveRight1, rd);
-    startEasing(easingDriveRight2, rd);*/
-	
-    vexMotorSet(M_DRIVE_LEFT1,  ld);
-    vexMotorSet(M_DRIVE_LEFT2,  ld);
-    vexMotorSet(M_DRIVE_RIGHT1, rd);
-    vexMotorSet(M_DRIVE_RIGHT2, rd);
-	
-    return (ld != 0 || rd != 0);
+    //startEasing(easingDriveLeft1,  ld);
+    //startEasing(easingDriveLeft2,  ld);
+    //startEasing(easingDriveRight1, rd);
+    //startEasing(easingDriveRight2, rd);
+
+    vexMotorSet(M_DRIVE_LEFT1,  VALLEY(ld, 45, 127));
+    vexMotorSet(M_DRIVE_LEFT2,  VALLEY(ld, 45, 127));
+    vexMotorSet(M_DRIVE_RIGHT1, VALLEY(rd, 45, 127));
+    vexMotorSet(M_DRIVE_RIGHT2, VALLEY(rd, 45, 127));
 }
 
 
@@ -99,7 +88,7 @@ msg_t flyWheelTask(void *arg) {
 
 
     // initialize PID COntroller
-    pidcFly = PidControllerInit(1, 0, 0, S_ENC_FLY, true);
+    pidcFly = PidControllerInit(0.5, 0, 0, S_ENC_FLY, true);
 
     while(!chThdShouldTerminate()) {
         if(vexControllerGet(J_SHOOT)) {
@@ -108,7 +97,7 @@ msg_t flyWheelTask(void *arg) {
                 vexSensorValueSet(S_ENC_FLY, 0);
                 pidcFly->target_value = 0;
             } else {
-                pidcFly->target_value += 1000;
+                pidcFly->target_value += 700;
             }
         } else {
             pidcFly->enabled = false;
@@ -161,21 +150,12 @@ vexAutonomous( void *arg )
 
     // Must call this
     vexTaskRegister("auton");
-	
-	StartTask(easingTask);
-	
-	pidcLD = PidControllerInit(1, 0, 0.5, S_IME_DRIVE_LEFT, false);
-	pidcRD = PidControllerInit(1, 0, 0.5, S_IME_DRIVE_RIGHT, false);
-	
-	easingDriveLeft1 = configPidEasing(pidcLD, M_DRIVE_LEFT1, kMinJerk, 100, false);
-	easingDriveLeft2 = configPidEasing(pidcLD, M_DRIVE_LEFT2, kMinJerk, 100, false);
-	easingDriveRight1 = configPidEasing(pidcRD, M_DRIVE_RIGHT1, kMinJerk, 100, false);
-	easingDriveRight2 = configPidEasing(pidcRD, M_DRIVE_RIGHT2, kMinJerk, 100, false);
 
-	startEasing(easingDriveLeft1,  ld);
-	startEasing(easingDriveLeft2,  ld);
-	startEasing(easingDriveRight1, rd);
-	startEasing(easingDriveRight2, rd);
+    while(1)
+        {
+        // Don't hog cpu
+        vexSleep( 25 );
+        }
 
     return (msg_t)0;
 }
@@ -211,25 +191,19 @@ vexOperator( void *arg )
     //int feedSpoolCounter = 0;
 	while(!chThdShouldTerminate())
 	{
-        bool motorRunning = driveMotors();
-
+        driveMotors();
         if(vexControllerGet(J_FEED_FRONT_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
         } else if(vexControllerGet(J_FEED_FRONT_D)) {
             vexMotorSet(M_FEED_FRONT, -100);
-        }  else if(motorRunning) {
-			vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-		} else {
+        }  else {
             vexMotorSet(M_FEED_FRONT, 0);
         }
 
         if(vexControllerGet(J_FEED_SHOOT)) {
             vexMotorSet(M_FEED_SHOOT, 127);
             vexMotorSet(M_FEED_FRONT, 127);
-        } else if(motorRunning) {
-			vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED); 
-		} else {
+        } else {
             vexMotorSet(M_FEED_SHOOT, 0);
             if(!(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_FRONT_U))) {
                 vexMotorSet(M_FEED_FRONT, 0);
