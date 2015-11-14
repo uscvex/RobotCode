@@ -26,6 +26,12 @@
 #define P_ENC_FLY_BOT_B kVexDigital_2
 #define S_ENC_FLY_BOT   kVexSensorDigital_2
 
+#define S_ENC_FREE_LEFT   kVexSensorDigital_10
+#define S_ENC_FREE_RIGHT  kVexSensorDigital_12
+
+#define S_ENC_FLY_BOT   kVexSensorDigital_2
+#define S_ENC_FLY_BOT   kVexSensorDigital_2
+
 // Joystick settings
 #define J_SHOOT     Btn8R
 #define J_FEED_U    Btn6U
@@ -47,10 +53,10 @@ static  vexDigiCfg  dConfig[kVexDigital_Num] = {
         { kVexDigital_6,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
         { kVexDigital_7,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
         { kVexDigital_8,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_9,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_10,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_11,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
-        { kVexDigital_12,   kVexSensorDigitalInput,  kVexConfigInput,       0 }
+        { kVexDigital_9,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
+        { kVexDigital_10,   kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
+        { kVexDigital_11,   kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
+        { kVexDigital_12,   kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2},
 };
 
 static  vexMotorCfg mConfig[kVexMotorNum] = {
@@ -67,19 +73,16 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
 };
 
 // PID Controlers
-pidController *pidcFlyTop;
-pidController *pidcFlyBot;
+//pidController *pidcFlyTop;
+//pidController *pidcFlyBot;
+pidController *pidcFreeLeft;
 
-void doMotorDrive(void) {
-    int C1LX = VALLEY(vexControllerGet(J_XDRIVE_X), 45, 127);
-    int C1LY = VALLEY(vexControllerGet(J_XDRIVE_Y), 45, 127);
-    int C1RX = VALLEY(vexControllerGet(J_XDRIVE_R), 45, 127);
-
+void doMotorDrive(int16_t x, int16_t y, int16_t r) {
     // Y component, X component, Rotation
-    vexMotorSet(M_DRIVE_FRONT_LEFT,   VALLEY(-C1LY - C1LX + C1RX, 45, 127));
-    vexMotorSet(M_DRIVE_FRONT_RIGHT,  VALLEY(C1LY  - C1LX + C1RX, 45, 127));
-    vexMotorSet(M_DRIVE_BACK_RIGHT,   VALLEY(C1LY  - C1LX - C1RX, 45, 127));
-    vexMotorSet(M_DRIVE_BACK_LEFT,    VALLEY(-C1LY - C1LX - C1RX, 45, 127));
+    vexMotorSet(M_DRIVE_FRONT_LEFT,   VALLEY(-y - x + r, 45, 127));
+    vexMotorSet(M_DRIVE_FRONT_RIGHT,  VALLEY(y  - x + r, 45, 127));
+    vexMotorSet(M_DRIVE_BACK_RIGHT,   VALLEY(y  - x - r, 45, 127));
+    vexMotorSet(M_DRIVE_BACK_LEFT,    VALLEY(-y - x - r, 45, 127));
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -137,16 +140,14 @@ msg_t flyWheelTask(void *arg) {
     vexTaskRegister("flyWheelTask");
 
     PidControllerMakeLut();
+    //pidcFreeLeft = PidControllerInit(0.5, 0, 0.5, S_ENC_FREE_LEFT, true);
 
     // initialize PID COntroller
-    //pidcFlyTop = PidControllerInit(0.1, 0, 0, S_ENC_FLY_TOP, false);
-    //pidcFlyBot = PidControllerInit(0.1, 0, 0, S_ENC_FLY_BOT, true);
-
     float kPTop = 10;
     float kPBot = 50;
-    float topTargetVelocity = 8;
+    float topTargetVelocity = 7.5;
     int32_t topLastValue;
-    float botTargetVelocity = 7.5;
+    float botTargetVelocity = 7;
     int32_t botLastValue;
 
     int32_t lastTime;
@@ -162,6 +163,7 @@ msg_t flyWheelTask(void *arg) {
                 topLastValue = 0;
                 botLastValue = 0;
                 isRunning = true;
+                //pidcFreeLeft->target_value = vexSensorValueGet(S_ENC_FREE_LEFT);
             } else {
                 int32_t topCurrentValue = vexSensorValueGet(S_ENC_FLY_TOP);
                 float topVelocity = (topCurrentValue - topLastValue)/((float)(lastTime-currentTime));
@@ -169,38 +171,19 @@ msg_t flyWheelTask(void *arg) {
                 vexMotorSet(M_FLY_TOP, deltaV * kPTop);
                 topLastValue = topCurrentValue;
 
-
                 int32_t botCurrentValue = vexSensorValueGet(S_ENC_FLY_BOT);
                 float botVelocity = (botCurrentValue - botLastValue)/((float)(lastTime-currentTime));
                 deltaV = botTargetVelocity - botVelocity;
                 vexMotorSet(M_FLY_BOT, deltaV * kPBot);
                 botLastValue = botCurrentValue;
             }
-            //if(!pidcFlyTop->enabled) {
-            //    pidcFlyTop->enabled = true;
-            //    pidcFlyBot->enabled = true;
-            //    vexSensorValueSet(S_ENC_FLY_TOP, 0);
-            //    vexSensorValueSet(S_ENC_FLY_BOT, 0);
-            //    pidcFlyBot->target_value = 0;
-            //    pidcFlyTop->target_value = 0;
-            //    startTime = chTimeNow();
-            //} else {
-            //    pidcFlyBot->target_value = (chTimeNow()-startTime)*botSlope;
-            //    pidcFlyTop->target_value = (chTimeNow()-startTime)*topSlope;
-            //}
-
+            //PidControllerUpdate(pidcFreeLeft);
+            //doMotorDrive(0, 0, pidcFreeLeft->drive_raw);
         } else {
             vexMotorSet(M_FLY_TOP, 0);
             vexMotorSet(M_FLY_BOT, 0);
-            //vexMotorSet(M_FLY_BOT, 0);
             isRunning = false;
-            //pidcFlyTop->enabled = false;
-            //pidcFlyBot->enabled = false;
         }
-        //PidControllerUpdate(pidcFlyBot);
-        //PidControllerUpdate(pidcFlyTop);
-        //vexMotorSet(M_FLY_TOP, pidcFlyTop->drive_cmd);
-        //vexMotorSet(M_FLY_BOT, pidcFlyBot->drive_cmd);
         lastTime = currentTime;
         vexSleep(25);
     }
@@ -229,8 +212,11 @@ vexOperator( void *arg )
     int feedSpoolCounter = 0;
 	while(!chThdShouldTerminate())
 	{
-//        vex_printf("%d %d\n", vexSensorValueGet(S_ENC_FLY_BOT), vexSensorValueGet(S_ENC_FLY_TOP));
-        doMotorDrive();
+        //vex_printf("%d %d\n", vexSensorValueGet(S_ENC_FREE_RIGHT), vexSensorValueGet(S_ENC_FREE_LEFT));
+        int x = VALLEY(vexControllerGet(J_XDRIVE_X), 45, 127);
+        int y = VALLEY(vexControllerGet(J_XDRIVE_Y), 45, 127);
+        int r = VALLEY(vexControllerGet(J_XDRIVE_R), 45, 127);
+        doMotorDrive(x, y, r);
         if(vexControllerGet(J_FEED_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
         } else if(vexControllerGet(J_FEED_D)) {
