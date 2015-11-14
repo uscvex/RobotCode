@@ -10,11 +10,13 @@
 #define M_FEED_FRONT         kVexMotor_2
 #define M_DRIVE_FRONT_LEFT   kVexMotor_3
 #define M_DRIVE_BACK_LEFT    kVexMotor_4
+
 #define M_FLY_TOP            kVexMotor_5
 #define M_FLY_BOT            kVexMotor_6
+
 #define M_DRIVE_BACK_RIGHT   kVexMotor_7
-#define M_FEED_SHOOT         kVexMotor_8
 #define M_DRIVE_FRONT_RIGHT  kVexMotor_9
+#define M_FEED_SHOOT         kVexMotor_8
 
 // Sensor channels
 #define P_ENC_FLY_TOP_A kVexDigital_3
@@ -37,21 +39,31 @@
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
-        { P_ENC_FLY_BOT_A,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
-        { P_ENC_FLY_BOT_B,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
-        { P_ENC_FLY_TOP_A,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
-        { P_ENC_FLY_TOP_B,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2}
+        { kVexDigital_1,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
+        { kVexDigital_2,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
+        { kVexDigital_3,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
+        { kVexDigital_4,    kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2},
+        { kVexDigital_5,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_6,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_7,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_8,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_9,    kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_10,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_11,   kVexSensorDigitalInput,  kVexConfigInput,       0 },
+        { kVexDigital_12,   kVexSensorDigitalInput,  kVexConfigInput,       0 }
 };
 
 static  vexMotorCfg mConfig[kVexMotorNum] = {
-        { M_FEED_FRONT,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { M_DRIVE_FRONT_LEFT,  kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { M_DRIVE_BACK_LEFT,   kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { M_FLY_TOP,           kVexMotor393S,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
-        { M_FLY_BOT,           kVexMotor393S,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
-        { M_DRIVE_BACK_RIGHT,  kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
-        { M_FEED_SHOOT,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
-        { M_DRIVE_FRONT_RIGHT, kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
+        { kVexMotor_1,        kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_2,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_3,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_4,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_5,        kVexMotor393S,           kVexMotorNormal,       kVexSensorQuadEncoder, kVexQuadEncoder_2 },
+        { kVexMotor_6,        kVexMotor393S,           kVexMotorNormal,       kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+        { kVexMotor_7,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
+        { kVexMotor_8,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
+        { kVexMotor_9,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
+        { kVexMotor_10,       kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
 };
 
 // PID Controlers
@@ -127,8 +139,8 @@ msg_t flyWheelTask(void *arg) {
     PidControllerMakeLut();
 
     // initialize PID COntroller
-    pidcFlyTop = PidControllerInit(0.5, 0, 0, S_ENC_FLY_TOP, false);
-    pidcFlyBot = PidControllerInit(0.5, 0, 0, S_ENC_FLY_BOT, true);
+    pidcFlyTop = PidControllerInit(1, 0, 0, S_ENC_FLY_TOP, false);
+    pidcFlyBot = PidControllerInit(1, 0, 0, S_ENC_FLY_BOT, true);
 
     while(!chThdShouldTerminate()) {
         if(vexControllerGet(J_SHOOT)) {
@@ -140,14 +152,16 @@ msg_t flyWheelTask(void *arg) {
                 pidcFlyBot->target_value = 0;
                 pidcFlyTop->target_value = 0;
             } else {
-                pidcFlyBot->target_value += 600;
-                pidcFlyTop->target_value += 600;
+                pidcFlyBot->target_value += 400;
+                pidcFlyTop->target_value += 400;
             }
-        } else {
+
+          } else {
             pidcFlyTop->enabled = false;
             pidcFlyBot->enabled = false;
         }
         PidControllerUpdate(pidcFlyBot);
+        PidControllerUpdate(pidcFlyTop);
         vexMotorSet(M_FLY_TOP, pidcFlyTop->drive_cmd);
         vexMotorSet(M_FLY_BOT, pidcFlyBot->drive_cmd);
         vexSleep(25);
@@ -177,6 +191,7 @@ vexOperator( void *arg )
     int feedSpoolCounter = 0;
 	while(!chThdShouldTerminate())
 	{
+//        vex_printf("%d %d\n", vexSensorValueGet(S_ENC_FLY_BOT), vexSensorValueGet(S_ENC_FLY_TOP));
         doMotorDrive();
         if(vexControllerGet(J_FEED_U)) {
             vexMotorSet(M_FEED_FRONT, 100);

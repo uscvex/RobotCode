@@ -60,23 +60,24 @@ EasingConfig *easingDriveLeft2;
 EasingConfig *easingDriveRight1;
 EasingConfig *easingDriveRight2;
 
-void driveMotors(void) {
+bool driveMotors(void) {
     short ld, rd ;
     //Calculate Motor Power
     int forward = VALLEY(vexControllerGet(J_DRIVE), 45, 127);
     int turn    = VALLEY(vexControllerGet(J_TURN), 45, 127);
-    ld = forward + turn;
-    rd = forward - turn;
+    ld = VALLEY(forward + turn, 45, 127);
+    rd = VALLEY(forward - turn, 45, 127);
 
     //startEasing(easingDriveLeft1,  ld);
     //startEasing(easingDriveLeft2,  ld);
     //startEasing(easingDriveRight1, rd);
     //startEasing(easingDriveRight2, rd);
 
-    vexMotorSet(M_DRIVE_LEFT1,  VALLEY(ld, 45, 127));
-    vexMotorSet(M_DRIVE_LEFT2,  VALLEY(ld, 45, 127));
-    vexMotorSet(M_DRIVE_RIGHT1, VALLEY(rd, 45, 127));
-    vexMotorSet(M_DRIVE_RIGHT2, VALLEY(rd, 45, 127));
+    vexMotorSet(M_DRIVE_LEFT1,  ld);
+    vexMotorSet(M_DRIVE_LEFT2,  ld);
+    vexMotorSet(M_DRIVE_RIGHT1, rd);
+    vexMotorSet(M_DRIVE_RIGHT2, rd);
+    return (ld != 0 || rd != 0);
 }
 
 
@@ -87,7 +88,7 @@ msg_t flyWheelTask(void *arg) {
 
 
     // initialize PID COntroller
-    pidcFly = PidControllerInit(0.5, 0, 0, S_ENC_FLY, true);
+    pidcFly = PidControllerInit(1, 0, 0, S_ENC_FLY, true);
 
     while(!chThdShouldTerminate()) {
         if(vexControllerGet(J_SHOOT)) {
@@ -96,7 +97,7 @@ msg_t flyWheelTask(void *arg) {
                 vexSensorValueSet(S_ENC_FLY, 0);
                 pidcFly->target_value = 0;
             } else {
-                pidcFly->target_value += 700;
+                pidcFly->target_value += 1000;
             }
         } else {
             pidcFly->enabled = false;
@@ -190,8 +191,9 @@ vexOperator( void *arg )
     //int feedSpoolCounter = 0;
 	while(!chThdShouldTerminate())
 	{
-        driveMotors();
-        if(vexControllerGet(J_FEED_FRONT_U)) {
+        bool motorRunning = driveMotors();
+
+        if(motorRunning || vexControllerGet(J_FEED_FRONT_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
         } else if(vexControllerGet(J_FEED_FRONT_D)) {
             vexMotorSet(M_FEED_FRONT, -100);
@@ -199,7 +201,7 @@ vexOperator( void *arg )
             vexMotorSet(M_FEED_FRONT, 0);
         }
 
-        if(vexControllerGet(J_FEED_SHOOT)) {
+        if(motorRunning || vexControllerGet(J_FEED_SHOOT)) {
             vexMotorSet(M_FEED_SHOOT, 127);
             vexMotorSet(M_FEED_FRONT, 127);
         } else {
