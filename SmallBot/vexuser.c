@@ -172,10 +172,10 @@ vexAutonomous( void *arg )
 	easingDriveRight1 = configPidEasing(pidcRD, M_DRIVE_RIGHT1, kMinJerk, 100, false);
 	easingDriveRight2 = configPidEasing(pidcRD, M_DRIVE_RIGHT2, kMinJerk, 100, false);
 
-	startEasing(easingDriveLeft1, ld);
-	startEasing(easingDriveLeft2, ld);
-	startEasing(easingDriveRight1, rd);
-	startEasing(easingDriveRight2, rd);
+	startEasing(easingDriveLeft1, 10);
+	startEasing(easingDriveLeft2, 10);
+	startEasing(easingDriveRight1, 10);
+	startEasing(easingDriveRight2, 10);
 
     return (msg_t)0;
 }
@@ -224,11 +224,11 @@ vexOperator( void *arg )
         }
 
         if(vexControllerGet(J_FEED_SHOOT)) {
-            vexMotorSet(M_FEED_SHOOT, 127);
+            vexMotorSet(M_FEED_SHOOT, -127);
             vexMotorSet(M_FEED_FRONT, 127);
         } else if(motorRunning) {
-			vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED); 
+			//vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+            vexMotorSet(M_FEED_FRONT, -1*DEFAULT_FEED_SPEED); 
 		} else {
             vexMotorSet(M_FEED_SHOOT, 0);
             if(!(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_FRONT_U))) {
