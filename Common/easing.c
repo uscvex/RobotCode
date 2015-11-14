@@ -100,8 +100,8 @@ msg_t easingTask(void *arg) {
 	    			vexMotorSet(conf->motorIndex, value);
 	    		} else {
 	    			conf->pidc->target_value = value;
-					pidcUpdate(conf->pidc);
-					vexMotorSet(conf->motorIndex, conf->pidc->driveCmd);
+					PidControllerUpdate(conf->pidc);
+					vexMotorSet(conf->motorIndex, conf->pidc->drive_cmd);
 	    		}
 	    	}
 	    	//chMtxUnlock();
