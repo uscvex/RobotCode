@@ -33,7 +33,19 @@
 #define S_ENC_FLY_BOT   kVexSensorDigital_2
 
 // Joystick settings
-#define J_SHOOT     Btn8R
+#define J_SHOOT_MAX     Btn8R
+#define J_SHOOT_75      Btn8U
+#define J_SHOOT_25      Btn8D
+#define J_SHOOT_50      Btn8L
+
+#define J_SHOOT_OPEN_MAX    Btn7R
+#define J_SHOOT_OPEN_75     Btn7U
+#define J_SHOOT_OPEN_25     Btn7D
+#define J_SHOOT_OPEN_50     Btn7L
+
+#define J_SHOOT_FEED_U    Btn5U
+#define J_SHOOT_FEED_D    Btn5D
+
 #define J_FEED_U    Btn6U
 #define J_FEED_D    Btn6D
 #define J_XDRIVE_X  Ch4
@@ -41,7 +53,9 @@
 #define J_XDRIVE_R  Ch1
 
 // Constants
-#define FEED_SPOOL_TIME 100
+#define FEED_SPOOL_TIME 60
+
+static bool runFly = false;
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[kVexDigital_Num] = {
@@ -63,7 +77,7 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
         { kVexMotor_1,        kVexMotorUndefined,      kVexMotorNormal,       kVexSensorNone,        0 },
         { kVexMotor_2,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
         { kVexMotor_3,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
-        { kVexMotor_4,        kVexMotor393T,           kVexMotorNormal,       kVexSensorNone,        0 },
+        { kVexMotor_4,        kVexMotor393T,           kVexMotorReversed,       kVexSensorNone,        0 },
         { kVexMotor_5,        kVexMotor393S,           kVexMotorNormal,       kVexSensorQuadEncoder, kVexQuadEncoder_2 },
         { kVexMotor_6,        kVexMotor393S,           kVexMotorNormal,       kVexSensorQuadEncoder, kVexQuadEncoder_1 },
         { kVexMotor_7,        kVexMotor393T,           kVexMotorReversed,     kVexSensorNone,        0 },
@@ -77,62 +91,20 @@ static  vexMotorCfg mConfig[kVexMotorNum] = {
 //pidController *pidcFlyBot;
 pidController *pidcFreeLeft;
 
-void doMotorDrive(int16_t x, int16_t y, int16_t r) {
+bool doMotorDrive(int16_t x, int16_t y, int16_t r) {
     // Y component, X component, Rotation
-    vexMotorSet(M_DRIVE_FRONT_LEFT,   VALLEY(-y - x + r, 45, 127));
-    vexMotorSet(M_DRIVE_FRONT_RIGHT,  VALLEY(y  - x + r, 45, 127));
-    vexMotorSet(M_DRIVE_BACK_RIGHT,   VALLEY(y  - x - r, 45, 127));
-    vexMotorSet(M_DRIVE_BACK_LEFT,    VALLEY(-y - x - r, 45, 127));
+    int fl, fr, br, bl;
+    fl = VALLEY(-y - x + r, 45, 127);
+    fr = VALLEY(y  - x + r, 45, 127);
+    br = VALLEY(y  - x - r, 45, 127);
+    bl = VALLEY(-y - x - r, 45, 127);
+    vexMotorSet(M_DRIVE_FRONT_LEFT,   fl);
+    vexMotorSet(M_DRIVE_FRONT_RIGHT,  fr);
+    vexMotorSet(M_DRIVE_BACK_RIGHT,   br);
+    vexMotorSet(M_DRIVE_BACK_LEFT,    bl);
+    return (fr || fl || br || bl);
 }
 
-/*-----------------------------------------------------------------------------*/
-/** @brief      User setup                                                     */
-/*-----------------------------------------------------------------------------*/
-/** @details
- *  The digital and motor ports can (should) be configured here.
- */
-void
-vexUserSetup()
-{
-	vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
-	vexMotorConfigure( mConfig, MOT_CONFIG_SIZE( mConfig ) );
-}
-
-/*-----------------------------------------------------------------------------*/
-/** @brief      User initialize                                                */
-/*-----------------------------------------------------------------------------*/
-/** @details
- *  This function is called after all setup is complete and communication has
- *  been established with the master processor.
- *  Start other tasks and initialize user variables here
- */
-void
-vexUserInit()
-{
-}
-
-/*-----------------------------------------------------------------------------*/
-/** @brief      Autonomous                                                     */
-/*-----------------------------------------------------------------------------*/
-/** @details
- *  This thread is started when the autonomous period is started
- */
-msg_t
-vexAutonomous( void *arg )
-{
-    (void)arg;
-
-    // Must call this
-    vexTaskRegister("auton");
-
-    while(1)
-        {
-        // Don't hog cpu
-        vexSleep( 25 );
-        }
-
-    return (msg_t)0;
-}
 
 msg_t flyWheelTask(void *arg) {
     (void)arg;
@@ -143,11 +115,11 @@ msg_t flyWheelTask(void *arg) {
     //pidcFreeLeft = PidControllerInit(0.5, 0, 0.5, S_ENC_FREE_LEFT, true);
 
     // initialize PID COntroller
-    float kPTop = 10;
-    float kPBot = 50;
-    float topTargetVelocity = 6.5;
+    float kPTop = 20;
+    float kPBot = 30;
+    float topTargetVelocity = 1.4;
     int32_t topLastValue;
-    float botTargetVelocity = 6.5;
+    float botTargetVelocity = 1.4;
     int32_t botLastValue;
 
     int32_t lastTime;
@@ -155,8 +127,53 @@ msg_t flyWheelTask(void *arg) {
 
     bool isRunning = false;
     while(!chThdShouldTerminate()) {
+        if(vexControllerGet(J_SHOOT_OPEN_MAX)) {
+            vexMotorSet(M_FLY_TOP, 70);
+            vexMotorSet(M_FLY_BOT, 70);
+            vexSleep(50);
+            continue;
+        } 
+        else if(vexControllerGet(J_SHOOT_OPEN_75)) {
+            vexMotorSet(M_FLY_TOP, 65);
+            vexMotorSet(M_FLY_BOT, 65);
+            vexSleep(50);
+            continue;
+        }
+        else if(vexControllerGet(J_SHOOT_OPEN_50)) {
+            vexMotorSet(M_FLY_TOP, 50);
+            vexMotorSet(M_FLY_BOT, 50);
+            vexSleep(50);
+            continue;
+        }
+        else if(vexControllerGet(J_SHOOT_OPEN_25)) {
+            vexMotorSet(M_FLY_TOP, 40);
+            vexMotorSet(M_FLY_BOT, 40);
+            vexSleep(50);
+            continue;
+        }
+        else {
+            vexMotorSet(M_FLY_TOP, 0);
+            vexMotorSet(M_FLY_BOT, 0);
+        }
+
         currentTime = chTimeNow();
-        if(vexControllerGet(J_SHOOT)) {
+        if(runFly || vexControllerGet(J_SHOOT_MAX)) {
+            topTargetVelocity = 1.4;
+            botTargetVelocity = 1.4;
+        }
+        if(vexControllerGet(J_SHOOT_25)) {
+            topTargetVelocity = 1;//4;
+            botTargetVelocity = 1;//3.5;
+        }
+        if(vexControllerGet(J_SHOOT_50)) {
+            topTargetVelocity = 0.9;//3;
+            botTargetVelocity = 0.9;
+        }
+        if(vexControllerGet(J_SHOOT_75)) {
+            topTargetVelocity = 1.2;//3.25;
+            botTargetVelocity = 1.2;//1.25;
+        }
+        if(runFly || vexControllerGet(J_SHOOT_MAX) || vexControllerGet(J_SHOOT_75) || vexControllerGet(J_SHOOT_50) || vexControllerGet(J_SHOOT_25)) {
             if(!isRunning) {
                 vexSensorValueSet(S_ENC_FLY_BOT, 0);
                 vexSensorValueSet(S_ENC_FLY_TOP, 0);
@@ -185,10 +202,89 @@ msg_t flyWheelTask(void *arg) {
             isRunning = false;
         }
         lastTime = currentTime;
-        vexSleep(25);
+        vexSleep(50);
     }
 
     return (msg_t)0;
+}
+
+/*-----------------------------------------------------------------------------*/
+/** @brief      User setup                                                     */
+/*-----------------------------------------------------------------------------*/
+/** @details
+ *  The digital and motor ports can (should) be configured here.
+ */
+void
+vexUserSetup()
+{
+    vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
+    vexMotorConfigure( mConfig, MOT_CONFIG_SIZE( mConfig ) );
+    StartTask(flyWheelTask);
+}
+
+/*-----------------------------------------------------------------------------*/
+/** @brief      Autonomous                                                     */
+/*-----------------------------------------------------------------------------*/
+/** @details
+ *  This thread is started when the autonomous period is started
+ */
+msg_t
+vexAutonomous( void *arg )
+{
+    (void)arg;
+
+    // Must call this
+    vexTaskRegister("auton");
+    StartTask(flyWheelTask);
+
+    runFly = true;
+
+    //vexSleep( 2000 );
+    //vexMotorSet(M_FEED_SHOOT, 127);
+    //vexMotorSet(M_FEED_FRONT, 100);
+    //vexSleep(10000);
+    //runFly = false;
+    //vexMotorSet(M_FEED_SHOOT, 0);
+    //vexMotorSet(M_FEED_FRONT, 0);
+
+    int i;
+    for(i = 0;i < 6;i++) {
+        vexSleep(2500);
+        vexMotorSet(M_FEED_SHOOT, 127);
+        vexMotorSet(M_FEED_FRONT, 100);
+        vexSleep(2000);
+        vexMotorSet(M_FEED_SHOOT, -127);
+        vexMotorSet(M_FEED_FRONT, -100);
+        vexSleep(500);
+        vexMotorSet(M_FEED_SHOOT, 0);
+        vexMotorSet(M_FEED_FRONT, 0);
+    }
+    vexSleep(5000);
+    runFly = false;
+
+    while(1)
+    {
+        // Don't hog cpu
+        vexSleep( 25 );
+    }
+
+    return (msg_t)0;
+}
+
+
+
+/*-----------------------------------------------------------------------------*/
+/** @brief      User initialize                                                */
+/*-----------------------------------------------------------------------------*/
+/** @details
+ *  This function is called after all setup is complete and communication has
+ *  been established with the master processor.
+ *  Start other tasks and initialize user variables here
+ */
+void
+vexUserInit()
+{
+    //StartTask(flyWheelTask);
 }
 
 
@@ -206,25 +302,48 @@ vexOperator( void *arg )
 	// Must call this
 	vexTaskRegister("operator");
 
-    StartTask(flyWheelTask);
+    runFly = false;
 
 	// Run until asked to terminate
     int feedSpoolCounter = 0;
+    int  motorRunningTime = 0;
 	while(!chThdShouldTerminate())
 	{
         //vex_printf("%d %d\n", vexSensorValueGet(S_ENC_FREE_RIGHT), vexSensorValueGet(S_ENC_FREE_LEFT));
         int x = VALLEY(vexControllerGet(J_XDRIVE_X), 45, 127);
         int y = VALLEY(vexControllerGet(J_XDRIVE_Y), 45, 127);
         int r = VALLEY(vexControllerGet(J_XDRIVE_R), 45, 127);
-        doMotorDrive(x, y, r);
-        if(vexControllerGet(J_FEED_U)) {
+        bool motorRunning = doMotorDrive(x, y, r);
+        if(motorRunning) {
+            //vex_printf("running\n");
+            motorRunningTime = 25;
+        } else {
+            motorRunningTime = MAX(motorRunningTime-1, 0);
+        }
+        if(motorRunningTime > 0) {
+            motorRunning = true;
+        }
+
+        if(motorRunning || vexControllerGet(J_FEED_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
         } else if(vexControllerGet(J_FEED_D)) {
             vexMotorSet(M_FEED_FRONT, -100);
         } else {
             vexMotorSet(M_FEED_FRONT, 0);
         }
-        if(vexControllerGet(J_SHOOT)) {
+        if(vexControllerGet(J_SHOOT_FEED_U)) {
+            vexMotorSet(M_FEED_SHOOT, 127);
+            vexMotorSet(M_FEED_FRONT, 100);
+        } else if(vexControllerGet(J_SHOOT_FEED_D)) {
+            vexMotorSet(M_FEED_SHOOT, -127);
+            vexMotorSet(M_FEED_FRONT, -100);
+        } else {
+            vexMotorSet(M_FEED_SHOOT, 0);
+            if(!motorRunning && !vexControllerGet(J_FEED_D) && !vexControllerGet(J_FEED_U)) {
+                vexMotorSet(M_FEED_FRONT, 0);
+            }
+        }
+/*        if(vexControllerGet(J_SHOOT_MAX) || vexControllerGet(J_SHOOT_75) || vexControllerGet(J_SHOOT_50) || vexControllerGet(J_SHOOT_25)) {
             if(feedSpoolCounter > FEED_SPOOL_TIME) {
                 vexMotorSet(M_FEED_SHOOT, 127);
                 vexMotorSet(M_FEED_FRONT, 100);
@@ -235,7 +354,7 @@ vexOperator( void *arg )
             feedSpoolCounter = 0;
             vexMotorSet(M_FEED_SHOOT, 0);
         }
-        vexSleep( 25 );
+*/        vexSleep( 25 );
 	}
 
 	return (msg_t)0;

@@ -26,11 +26,17 @@
 // Joystick settings
 #define J_DRIVE      Ch3
 #define J_TURN       Ch1
-#define J_SHOOT      Btn6U
-#define J_FEED_SHOOT Btn8D
-#define J_FEED_REV Btn6D
-#define J_FEED_FRONT_U Btn5U
-#define J_FEED_FRONT_D Btn5D
+//#define J_SHOOT      Btn6U
+
+#define J_SHOOT_MAX     Btn7R
+#define J_SHOOT_75      Btn7U
+#define J_SHOOT_25      Btn7D
+#define J_SHOOT_50      Btn7L
+
+#define J_FEED_SHOOT Btn6D
+#define J_FEED_REV   Btn8D
+#define J_FEED_FRONT_U Btn5D
+#define J_FEED_FRONT_D Btn5U
 
 // Constants
 #define FEED_SPOOL_TIME 100
@@ -93,29 +99,53 @@ bool driveMotors(void) {
 }
 
 
+bool runFly = false;
+
 msg_t flyWheelTask(void *arg) {
     (void)arg;
 
     vexTaskRegister("flyWheelTask");
 
+    float kP = 10;
+    float targetVelocity = 30;
+    int32_t lastValue;
+
+    int32_t lastTime;
+    int32_t currentTime;
 
     // initialize PID COntroller
-    pidcFly = PidControllerInit(1, 0, 0, S_ENC_FLY, true);
-
+    bool isRunning = false;
     while(!chThdShouldTerminate()) {
-        if(vexControllerGet(J_SHOOT)) {
-            if(!pidcFly->enabled) {
-                pidcFly->enabled = true;
+        currentTime = chTimeNow();
+        if(runFly || vexControllerGet(J_SHOOT_MAX)) {
+            targetVelocity = 30;
+        }
+        if(vexControllerGet(J_SHOOT_25)) {
+            targetVelocity = 12;
+        }
+        if(vexControllerGet(J_SHOOT_50)) {
+            targetVelocity = 14;//3;
+        }
+        if(vexControllerGet(J_SHOOT_75)) {
+            targetVelocity = 17;//3.25;
+        }
+        if(runFly || vexControllerGet(J_SHOOT_MAX) || vexControllerGet(J_SHOOT_75) || vexControllerGet(J_SHOOT_50) || vexControllerGet(J_SHOOT_25)) {
+            if(!isRunning) {
                 vexSensorValueSet(S_ENC_FLY, 0);
-                pidcFly->target_value = 0;
+                lastValue = 0;
+                isRunning = true;
             } else {
-                pidcFly->target_value += 1000;
+                int32_t currentValue = vexSensorValueGet(S_ENC_FLY);
+                float velocity = (currentValue - lastValue)/((float)(lastTime-currentTime));
+                float deltaV = targetVelocity - velocity;
+                vexMotorSet(M_FLY_WHEEL, deltaV * kP);
+                lastValue = currentValue;
             }
         } else {
-            pidcFly->enabled = false;
+            vexMotorSet(M_FLY_WHEEL, 0);
+            isRunning = false;
         }
-        PidControllerUpdate(pidcFly);
-        vexMotorSet(M_FLY_WHEEL, pidcFly->drive_cmd);
+        lastTime = currentTime;
         vexSleep(25);
     }
 
@@ -133,6 +163,7 @@ vexUserSetup()
 {
 	vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
 	vexMotorConfigure( mConfig, MOT_CONFIG_SIZE( mConfig ) );
+    StartTask(flyWheelTask);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -162,8 +193,23 @@ vexAutonomous( void *arg )
 
     // Must call this
     vexTaskRegister("auton");
+    StartTask(flyWheelTask);
+    runFly = true;
+    vexSleep( 2000 );
+    vexMotorSet(M_FEED_SHOOT, -127);
+    vexMotorSet(M_FEED_FRONT, -100);
+    vexSleep( 10000 );
+    runFly = false;
+    vexMotorSet(M_FEED_SHOOT, 0);
+    vexMotorSet(M_FEED_FRONT, 0);
+    while(1)
+    {
+        // Don't hog cpu
+        vexSleep( 25 );
+    }
+
 	
-	StartTask(easingTask);
+/*	StartTask(easingTask);
 	
 	pidcLD = PidControllerInit(1, 0, 0.5, S_IME_DRIVE_LEFT, false);
 	pidcRD = PidControllerInit(1, 0, 0.5, S_IME_DRIVE_RIGHT, false);
@@ -177,7 +223,15 @@ vexAutonomous( void *arg )
 	startEasing(easingDriveLeft2, 10);
 	startEasing(easingDriveRight1, 10);
 	startEasing(easingDriveRight2, 10);
-
+*/
+    while(1)
+    {
+        // Don't hog cpu
+        vexSleep( 25 );
+        runFly = true;
+        vexMotorSet(M_FEED_SHOOT, -100);
+        vexMotorSet(M_FEED_FRONT, -100);
+    }
     return (msg_t)0;
 }
 
@@ -205,31 +259,41 @@ vexOperator( void *arg )
 	// Must call this
 	vexTaskRegister("operator");
 
-    StartTask(flyWheelTask);
     //StartTask(easingTask);
 
+    runFly = false;
 	// Run until asked to terminate
     //int feedSpoolCounter = 0;
+    int  motorRunningTime = 0;
 	while(!chThdShouldTerminate())
 	{
         bool motorRunning = driveMotors();
+        if(motorRunning) {
+            motorRunningTime = 25;
+        } else {
+            motorRunningTime = MAX(motorRunningTime-1, 0);
+        }
+        if(motorRunningTime > 0) {
+            motorRunning = true;
+        }
+
 
         if(vexControllerGet(J_FEED_FRONT_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
         } else if(vexControllerGet(J_FEED_FRONT_D)) {
             vexMotorSet(M_FEED_FRONT, -100);
         }  else if(motorRunning) {
-			vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+			vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
 		} else {
             vexMotorSet(M_FEED_FRONT, 0);
         }
 
         if(vexControllerGet(J_FEED_SHOOT)) { //8D
-            vexMotorSet(M_FEED_SHOOT, 127);
-            vexMotorSet(M_FEED_FRONT, 127);
+            vexMotorSet(M_FEED_SHOOT, -127);
+            vexMotorSet(M_FEED_FRONT, -127);
         } else if(motorRunning) {
 			//vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED); 
+            vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED); 
 		} else {
             vexMotorSet(M_FEED_SHOOT, 0);
             if(!(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_FRONT_U))) {
@@ -238,14 +302,15 @@ vexOperator( void *arg )
         }
 		
 		if(vexControllerGet(J_FEED_REV)) {
-            vexMotorSet(M_FEED_SHOOT, -127);
-            vexMotorSet(M_FEED_FRONT, -127);
-        } else if(motorRunning) {
-            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED); 
-		} else {
-			vexMotorSet(M_FEED_SHOOT, 0);
-			vexMotorSet(M_FEED_FRONT, 0);
-		}
+            vexMotorSet(M_FEED_SHOOT, 127);
+            vexMotorSet(M_FEED_FRONT, 127);
+        }
+        // else if(motorRunning) {
+          //  vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED); 
+		//} else {
+			//vexMotorSet(M_FEED_SHOOT, 0);
+			//vexMotorSet(M_FEED_FRONT, 0);
+		//}
 		
         vexSleep( 25 );
 	}
