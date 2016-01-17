@@ -1,0 +1,1 @@
+%1\usr\bin\bash --login -c "cd \"%2\" && PATH=$PATH:$(cygpath -u \"%3\\bin\") && export CHIBIOS=$(cygpath -u \"%4\") && export CONVEX=$(cygpath -u \"%5\") && make %6"

@@ -3,6 +3,7 @@
 	<name>TestProject-Default</name>
 	<comment></comment>
 	<projects>
+		<project>Common</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
