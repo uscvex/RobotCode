@@ -8,16 +8,16 @@
 #include "../Common/takebackhalf.h"
 
 // Motor configs
-#define M_DRIVE_RIGHT1    kVexMotor_2
+#define M_DRIVE_RIGHT1    kVexMotor_3
 
-#define M_FLY_LEFT_WHEEL       kVexMotor_9
-#define M_FLY_RIGHT_WHEEL      kVexMotor_3
+#define M_FLY_LEFT_WHEEL       kVexMotor_6
+#define M_FLY_RIGHT_WHEEL      kVexMotor_5
 
-#define M_FEED_FRONT      kVexMotor_4
-#define M_DRIVE_RIGHT2    kVexMotor_5
-#define M_DRIVE_LEFT1     kVexMotor_6
-#define M_DRIVE_LEFT2     kVexMotor_7
-#define M_FEED_SHOOT      kVexMotor_8
+#define M_FEED_FRONT      kVexMotor_2
+#define M_DRIVE_RIGHT2    kVexMotor_7
+#define M_DRIVE_LEFT1     kVexMotor_4
+#define M_DRIVE_LEFT2     kVexMotor_8
+#define M_FEED_SHOOT      kVexMotor_9
 
 // Sensor channels
 #define P_ENC_LEFT_FLY_A       kVexDigital_1
@@ -26,11 +26,15 @@
 #define P_ENC_RIGHT_FLY_A       kVexDigital_3
 #define P_ENC_RIGHT_FLY_B       kVexDigital_4
 
+#define S_BALL_IN              1
+#define S_BALL_OUT             2
+
 #define S_ENC_LEFT_FLY         kVexSensorDigital_2
 #define S_ENC_RIGHT_FLY        kVexSensorDigital_4
 
-#define S_IME_DRIVE_RIGHT kVexSensorIme_1
+#define S_IME_DRIVE_RIGHT kVexSensorIme_3
 #define S_IME_DRIVE_LEFT  kVexSensorIme_2
+#define S_IME_FEED_SHOOT  kVexSensorIme_1
 
 // Joystick settings
 #define J_DRIVE      Ch3
@@ -66,10 +70,10 @@ static  vexMotorCfg mConfig[] = {
     { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_1 },
     { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
 
-    { M_FLY_LEFT_WHEEL,      kVexMotor393T,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
-    { M_FLY_RIGHT_WHEEL,     kVexMotor393T,           kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
+    { M_FLY_LEFT_WHEEL,      kVexMotor393T,      kVexMotorReversed,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+    { M_FLY_RIGHT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
-    { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
+    { M_FEED_FRONT,     kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
     { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
     { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 }
 };
@@ -106,10 +110,12 @@ vexUserSetup()
 void
 vexUserInit()
 {
-    rightWheelCtrl = TBHControllerInit(S_ENC_RIGHT_FLY, 0.05, 10080, true);
-    //rightWheelCtrl->log = true;
-    leftWheelCtrl = TBHControllerInit(S_ENC_LEFT_FLY, 0.05, 10080, true);
-    //leftWheelCtrl->log = true;
+    rightWheelCtrl = TBHControllerInit(S_ENC_RIGHT_FLY, 0.05, 10080, false);
+    rightWheelCtrl->powerZeroClamp = true;
+    rightWheelCtrl->log = true;
+    leftWheelCtrl = TBHControllerInit(S_ENC_LEFT_FLY, 0.05, 10080, false);
+    leftWheelCtrl->log = true;
+    leftWheelCtrl->powerZeroClamp = true;
 }
 
 msg_t
@@ -117,20 +123,6 @@ vexAutonomous( void *arg )
 {
     (void)arg;
 
-    // Must call this
-//    vexTaskRegister("auton");
-//    vexSleep( 2000 );
-//    vexMotorSet(M_FEED_SHOOT, -127);
-//    vexMotorSet(M_FEED_FRONT, -100);
-//    vexSleep( 10000 );
-//    runFly = false;
-//    vexMotorSet(M_FEED_SHOOT, 0);
-//    vexMotorSet(M_FEED_FRONT, 0);
-
-//    EasingConfig *easing = easingInit(kLinear, 1000);
-//
-//    pidController *leftDrivePidc = PidControllerInit(0.5, 0, 0, S_IME_DRIVE_LEFT, false);
-//    pidController *rightDrivePidc = PidControllerInit(0.5, 0, 0, S_IME_DRIVE_RIGHT, false);
 	tbhEnable(leftWheelCtrl, 7250);
 	tbhEnable(rightWheelCtrl, 7250);
 
@@ -197,15 +189,6 @@ vexAutonomous( void *arg )
         vexSleep( 10 );
     }
 	vex_printf("End\n");
-//
-//    while(1)
-//    {
-//        // Don't hog cpu
-//        vexSleep( 25 );
-//        runFly = true;
-//        vexMotorSet(M_FEED_SHOOT, -100);
-//        vexMotorSet(M_FEED_FRONT, -100);
-//    }
     return (msg_t)0;
 }
 
@@ -224,6 +207,11 @@ vexOperator( void *arg )
 	// Must call this
 	vexTaskRegister("operator");
 
+//	while(!chThdShouldTerminate()) {
+//		vex_printf("encoder left = %d ", vexSensorValueGet(S_ENC_LEFT_FLY));
+//		vex_printf("encoder right = %d\n", vexSensorValueGet(S_ENC_RIGHT_FLY));
+//	}
+
 	// Run until asked to terminate
     int  motorRunningTime = 0;
 	while(!chThdShouldTerminate())
@@ -237,17 +225,6 @@ vexOperator( void *arg )
         if(motorRunningTime > 0) {
             motorRunning = true;
         }
-
-//		if(vexControllerGet(Btn5U)) {
-//			vexControllerReleaseWait(Btn5U);
-//			leftWheelCtrl->gain += 0.01;
-//			vex_printf("Gain = %f\n", leftWheelCtrl->gain);
-//		}
-//		if(vexControllerGet(Btn5D)) {
-//			vexControllerReleaseWait(Btn5D);
-//			leftWheelCtrl->gain -= 0.01;
-//			vex_printf("Gain = %f\n", leftWheelCtrl->gain);
-//		}
 
         if(vexControllerGet(J_SHOOT_50)) {
         	tbhEnable(rightWheelCtrl, 6000);

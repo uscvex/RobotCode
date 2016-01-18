@@ -21,6 +21,7 @@ typedef struct _TBHController {
 	int32_t lastValue;
 	double lastError;
 	systime_t lastTime;
+	bool powerZeroClamp;
 	bool sensorReverse;
 	bool log;
 } TBHController;

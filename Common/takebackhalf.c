@@ -26,6 +26,7 @@ TBHController *TBHControllerInit(tVexSensors sensor,
 	ctrl->lastValue = 0;
 	ctrl->lastError = 0;
 	ctrl->lastTime = 0;
+	ctrl->powerZeroClamp = false;
 	ctrl->sensorReverse = sensorReverse;
 	ctrl->log = false;
 
@@ -69,17 +70,25 @@ int16_t tbhUpdate(TBHController *ctrl) {
 		}
 		speed = (value - ctrl->lastValue)/((double)(currTime - ctrl->lastTime));
 		error = (ctrl->targetSpeed/1000.0) - speed;
-		ctrl->power = CLAMP(ctrl->power + ctrl->gain*error, -1, 1);
 		if(SIGN(error) != SIGN(ctrl->lastError)) {
 			ctrl->power = 0.5 * (ctrl->power + ctrl->tbh);
 			ctrl->tbh = ctrl->power;
+		} else {
+			if(ctrl->powerZeroClamp) {
+				ctrl->power = CLAMP(ctrl->power + ctrl->gain*error, 0, 1);
+			} else {
+				ctrl->power = CLAMP(ctrl->power + ctrl->gain*error, -1, 1);
+			}
 		}
 
 		ctrl->lastError = error;
 		ctrl->lastTime = currTime;
 		ctrl->lastValue = value;
 		ctrl->motorPower = ctrl->power * 127;
-		//vex_printf("speed=%f motor_power = %d\n", speed, ctrl->motorPower);
+		if(ctrl->log) {
+			//vex_printf("speed=%f error=%f motor_power = %d\n", speed, error, ctrl->motorPower);
+			vex_printf("%f,%f,%f,%f\n", speed, error, ctrl->tbh, ctrl->power);
+		}
 	}
 	return ctrl->motorPower;
 }
