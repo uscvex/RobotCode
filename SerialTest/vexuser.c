@@ -62,22 +62,32 @@ vexOperator( void *arg )
 {
 	(void)arg;
 
+	#define S_RASPI &SD3
 	// Must call this
 	vexTaskRegister("operator");
 //	StartTask(serialComm);
-//	static char testString[] = "HELLO\n";
-//	SerialConfig serialConf = {
-//		115200,
-//		0,
-//		0,
-//		0
-//	};
-//	sdStart(&SD1, &serialConf);
+	static char testString[] = "HELLO\n";
+	SerialConfig serialConf = {
+		115200,
+		0,
+		0,
+		0
+	};
+	sdStart(S_RASPI, &serialConf);
 
+	int counter = 0;
 	while(!chThdShouldTerminate())
 	{
-		vex_printf("okay\n");
-//		sdWrite(&SD1, (unsigned char *)testString, 6);
+		// Write Demo
+		//sdWrite(S_RASPI, (unsigned char *)testString, 6);
+
+		// Read Demo
+		if(!sdGetWouldBlock(S_RASPI)) {
+			int c = sdGetTimeout(S_RASPI, TIME_IMMEDIATE);
+			if(c != Q_TIMEOUT && c != Q_RESET) {
+				vex_printf("%c", (char)c);
+			}
+		}
         vexSleep( 10 );
 	}
 

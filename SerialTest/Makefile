@@ -210,8 +210,7 @@ DLIBS =
 #
 
 # List all user C define here, like -D_DEBUG=1
-#UDEFS = -D USER_UART1_ENABLE
-UDEFS=
+UDEFS = -D USER_UART2_ENABLE
 
 # Define ASM defines here
 UADEFS =
