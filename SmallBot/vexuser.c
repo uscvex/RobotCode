@@ -129,6 +129,13 @@ msg_t
 vexAutonomous( void *arg )
 {
     (void)arg;
+    return (msg_t)0;
+}
+
+msg_t
+doVexAutonomous( void *arg )
+{
+    (void)arg;
 
 	tbhEnable(leftWheelCtrl, 7250);
 	tbhEnable(rightWheelCtrl, 7250);
@@ -210,6 +217,12 @@ msg_t
 vexOperator( void *arg )
 {
 	(void)arg;
+	while(!chThdShouldTerminate()) {
+		if(vexControllerGet(Btn7D)) {
+			doVexAutonomous(NULL);
+		}
+	}
+	return (msg_t)0;
 
 	// Must call this
 	vexTaskRegister("operator");
