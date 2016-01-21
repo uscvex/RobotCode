@@ -1,0 +1,1 @@
+cortexflash.exe -G -w bin/output.hex COM1

@@ -26,8 +26,8 @@
 #define P_ENC_RIGHT_FLY_A       kVexDigital_3
 #define P_ENC_RIGHT_FLY_B       kVexDigital_4
 
-#define S_BALL_IN              1
-#define S_BALL_OUT             2
+#define S_BALL_IN              0
+#define S_BALL_OUT             1
 
 #define S_ENC_LEFT_FLY         kVexSensorDigital_2
 #define S_ENC_RIGHT_FLY        kVexSensorDigital_4
@@ -99,6 +99,13 @@ bool driveMotors(void) {
     return (ld != 0 || rd != 0);
 }
 
+bool isBallOuter(void) {
+	return (vexAdcGet(S_BALL_OUT) < 200);
+}
+
+bool isBallInner(void) {
+	return (vexAdcGet(S_BALL_IN) < 200);
+}
 
 void
 vexUserSetup()
@@ -112,9 +119,9 @@ vexUserInit()
 {
     rightWheelCtrl = TBHControllerInit(S_ENC_RIGHT_FLY, 0.05, 10080, false);
     rightWheelCtrl->powerZeroClamp = true;
-    rightWheelCtrl->log = true;
+    rightWheelCtrl->log = false;
     leftWheelCtrl = TBHControllerInit(S_ENC_LEFT_FLY, 0.05, 10080, false);
-    leftWheelCtrl->log = true;
+    leftWheelCtrl->log = false;
     leftWheelCtrl->powerZeroClamp = true;
 }
 
@@ -207,15 +214,20 @@ vexOperator( void *arg )
 	// Must call this
 	vexTaskRegister("operator");
 
-//	while(!chThdShouldTerminate()) {
-//		vex_printf("encoder left = %d ", vexSensorValueGet(S_ENC_LEFT_FLY));
-//		vex_printf("encoder right = %d\n", vexSensorValueGet(S_ENC_RIGHT_FLY));
-//	}
 
 	// Run until asked to terminate
     int  motorRunningTime = 0;
+    bool ballFeed = false;
 	while(!chThdShouldTerminate())
 	{
+		if(isBallInner()) {
+			ballFeed = true;
+		}
+		if(isBallOuter()) {
+			ballFeed = false;
+		}
+		//vex_printf("bi=%d lbi=%d bo=%d lbo=%d bc=%d\n", ballInner, lastBallInner, ballOuter, lastBallOuter, ballCount);
+
         bool motorRunning = driveMotors();
         if(motorRunning) {
             motorRunningTime = 25;
@@ -255,7 +267,7 @@ vexOperator( void *arg )
             vexMotorSet(M_FEED_FRONT, 0);
         }
 
-        if(vexControllerGet(J_FEED_SHOOT)) { //8D
+        if(vexControllerGet(J_FEED_SHOOT) || ballFeed) { //8D
             vexMotorSet(M_FEED_SHOOT, -127);
             vexMotorSet(M_FEED_FRONT, -127);
         } else if(motorRunning) {
@@ -271,7 +283,6 @@ vexOperator( void *arg )
             vexMotorSet(M_FEED_SHOOT, 127);
             vexMotorSet(M_FEED_FRONT, 127);
         }
-		
         vexSleep( 10 );
 	}
 
