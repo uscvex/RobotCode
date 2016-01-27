@@ -25,8 +25,8 @@ typedef struct _EasingConfig {
 
 #define MAX_EASING_CONFIGS 10
 
-EasingConfig *easingInit(tEasingFunc func, int32_t duration);
-void enableEasing(EasingConfig *conf, int32_t start, int32_t target);
+EasingConfig *easingInit(tEasingFunc func);
+void enableEasing(EasingConfig *conf, int32_t duration, int32_t start, int32_t target);
 void disableEasing(EasingConfig *conf);
 int32_t updateEasing(EasingConfig *conf);
 

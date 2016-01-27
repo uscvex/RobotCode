@@ -8,10 +8,10 @@
 static EasingConfig configs[MAX_EASING_CONFIGS];
 static int16_t nextEasingConfigPtr = 0;
 
-EasingConfig *easingInit(tEasingFunc func, int32_t duration) {
+EasingConfig *easingInit(tEasingFunc func) {
 	EasingConfig *conf = &configs[nextEasingConfigPtr++];
 	conf->func = func;
-	conf->duration = duration;
+	conf->duration = 0;
 	conf->value = 0;
 	conf->start_time = 0;
 	conf->start = 0;
@@ -20,7 +20,8 @@ EasingConfig *easingInit(tEasingFunc func, int32_t duration) {
 	return conf;
 }
 
-void enableEasing(EasingConfig *conf, int32_t start, int32_t target) {
+void enableEasing(EasingConfig *conf, int32_t duration, int32_t start, int32_t target) {
+	conf->duration = duration;
 	conf->start = start;
 	conf->target = target;
 	conf->start_time = chTimeNow();

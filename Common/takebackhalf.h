@@ -16,6 +16,9 @@ typedef struct _TBHController {
 	int32_t targetSpeed; // target speed in ticks per second
 	int32_t maxSpeed;
 
+	double lastSpeed;
+	double acceleration;
+
 	double gain;
 	bool enabled;
 	int32_t lastValue;

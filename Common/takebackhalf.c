@@ -26,6 +26,7 @@ TBHController *TBHControllerInit(tVexSensors sensor,
 	ctrl->lastValue = 0;
 	ctrl->lastError = 0;
 	ctrl->lastTime = 0;
+	ctrl->lastSpeed = 0;
 	ctrl->powerZeroClamp = false;
 	ctrl->sensorReverse = sensorReverse;
 	ctrl->log = false;
@@ -45,6 +46,8 @@ void tbhEnable(TBHController *ctrl, int32_t targetSpeed) {
 	}
 	ctrl->lastTime = chTimeNow();
 	ctrl->lastError = 0;
+	ctrl->lastSpeed = 0;
+	ctrl->acceleration = 0;
 	ctrl->tbh = (ctrl->targetSpeed/((double)ctrl->maxSpeed));
 	ctrl->power = ctrl->tbh;
 	//vex_printf("tbh = %f\n", ctrl->tbh);
@@ -69,6 +72,8 @@ int16_t tbhUpdate(TBHController *ctrl) {
 			value = -value;
 		}
 		speed = (value - ctrl->lastValue)/((double)(currTime - ctrl->lastTime));
+		ctrl->acceleration = (speed-ctrl->lastSpeed)/((double)(currTime - ctrl->lastTime));
+		ctrl->lastSpeed = speed;
 		error = (ctrl->targetSpeed/1000.0) - speed;
 		if(SIGN(error) != SIGN(ctrl->lastError)) {
 			ctrl->power = 0.5 * (ctrl->power + ctrl->tbh);
