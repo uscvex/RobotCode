@@ -9,15 +9,18 @@
 #include "../Common/easing.h"
 
 // Motor configs
-#define M_DRIVE_RIGHT1    kVexMotor_3
 
-#define M_FLY_BOT_WHEEL       kVexMotor_6
-#define M_FLY_TOP_WHEEL      kVexMotor_5
+#define M_FLY_BOT_WHEEL      kVexMotor_5
+#define M_FLY_TOP_WHEEL      kVexMotor_6
 
 #define M_FEED_FRONT      kVexMotor_2
-#define M_DRIVE_RIGHT2    kVexMotor_7
-#define M_DRIVE_LEFT1     kVexMotor_4
-#define M_DRIVE_LEFT2     kVexMotor_8
+
+#define M_DRIVE_RIGHT1    kVexMotor_4
+#define M_DRIVE_RIGHT2    kVexMotor_8
+
+#define M_DRIVE_LEFT1     kVexMotor_3
+#define M_DRIVE_LEFT2     kVexMotor_7
+
 #define M_FEED_SHOOT      kVexMotor_9
 
 // Sensor channels
@@ -30,7 +33,7 @@
 #define S_BALL_IN              0
 #define S_BALL_OUT             1
 
-#define S_ENC_BOT_FLY         kVexSensorDigital_2
+#define S_ENC_BOT_FLY        kVexSensorDigital_2
 #define S_ENC_TOP_FLY        kVexSensorDigital_4
 
 #define S_IME_DRIVE_RIGHT kVexSensorIme_3
@@ -73,27 +76,27 @@ static  vexDigiCfg  dConfig[] = {
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-    { M_DRIVE_LEFT1,    kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_2 },
-    { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_1 },
+    { M_DRIVE_LEFT1,    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_2 },
+    { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         kImeChannel_1 },
     { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
 
-    { M_FLY_TOP_WHEEL,      kVexMotor393T,      kVexMotorReversed,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+    { M_FLY_TOP_WHEEL,      kVexMotor393T,      kVexMotorNormal,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
     { M_FLY_BOT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
     { M_FEED_FRONT,     kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
     { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
-    { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 }
+    { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 }
 };
 
 
 // TBH Controllers
-TBHController *leftWheelCtrl;
-TBHController *rightWheelCtrl;
+TBHController *topWheelCtrl;
+TBHController *botWheelCtrl;
 
-EasingConfig *leftDriveEasing;
-EasingConfig *rightDriveEasing;
-pidController *leftDriveCtrl;
-pidController *rightDriveCtrl;
+//EasingConfig *leftDriveEasing;
+//EasingConfig *rightDriveEasing;
+//pidController *leftDriveCtrl;
+//pidController *rightDriveCtrl;
 
 bool driveMotors(void) {
     short ld, rd ;
@@ -103,7 +106,6 @@ bool driveMotors(void) {
     ld = VALLEY(forward + turn, 45, 127);
     rd = VALLEY(forward - turn, 45, 127);
 
-    rd = rd * 1.9;
     vexMotorSet(M_DRIVE_LEFT1,  ld);
     vexMotorSet(M_DRIVE_LEFT2,  ld);
     vexMotorSet(M_DRIVE_RIGHT1, rd);
@@ -135,20 +137,13 @@ vexUserInit()
 //	leftDriveEasing = easingInit(kMinJerk);
 //	rightDriveEasing = easingInit(kMinJerk);
 
-    rightWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
-    rightWheelCtrl->powerZeroClamp = true;
-    rightWheelCtrl->log = false;
-    leftWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10500, false);
-    leftWheelCtrl->log = false;
-    leftWheelCtrl->powerZeroClamp = true;
-}
+    topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
+    topWheelCtrl->powerZeroClamp = true;
+    topWheelCtrl->log = false;
 
-bool isLeftFlyWheelStable(void) {
-	return (leftWheelCtrl->acceleration < 0.01);
-}
-
-bool isRightFlyWheelStable(void) {
-	return (rightWheelCtrl->acceleration < 0.01);
+    botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10500, false);
+    botWheelCtrl->log = true;
+    botWheelCtrl->powerZeroClamp = true;
 }
 
 msg_t
@@ -279,6 +274,7 @@ vexOperator( void *arg )
 //			ballFeed = false;
 //		}
 		//vex_printf("bi=%d lbi=%d bo=%d lbo=%d bc=%d\n", ballInner, lastBallInner, ballOuter, lastBallOuter, ballCount);
+		//vex_printf("top=%d bot=%d\n", vexSensorValueGet(S_ENC_TOP_FLY), vexSensorValueGet(S_ENC_BOT_FLY));
 
         bool motorRunning = driveMotors();
         if(motorRunning) {
@@ -291,28 +287,27 @@ vexOperator( void *arg )
         }
 
         if(vexControllerGet(J_SHOOT_PB)) {
-        	tbhEnable(rightWheelCtrl, FLY_PB_SPEED);
-        	tbhEnable(leftWheelCtrl, FLY_PB_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_PB_SPEED);
+        	tbhEnable(botWheelCtrl, FLY_PB_SPEED);
         }
         if(vexControllerGet(J_SHOOT_MAX)) {
-        	tbhEnable(rightWheelCtrl, FLY_MAX_SPEED);
-        	tbhEnable(leftWheelCtrl, FLY_MAX_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
+        	tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
         }
         if(vexControllerGet(J_SHOOT_75)) {
-        	tbhEnable(rightWheelCtrl, FLY_75_SPEED);
-        	tbhEnable(leftWheelCtrl, FLY_75_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_75_SPEED);
+        	tbhEnable(botWheelCtrl, FLY_75_SPEED);
         }
         if(vexControllerGet(J_SHOOT_SIDE)) {
-        	tbhEnable(rightWheelCtrl, FLY_SIDE_SPEED);
-        	tbhEnable(leftWheelCtrl, FLY_SIDE_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_SIDE_SPEED);
+        	tbhEnable(botWheelCtrl, FLY_SIDE_SPEED);
         }
         if(vexControllerGet(J_SHOOT_STOP)) {
-        	tbhDisable(rightWheelCtrl);
-        	tbhDisable(leftWheelCtrl);
+        	tbhDisable(topWheelCtrl);
+        	tbhDisable(botWheelCtrl);
         }
-        vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(rightWheelCtrl));
-        vexMotorSet(M_FLY_BOT_WHEEL, 0);
-        //vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(leftWheelCtrl));
+        vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
+        vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
         if(vexControllerGet(J_FEED_FRONT_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
