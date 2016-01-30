@@ -11,8 +11,8 @@
 // Motor configs
 #define M_DRIVE_RIGHT1    kVexMotor_3
 
-#define M_FLY_LEFT_WHEEL       kVexMotor_6
-#define M_FLY_RIGHT_WHEEL      kVexMotor_5
+#define M_FLY_BOT_WHEEL       kVexMotor_6
+#define M_FLY_TOP_WHEEL      kVexMotor_5
 
 #define M_FEED_FRONT      kVexMotor_2
 #define M_DRIVE_RIGHT2    kVexMotor_7
@@ -21,17 +21,17 @@
 #define M_FEED_SHOOT      kVexMotor_9
 
 // Sensor channels
-#define P_ENC_LEFT_FLY_A       kVexDigital_1
-#define P_ENC_LEFT_FLY_B       kVexDigital_2
+#define P_ENC_BOT_FLY_A       kVexDigital_1
+#define P_ENC_BOT_FLY_B       kVexDigital_2
 
-#define P_ENC_RIGHT_FLY_A       kVexDigital_3
-#define P_ENC_RIGHT_FLY_B       kVexDigital_4
+#define P_ENC_TOP_FLY_A       kVexDigital_3
+#define P_ENC_TOP_FLY_B       kVexDigital_4
 
 #define S_BALL_IN              0
 #define S_BALL_OUT             1
 
-#define S_ENC_LEFT_FLY         kVexSensorDigital_2
-#define S_ENC_RIGHT_FLY        kVexSensorDigital_4
+#define S_ENC_BOT_FLY         kVexSensorDigital_2
+#define S_ENC_TOP_FLY        kVexSensorDigital_4
 
 #define S_IME_DRIVE_RIGHT kVexSensorIme_3
 #define S_IME_DRIVE_LEFT  kVexSensorIme_2
@@ -64,11 +64,11 @@
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
-        { P_ENC_LEFT_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
-        { P_ENC_LEFT_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
+        { P_ENC_BOT_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
+        { P_ENC_BOT_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
 
-        { P_ENC_RIGHT_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
-        { P_ENC_RIGHT_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2}
+        { P_ENC_TOP_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
+        { P_ENC_TOP_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2}
 };
 
 // Motor Config
@@ -77,8 +77,8 @@ static  vexMotorCfg mConfig[] = {
     { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_1 },
     { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
 
-    { M_FLY_LEFT_WHEEL,      kVexMotor393T,      kVexMotorReversed,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
-    { M_FLY_RIGHT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
+    { M_FLY_TOP_WHEEL,      kVexMotor393T,      kVexMotorReversed,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+    { M_FLY_BOT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
     { M_FEED_FRONT,     kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
     { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
@@ -135,10 +135,10 @@ vexUserInit()
 //	leftDriveEasing = easingInit(kMinJerk);
 //	rightDriveEasing = easingInit(kMinJerk);
 
-    rightWheelCtrl = TBHControllerInit(S_ENC_RIGHT_FLY, 0.05, 10500, false);
+    rightWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
     rightWheelCtrl->powerZeroClamp = true;
     rightWheelCtrl->log = false;
-    leftWheelCtrl = TBHControllerInit(S_ENC_LEFT_FLY, 0.05, 10500, false);
+    leftWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10500, false);
     leftWheelCtrl->log = false;
     leftWheelCtrl->powerZeroClamp = true;
 }
@@ -310,8 +310,9 @@ vexOperator( void *arg )
         	tbhDisable(rightWheelCtrl);
         	tbhDisable(leftWheelCtrl);
         }
-        vexMotorSet(M_FLY_RIGHT_WHEEL, tbhUpdate(rightWheelCtrl));
-        vexMotorSet(M_FLY_LEFT_WHEEL, tbhUpdate(leftWheelCtrl));
+        vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(rightWheelCtrl));
+        vexMotorSet(M_FLY_BOT_WHEEL, 0);
+        //vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(leftWheelCtrl));
 
         if(vexControllerGet(J_FEED_FRONT_U)) {
             vexMotorSet(M_FEED_FRONT, 100);
