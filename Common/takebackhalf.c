@@ -68,6 +68,8 @@ int16_t tbhUpdate(TBHController *ctrl) {
 		ctrl->motorPower = 0;
 	} else if(currTime != ctrl->lastTime) {
 		value = vexSensorValueGet(ctrl->sensor);
+		if(value == ctrl->lastValue)
+		{return ctrl->motorPower;}
 		if(ctrl->sensorReverse) {
 			value = -value;
 		}
@@ -85,14 +87,17 @@ int16_t tbhUpdate(TBHController *ctrl) {
 				ctrl->power = CLAMP(ctrl->power + ctrl->gain*error, -1, 1);
 			}
 		}
+		int deltaValue =  value - ctrl->lastValue;
 
 		ctrl->lastError = error;
 		ctrl->lastTime = currTime;
 		ctrl->lastValue = value;
 		ctrl->motorPower = ctrl->power * 127;
+
 		if(ctrl->log) {
 			//vex_printf("speed=%f error=%f motor_power = %d\n", speed, error, ctrl->motorPower);
-			vex_printf("%f,%f,%f,%f\n", speed, error, ctrl->tbh, ctrl->power);
+			vex_printf("%f,%f,%f,%fn", speed, error, ctrl->tbh, ctrl->power);
+			//vex_printf(, value);
 		}
 	}
 	return ctrl->motorPower;
