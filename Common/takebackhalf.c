@@ -96,7 +96,7 @@ int16_t tbhUpdate(TBHController *ctrl) {
 
 		if(ctrl->log) {
 			//vex_printf("speed=%f error=%f motor_power = %d\n", speed, error, ctrl->motorPower);
-			vex_printf("%f,%f,%f,%fn", speed, error, ctrl->tbh, ctrl->power);
+			vex_printf("%f,%f,%f,%f\n", speed, error, ctrl->tbh, ctrl->power);
 			//vex_printf(, value);
 		}
 	}

@@ -236,7 +236,7 @@ vexOperator( void *arg )
       tbhDisable(topWheelCtrl);
       tbhDisable(botWheelCtrl);
     }
-    vexMotorSet(M_FLY_TOP_WHEEL, 0);// tbhUpdate(topWheelCtrl));
+    vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
     if(vexControllerGet(J_FEED_FRONT_U)) {
