@@ -31,7 +31,8 @@
 #define P_ENC_TOP_FLY_B       kVexDigital_4
 
 #define S_BALL_IN              0
-#define S_BALL_OUT             1
+#define S_BALL_IN2             1
+#define S_BALL_OUT             2
 
 #define S_ENC_BOT_FLY        kVexSensorDigital_2
 #define S_ENC_TOP_FLY        kVexSensorDigital_4
@@ -62,7 +63,7 @@
 
 #define FLY_MAX_SPEED 10500
 #define FLY_SIDE_SPEED 7700
-#define FLY_PB_SPEED  5700
+#define FLY_PB_SPEED  5000
 #define FLY_75_SPEED  6100
 
 // Digi IO configuration
@@ -93,11 +94,6 @@ static  vexMotorCfg mConfig[] = {
 TBHController *topWheelCtrl;
 TBHController *botWheelCtrl;
 
-//EasingConfig *leftDriveEasing;
-//EasingConfig *rightDriveEasing;
-//pidController *leftDriveCtrl;
-//pidController *rightDriveCtrl;
-
 bool driveMotors(void) {
     short ld, rd ;
     //Calculate Motor Power
@@ -122,6 +118,10 @@ bool isBallInner(void) {
 	return (vexAdcGet(S_BALL_IN) < 500);
 }
 
+bool isBallInner2(void) {
+	return (vexAdcGet(S_BALL_IN2) < 500);
+}
+
 void
 vexUserSetup()
 {
@@ -132,11 +132,6 @@ vexUserSetup()
 void
 vexUserInit()
 {
-//	leftDriveCtrl = PidControllerInit(1, 0, 0, S_IME_DRIVE_LEFT, false);
-//	rightDriveCtrl = PidControllerInit(1, 0, 0, S_IME_DRIVE_RIGHT, false);
-//	leftDriveEasing = easingInit(kMinJerk);
-//	rightDriveEasing = easingInit(kMinJerk);
-
     topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
     topWheelCtrl->powerZeroClamp = true;
     topWheelCtrl->log = false;
@@ -149,25 +144,16 @@ vexUserInit()
 msg_t
 vexAutonomous( void *arg )
 {
-    (void)arg;
-
-//	tbhEnable(leftWheelCtrl, FLY_MAX_SPEED);
-//	tbhEnable(rightWheelCtrl, FLY_MAX_SPEED);
-
-    //enableEasing(leftDriveEasing, 1000, vexSensorValueGet(S_IME_DRIVE_LEFT), vexSensorValueGet(S_IME_DRIVE_LEFT)+1000);
-    //enableEasing(rightDriveEasing, 1000, vexSensorValueGet(S_IME_DRIVE_RIGHT), vexSensorValueGet(S_IME_DRIVE_RIGHT)+1000);
-
-	vex_printf("starting autonomous\n");
+   (void)arg;
 	vexTaskRegister("auton");
+	vex_printf("starting autonomous\n");
     int shootCount = 0;
     int step = 0;
     systime_t lastTime = chTimeNow();
-//    bool firstTime = true;
     while(!chThdShouldTerminate())
     {
     	systime_t time = chTimeNow();
     	int32_t timeGap = time-lastTime;
-    	//vex_printf("right=%d, left=%d\n", vexSensorValueGet(S_IME_DRIVE_RIGHT), vexSensorValueGet(S_IME_DRIVE_LEFT));
     	if(step == 0 && timeGap > 1000) {
 			vex_printf("step 0\n");
 			vexMotorSet(M_DRIVE_LEFT1,  80);
@@ -187,44 +173,6 @@ vexAutonomous( void *arg )
     	} else if(step == 2) {
     		break;
     	}
-//    	} else if(step == 2 && isRightFlyWheelStable() && isLeftFlyWheelStable()) {
-//			vex_printf("step 2\n");
-//			vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-//			vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
-//			step++;
-//    	} else if (step == 3 && isBallOuter()) {
-//			vex_printf("step 3\n");
-//			step++;
-//			lastTime = time;
-//    	} else if (step == 4 && timeGap > 500) {
-//			vex_printf("step 4\n");
-//			step++;
-//    	} else if(step == 5) {
-//			vex_printf("step 5\n");
-//			vexMotorSet(M_FEED_SHOOT, 0);
-//			vexMotorSet(M_FEED_FRONT, 0);
-//			step = 1;
-//			shootCount++;
-//			if(shootCount == 4) {
-//				vexMotorSet(M_FLY_RIGHT_WHEEL, 0);
-//				vexMotorSet(M_FLY_LEFT_WHEEL, 0);
-//				break;
-//			}
-//    	}
-
-//        vexMotorSet(M_FLY_RIGHT_WHEEL, tbhUpdate(rightWheelCtrl));
-//        vexMotorSet(M_FLY_LEFT_WHEEL, tbhUpdate(leftWheelCtrl));
-
-//        leftDriveCtrl->target_value = updateEasing(leftDriveEasing);
-//        rightDriveCtrl->target_value = updateEasing(rightDriveEasing);
-//        int16_t leftMotorCmd = PidControllerUpdate(rightDriveCtrl);
-//        int16_t rightMotorCmd = PidControllerUpdate(leftDriveCtrl);
-//        vexMotorSet(M_DRIVE_LEFT1, leftMotorCmd);
-//        vexMotorSet(M_DRIVE_LEFT2, leftMotorCmd);
-//        vexMotorSet(M_DRIVE_RIGHT1, rightMotorCmd);
-//        vexMotorSet(M_DRIVE_RIGHT2, rightMotorCmd);
-
-        // Don't hog cpu
         vexSleep( 10 );
     }
 	vex_printf("End\n");
@@ -242,13 +190,6 @@ msg_t
 vexOperator( void *arg )
 {
 	(void)arg;
-//	while(!chThdShouldTerminate()) {
-//		if(vexControllerGet(Btn7D)) {
-//			doVexAutonomous(NULL);
-//		}
-//	}
-//	return (msg_t)0;
-
 	// Must call this
 	vexTaskRegister("operator");
 
@@ -256,25 +197,14 @@ vexOperator( void *arg )
 	// Run until asked to terminate
     int  motorRunningTime = 0;
     bool ballFeed = false;
-//    systime_t lastTime = chTimeNow();
-//    int32_t lastValue = vexSensorValueGet(S_ENC_LEFT_FLY);
 	while(!chThdShouldTerminate())
 	{
-//		int32_t value = vexSensorValueGet(S_ENC_LEFT_FLY);
-//		systime_t currTime = chTimeNow();
-//		double speed = (value - lastValue)/((double)(currTime - lastTime));
-//		lastValue = value;
-//		lastTime = currTime;
-//		vex_printf("speed = %f\n", speed);
-
-//		if(isBallInner()) {
-//			ballFeed = true;
-//		}
-//		if(isBallOuter()) {
-//			ballFeed = false;
-//		}
-		//vex_printf("bi=%d lbi=%d bo=%d lbo=%d bc=%d\n", ballInner, lastBallInner, ballOuter, lastBallOuter, ballCount);
-		//vex_printf("top=%d bot=%d\n", vexSensorValueGet(S_ENC_TOP_FLY), vexSensorValueGet(S_ENC_BOT_FLY));
+		if(isBallInner2()) {
+			ballFeed = true;
+		}
+		if(isBallOuter()) {
+			ballFeed = false;
+		}
 
         bool motorRunning = driveMotors();
         if(motorRunning) {
@@ -319,7 +249,7 @@ vexOperator( void *arg )
             vexMotorSet(M_FEED_FRONT, 0);
         }
 
-        if(vexControllerGet(J_FEED_SHOOT)) { // || (isBallInner() && !isBallOuter())) { //8D
+        if(vexControllerGet(J_FEED_SHOOT) || ballFeed) { // || (isBallInner() && !isBallOuter())) { //8D
             vexMotorSet(M_FEED_SHOOT, -80);
             vexMotorSet(M_FEED_FRONT, -80);
         }  else if(motorRunning && !(isBallInner() && isBallOuter())) {
