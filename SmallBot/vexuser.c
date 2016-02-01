@@ -179,13 +179,6 @@ vexAutonomous( void *arg )
   return (msg_t)0;
 }
 
-
-/*-----------------------------------------------------------------------------*/
-/** @brief      Driver control                                                 */
-/*-----------------------------------------------------------------------------*/
-/** @details
-*  This thread is started when the driver control period is started
-*/
 msg_t
 vexOperator( void *arg )
 {
@@ -236,7 +229,7 @@ vexOperator( void *arg )
       tbhDisable(topWheelCtrl);
       tbhDisable(botWheelCtrl);
     }
-    vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
+    vexMotorSet(M_FLY_TOP_WHEEL, 0);//tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
     if(vexControllerGet(J_FEED_FRONT_U)) {
