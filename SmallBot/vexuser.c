@@ -97,8 +97,8 @@ TBHController *botWheelCtrl;
 bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
-  int forward = VALLEY(vexControllerGet(J_DRIVE), 45, 127);
-  int turn    = VALLEY(vexControllerGet(J_TURN), 45, 127);
+  int forward = VALLEY(vexControllerGet(J_DRIVE), 10, 127);
+  int turn    = VALLEY(vexControllerGet(J_TURN), 10, 127);
   ld = VALLEY(forward + turn, 45, 127);
   rd = VALLEY(forward - turn, 45, 127);
 
@@ -111,7 +111,7 @@ bool driveMotors(void) {
 }
 
 bool isBallTop(void) {
-  return (vexAdcGet(S_BALL_TOP) < 1500);
+  return (vexAdcGet(S_BALL_TOP) < 2200);
 }
 
 bool isBallBot(void) {
