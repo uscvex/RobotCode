@@ -23,11 +23,23 @@ typedef struct _EasingConfig {
 	bool enabled;
 } EasingConfig;
 
-#define MAX_EASING_CONFIGS 10
+typedef struct _EPidController {
+	pidController *pidc;
+	EasingConfig *easing;
+} EPidController;
 
-EasingConfig *easingInit(tEasingFunc func);
-void enableEasing(EasingConfig *conf, int32_t duration, int32_t start, int32_t target);
-void disableEasing(EasingConfig *conf);
-int32_t updateEasing(EasingConfig *conf);
+#define MAX_EASING_CONFIGS 10
+#define MAX_EPID_CONTROLLERS 10
+
+EasingConfig *EasingInit(tEasingFunc func);
+void EasingEnable(EasingConfig *conf, int32_t duration, int32_t start, int32_t target);
+void EasingDisable(EasingConfig *conf);
+int32_t EasingUpdate(EasingConfig *conf);
+
+EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSensors port, int16_t sensor_reverse);
+void EPidEnable(EPidController *epid, int32_t duration, int32_t target);
+void EPidDisable(EPidController *epid);
+int16_t EPidUpdate(EPidController *epid);
+
 
 #endif

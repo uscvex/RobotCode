@@ -7,10 +7,7 @@
 static int16_t nextTBHController = 0;
 static TBHController controllers[MAX_TBH_CONTROLLERS];
 
-TBHController *TBHControllerInit(tVexSensors sensor,
-								 double gain,
-								 int32_t maxSpeed,
-								 bool sensorReverse) {
+TBHController *TBHControllerInit(tVexSensors sensor, double gain, int32_t maxSpeed, bool sensorReverse) {
 	TBHController *ctrl = &controllers[nextTBHController++];
 
 	ctrl->sensor = sensor;
@@ -68,8 +65,6 @@ int16_t tbhUpdate(TBHController *ctrl) {
 		ctrl->motorPower = 0;
 	} else if(currTime != ctrl->lastTime) {
 		value = vexSensorValueGet(ctrl->sensor);
-		if(value == ctrl->lastValue)
-		{return ctrl->motorPower;}
 		if(ctrl->sensorReverse) {
 			value = -value;
 		}
@@ -87,8 +82,6 @@ int16_t tbhUpdate(TBHController *ctrl) {
 				ctrl->power = CLAMP(ctrl->power + ctrl->gain*error, -1, 1);
 			}
 		}
-		int deltaValue =  value - ctrl->lastValue;
-
 		ctrl->lastError = error;
 		ctrl->lastTime = currTime;
 		ctrl->lastValue = value;

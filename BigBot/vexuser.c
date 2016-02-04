@@ -22,17 +22,17 @@
 // Sensor channels
 #define P_PISTON               kVexDigital_5
 
-#define P_ENC_BOT_FLY_A       kVexDigital_1
-#define P_ENC_BOT_FLY_B       kVexDigital_2
+#define P_ENC_BOT_FLY_A       kVexDigital_3
+#define P_ENC_BOT_FLY_B       kVexDigital_4
 
-#define P_ENC_TOP_FLY_A       kVexDigital_3
-#define P_ENC_TOP_FLY_B       kVexDigital_4
+#define P_ENC_TOP_FLY_A       kVexDigital_1
+#define P_ENC_TOP_FLY_B       kVexDigital_2
 
 #define S_BALL_IN              0
 #define S_BALL_OUT             1
 
-#define S_ENC_BOT_FLY         kVexSensorDigital_6
-#define S_ENC_TOP_FLY        kVexSensorDigital_5
+#define S_ENC_BOT_FLY         kVexSensorDigital_4
+#define S_ENC_TOP_FLY        kVexSensorDigital_2
 
 #define S_IME_DRIVE_RIGHT kVexSensorIme_3
 #define S_IME_DRIVE_LEFT  kVexSensorIme_2
@@ -61,7 +61,7 @@
 #define FEED_SPOOL_TIME 100
 
 #define FLY_LONG_SPEED 6000
-#define FLY_50_SPEED   4100
+#define FLY_50_SPEED   2000
 #define FLY_MAX_SPEED  5000
 #define FLY_75_SPEED   4800
 
@@ -127,10 +127,10 @@ vexUserSetup()
 void
 vexUserInit()
 {
-    topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10000, false);
+    topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
     topWheelCtrl->powerZeroClamp = true;
     topWheelCtrl->log = true;
-    botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10000, true);
+    botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10500, true);
     botWheelCtrl->log = false;
     botWheelCtrl->powerZeroClamp = true;
 }
@@ -279,6 +279,7 @@ vexOperator( void *arg )
 //    int32_t lastValue = vexSensorValueGet(S_ENC_LEFT_FLY);
 	while(!chThdShouldTerminate())
 	{
+    //vex_printf("top=%d bottom=%d\n", vexSensorValueGet(S_ENC_TOP_FLY), vexSensorValueGet(S_ENC_BOT_FLY));
 //		int32_t value = vexSensorValueGet(S_ENC_LEFT_FLY);
 //		systime_t currTime = chTimeNow();
 //		double speed = (value - lastValue)/((double)(currTime - lastTime));

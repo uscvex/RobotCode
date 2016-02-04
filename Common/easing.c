@@ -8,7 +8,10 @@
 static EasingConfig configs[MAX_EASING_CONFIGS];
 static int16_t nextEasingConfigPtr = 0;
 
-EasingConfig *easingInit(tEasingFunc func) {
+static EPidController epidControllers[MAX_EPID_CONTROLLERS];
+static int16_t nextEPidControllerPtr = 0;
+
+EasingConfig *EasingInit(tEasingFunc func) {
 	EasingConfig *conf = &configs[nextEasingConfigPtr++];
 	conf->func = func;
 	conf->duration = 0;
@@ -20,7 +23,7 @@ EasingConfig *easingInit(tEasingFunc func) {
 	return conf;
 }
 
-void enableEasing(EasingConfig *conf, int32_t duration, int32_t start, int32_t target) {
+void EasingEnable(EasingConfig *conf, int32_t duration, int32_t start, int32_t target) {
 	conf->duration = duration;
 	conf->start = start;
 	conf->target = target;
@@ -28,11 +31,11 @@ void enableEasing(EasingConfig *conf, int32_t duration, int32_t start, int32_t t
 	conf->enabled = true;
 }
 
-void disableEasing(EasingConfig *conf) {
+void EasingDisable(EasingConfig *conf) {
 	conf->enabled = false;
 }
 
-int32_t updateEasing(EasingConfig *conf) {
+int32_t EasingUpdate(EasingConfig *conf) {
 	if(!conf->enabled) {
 		conf->value = 0;
 		return conf->value;
@@ -49,4 +52,24 @@ int32_t updateEasing(EasingConfig *conf) {
 	}
 	conf->value = conf->start + (conf->target-conf->start)*v;
 	return conf->value;
+}
+
+EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSensors port, int16_t sensor_reverse) {
+	EPidController *epidc = &epidControllers[nextEPidControllerPtr++];
+	epidc->pidc = PidControllerInit(Kp, Ki, Kd, port, sensor_reverse);
+	epidc->easing = EasingInit(func);
+	return epidc;
+}
+
+void EPidEnable(EPidController *epid, int32_t duration, int32_t target) {
+	EasingEnable(epid->easing, duration, vexControllerGet(epid->pidc->sensor_port), target);
+}
+
+void EPidDisable(EPidController *epid) {
+	EasingDisable(epid->easing);
+}
+
+int16_t EPidUpdate(EPidController *epid) {
+	epid->pidc->target_value = EasingUpdate(epid->easing);
+	return PidControllerUpdate(epid->pidc);
 }
