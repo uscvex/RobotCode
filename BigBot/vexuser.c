@@ -81,7 +81,7 @@ static  vexMotorCfg mConfig[] = {
     { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
 
     { M_FLY_BOT_WHEEL,      kVexMotor393T,      kVexMotorNormal,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
-    { M_FLY_TOP_WHEEL,     kVexMotor393T,      kVexMotorReversed,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
+    { M_FLY_TOP_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
     { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,   kVexSensorNone,        0 },
     { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorNormal,     kVexSensorNone,        0 },
@@ -149,7 +149,7 @@ vexAutonomous( void *arg )
     (void)arg;
 
 	tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
-	tbhEnable(topWheelCtrl, -FLY_MAX_SPEED);
+	tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
 
 	vexTaskRegister("auton");
 	vex_printf("starting autonomous\n");
@@ -310,19 +310,19 @@ vexOperator( void *arg )
         }
 
         if(vexControllerGet(J_SHOOT_50)) {
-        	tbhEnable(topWheelCtrl, -FLY_50_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_50_SPEED);
         	tbhEnable(botWheelCtrl, FLY_50_SPEED);
         }
         if(vexControllerGet(J_SHOOT_MAX)) {
-        	tbhEnable(topWheelCtrl, -FLY_MAX_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
         	tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
         }
         if(vexControllerGet(J_SHOOT_75)) {
-        	tbhEnable(topWheelCtrl, -FLY_75_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_75_SPEED);
         	tbhEnable(botWheelCtrl, FLY_75_SPEED);
         }
         if(vexControllerGet(J_SHOOT_LONG)) {
-        	tbhEnable(topWheelCtrl, -FLY_LONG_SPEED);
+        	tbhEnable(topWheelCtrl, FLY_LONG_SPEED);
         	tbhEnable(botWheelCtrl, FLY_LONG_SPEED);
         }
         if(vexControllerGet(J_SHOOT_STOP)) {
