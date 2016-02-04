@@ -22,17 +22,17 @@
 // Sensor channels
 #define P_PISTON               kVexDigital_5
 
-#define P_ENC_BOT_FLY_A       kVexDigital_3
-#define P_ENC_BOT_FLY_B       kVexDigital_4
+#define P_ENC_BOT_FLY_A       kVexDigital_1
+#define P_ENC_BOT_FLY_B       kVexDigital_2
 
-#define P_ENC_TOP_FLY_A       kVexDigital_1
-#define P_ENC_TOP_FLY_B       kVexDigital_2
+#define P_ENC_TOP_FLY_A       kVexDigital_3
+#define P_ENC_TOP_FLY_B       kVexDigital_4
 
 #define S_BALL_IN              0
 #define S_BALL_OUT             1
 
-#define S_ENC_BOT_FLY         kVexSensorDigital_4
-#define S_ENC_TOP_FLY        kVexSensorDigital_2
+#define S_ENC_BOT_FLY         kVexSensorDigital_6
+#define S_ENC_TOP_FLY        kVexSensorDigital_5
 
 #define S_IME_DRIVE_RIGHT kVexSensorIme_3
 #define S_IME_DRIVE_LEFT  kVexSensorIme_2
