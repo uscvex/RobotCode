@@ -8,14 +8,14 @@
 #include "../Common/takebackhalf.h"
 
 // Motor configs
-#define M_DRIVE_RIGHT1    kVexMotor_3
+#define M_DRIVE_RIGHT1    kVexMotor_7
 
 #define M_FLY_BOT_WHEEL      kVexMotor_6
 #define M_FLY_TOP_WHEEL      kVexMotor_5
 
 #define M_FEED_FRONT      kVexMotor_2
-#define M_DRIVE_RIGHT2    kVexMotor_7
-#define M_DRIVE_LEFT1     kVexMotor_4
+#define M_DRIVE_RIGHT2    kVexMotor_4
+#define M_DRIVE_LEFT1     kVexMotor_3
 #define M_DRIVE_LEFT2     kVexMotor_8
 #define M_FEED_SHOOT      kVexMotor_9
 
@@ -95,7 +95,7 @@ TBHController *topWheelCtrl;
 bool driveMotors(void) {
     short ld, rd ;
     //Calculate Motor Power
-    int forward = VALLEY(vexControllerGet(J_DRIVE), 45, 127);
+    int forward = VALLEY(-vexControllerGet(J_DRIVE), 45, 127);
     int turn    = VALLEY(-vexControllerGet(J_TURN), 45, 127);
     ld = VALLEY(forward + turn, 45, 127);
     rd = VALLEY(forward - turn, 45, 127);
@@ -129,7 +129,7 @@ vexUserInit()
 {
     topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10000, false);
     topWheelCtrl->powerZeroClamp = true;
-    topWheelCtrl->log = false;
+    topWheelCtrl->log = true;
     botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10000, true);
     botWheelCtrl->log = false;
     botWheelCtrl->powerZeroClamp = true;
@@ -149,7 +149,7 @@ vexAutonomous( void *arg )
     (void)arg;
 
 	tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
-	tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
+	tbhEnable(topWheelCtrl, -FLY_MAX_SPEED);
 
 	vexTaskRegister("auton");
 	vex_printf("starting autonomous\n");
@@ -310,19 +310,19 @@ vexOperator( void *arg )
         }
 
         if(vexControllerGet(J_SHOOT_50)) {
-        	tbhEnable(topWheelCtrl, FLY_50_SPEED);
+        	tbhEnable(topWheelCtrl, -FLY_50_SPEED);
         	tbhEnable(botWheelCtrl, FLY_50_SPEED);
         }
         if(vexControllerGet(J_SHOOT_MAX)) {
-        	tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
+        	tbhEnable(topWheelCtrl, -FLY_MAX_SPEED);
         	tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
         }
         if(vexControllerGet(J_SHOOT_75)) {
-        	tbhEnable(topWheelCtrl, FLY_75_SPEED);
+        	tbhEnable(topWheelCtrl, -FLY_75_SPEED);
         	tbhEnable(botWheelCtrl, FLY_75_SPEED);
         }
         if(vexControllerGet(J_SHOOT_LONG)) {
-        	tbhEnable(topWheelCtrl, FLY_LONG_SPEED);
+        	tbhEnable(topWheelCtrl, -FLY_LONG_SPEED);
         	tbhEnable(botWheelCtrl, FLY_LONG_SPEED);
         }
         if(vexControllerGet(J_SHOOT_STOP)) {
@@ -333,9 +333,9 @@ vexOperator( void *arg )
         vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
         if(vexControllerGet(J_FEED_FRONT_U)) {
-            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-        } else if(vexControllerGet(J_FEED_FRONT_D)) {
             vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
+        } else if(vexControllerGet(J_FEED_FRONT_D)) {
+            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
         }  else if(motorRunning) {
 			vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
 		} else {
@@ -343,8 +343,8 @@ vexOperator( void *arg )
         }
 
         if(vexControllerGet(J_FEED_SHOOT) || (isBallInner() && !isBallOuter())) { //8D
-            vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-            vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
+            vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
         }  else if(motorRunning && !(isBallInner() && isBallOuter())) {
             vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
 		} else {
@@ -355,8 +355,8 @@ vexOperator( void *arg )
         }
 
 		if(vexControllerGet(J_FEED_REV)) {
-            vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-            vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+            vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
+            vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
         }
         vexSleep( 10 );
 	}
