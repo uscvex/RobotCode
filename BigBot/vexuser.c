@@ -139,10 +139,11 @@ vexUserInit()
 {
   topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
   topWheelCtrl->powerZeroClamp = true;
-  topWheelCtrl->log = true;
+  topWheelCtrl->log = false;
   botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10500, true);
   botWheelCtrl->log = false;
   botWheelCtrl->powerZeroClamp = true;
+  vex_printf("puTTy Test");
 }
 
 bool isBotFlyWheelStable(void) {
@@ -158,23 +159,26 @@ vexAutonomous( void *arg )
 {
   (void)arg;
 
-  tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
-  tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
+  tbhEnable(botWheelCtrl, FLY_MAX_SPEED+175);
+  tbhEnable(topWheelCtrl, FLY_MAX_SPEED+175);
 
-  vexTaskRegister("auton");
+  //vexTaskRegister("auton");
   vex_printf("starting autonomous\n");
-  int shootCount = 1;
+  int shootCount = 0;
   int step = 0;
   systime_t lastTime = chTimeNow();
   while(!chThdShouldTerminate())
   {
     systime_t time = chTimeNow();
     int32_t timeGap = time-lastTime;
-    if(step == 0 && timeGap > 3000) {
+    //if(vexControllerGet(Btn8D)){
+    //	break;
+    //}
+    if(step == 0 && timeGap > 2000) {
       vex_printf("step 0\n");
       step++;
       lastTime = time;
-    } else if(step == 1 && timeGap > 3000) {
+    } else if(step == 1 && timeGap > 2000) {
       vex_printf("step 1\n");
       vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
       vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
@@ -183,17 +187,26 @@ vexAutonomous( void *arg )
       vex_printf("step 2\n");
       step++;
       lastTime = time;
-    } else if (step == 3 && timeGap > 500) {
+    } else if (step == 3 && timeGap > 300) {
       vex_printf("step 3\n");
+      vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
+      vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
       step++;
-    } else if(step == 4) {
+    } else if (step == 4 && timeGap > 500) {
       vex_printf("step 4\n");
+      step++;
+    } else if(step == 5) {
+      vex_printf("step 5\n");
       vexMotorSet(M_FEED_SHOOT, 0);
       vexMotorSet(M_FEED_FRONT, 0);
+      tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
+      tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
       step = 1;
       shootCount++;
       vex_printf("shootcount = %d\n", shootCount);
       if(shootCount == 4) {
+        tbhDisable(topWheelCtrl);
+        tbhDisable(botWheelCtrl);
         vexMotorSet(M_FLY_TOP_WHEEL, 0);
         vexMotorSet(M_FLY_BOT_WHEEL, 0);
         break;
@@ -212,7 +225,7 @@ msg_t
 vexOperator( void *arg )
 {
   (void)arg;
-
+  vex_printf("Putty Connection test");
   // Must call this
   vexTaskRegister("operator");
   // Run until asked to terminate
@@ -220,7 +233,9 @@ vexOperator( void *arg )
   {
     driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
-
+    //if(vexControllerGet(Btn7R)){
+    //	vexAutonomous(NULL);
+    //}
     if(vexControllerGet(J_PISTON)) {
       vexDigitalPinSet(P_PISTON, 1);
     } else {
