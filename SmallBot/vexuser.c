@@ -61,10 +61,10 @@
 #define DEFAULT_FEED_SPEED 90
 #define FEED_SPOOL_TIME 100
 
-#define FLY_MAX_SPEED 10500
-#define FLY_SIDE_SPEED 7700
-#define FLY_PB_SPEED  5000
-#define FLY_75_SPEED  6100
+#define FLY_MAX_SPEED  6800
+#define FLY_SIDE_SPEED 6300
+#define FLY_PB_SPEED   5000
+#define FLY_75_SPEED   6100
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {

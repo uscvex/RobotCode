@@ -20,7 +20,7 @@
 #define M_FEED_SHOOT      kVexMotor_9
 
 // Sensor channels
-#define P_PISTON               kVexDigital_5
+#define P_PISTON              kVexDigital_9
 
 #define P_ENC_BOT_FLY_A       kVexDigital_3
 #define P_ENC_BOT_FLY_B       kVexDigital_4
@@ -64,10 +64,10 @@
 #define DEFAULT_FEED_SPEED 127
 #define FEED_SPOOL_TIME 100
 
-#define FLY_LONG_SPEED 5500
-#define FLY_50_SPEED   3000
-#define FLY_MAX_SPEED  5000
-#define FLY_75_SPEED   4800
+#define FLY_LONG_SPEED 7100
+#define FLY_50_SPEED   6300
+#define FLY_MAX_SPEED  6900
+#define FLY_75_SPEED   6550
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -163,26 +163,27 @@ vexAutonomous( void *arg )
 
   vexTaskRegister("auton");
   vex_printf("starting autonomous\n");
-  int shootCount = 0;
+  int shootCount = 1;
   int step = 0;
   systime_t lastTime = chTimeNow();
   while(!chThdShouldTerminate())
   {
     systime_t time = chTimeNow();
     int32_t timeGap = time-lastTime;
-    if(step == 0 && timeGap > 1000) {
+    if(step == 0 && timeGap > 3000) {
       vex_printf("step 0\n");
       step++;
-    } else if(step == 1 && isTopFlyWheelStable() && isBotFlyWheelStable()) {
+      lastTime = time;
+    } else if(step == 1 && timeGap > 3000) {
       vex_printf("step 1\n");
-      vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
+      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
       step++;
     } else if (step == 2 && isBallTop()) {
       vex_printf("step 2\n");
       step++;
       lastTime = time;
-    } else if (step == 3 && timeGap > 1000) {
+    } else if (step == 3 && timeGap > 500) {
       vex_printf("step 3\n");
       step++;
     } else if(step == 4) {
@@ -191,6 +192,7 @@ vexAutonomous( void *arg )
       vexMotorSet(M_FEED_FRONT, 0);
       step = 1;
       shootCount++;
+      vex_printf("shootcount = %d\n", shootCount);
       if(shootCount == 4) {
         vexMotorSet(M_FLY_TOP_WHEEL, 0);
         vexMotorSet(M_FLY_BOT_WHEEL, 0);
@@ -217,7 +219,7 @@ vexOperator( void *arg )
   while(!chThdShouldTerminate())
   {
     driveMotors();
-    vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
+    //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
 
     if(vexControllerGet(J_PISTON)) {
       vexDigitalPinSet(P_PISTON, 1);
@@ -261,11 +263,11 @@ vexOperator( void *arg )
 
     // Shoot Feed
     if(vexControllerGet(J_FEED_SHOOT_U)) {
-       vexMotorSet(M_FEED_SHOOT, 100);
+       vexMotorSet(M_FEED_SHOOT, 77);
     } else if(vexControllerGet(J_FEED_SHOOT_D)) {
-       vexMotorSet(M_FEED_SHOOT, -100);
+       vexMotorSet(M_FEED_SHOOT, -77);
     } else if(!isBallTop() && isBallBot()) {
-       vexMotorSet(M_FEED_SHOOT, 100);
+       vexMotorSet(M_FEED_SHOOT, 77);
     } else {
        vexMotorSet(M_FEED_SHOOT, 0);
     }
