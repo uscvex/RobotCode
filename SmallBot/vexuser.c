@@ -61,7 +61,7 @@
 #define DEFAULT_FEED_SPEED 90
 #define FEED_SPOOL_TIME 100
 
-#define FLY_MAX_SPEED  6800
+#define FLY_MAX_SPEED  7300
 #define FLY_SIDE_SPEED 6300
 #define FLY_PB_SPEED   5000
 #define FLY_75_SPEED   6100
@@ -142,36 +142,36 @@ vexAutonomous( void *arg )
 {
   (void)arg;
   vexTaskRegister("auton");
-  vex_printf("starting autonomous\n");
-  int shootCount = 0;
-  int step = 0;
-  systime_t lastTime = chTimeNow();
-  while(!chThdShouldTerminate())
-  {
-    systime_t time = chTimeNow();
-    int32_t timeGap = time-lastTime;
-    if(step == 0 && timeGap > 1000) {
-      vex_printf("step 0\n");
-      vexMotorSet(M_DRIVE_LEFT1,  80);
-      vexMotorSet(M_DRIVE_LEFT2,  80);
-      vexMotorSet(M_DRIVE_RIGHT1, 80);
-      vexMotorSet(M_DRIVE_RIGHT2, 80);
-      step++;
-      lastTime = time;
-    }
-    else if(step == 1 && timeGap > 2000) {
-      vex_printf("step 1\n");
-      vexMotorSet(M_DRIVE_LEFT1,  0);
-      vexMotorSet(M_DRIVE_LEFT2,  0);
-      vexMotorSet(M_DRIVE_RIGHT1, 0);
-      vexMotorSet(M_DRIVE_RIGHT2, 0);
-      step++;
-    } else if(step == 2) {
-      break;
-    }
-    vexSleep( 10 );
-  }
-  vex_printf("End\n");
+//  vex_printf("starting autonomous\n");
+//  //int shootCount = 0;
+//  int step = 0;
+//  systime_t lastTime = chTimeNow();
+//  while(!chThdShouldTerminate())
+//  {
+//    systime_t time = chTimeNow();
+//    int32_t timeGap = time-lastTime;
+//    if(step == 0 && timeGap > 1000) {
+//      vex_printf("step 0\n");
+//      vexMotorSet(M_DRIVE_LEFT1,  80);
+//      vexMotorSet(M_DRIVE_LEFT2,  80);
+//      vexMotorSet(M_DRIVE_RIGHT1, 80);
+//      vexMotorSet(M_DRIVE_RIGHT2, 80);
+//      step++;
+//      lastTime = time;
+//    }
+//    else if(step == 1 && timeGap > 2000) {
+//      vex_printf("step 1\n");
+//      vexMotorSet(M_DRIVE_LEFT1,  0);
+//      vexMotorSet(M_DRIVE_LEFT2,  0);
+//      vexMotorSet(M_DRIVE_RIGHT1, 0);
+//      vexMotorSet(M_DRIVE_RIGHT2, 0);
+//      step++;
+//    } else if(step == 2) {
+//      break;
+//    }
+//    vexSleep( 10 );
+//  }
+//  vex_printf("End\n");
   return (msg_t)0;
 }
 
