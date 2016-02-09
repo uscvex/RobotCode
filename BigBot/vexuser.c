@@ -118,6 +118,7 @@ bool driveMotors(void) {
   return (ld != 0 || rd != 0);
 }
 
+
 bool isBallTop(void) {
   return (vexAdcGet(S_BALL_TOP) < 1000);
 }
@@ -229,8 +230,14 @@ vexOperator( void *arg )
   // Must call this
   vexTaskRegister("operator");
   // Run until asked to terminate
+  systime_t currTime = chTimeNow();
+  systime_t startTime = chTimeNow();
+  int32_t timeGap = currTime + 2000;
+
   while(!chThdShouldTerminate())
   {
+	currTime = chTimeNow();
+	timeGap = startTime - currTime;
     driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
     //if(vexControllerGet(Btn7R)){
@@ -272,6 +279,11 @@ vexOperator( void *arg )
        vexMotorSet(M_FEED_FRONT, -100);
     } else if(!isBallTop() && isBallBot()) {
        vexMotorSet(M_FEED_FRONT, 100);
+    } else if (driveMotors()){
+    	vexMotorSet(M_FEED_FRONT, 100);
+    	startTime = chTimeNow();
+    } else if(timeGap < 2000){
+    	vexMotorSet(M_FEED_FRONT, 100);
     } else {
        vexMotorSet(M_FEED_FRONT, 0);
     }
