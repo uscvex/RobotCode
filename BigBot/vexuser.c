@@ -45,8 +45,8 @@
 // Joystick settings
 #define J_DRIVE      Ch3
 #define J_TURN       Ch1
-//#define J_SHOOT      Btn6U
 
+//#define J_SHOOT      Btn6U
 #define J_SHOOT_MAX     Btn8R
 #define J_SHOOT_75      Btn8U
 #define J_SHOOT_STOP    Btn8D
@@ -265,10 +265,10 @@ vexOperator( void *arg )
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
-    // Front Feed
-    if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) && !isBallTop()) {
+    // Front Feed Controls
+    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) {
        vexMotorSet(M_FEED_FRONT, 100);
-    } else if((vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) && !isBallTop()) {
+    } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_FRONT, -100);
     } else if(!isBallTop() && isBallBot()) {
        vexMotorSet(M_FEED_FRONT, 100);
