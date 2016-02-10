@@ -159,7 +159,7 @@ msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
-
+  /*
   tbhEnable(botWheelCtrl, FLY_MAX_SPEED+175);
   tbhEnable(topWheelCtrl, FLY_MAX_SPEED+175);
 
@@ -220,6 +220,7 @@ vexAutonomous( void *arg )
   }
   vex_printf("End\n");
   return (msg_t)0;
+  */
 }
 
 msg_t
@@ -237,7 +238,8 @@ vexOperator( void *arg )
   {
 	currentTime = chTimeNow();
 	timeGap = currentTime - motorStartTime;
-    driveMotors();
+
+    bool motorRunning = driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
     //if(vexControllerGet(Btn7R)){
     //	vexAutonomous(NULL);
@@ -271,12 +273,12 @@ vexOperator( void *arg )
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
-    if(driveMotors())
+    if(motorRunning)
     {
     	motorStartTime = chTimeNow();
     }
     // Front Feed Controls
-    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || driveMotors()|| (timeGap < 2000)) {
+    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || (timeGap < 2000)) {
        vexMotorSet(M_FEED_FRONT, 100);
     } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_FRONT, -100);
@@ -296,7 +298,6 @@ vexOperator( void *arg )
     } else {
        vexMotorSet(M_FEED_SHOOT, 0);
     }
-    vex_printf((int)timeGap);
     vexSleep( 10 );
   }
 
