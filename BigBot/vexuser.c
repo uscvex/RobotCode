@@ -6,6 +6,7 @@
 #include "robotc_glue.h"
 #include "../Common/common.h"
 #include "../Common/takebackhalf.h"
+#include "../Common/easing.h"
 
 // Motor configs
 #define M_DRIVE_RIGHT1    kVexMotor_7
@@ -102,6 +103,10 @@ static  vexMotorCfg mConfig[] = {
 TBHController *botWheelCtrl;
 TBHController *topWheelCtrl;
 
+//PID Controllers
+EPidController *rightDrive;
+EPidController *leftDrive;
+
 bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
@@ -159,7 +164,7 @@ msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
-  /*
+
   tbhEnable(botWheelCtrl, FLY_MAX_SPEED+175);
   tbhEnable(topWheelCtrl, FLY_MAX_SPEED+175);
 
@@ -220,7 +225,7 @@ vexAutonomous( void *arg )
   }
   vex_printf("End\n");
   return (msg_t)0;
-  */
+
 }
 
 msg_t
@@ -249,27 +254,32 @@ vexOperator( void *arg )
     } else {
       vexDigitalPinSet(P_PISTON, 0);
     }
-
+    //Short range shot
     if(vexControllerGet(J_SHOOT_50)) {
       tbhEnable(topWheelCtrl, FLY_50_SPEED);
       tbhEnable(botWheelCtrl, FLY_50_SPEED);
     }
+    //Start position shot
     if(vexControllerGet(J_SHOOT_MAX)) {
       tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
       tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
     }
+    //3/4 court shot
     if(vexControllerGet(J_SHOOT_75)) {
       tbhEnable(topWheelCtrl, FLY_75_SPEED);
       tbhEnable(botWheelCtrl, FLY_75_SPEED);
     }
+    //Full court shot
     if(vexControllerGet(J_SHOOT_LONG)) {
       tbhEnable(topWheelCtrl, FLY_LONG_SPEED);
       tbhEnable(botWheelCtrl, FLY_LONG_SPEED);
     }
+    //Turn off flywheels
     if(vexControllerGet(J_SHOOT_STOP)) {
       tbhDisable(topWheelCtrl);
       tbhDisable(botWheelCtrl);
     }
+    //Activate/deactivate flywheel motors
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
@@ -303,3 +313,6 @@ vexOperator( void *arg )
 
   return (msg_t)0;
 }
+
+//A function for rotating degrees
+

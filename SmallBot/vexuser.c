@@ -13,7 +13,7 @@
 #define M_FLY_BOT_WHEEL      kVexMotor_5
 #define M_FLY_TOP_WHEEL      kVexMotor_6
 
-#define M_FEED_FRONT      kVexMotor_2
+#define M_FEED_FRONT      kVexMotor_9
 
 #define M_DRIVE_RIGHT1    kVexMotor_4
 #define M_DRIVE_RIGHT2    kVexMotor_8
@@ -21,11 +21,11 @@
 #define M_DRIVE_LEFT1     kVexMotor_3
 #define M_DRIVE_LEFT2     kVexMotor_7
 
-#define M_FEED_SHOOT      kVexMotor_9
+#define M_FEED_SHOOT      kVexMotor_2
 
 // Sensor channels
-#define P_ENC_BOT_FLY_A       kVexDigital_1
-#define P_ENC_BOT_FLY_B       kVexDigital_2
+#define P_ENC_BOT_FLY_A       kVexDigital_2
+#define P_ENC_BOT_FLY_B       kVexDigital_1
 
 #define P_ENC_TOP_FLY_A       kVexDigital_3
 #define P_ENC_TOP_FLY_B       kVexDigital_4
@@ -34,7 +34,7 @@
 #define S_BALL_BOT2             1
 #define S_BALL_TOP              2
 
-#define S_ENC_BOT_FLY        kVexSensorDigital_2
+#define S_ENC_BOT_FLY        kVexSensorDigital_1
 #define S_ENC_TOP_FLY        kVexSensorDigital_4
 
 #define S_IME_DRIVE_RIGHT kVexSensorIme_3
@@ -46,25 +46,29 @@
 #define J_TURN       Ch1
 //#define J_SHOOT      Btn6U
 
-#define J_SHOOT_MAX     Btn7R
-#define J_SHOOT_75      Btn7U
-#define J_SHOOT_STOP    Btn7D
-#define J_SHOOT_PB      Btn7L
-#define J_SHOOT_SIDE    Btn8U
+#define J_SHOOT_START   Btn7L
+#define J_SHOOT_CLOSE   Btn8U
+#define J_SHOOT_PB      Btn8L
+#define J_SHOOT_SIDE    Btn7U
+#define J_SHOOT_MID     Btn8R
+#define J_SHOOT_STOP   Btn8D
 
-#define J_FEED_SHOOT_U Btn6U
-#define J_FEED_SHOOT_D   Btn6D
-#define J_FEED_FRONT_U Btn5D
-#define J_FEED_FRONT_D Btn5U
+
+#define J_FEED_SHOOT_U 	Btn6U
+#define J_FEED_SHOOT_D  Btn6D
+#define J_FEED_FRONT_U 	Btn5U
+#define J_FEED_FRONT_D 	Btn5D
 
 // Constants
 #define DEFAULT_FEED_SPEED 90
 #define FEED_SPOOL_TIME 100
 
-#define FLY_MAX_SPEED  7300
-#define FLY_SIDE_SPEED 6300
-#define FLY_PB_SPEED   5000
-#define FLY_75_SPEED   6100
+#define FLY_START_SPEED  6200
+#define FLY_SIDE_SPEED 	 5500
+#define FLY_PB_SPEED   	 5500
+#define FLY_CLOSE_SPEED  6100
+#define FLY_MID_SPEED  	 5000
+
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -192,13 +196,13 @@ vexOperator( void *arg )
       tbhEnable(topWheelCtrl, FLY_PB_SPEED);
       tbhEnable(botWheelCtrl, FLY_PB_SPEED);
     }
-    if(vexControllerGet(J_SHOOT_MAX)) {
-      tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
-      tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
+    if(vexControllerGet(J_SHOOT_START)) {
+      tbhEnable(topWheelCtrl, FLY_START_SPEED);
+      tbhEnable(botWheelCtrl, FLY_START_SPEED);
     }
-    if(vexControllerGet(J_SHOOT_75)) {
-      tbhEnable(topWheelCtrl, FLY_75_SPEED);
-      tbhEnable(botWheelCtrl, FLY_75_SPEED);
+    if(vexControllerGet(J_SHOOT_CLOSE)) {
+      tbhEnable(topWheelCtrl, FLY_CLOSE_SPEED);
+      tbhEnable(botWheelCtrl, FLY_CLOSE_SPEED);
     }
     if(vexControllerGet(J_SHOOT_SIDE)) {
       tbhEnable(topWheelCtrl, FLY_SIDE_SPEED);
@@ -211,26 +215,26 @@ vexOperator( void *arg )
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
-    // Front Feed
-    if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_D)) && !isBallTop()) {
-       vexMotorSet(M_FEED_FRONT, 100);
-    } else if((vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_U)) && !isBallTop()) {
-       vexMotorSet(M_FEED_FRONT, -100);
-    } else if(!isBallTop() && isBallBot()) {
-       vexMotorSet(M_FEED_FRONT, -100);
-    } else {
-       vexMotorSet(M_FEED_FRONT, 0);
-    }
-
     // Shoot Feed
-    if(vexControllerGet(J_FEED_SHOOT_U)) {
+    if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) && !isBallTop()) {
        vexMotorSet(M_FEED_SHOOT, -100);
-    } else if(vexControllerGet(J_FEED_SHOOT_D)) {
+    } else if((vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) && !isBallTop()) {
        vexMotorSet(M_FEED_SHOOT, 100);
     } else if(!isBallTop() && isBallBot()) {
        vexMotorSet(M_FEED_SHOOT, -100);
     } else {
        vexMotorSet(M_FEED_SHOOT, 0);
+    }
+
+    // Front Feed
+    if(vexControllerGet(J_FEED_SHOOT_U)) {
+       vexMotorSet(M_FEED_FRONT, -100);
+    } else if(vexControllerGet(J_FEED_SHOOT_D)) {
+       vexMotorSet(M_FEED_FRONT, 100);
+    } else if(!isBallTop() && isBallBot()) {
+       vexMotorSet(M_FEED_FRONT, -100);
+    } else {
+       vexMotorSet(M_FEED_FRONT, 0);
     }
 
     vexSleep( 10 );

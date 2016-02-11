@@ -31,11 +31,13 @@ typedef struct _EPidController {
 #define MAX_EASING_CONFIGS 10
 #define MAX_EPID_CONTROLLERS 10
 
+//Constructor for EasingConfig
 EasingConfig *EasingInit(tEasingFunc func);
 void EasingEnable(EasingConfig *conf, int32_t duration, int32_t start, int32_t target);
 void EasingDisable(EasingConfig *conf);
 int32_t EasingUpdate(EasingConfig *conf);
 
+//Constructor for EPidController
 EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSensors port, int16_t sensor_reverse);
 void EPidEnable(EPidController *epid, int32_t duration, int32_t target);
 void EPidDisable(EPidController *epid);
