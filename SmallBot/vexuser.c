@@ -216,12 +216,12 @@ vexOperator( void *arg )
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
     // Shoot Feed
-    if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) && !isBallTop()) {
-       vexMotorSet(M_FEED_SHOOT, -100);
-    } else if((vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) && !isBallTop()) {
+    if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) /*&& !isBallTop()*/) {
        vexMotorSet(M_FEED_SHOOT, 100);
-    } else if(!isBallTop() && isBallBot()) {
+    } else if((vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) /*&& !isBallTop()*/) {
        vexMotorSet(M_FEED_SHOOT, -100);
+    //} else if(!isBallTop() && isBallBot()) {
+      // vexMotorSet(M_FEED_SHOOT, 100);
     } else {
        vexMotorSet(M_FEED_SHOOT, 0);
     }
@@ -231,8 +231,8 @@ vexOperator( void *arg )
        vexMotorSet(M_FEED_FRONT, -100);
     } else if(vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_FRONT, 100);
-    } else if(!isBallTop() && isBallBot()) {
-       vexMotorSet(M_FEED_FRONT, -100);
+    //} else if(!isBallTop() && isBallBot()) {
+       //vexMotorSet(M_FEED_FRONT, -100);
     } else {
        vexMotorSet(M_FEED_FRONT, 0);
     }
