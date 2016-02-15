@@ -26,6 +26,7 @@ typedef struct _EasingConfig {
 typedef struct _EPidController {
 	pidController *pidc;
 	EasingConfig *easing;
+	bool log;
 } EPidController;
 
 #define MAX_EASING_CONFIGS 10

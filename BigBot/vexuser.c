@@ -54,6 +54,9 @@
 #define J_SHOOT_50      Btn8L
 #define J_SHOOT_LONG    Btn7L
 
+#define J_START_AUTON	Btn7R
+#define J_STOP_AUTON	Btn7U
+
 #define J_PISTON 		Btn7D
 
 #define J_FEED_SHOOT_U  Btn6U
@@ -143,6 +146,7 @@ vexUserSetup()
 void
 vexUserInit()
 {
+  //Initialize TBHControllers
   topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
   topWheelCtrl->powerZeroClamp = true;
   topWheelCtrl->log = false;
@@ -150,6 +154,10 @@ vexUserInit()
   botWheelCtrl->log = false;
   botWheelCtrl->powerZeroClamp = true;
   vex_printf("puTTy Test");
+
+  //Initialize EPIDControllers
+  rightDrive = EPidInit(kMinJerk,1,0,0,S_ENC_DRIVE_RIGHT, true);
+  leftDrive = EPidInit(kMinJerk,1,0,0,S_ENC_DRIVE_LEFT, false);
 }
 
 bool isBotFlyWheelStable(void) {
@@ -164,7 +172,7 @@ msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
-
+  /*
   tbhEnable(botWheelCtrl, FLY_MAX_SPEED+175);
   tbhEnable(topWheelCtrl, FLY_MAX_SPEED+175);
 
@@ -172,9 +180,17 @@ vexAutonomous( void *arg )
   vex_printf("starting autonomous\n");
   int shootCount = 0;
   int step = 0;
+  */
   systime_t lastTime = chTimeNow();
+  EPidEnable(rightDrive, 5000, 1000);
+  EPidEnable(leftDrive, 5000, 1000);
   while(!chThdShouldTerminate())
   {
+	if(vexControllerGet(J_STOP_AUTON))
+	{
+		break;
+	}
+	/*
     systime_t time = chTimeNow();
     int32_t timeGap = time-lastTime;
     //if(vexControllerGet(Btn8D)){
@@ -217,12 +233,20 @@ vexAutonomous( void *arg )
         vexMotorSet(M_FLY_BOT_WHEEL, 0);
         break;
       }
-    }
-    vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
-    vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
+      */
+	  int16_t motorValL = EPidUpdate(leftDrive);
+	  int16_t motorValR = EPidUpdate(rightDrive);
+	  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
+	  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
+	  vexMotorSet(M_DRIVE_LEFT1, motorValL);
+	  vexMotorSet(M_DRIVE_LEFT2, motorValL);
+    //vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
+    //vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
     // Don't hog cpu
     vexSleep( 10 );
   }
+  EPidDisable(rightDrive);
+  EPidDisable(leftDrive);
   vex_printf("End\n");
   return (msg_t)0;
 
@@ -238,11 +262,21 @@ vexOperator( void *arg )
   // Run until asked to terminate
   systime_t currentTime = chTimeNow();
   systime_t motorStartTime = 0;
+  systime_t botSensorTime = 0;
   int32_t timeGap = currentTime - motorStartTime;
+  int32_t sensorTimeGap = currentTime - botSensorTime;
   while(!chThdShouldTerminate())
   {
 	currentTime = chTimeNow();
 	timeGap = currentTime - motorStartTime;
+	sensorTimeGap = currentTime - botSensorTime;
+
+
+	//Test autonomous
+	if(vexControllerGet(J_START_AUTON))
+	{
+		vexAutonomous(NULL);
+	}
 
     bool motorRunning = driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
@@ -287,13 +321,17 @@ vexOperator( void *arg )
     {
     	motorStartTime = chTimeNow();
     }
+    if(isBallBot())
+    {
+    	botSensorTime = chTimeNow();
+    }
     // Front Feed Controls
-    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || (timeGap < 2000)) {
-       vexMotorSet(M_FEED_FRONT, 100);
+    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || (timeGap < 750)) {
+       vexMotorSet(M_FEED_FRONT, 63);
     } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
-       vexMotorSet(M_FEED_FRONT, -100);
+       vexMotorSet(M_FEED_FRONT, -63);
     } else if(!isBallTop() && isBallBot()) {
-       vexMotorSet(M_FEED_FRONT, 100);
+       vexMotorSet(M_FEED_FRONT, 63);
     } else {
        vexMotorSet(M_FEED_FRONT, 0);
     }
@@ -303,7 +341,7 @@ vexOperator( void *arg )
        vexMotorSet(M_FEED_SHOOT, 77);
     } else if(vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_SHOOT, -77);
-    } else if(!isBallTop() && isBallBot()) {
+    } else if(!isBallTop() && (sensorTimeGap < 250)) {
        vexMotorSet(M_FEED_SHOOT, 77);
     } else {
        vexMotorSet(M_FEED_SHOOT, 0);
@@ -315,4 +353,7 @@ vexOperator( void *arg )
 }
 
 //A function for rotating degrees
+void rotate90()
+{
 
+}

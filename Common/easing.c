@@ -58,11 +58,16 @@ EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSen
 	EPidController *epidc = &epidControllers[nextEPidControllerPtr++];
 	epidc->pidc = PidControllerInit(Kp, Ki, Kd, port, sensor_reverse);
 	epidc->easing = EasingInit(func);
+	epidc->log = false;
 	return epidc;
 }
 
 void EPidEnable(EPidController *epid, int32_t duration, int32_t target) {
-	EasingEnable(epid->easing, duration, vexControllerGet(epid->pidc->sensor_port), target);
+	int32_t sensorValue = vexSensorValueGet(epid->pidc->sensor_port);
+	if(epid->pidc->sensor_reverse) {
+		sensorValue = -sensorValue;
+	}
+	EasingEnable(epid->easing, duration, sensorValue, sensorValue+target);
 }
 
 void EPidDisable(EPidController *epid) {
@@ -71,5 +76,9 @@ void EPidDisable(EPidController *epid) {
 
 int16_t EPidUpdate(EPidController *epid) {
 	epid->pidc->target_value = EasingUpdate(epid->easing);
+	if(epid->log) {
+		float normValue = (epid->easing->value - epid->easing->start)/((float)(epid->easing->target - epid->easing->start));
+		vex_printf("%f,%f,%f\n", normValue, epid->pidc->error, epid->pidc->drive);
+	}
 	return PidControllerUpdate(epid->pidc);
 }
