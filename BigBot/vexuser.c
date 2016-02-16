@@ -52,7 +52,7 @@
 #define J_SHOOT_75      Btn8U
 #define J_SHOOT_STOP    Btn8D
 #define J_SHOOT_50      Btn8L
-#define J_SHOOT_LONG    Btn7L
+#define J_SLOW_TURN     Btn7L
 
 #define J_START_AUTON	Btn7R
 #define J_STOP_AUTON	Btn7U
@@ -114,7 +114,15 @@ bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
   int forward = VALLEY(-vexControllerGet(J_DRIVE), 45, 127);
-  int turn    = VALLEY(-vexControllerGet(J_TURN), 45, 127);
+  int turn;
+  if(vexControllerGet(J_SLOW_TURN))
+  {
+	  turn    = VALLEY(-vexControllerGet(J_TURN)*0.4, 45, 127);
+  }
+  else
+  {
+	  turn    = VALLEY(-vexControllerGet(J_TURN), 45, 127);
+  }
   ld = VALLEY(forward + turn, 45, 127);
   rd = VALLEY(forward - turn, 45, 127);
 
@@ -261,16 +269,19 @@ vexOperator( void *arg )
   vexTaskRegister("operator");
   // Run until asked to terminate
   systime_t currentTime = chTimeNow();
-  systime_t motorStartTime = 0;
   systime_t botSensorTime = 0;
-  int32_t timeGap = currentTime - motorStartTime;
+  systime_t pneumaticPressed = 0;
   int32_t sensorTimeGap = currentTime - botSensorTime;
+  int32_t pneumaticTimeGap = currentTime - pneumaticPressed;
   while(!chThdShouldTerminate())
   {
 	currentTime = chTimeNow();
-	timeGap = currentTime - motorStartTime;
 	sensorTimeGap = currentTime - botSensorTime;
+	pneumaticTimeGap = currentTime - pneumaticPressed;
 
+	if(!vexControllerGet(J_PISTON)) {
+		pneumaticPressed = currentTime;
+	}
 
 	//Test autonomous
 	if(vexControllerGet(J_START_AUTON))
@@ -283,7 +294,7 @@ vexOperator( void *arg )
     //if(vexControllerGet(Btn7R)){
     //	vexAutonomous(NULL);
     //}
-    if(vexControllerGet(J_PISTON)) {
+    if(pneumaticTimeGap >= 1000) {
       vexDigitalPinSet(P_PISTON, 1);
     } else {
       vexDigitalPinSet(P_PISTON, 0);
@@ -304,10 +315,13 @@ vexOperator( void *arg )
       tbhEnable(botWheelCtrl, FLY_75_SPEED);
     }
     //Full court shot
+    /*
     if(vexControllerGet(J_SHOOT_LONG)) {
       tbhEnable(topWheelCtrl, FLY_LONG_SPEED);
       tbhEnable(botWheelCtrl, FLY_LONG_SPEED);
     }
+    */
+
     //Turn off flywheels
     if(vexControllerGet(J_SHOOT_STOP)) {
       tbhDisable(topWheelCtrl);
@@ -317,16 +331,12 @@ vexOperator( void *arg )
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
-    if(motorRunning)
-    {
-    	motorStartTime = chTimeNow();
-    }
     if(isBallBot())
     {
     	botSensorTime = chTimeNow();
     }
     // Front Feed Controls
-    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || (timeGap < 750)) {
+    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
        vexMotorSet(M_FEED_FRONT, 63);
     } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_FRONT, -63);
