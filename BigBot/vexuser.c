@@ -48,15 +48,14 @@
 #define J_TURN       Ch1
 
 //#define J_SHOOT      Btn6U
-#define J_SHOOT_MAX     Btn8R
-#define J_SHOOT_75      Btn8U
+#define J_SHOOT_START   Btn8R
+#define J_SHOOT_MID     Btn8U
+#define J_SHOOT_SHORT   Btn8L
+#define J_SHOOT_CORNER	Btn7U
 #define J_SHOOT_STOP    Btn8D
-#define J_SHOOT_50      Btn8L
+#define J_SHOOT_PB		Btn7R
+
 #define J_SLOW_TURN     Btn7L
-
-#define J_START_AUTON	Btn7R
-#define J_STOP_AUTON	Btn7U
-
 #define J_PISTON 		Btn7D
 
 #define J_FEED_SHOOT_U  Btn6U
@@ -68,10 +67,13 @@
 #define DEFAULT_FEED_SPEED 127
 #define FEED_SPOOL_TIME 100
 
-#define FLY_LONG_SPEED 7100
-#define FLY_50_SPEED   6300
-#define FLY_MAX_SPEED  6900
-#define FLY_75_SPEED   6550
+#define FLY_CORNER_SPEED 7200
+#define FLY_SHORT_SPEED  6300
+#define FLY_START_SPEED  7000
+#define FLY_MID_SPEED    6550
+
+#define FLY_PB_BOT		 10000
+#define FLY_PB_TOP		 1500
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -117,7 +119,7 @@ bool driveMotors(void) {
   int turn;
   if(vexControllerGet(J_SLOW_TURN))
   {
-	  turn    = VALLEY(-vexControllerGet(J_TURN)*0.4, 45, 127);
+	  turn    = VALLEY(-vexControllerGet(J_TURN)*0.5, 45, 127);
   }
   else
   {
@@ -194,7 +196,7 @@ vexAutonomous( void *arg )
   EPidEnable(leftDrive, 5000, 1000);
   while(!chThdShouldTerminate())
   {
-	if(vexControllerGet(J_STOP_AUTON))
+	//if(vexControllerGet(J_SHOOT_MAX))
 	{
 		break;
 	}
@@ -270,9 +272,9 @@ vexOperator( void *arg )
   // Run until asked to terminate
   systime_t currentTime = chTimeNow();
   systime_t botSensorTime = 0;
-  systime_t pneumaticPressed = 0;
+  systime_t pneumaticPressed = chTimeNow();
   int32_t sensorTimeGap = currentTime - botSensorTime;
-  int32_t pneumaticTimeGap = currentTime - pneumaticPressed;
+  int32_t pneumaticTimeGap;
   while(!chThdShouldTerminate())
   {
 	currentTime = chTimeNow();
@@ -284,43 +286,48 @@ vexOperator( void *arg )
 	}
 
 	//Test autonomous
-	if(vexControllerGet(J_START_AUTON))
-	{
-		vexAutonomous(NULL);
-	}
+	//if(vexControllerGet(J_START_AUTON))
+	//{
+	//	vexAutonomous(NULL);
+	//}
 
     bool motorRunning = driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
     //if(vexControllerGet(Btn7R)){
     //	vexAutonomous(NULL);
     //}
-    if(pneumaticTimeGap >= 1000) {
+    if(pneumaticTimeGap >= 250) {
       vexDigitalPinSet(P_PISTON, 1);
     } else {
       vexDigitalPinSet(P_PISTON, 0);
     }
     //Short range shot
-    if(vexControllerGet(J_SHOOT_50)) {
-      tbhEnable(topWheelCtrl, FLY_50_SPEED);
-      tbhEnable(botWheelCtrl, FLY_50_SPEED);
+    if(vexControllerGet(J_SHOOT_SHORT)) {
+      tbhEnable(topWheelCtrl, FLY_SHORT_SPEED);
+      tbhEnable(botWheelCtrl, FLY_SHORT_SPEED);
     }
     //Start position shot
-    if(vexControllerGet(J_SHOOT_MAX)) {
-      tbhEnable(topWheelCtrl, FLY_MAX_SPEED);
-      tbhEnable(botWheelCtrl, FLY_MAX_SPEED);
+    if(vexControllerGet(J_SHOOT_START)) {
+      tbhEnable(topWheelCtrl, FLY_START_SPEED);
+      tbhEnable(botWheelCtrl, FLY_START_SPEED);
     }
     //3/4 court shot
-    if(vexControllerGet(J_SHOOT_75)) {
-      tbhEnable(topWheelCtrl, FLY_75_SPEED);
-      tbhEnable(botWheelCtrl, FLY_75_SPEED);
+    if(vexControllerGet(J_SHOOT_MID)) {
+      tbhEnable(topWheelCtrl, FLY_MID_SPEED);
+      tbhEnable(botWheelCtrl, FLY_MID_SPEED);
     }
     //Full court shot
-    /*
-    if(vexControllerGet(J_SHOOT_LONG)) {
-      tbhEnable(topWheelCtrl, FLY_LONG_SPEED);
-      tbhEnable(botWheelCtrl, FLY_LONG_SPEED);
+    if(vexControllerGet(J_SHOOT_CORNER)) {
+      tbhEnable(topWheelCtrl, FLY_CORNER_SPEED);
+      tbhEnable(botWheelCtrl, FLY_CORNER_SPEED);
     }
-    */
+
+    //Point blank shot
+    if(vexControllerGet(J_SHOOT_PB)) {
+        tbhEnable(topWheelCtrl, FLY_PB_TOP);
+        tbhEnable(botWheelCtrl, FLY_PB_BOT);
+      }
+
 
     //Turn off flywheels
     if(vexControllerGet(J_SHOOT_STOP)) {
