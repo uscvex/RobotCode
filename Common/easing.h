@@ -6,6 +6,7 @@
 #include "hal.h"
 #include "vex.h"
 #include "pidlib.h"
+#include "./common.h"
 
 typedef enum {
 	kLinear = 0,
@@ -26,6 +27,7 @@ typedef struct _EasingConfig {
 typedef struct _EPidController {
 	pidController *pidc;
 	EasingConfig *easing;
+	Speedometer *spdmtr;
 	bool log;
 } EPidController;
 

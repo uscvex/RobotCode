@@ -58,6 +58,7 @@ EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSen
 	EPidController *epidc = &epidControllers[nextEPidControllerPtr++];
 	epidc->pidc = PidControllerInit(Kp, Ki, Kd, port, sensor_reverse);
 	epidc->easing = EasingInit(func);
+	epidc->spdmtr = SpeedometerInit(port);
 	epidc->log = false;
 	return epidc;
 }
@@ -75,10 +76,14 @@ void EPidDisable(EPidController *epid) {
 }
 
 int16_t EPidUpdate(EPidController *epid) {
+	SpeedometerUpdate(epid->spdmtr);
 	epid->pidc->target_value = EasingUpdate(epid->easing);
+	int16_t motorPower = PidControllerUpdate(epid->pidc);
 	if(epid->log) {
-		float normValue = (epid->easing->value - epid->easing->start)/((float)(epid->easing->target - epid->easing->start));
-		vex_printf("%f,%f,%f\n", normValue, epid->pidc->error, epid->pidc->drive);
+		float distance = epid->easing->target - epid->easing->start;
+		float normTarget = (epid->easing->value - epid->easing->start)/distance;
+		float normError = epid->pidc->error/distance;
+		vex_printf("%f,%f,%f,%f\n", normTarget, normError, epid->pidc->drive, epid->spdmtr->speed);
 	}
-	return PidControllerUpdate(epid->pidc);
+	return motorPower;
 }

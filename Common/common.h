@@ -16,9 +16,12 @@ typedef struct _Speedometer {
 	tVexSensors sensor;
   systime_t lastTime;
   int32_t lastValue;
+	double speed;
 } Speedometer;
 
-void InitSpeedometer(Speedometer *spm, tVexSensors sensor);
-double UpdateSpeedometer(Speedometer *spm);
+#define MAX_SPEEDOMETERS 10
+
+Speedometer *SpeedometerInit(tVexSensors sensor);
+double SpeedometerUpdate(Speedometer *spm);
 
 #endif

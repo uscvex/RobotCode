@@ -4,17 +4,22 @@
 #include "vex.h"
 #include "common.h"
 
-void InitSpeedometer(Speedometer *spm, tVexSensors sensor) {
-  spm->sensor = sensor;
-  spm->lastTime = chTimeNow();
-  spm->lastValue = vexSensorValueGet(sensor);
+static Speedometer speedometers[MAX_SPEEDOMETERS];
+static int16_t nextSpeedometer = 0;
+
+Speedometer *SpeedometerInit(tVexSensors sensor) {
+  Speedometer *spdmtr = &speedometers[nextSpeedometer++];
+  spdmtr->sensor = sensor;
+  spdmtr->lastTime = chTimeNow();
+  spdmtr->lastValue = vexSensorValueGet(sensor);
+  return spdmtr;
 }
 
-double UpdateSpeedometer(Speedometer *spm) {
-  int32_t value = vexSensorValueGet(spm->sensor);
+double SpeedometerUpdate(Speedometer *spdmtr) {
+  int32_t value = vexSensorValueGet(spdmtr->sensor);
   systime_t currTime = chTimeNow();
-  double speed = (value - spm->lastValue)/((double)(currTime - spm->lastTime));
-  spm->lastValue = value;
-  spm->lastTime = currTime;
-  return speed;
+  spdmtr->speed = (value - spdmtr->lastValue)/((double)(currTime - spdmtr->lastTime));
+  spdmtr->lastValue = value;
+  spdmtr->lastTime = currTime;
+  return spdmtr->speed;
 }

@@ -32,9 +32,14 @@ TBHController *TBHControllerInit(tVexSensors sensor, double gain, int32_t maxSpe
 }
 
 void tbhEnable(TBHController *ctrl, int32_t targetSpeed) {
+	tbhEnableWithGain(ctrl, targetSpeed, ctrl->gain);
+}
+
+void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain) {
 	if(ctrl->enabled && ctrl->targetSpeed == targetSpeed) {
 		return;
 	}
+	ctrl->gain = gain;
 	ctrl->targetSpeed = targetSpeed;
 	ctrl->enabled = true;
 	ctrl->lastValue = vexSensorValueGet(ctrl->sensor);

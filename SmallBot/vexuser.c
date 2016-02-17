@@ -30,7 +30,6 @@
 #define P_ENC_TOP_FLY_A       kVexDigital_3
 #define P_ENC_TOP_FLY_B       kVexDigital_4
 
-
 #define P_ENC_DRIVE_RIGHT_A   kVexDigital_5
 #define P_ENC_DRIVE_RIGHT_B   kVexDigital_6
 
@@ -74,8 +73,14 @@
 #define DEFAULT_FEED_SPEED 90
 #define FEED_SPOOL_TIME 100
 
+#define TOP_FLY_WHEEL_DEFAULT_GAIN  0.20
+#define BOT_FLY_WHEEL_DEFAULT_GAIN  0.20
+
+#define TOP_FLY_WHEEL_LOW_GAIN  0.05
+#define BOT_FLY_WHEEL_LOW_GAIN  0.05
+
 #define FLY_START_SPEED  8000
-#define FLY_SIDE_SPEED 	 5500
+#define FLY_SIDE_SPEED 	 6900
 #define FLY_PB_SPEED   	 5200
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
@@ -160,18 +165,18 @@ vexUserSetup()
 void
 vexUserInit()
 {
-  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.20, 10500, false);
+  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, TOP_FLY_WHEEL_DEFAULT_GAIN, 10500, false);
   topWheelCtrl->powerZeroClamp = true;
   topWheelCtrl->log = false;
 
-  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.20, 10500, false);
+  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, TOP_FLY_WHEEL_DEFAULT_GAIN, 10500, false);
   botWheelCtrl->log = false;
   botWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers
-  rightDrive = EPidInit(kMinJerk,1,0,0,S_ENC_DRIVE_RIGHT, true);
+  rightDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_RIGHT, false);
   rightDrive->log = true;
-  leftDrive = EPidInit(kMinJerk,1,0,0,S_ENC_DRIVE_LEFT, false);
+  leftDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_LEFT, true);
 }
 
 msg_t
@@ -210,22 +215,23 @@ vexAutonomous( void *arg )
 //  }
 //  vex_printf("End\n");
 
-  EPidEnable(rightDrive, 1000, 500);
-  EPidEnable(leftDrive, 1000, 500);
-  while(!chThdShouldTerminate())
-  {
-	if(vexControllerGet(J_STOP_AUTON))
-	{
-		break;
-	}
-	int16_t motorValL = EPidUpdate(leftDrive);
-	int16_t motorValR = EPidUpdate(rightDrive);
-	vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-	vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-	vexMotorSet(M_DRIVE_LEFT1, motorValL);
-	vexMotorSet(M_DRIVE_LEFT2, motorValL);
-    vexSleep( 10 );
-  }
+    EPidEnable(rightDrive, 2000, 1500);
+    EPidEnable(leftDrive, 2000, 1500);
+    while(!chThdShouldTerminate())
+    {
+      //vex_printf("right encoder = %d\n", vexSensorValueGet(S_ENC_DRIVE_RIGHT));
+    	if(vexControllerGet(J_STOP_AUTON))
+    	{
+    		break;
+    	}
+    	int16_t motorValL = EPidUpdate(leftDrive);
+    	int16_t motorValR = EPidUpdate(rightDrive);
+    	vexMotorSet(M_DRIVE_RIGHT1, motorValR);
+    	vexMotorSet(M_DRIVE_RIGHT2, motorValR);
+    	vexMotorSet(M_DRIVE_LEFT1, motorValL);
+    	vexMotorSet(M_DRIVE_LEFT2, motorValL);
+      vexSleep( 10 );
+    }
 
 
   return (msg_t)0;
@@ -244,27 +250,28 @@ vexOperator( void *arg )
   {
     driveMotors();
 
+    //vex_printf("right=%d left=%d\n", vexSensorValueGet(S_ENC_DRIVE_RIGHT), vexSensorValueGet(S_ENC_DRIVE_LEFT));
     //Test autonomous
-	if(vexControllerGet(J_START_AUTON))
-	{
-		vexAutonomous(NULL);
-	}
+  	if(vexControllerGet(J_START_AUTON))
+  	{
+  		vexAutonomous(NULL);
+  	}
 
     if(vexControllerGet(J_SHOOT_PB)) {
-      tbhEnable(topWheelCtrl, FLY_PB_SPEED);
-      tbhEnable(botWheelCtrl, FLY_PB_SPEED);
+      tbhEnableWithGain(topWheelCtrl, FLY_PB_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
+      tbhEnableWithGain(botWheelCtrl, FLY_PB_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
     }
     if(vexControllerGet(J_SHOOT_START)) {
-      tbhEnable(topWheelCtrl, FLY_START_SPEED);
-      tbhEnable(botWheelCtrl, FLY_START_SPEED);
+      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
+      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
     }
     if(vexControllerGet(J_SHOOT_CLOSE)) {
-      tbhEnable(topWheelCtrl, FLY_CLOSE_SPEED);
-      tbhEnable(botWheelCtrl, FLY_CLOSE_SPEED);
+      tbhEnableWithGain(topWheelCtrl, FLY_CLOSE_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
+      tbhEnableWithGain(botWheelCtrl, FLY_CLOSE_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
     }
     if(vexControllerGet(J_SHOOT_SIDE)) {
-      tbhEnable(topWheelCtrl, FLY_SIDE_SPEED);
-      tbhEnable(botWheelCtrl, FLY_SIDE_SPEED);
+      tbhEnableWithGain(topWheelCtrl, FLY_SIDE_SPEED, TOP_FLY_WHEEL_LOW_GAIN);
+      tbhEnableWithGain(botWheelCtrl, FLY_SIDE_SPEED, TOP_FLY_WHEEL_LOW_GAIN);
     }
     if(vexControllerGet(J_SHOOT_STOP)) {
       tbhDisable(topWheelCtrl);
