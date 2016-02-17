@@ -344,11 +344,11 @@ vexOperator( void *arg )
     }
     // Front Feed Controls
     if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
-       vexMotorSet(M_FEED_FRONT, 63);
+       vexMotorSet(M_FEED_FRONT, 100);
     } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
-       vexMotorSet(M_FEED_FRONT, -63);
+       vexMotorSet(M_FEED_FRONT, -100);
     } else if(!isBallTop() && isBallBot()) {
-       vexMotorSet(M_FEED_FRONT, 63);
+       vexMotorSet(M_FEED_FRONT, 100);
     } else {
        vexMotorSet(M_FEED_FRONT, 0);
     }
@@ -366,6 +366,8 @@ vexOperator( void *arg )
     vexSleep( 10 );
   }
 
+  return (msg_t)0;
+  return (msg_t)0;
   return (msg_t)0;
 }
 

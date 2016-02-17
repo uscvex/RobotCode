@@ -76,7 +76,7 @@
 
 #define FLY_START_SPEED  8000
 #define FLY_SIDE_SPEED 	 5500
-#define FLY_PB_SPEED   	 5300
+#define FLY_PB_SPEED   	 5200
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
