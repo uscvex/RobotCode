@@ -58,7 +58,7 @@
 #define J_SHOOT_PB      Btn8L
 #define J_SHOOT_SIDE    Btn7U
 #define J_SHOOT_MID     Btn8R
-#define J_SHOOT_STOP   Btn8D
+#define J_SHOOT_STOP   	Btn8D
 
 #define J_START_AUTON	Btn7R
 #define J_STOP_AUTON	Btn7U
@@ -74,9 +74,9 @@
 #define DEFAULT_FEED_SPEED 90
 #define FEED_SPOOL_TIME 100
 
-#define FLY_START_SPEED  6200
+#define FLY_START_SPEED  8000
 #define FLY_SIDE_SPEED 	 5500
-#define FLY_PB_SPEED   	 5500
+#define FLY_PB_SPEED   	 5300
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
@@ -163,11 +163,11 @@ vexUserSetup()
 void
 vexUserInit()
 {
-  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.05, 10500, false);
+  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.20, 10500, false);
   topWheelCtrl->powerZeroClamp = true;
   topWheelCtrl->log = false;
 
-  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.05, 10500, false);
+  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.20, 10500, false);
   botWheelCtrl->log = false;
   botWheelCtrl->powerZeroClamp = true;
 
