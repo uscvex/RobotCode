@@ -123,15 +123,12 @@ bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
   int forward = VALLEY(vexControllerGet(J_DRIVE), 10, 127);
-  int turn;
+  int turnChannel = vexControllerGet(J_TURN) * 0.8;
   if(vexControllerGet(J_HALF_SPEED))
   {
-	  turn  = VALLEY(vexControllerGet(J_TURN)*.4, 10, 127);
+	  turnChannel  *= .4;
   }
-  else
-  {
-	  turn  = VALLEY(vexControllerGet(J_TURN), 10, 127);
-  }
+  int turn  = VALLEY(turnChannel, 10, 127);
 
   ld = VALLEY(forward + turn, 45, 127);
   rd = VALLEY(forward - turn, 45, 127);
