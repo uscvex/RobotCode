@@ -60,7 +60,7 @@
 #define J_SHOOT_STOP   	Btn8D
 
 #define J_START_AUTON	Btn7R
-#define J_STOP_AUTON	Btn7U
+#define J_STOP_AUTON	Btn5U
 
 
 #define J_FEED_SHOOT_U 	Btn6U
@@ -175,7 +175,7 @@ vexUserInit()
 
   //Initialize EPIDControllers
   rightDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_RIGHT, false);
-  rightDrive->log = true;
+  rightDrive->log = false;
   leftDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_LEFT, true);
 }
 
@@ -215,13 +215,14 @@ vexAutonomous( void *arg )
 //  }
 //  vex_printf("End\n");
 
-    EPidEnable(rightDrive, 2000, 1500);
-    EPidEnable(leftDrive, 2000, 1500);
+    EPidEnable(rightDrive, 4000, 1500);
+    EPidEnable(leftDrive, 4000, 1500);
+    int16_t encStart = vexSensorValueGet(S_ENC_DRIVE_RIGHT);
     while(!chThdShouldTerminate())
     {
-      //vex_printf("right encoder = %d\n", vexSensorValueGet(S_ENC_DRIVE_RIGHT));
     	if(vexControllerGet(J_STOP_AUTON))
     	{
+        vex_printf("distance = %d\n", (vexSensorValueGet(S_ENC_DRIVE_RIGHT)-encStart));
     		break;
     	}
     	int16_t motorValL = EPidUpdate(leftDrive);
