@@ -196,7 +196,7 @@ vexAutonomous( void *arg )
   int step = 0;
   bool shotsReady = false;
   //bool runFrontFeed = false;
-  bool runShootFeed = false;
+  //bool runShootFeed = false;
   while(!chThdShouldTerminate())
   {
 	  //Break out of loop
@@ -225,35 +225,53 @@ vexAutonomous( void *arg )
 		  step++;
 	  }
 	  //Back up, get balls
-	  if((timeGap >= 5000 && timeGap < 8000) && step == 2)
+	  if((timeGap >= 5000 && timeGap < 8500) && step == 2)
 	  {
-		  EPidEnable(rightDrive, 3000, 1025);
-		  EPidEnable(leftDrive, 3000, 1025);
+		  EPidEnable(rightDrive, 3200, 1080);
+		  EPidEnable(leftDrive, 3200, 1080);
 		  tbhEnable(topWheelCtrl, FLY_MID_SPEED);
 		  tbhEnable(botWheelCtrl, FLY_MID_SPEED);
 		  step++;
-		  runShootFeed = true;
+		  //runShootFeed = true;
 	  }
 	  //TODO Move back and forth
+	  if((timeGap >= 8500 && timeGap < 9500) && step == 3)
+ 	  {
+ 		  EPidEnable(rightDrive, 1000, -150);
+ 		  EPidEnable(leftDrive, 1000, -150);
+ 		  step++;
+ 		  //runShootFeed = true;
+ 	  }
+
+	  if((timeGap >= 9500 && timeGap < 10500) && step == 4)
+ 	  {
+ 		  EPidEnable(rightDrive, 1000, 150);
+ 		  EPidEnable(leftDrive, 1000, 150);
+ 		  tbhEnable(topWheelCtrl, FLY_MID_SPEED);
+ 		  tbhEnable(botWheelCtrl, FLY_MID_SPEED);
+ 		  step++;
+ 		  //runShootFeed = true;
+ 	  }
+
 
 	  //Align shot
-	  if((timeGap >= 8000 && timeGap < 10000) && step == 3)
+	  if((timeGap >= 10500 && timeGap < 12500) && step == 5)
 	  {
-		  runShootFeed = false;
-	 	  EPidEnable(rightDrive, 1000, -220);
-	 	  EPidEnable(leftDrive, 1000, -220);
+		  //runShootFeed = false;
+	 	  EPidEnable(rightDrive, 2000, -220);
+	 	  EPidEnable(leftDrive, 2000, -220);
 	 	  step++;
 	  }
-	  if((timeGap >= 10000 && timeGap < 12500) && step == 4)
+	  if((timeGap >= 12500 && timeGap < 15000) && step == 6)
 	  {
-	  	  EPidEnable(rightDrive, 2000, -145);
-	  	  EPidEnable(leftDrive, 2000, 145);
+	  	  EPidEnable(rightDrive, 2000, -150);
+	  	  EPidEnable(leftDrive, 2000, 150);
 	  	  step++;
 	  }
 	  //Shoot balls
-	  if((timeGap >= 12500 && timeGap < 13500) && step == 5)
+	  if((timeGap >= 15000 && timeGap < 18000) && step == 7)
 	  {
-		   runShootFeed = true;
+		   shotsReady = true;
 	  	   step++;
 	  }
 	  //Drive motors
@@ -269,7 +287,7 @@ vexAutonomous( void *arg )
 	  vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
 	  //Control shoot feed
-	  if(runShootFeed)
+	  if(shotsReady || !isBallTop())
 	  {
 		  vexMotorSet(M_FEED_SHOOT, 77);
 	  }
