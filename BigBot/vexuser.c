@@ -258,22 +258,32 @@ vexAutonomous( void *arg )
 	  if((timeGap >= 10500 && timeGap < 12500) && step == 5)
 	  {
 		  //runShootFeed = false;
-	 	  EPidEnable(rightDrive, 2000, -220);
-	 	  EPidEnable(leftDrive, 2000, -220);
+	 	  EPidEnable(rightDrive, 2000, -250);
+	 	  EPidEnable(leftDrive, 2000, -250);
 	 	  step++;
 	  }
 	  if((timeGap >= 12500 && timeGap < 15000) && step == 6)
 	  {
-	  	  EPidEnable(rightDrive, 2000, -150);
-	  	  EPidEnable(leftDrive, 2000, 150);
+	  	  EPidEnable(rightDrive, 2000, -155);
+	  	  EPidEnable(leftDrive, 2000, 155);
 	  	  step++;
 	  }
 	  //Shoot balls
-	  if((timeGap >= 15000 && timeGap < 18000) && step == 7)
+	  if((timeGap >= 15000 && timeGap < 19000) && step == 7)
 	  {
 		   shotsReady = true;
 	  	   step++;
 	  }
+	  //TODO: Release balls in case of a jam
+
+	  //Turn towards next pile
+	  if((timeGap >= 19000 && timeGap < 22000)&& step == 8)
+	  {
+ 		  EPidEnable(rightDrive, 3000,-500);
+ 		  EPidEnable(leftDrive, 3000, 500);
+ 		  step++;
+ 	  }
+
 	  //Drive motors
 	  int16_t motorValL = EPidUpdate(leftDrive);
 	  int16_t motorValR = EPidUpdate(rightDrive);
