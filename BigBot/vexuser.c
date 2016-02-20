@@ -186,6 +186,7 @@ msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
+  vexTaskRegister("auton");
   /*
   tbhEnable(botWheelCtrl, FLY_MAX_SPEED+175);
   tbhEnable(topWheelCtrl, FLY_MAX_SPEED+175);
@@ -319,8 +320,8 @@ vexAutonomous( void *arg )
 	  if((timeGap >= 28000 && timeGap < 33000) && step == 10)
 	  {
 		  feeding = true;
-  		  EPidEnable(rightDrive, 4000, 800);
-  		  EPidEnable(leftDrive, 4000, 800);
+  		  EPidEnable(rightDrive, 4000, 780);
+  		  EPidEnable(leftDrive, 4000, 780);
   		  step++;
   		  //runShootFeed = true;
   	  }
@@ -369,14 +370,6 @@ vexAutonomous( void *arg )
 	  // Don't hog cpu
 	  vexSleep( 10 );
   }
-  EPidDisable(rightDrive);
-  EPidDisable(leftDrive);
-  int16_t motorValL = EPidUpdate(leftDrive);
-  int16_t motorValR = EPidUpdate(rightDrive);
-  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-  vexMotorSet(M_DRIVE_LEFT1, motorValL);
-  vexMotorSet(M_DRIVE_LEFT2, motorValL);
   vex_printf("End\n");
   return (msg_t)0;
 
@@ -387,7 +380,7 @@ msg_t
 vexOperator( void *arg )
 {
   (void)arg;
-  vex_printf("Putty Connection test");
+  //vex_printf("Putty Connection test");
   // Must call this
   vexTaskRegister("operator");
   systime_t currentTime = 0;
@@ -420,10 +413,10 @@ vexOperator( void *arg )
 	}
 
 	//Test autonomous
-	if(vexControllerGet(J_START_AUTON))
-	{
-		vexAutonomous(NULL);
-	}
+	//if(vexControllerGet(J_START_AUTON))
+	//{
+	//	vexAutonomous(NULL);
+	//}
 
     bool motorRunning = driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
