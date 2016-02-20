@@ -37,6 +37,7 @@
 
 #define S_BALL_BOT              0
 #define S_BALL_TOP              1
+#define S_COLOR_SELECTOR		2
 
 #define S_ENC_BOT_FLY         kVexSensorDigital_4
 #define S_ENC_TOP_FLY         kVexSensorDigital_2
@@ -94,10 +95,10 @@ static  vexMotorCfg mConfig[] = {
   { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_1 },
   { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
 
-  { M_FLY_BOT_WHEEL,      kVexMotor393T,      kVexMotorNormal,   kVexSensorQuadEncoder, kVexQuadEncoder_1 },
+  { M_FLY_BOT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
   { M_FLY_TOP_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
-  { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,   kVexSensorNone,        0 },
+  { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,   	  kVexSensorNone,        0 },
   { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
   { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 }
 };
@@ -181,18 +182,20 @@ bool isBotFlyWheelStable(void) {
 bool isTopFlyWheelStable(void) {
   return (topWheelCtrl->acceleration < 0.01);
 }
-
+bool isRed(void) {
+  return (vexAdcGet(S_COLOR_SELECTOR) > 2000);
+}
 msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
   vexTaskRegister("auton");
-  /*
-  tbhEnable(botWheelCtrl, FLY_MAX_SPEED+175);
-  tbhEnable(topWheelCtrl, FLY_MAX_SPEED+175);
-  */
+
+  vexSensorValueSet(S_ENC_DRIVE_LEFT,0);
+  vexSensorValueSet(S_ENC_DRIVE_RIGHT,0);
   //true for red, false for blue
-  bool color = false;
+  bool color = isRed();
+
   int TURN1,TURN2,TURN3,TURN4;
   TURN1 = 170;
   TURN2 = -155;
@@ -233,12 +236,45 @@ vexAutonomous( void *arg )
 		  tbhEnable(botWheelCtrl, FLY_START_SPEED);
 	  }
 	  //Fire balls
-	  if(step == 0 && timeGap >=1700 && timeGap < 6000)
-	  {
-		  shotsReady = true;
-		  dontShoot = false;
-		  step++;
-	  }
+	  	  //Shot 1
+		  if(step == 0 && timeGap >=1700 && timeGap < 2200)
+		  {
+			  shotsReady = true;
+			  dontShoot = false;
+		  }
+		  //Pause
+		  if(step == 0 && timeGap >=2200 && timeGap < 2900)
+		  {
+		  	  dontShoot = true;
+		  }
+		  //Shot 2
+		  if(step == 0 && timeGap >=2900 && timeGap < 3300)
+		  {
+				  dontShoot = false;
+		  }
+		  //Pause
+		  if(step == 0 && timeGap >=3300 && timeGap < 4100)
+		  {
+				  dontShoot = true;
+		  }
+		  //Shot 3
+		  if(step == 0 && timeGap >=4100 && timeGap < 4500)
+		  {
+		 	  dontShoot = false;
+		  }
+		  //Pause
+		  if(step == 0 && timeGap >=4500 && timeGap < 5100)
+		  {
+ 			  dontShoot = true;
+		  }
+		  //Shot 4
+		  if(step == 0 && timeGap >=5100 && timeGap < 6000)
+		  {
+			  dontShoot = false;
+			  step++;
+		  }
+
+
 	  //Drive forward two feet
 	  if(timeGap >= 6000 && timeGap <= 9000 && step == 1)
 	  {
@@ -335,8 +371,8 @@ vexAutonomous( void *arg )
    	  }
 	  if((timeGap >= 36000 && timeGap < 45000)&& step == 12)
 	  	  {
-		  	  tbhEnable(topWheelCtrl, FLY_SHORT_SPEED);
-		  	  tbhEnable(botWheelCtrl, FLY_SHORT_SPEED);
+		  	  tbhEnable(topWheelCtrl, FLY_MID_SPEED);
+		  	  tbhEnable(botWheelCtrl, FLY_MID_SPEED);
      		  step++;
      		  shotsReady = true;
      	  }
