@@ -213,8 +213,8 @@ vexAutonomous( void *arg )
 	  //Drive forward two feet
 	  if(timeGap < 3000 && step == 0)
 	  {
-		  EPidEnable(rightDrive, 2500, -1300);
-		  EPidEnable(leftDrive, 2500, -1300);
+		  EPidEnable(rightDrive, 2550, -1300);
+		  EPidEnable(leftDrive, 2550, -1300);
 		  step++;
 	  }
 	  //Rotate ~30 degrees
@@ -264,8 +264,8 @@ vexAutonomous( void *arg )
 	  }
 	  if((timeGap >= 12500 && timeGap < 15000) && step == 6)
 	  {
-	  	  EPidEnable(rightDrive, 2000, -155);
-	  	  EPidEnable(leftDrive, 2000, 155);
+	  	  EPidEnable(rightDrive, 2000, -150);
+	  	  EPidEnable(leftDrive, 2000, 150);
 	  	  step++;
 	  }
 	  //Shoot balls
@@ -279,10 +279,22 @@ vexAutonomous( void *arg )
 	  //Turn towards next pile
 	  if((timeGap >= 19000 && timeGap < 22000)&& step == 8)
 	  {
- 		  EPidEnable(rightDrive, 3000,-500);
- 		  EPidEnable(leftDrive, 3000, 500);
+ 		  EPidEnable(rightDrive, 3000, -400);
+ 		  EPidEnable(leftDrive, 3000, 400);
  		  step++;
+ 		  shotsReady = false;
  	  }
+	  //Drive backward towards second pile
+	  if((timeGap >= 22000 && timeGap < 25000) && step == 9)
+	  {
+  		  EPidEnable(rightDrive, 3000, 800);
+  		  EPidEnable(leftDrive, 3000, 800);
+  		  step++;
+  		  //runShootFeed = true;
+  	  }
+	  //Align
+
+	  //Shoot
 
 	  //Drive motors
 	  int16_t motorValL = EPidUpdate(leftDrive);
