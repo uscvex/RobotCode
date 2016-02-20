@@ -51,6 +51,15 @@ vexAutonomous( void *arg )
 //	return (msg_t)0;
 //}
 
+unsigned short lfsr = 0xACE1u;
+unsigned bit;
+
+unsigned rand()
+{
+	bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
+	return lfsr =  (lfsr >> 1) | (bit << 15);
+}
+
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
 /*-----------------------------------------------------------------------------*/
@@ -61,35 +70,40 @@ msg_t
 vexOperator( void *arg )
 {
 	(void)arg;
-
-	#define S_RASPI &SD3
-	// Must call this
-	vexTaskRegister("operator");
-//	StartTask(serialComm);
-	static char testString[] = "HELLO\n";
-	SerialConfig serialConf = {
-		115200,
-		0,
-		0,
-		0
-	};
-	sdStart(S_RASPI, &serialConf);
-
-	int counter = 0;
 	while(!chThdShouldTerminate())
 	{
-		// Write Demo
-		//sdWrite(S_RASPI, (unsigned char *)testString, 6);
-
-		// Read Demo
-		if(!sdGetWouldBlock(S_RASPI)) {
-			int c = sdGetTimeout(S_RASPI, TIME_IMMEDIATE);
-			if(c != Q_TIMEOUT && c != Q_RESET) {
-				vex_printf("%c", (char)c);
-			}
-		}
-        vexSleep( 10 );
+		`kkk`
+	  vexSleep( 10 );
 	}
+
+// 	#define S_RASPI &SD3
+// 	// Must call this
+// 	vexTaskRegister("operator");
+// //	StartTask(serialComm);
+// 	static char testString[] = "HELLO\n";
+// 	SerialConfig serialConf = {
+// 		115200,
+// 		0,
+// 		0,
+// 		0
+// 	};
+// 	sdStart(S_RASPI, &serialConf);
+//
+// 	int counter = 0;
+// 	while(!chThdShouldTerminate())
+// 	{
+// 		// Write Demo
+// 		//sdWrite(S_RASPI, (unsigned char *)testString, 6);
+//
+// 		// Read Demo
+// 		if(!sdGetWouldBlock(S_RASPI)) {
+// 			int c = sdGetTimeout(S_RASPI, TIME_IMMEDIATE);
+// 			if(c != Q_TIMEOUT && c != Q_RESET) {
+// 				vex_printf("%c", (char)c);
+// 			}
+// 		}
+//         vexSleep( 10 );
+// 	}
 
 	return (msg_t)0;
 }
