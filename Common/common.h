@@ -11,6 +11,7 @@
 #define SIGN(v) ((v)<0?-1:1)
 #define CLAMP(v, lower, upper) ( ((v) < (lower)) ? (lower) : ( ((v) > (upper)) ? (upper) : (v) ) )
 #define VALLEY(v, low, high) ((ABS(v) < (low))?0:(MIN(ABS(v), (high))*SIGN(v)))
+#define FVALLEY(v, low, high) ((ABS(v) < (low))?(low):(MIN(ABS(v), (high))*SIGN(v)))
 
 typedef struct _Speedometer {
 	tVexSensors sensor;
@@ -23,5 +24,6 @@ typedef struct _Speedometer {
 
 Speedometer *SpeedometerInit(tVexSensors sensor);
 double SpeedometerUpdate(Speedometer *spm);
+void serialLog(char *first, ...);
 
 #endif

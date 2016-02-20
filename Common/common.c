@@ -23,3 +23,17 @@ double SpeedometerUpdate(Speedometer *spdmtr) {
   spdmtr->lastTime = currTime;
   return spdmtr->speed;
 }
+
+void serialLog(char *first, ...) {
+  va_list argp;
+  va_start(argp, first);
+  systime_t time = chTimeNow();
+  double value;
+  char *label = first;
+  while(label) {
+    value = va_arg(argp, double);
+    vex_printf("###%d,%s,%f###\n", time, label, value);
+    label = va_arg(argp, char*);
+  }
+  va_end(argp);
+}
