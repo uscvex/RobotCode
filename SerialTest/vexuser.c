@@ -4,6 +4,7 @@
 #include "vex.h"
 #include "pidlib.h"
 #include "robotc_glue.h"
+#include "math.h"
 #include "../Common/common.h"
 
 // Digi IO configuration
@@ -51,15 +52,6 @@ vexAutonomous( void *arg )
 //	return (msg_t)0;
 //}
 
-unsigned short lfsr = 0xACE1u;
-unsigned bit;
-
-unsigned rand()
-{
-	bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
-	return lfsr =  (lfsr >> 1) | (bit << 15);
-}
-
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
 /*-----------------------------------------------------------------------------*/
@@ -70,10 +62,13 @@ msg_t
 vexOperator( void *arg )
 {
 	(void)arg;
+	double i;
 	while(!chThdShouldTerminate())
 	{
-		`kkk`
-	  vexSleep( 10 );
+		for(i = 0;i < (2*3.14);i += 0.1) {
+			serialLog("target", i, "sin", sin(i), NULL);
+		  vexSleep( 10 );
+		}
 	}
 
 // 	#define S_RASPI &SD3
