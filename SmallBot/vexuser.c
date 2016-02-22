@@ -80,9 +80,9 @@
 #define TOP_FLY_WHEEL_LOW_GAIN  0.05
 #define BOT_FLY_WHEEL_LOW_GAIN  0.05
 
-#define FLY_START_SPEED  7650
-#define FLY_SIDE_SPEED 	 6900
-#define FLY_PB_SPEED   	 5200
+#define FLY_START_SPEED  7600
+#define FLY_SIDE_SPEED 	 6450
+#define FLY_PB_SPEED   	 5100
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
@@ -258,6 +258,98 @@ vexAutonomous( void *arg )
         WAIT(3000);
       }
     }
+    // start alte
+
+    // if(STEP(4)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   EPidEnable(leftDrive, 2500, 500);
+    //   EPidEnable(rightDrive, 2500, 500);
+    //   tbhEnable(topWheelCtrl, FLY_PB_SPEED);
+    //   tbhEnable(botWheelCtrl, FLY_PB_SPEED);
+    //   step++;
+    //   WAIT(3000);
+    // }
+    // if(STEP(5)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   EPidEnable(leftDrive, 2000, (-turn * 520));
+    //   EPidEnable(rightDrive, 2000, (turn * 520));
+    //   step++;
+    //   WAIT(2500);
+    // }
+    // if(STEP(6)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   EPidEnable(leftDrive, 2500, 700);
+    //   EPidEnable(rightDrive, 2500, 700);
+    //   vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+    //   vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+    //   step++;
+    //   WAIT(3000);
+    // }
+    // if(STEP(7)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   EPidEnable(leftDrive, 2000, (turn * 520));
+    //   EPidEnable(rightDrive, 2000, (-turn * 520));
+    //   step++;
+    //   WAIT(3000);
+    // }
+    // if(STEP(8)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   EPidEnable(leftDrive, 5000, 2800);
+    //   EPidEnable(rightDrive, 5000, 2800);
+    //   step++;
+    //   WAIT(6000);
+    // }
+    // if((step >= 6 && step <= 8) && isBallTop()) {
+    //   vex_printf("Ball reached top %d\n", step);
+    //   vexMotorSet(M_FEED_SHOOT, 0);
+    // }
+    // if(STEP(9)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+    //   vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+    //   step++;
+    //   WAIT(0);
+    // }
+    // if(step == 9 && TIMEELAPSED(4000)) {
+    //   vex_printf("Failsafe Autonomos Step %d\n", step);
+    //   //fail safe
+    //   shootCount= 0;
+    //   vexMotorSet(M_FEED_SHOOT, 0);
+    //   vexMotorSet(M_FEED_FRONT, 0);
+    //   step = 13;
+    // }
+    // if(STEP(10) && isBallTop()) {
+    //   vex_printf("Autonomos Step %d\n", step);
+    //   step++;
+    //   WAIT(700);
+    // }
+    // if (STEP(11)) {
+    //   vex_printf("Autonomos Step %d\n", step);
+    //   vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
+    //   vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
+    //   step++;
+    //   WAIT(100);
+    // }
+    // if (STEP(12)) {
+    //   vex_printf("autonomos step %d\n", step);
+    //   vexMotorSet(M_FEED_FRONT, 0);
+    //   vexMotorSet(M_FEED_SHOOT, 0);
+    //   shootCount++;
+    //   if(shootCount == 4) {
+    //     vex_printf("Finished Preloads%d\n", step);
+    //     shootCount = 0;
+    //     step++;
+    //   } else {
+    //     step = 9;
+    //     WAIT(3000);
+    //   }
+    // }
+    // if(STEP(13)) {
+    //   break;
+    // }
+
+    // start original
+
     if(STEP(4)) {
       vex_printf("autonomos step %d\n", step);
       EPidEnable(leftDrive, 6600, 2520);
