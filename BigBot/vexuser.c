@@ -422,8 +422,13 @@ vexOperator( void *arg )
   systime_t currentTime = 0;
   systime_t botSensorTime = 0;
   systime_t pneumaticPressed = 0;
+  systime_t feedStartTime = 0;
+  systime_t feedStopTime = 0;
   int32_t sensorTimeGap = currentTime - botSensorTime;
   int32_t pneumaticTimeGap;
+  int32_t feedStartGap;
+  int32_t feedStopGap;
+  bool wasRunning = false;
 
   //Run until asked to terminate
   while(!chThdShouldTerminate())
@@ -441,7 +446,13 @@ vexOperator( void *arg )
 	currentTime = chTimeNow();
 	sensorTimeGap = currentTime - botSensorTime;
 	pneumaticTimeGap = currentTime - pneumaticPressed;
-
+	feedStopGap = currentTime - feedStopTime;
+	if(feedStopGap > 100)
+	{
+		feedStartTime = chTimeNow();
+		wasRunning = false;
+	}
+	feedStartGap = currentTime - feedStartTime;
 	//Stop timer for piston if the button is pressed
 	if(!vexControllerGet(J_PISTON))
 	{
@@ -512,13 +523,26 @@ vexOperator( void *arg )
 
     // Shoot Feed
     if(vexControllerGet(J_FEED_SHOOT_U)) {
-       vexMotorSet(M_FEED_SHOOT, 77);
+       if(feedStartGap < 200)
+       {
+    	   vexMotorSet(M_FEED_SHOOT, 77);
+    	   if(!wasRunning)
+    	   {
+    		   feedStartTime = chTimeNow();
+    		   wasRunning = true;
+    	   }
+       } else {
+    	   vexMotorSet(M_FEED_SHOOT, 0);
+    	   feedStopTime = chTimeNow();
+    	   wasRunning = false;
+       }
     } else if(vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_SHOOT, -77);
     } else if(!isBallTop() && (sensorTimeGap < 250)) {
        vexMotorSet(M_FEED_SHOOT, 77);
     } else {
        vexMotorSet(M_FEED_SHOOT, 0);
+       wasRunning = false;
     }
 
     //Don't hog CPU
