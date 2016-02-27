@@ -37,6 +37,7 @@ void tbhEnable(TBHController *ctrl, int32_t targetSpeed);
 void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain);
 void tbhDisable(TBHController *ctrl);
 int16_t tbhUpdate(TBHController *ctrl);
+bool tbhIsStable(TBHController *ctrl);
 
 #define MAX_TBH_CONTROLLERS 10
 
