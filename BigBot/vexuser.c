@@ -221,8 +221,8 @@ vexAutonomous( void *arg )
 		  //Enable flywheels for ~21 seconds on SHORT
 		  if (timeGap < 21000 && step == 0)
 		  {
-			  tbhEnableWithGain(topWheelCtrl, FLY_SHORT_SPEED-100, 0.01);
-			  tbhEnableWithGain(botWheelCtrl, FLY_SHORT_SPEED-100, 0.01);
+			  tbhEnableWithGain(topWheelCtrl, FLY_SHORT_SPEED+400, 0.01);
+			  tbhEnableWithGain(botWheelCtrl, FLY_SHORT_SPEED+400, 0.01);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
@@ -233,26 +233,50 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 		  //Drive forward across the field
-		  if (timeGap >= 22500 && timeGap < 26500 && step == 2)
+		  if (timeGap >= 22500 && timeGap < 25500 && step == 2)
 		  {
-			  EPidEnable(rightDrive, 4000, 3050);
-			  EPidEnable(leftDrive, 4000, 3050);
+			  EPidEnable(rightDrive, 3000, 1500);			// If shooting from short, 3050
+			  EPidEnable(leftDrive, 3000, 1500);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 26500 && timeGap < 28000 && step == 3)
+		  if (timeGap >= 25500 && timeGap < 27500 && step == 3)
 		  {
-			  EPidEnable(rightDrive, 1500, 335);
-		 	  EPidEnable(leftDrive, 1500, -335);
+			  EPidEnable(rightDrive, 2000, 340);
+		 	  EPidEnable(leftDrive, 2000, -340);
 		 	  step++;
 		  }
-		  //Shoot for 20 seconds
-		  if(timeGap >= 48000 && step == 4)
+
+		  //Shoot for 20 second
+
+		  //Rotate 180 degrees right
+		  if (timeGap >= 47500 && timeGap < 50000 && step == 4)
 		  {
-			  tbhDisable(topWheelCtrl);
-			  tbhDisable(botWheelCtrl);
+			  EPidEnable(rightDrive, 2500, -670);
+			  EPidEnable(leftDrive, 2500, 670);
 			  step++;
 		  }
+
+//		  //Move and hit against the wall
+//		  if (timeGap >= 53000 && timeGap < 55000 && step == 5)
+//		  {
+//			  EPidEnable(rightDrive, 2000, -700);
+//			  EPidEnable(leftDrive, 2000, -700);
+//			  step++;
+//		  }
+
+		  // Get the ramp to open and shut the flywheels
+		  if(timeGap >= 50000 && step == 5)
+		  {
+		      vexDigitalPinSet(P_PISTON, 1);
+			  tbhDisable(topWheelCtrl);
+			  tbhDisable(botWheelCtrl);
+			  vexMotorSet(M_FEED_FRONT, 0);
+			  exMotorSet(M_FEED_SHOOT, 0);
+			  step++;
+		  }
+
+
 		  //Drive motors
 		  int16_t motorValL = EPidUpdate(leftDrive);
 		  int16_t motorValR = EPidUpdate(rightDrive);
