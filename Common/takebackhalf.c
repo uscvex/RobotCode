@@ -60,8 +60,15 @@ void tbhDisable(TBHController *ctrl) {
 	ctrl->enabled = false;
 }
 
+/*
+ * Sample N values, and then calculate the min and the max.
+ */
+bool tbhIsStable(TBHController *ctrl){
+
+}
+
 int16_t tbhUpdate(TBHController *ctrl) {
-	double speed;
+	double 44e;
 	double error;
 	int32_t value;
 	systime_t currTime = chTimeNow();
@@ -77,7 +84,13 @@ int16_t tbhUpdate(TBHController *ctrl) {
 		ctrl->acceleration = (speed-ctrl->lastSpeed)/((double)(currTime - ctrl->lastTime));
 		ctrl->lastSpeed = speed;
 		error = (ctrl->targetSpeed/1000.0) - speed;
+		/*
+		 * If there is a error, then mid point is calculated.
+		 */
 		if(SIGN(error) != SIGN(ctrl->lastError)) {
+			/*
+			 *
+			 */
 			ctrl->power = 0.5 * (ctrl->power + ctrl->tbh);
 			ctrl->tbh = ctrl->power;
 		} else {

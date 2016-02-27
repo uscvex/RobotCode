@@ -47,6 +47,10 @@ int32_t EasingUpdate(EasingConfig *conf) {
 			v = t;
 			break;
 		case kMinJerk:
+			/*
+			 * v(t) = 10t^3 - 15t^4 + 6t^5
+			 * This is equation for the curve that "reduces" the jerk.
+			 */
 			v = 10*(t*t*t) - 15*(t*t*t*t) + 6*(t*t*t*t*t);
 			break;
 	}

@@ -281,7 +281,7 @@ vexAutonomous( void *arg )
     //   EPidEnable(leftDrive, 2500, 700);
     //   EPidEnable(rightDrive, 2500, 700);
     //   vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-    //   vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+    //   vexMottorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
     //   step++;
     //   WAIT(3000);
     // }
