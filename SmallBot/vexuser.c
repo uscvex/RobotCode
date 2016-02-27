@@ -175,7 +175,7 @@ vexUserInit()
   topWheelCtrl->log = false;
 
   botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, TOP_FLY_WHEEL_DEFAULT_GAIN, 10500, false);
-  botWheelCtrl->log = false;
+  botWheelCtrl->log = true;
   botWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers

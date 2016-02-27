@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include "ch.h"
 #include "hal.h"
 #include "vex.h"
@@ -25,6 +27,7 @@ double SpeedometerUpdate(Speedometer *spdmtr) {
 }
 
 void serialLog(char *first, ...) {
+  char buf[100];
   va_list argp;
   va_start(argp, first);
   systime_t time = chTimeNow();
@@ -32,7 +35,14 @@ void serialLog(char *first, ...) {
   char *label = first;
   while(label) {
     value = va_arg(argp, double);
-    vex_printf("###%d,%s,%f###\n", time, label, value);
+    vex_sprintf(buf, "%d,%s,%f", time, label, value);
+    int checkSum = 0;
+    char *p = buf;
+    while(*p) {
+      checkSum ^= *p;
+      p++;
+    }
+    vex_printf("###%d#%s###\n", checkSum, buf);
     label = va_arg(argp, char*);
   }
   va_end(argp);
