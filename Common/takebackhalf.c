@@ -7,6 +7,15 @@
 static int16_t nextTBHController = 0;
 static TBHController controllers[MAX_TBH_CONTROLLERS];
 
+//#define Ideal_Speed			00
+//#define TBH_Threshold		00
+//
+//
+//// Array of Ten Sample values to calculate max and min
+//double Flywheel_Speed_Sample[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+//
+//// Global variable to add the values to add values to array
+//int ptr = 0;
 TBHController *TBHControllerInit(tVexSensors sensor, double gain, int32_t maxSpeed, bool sensorReverse) {
 	TBHController *ctrl = &controllers[nextTBHController++];
 
@@ -63,12 +72,22 @@ void tbhDisable(TBHController *ctrl) {
 /*
  * Sample N values, and then calculate the min and the max.
  */
-bool tbhIsStable(TBHController *ctrl){
-
-}
+//bool tbhIsStable(TBHController *ctrl){
+//	double max, min;
+//	min = max = Flywheel_Sample_speed[0];
+//	for (int i=1;i<Flywheel_Speed_Sample.size;i++){
+//		if (Flywheel_Speed_Sample[i]>max){
+//			max = Flywheel_Speed_Sample[i];
+//		}
+//		if (Flywheel_Speed_Sample[i]<min){
+//			min = Flywheel_Speed_Sample[i];
+//		}
+//	}
+//	return ((max-min)<TBH_Threshold*Ideal_Speed);
+//}
 
 int16_t tbhUpdate(TBHController *ctrl) {
-	double 44e;
+	//double 44e;
 	double error;
 	int32_t value;
 	systime_t currTime = chTimeNow();
@@ -80,7 +99,7 @@ int16_t tbhUpdate(TBHController *ctrl) {
 		if(ctrl->sensorReverse) {
 			value = -value;
 		}
-		speed = (value - ctrl->lastValue)/((double)(currTime - ctrl->lastTime));
+		int32_t speed = (value - ctrl->lastValue)/((double)(currTime - ctrl->lastTime));
 		ctrl->acceleration = (speed-ctrl->lastSpeed)/((double)(currTime - ctrl->lastTime));
 		ctrl->lastSpeed = speed;
 		error = (ctrl->targetSpeed/1000.0) - speed;
