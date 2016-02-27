@@ -226,34 +226,34 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 21000 && timeGap < 22500 && step == 1)
+		  if (timeGap >= 21000  && timeGap < 23000 && step == 1) // && timeGap < 22500
 		  {
-			  EPidEnable(rightDrive, 1500, -300);
-			  EPidEnable(leftDrive, 1500, 300);
+			  EPidEnable(rightDrive, 2000, -300);
+			  EPidEnable(leftDrive, 2000, 300);
 			  step++;
 		  }
 		  //Drive forward across the field
-		  if (timeGap >= 22500 && timeGap < 25500 && step == 2)
+		  if (timeGap >= 23000 && timeGap < 28000 && step == 2)
 		  {
-			  EPidEnable(rightDrive, 3000, 1500);			// If shooting from short, 3050
-			  EPidEnable(leftDrive, 3000, 1500);
+			  EPidEnable(rightDrive, 5000, 2000);			// If shooting from short, 3050
+			  EPidEnable(leftDrive, 5000, 2000);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 25500 && timeGap < 27500 && step == 3)
+		  if (timeGap >= 28000 && timeGap < 30500 && step == 3)
 		  {
-			  EPidEnable(rightDrive, 2000, 340);
-		 	  EPidEnable(leftDrive, 2000, -340);
+			  EPidEnable(rightDrive, 2500, 340);
+		 	  EPidEnable(leftDrive, 2500, -340);
 		 	  step++;
 		  }
 
 		  //Shoot for 20 second
 
 		  //Rotate 180 degrees right
-		  if (timeGap >= 47500 && timeGap < 50000 && step == 4)
+		  if (timeGap >= 50500 && timeGap < 54000 && step == 4)
 		  {
-			  EPidEnable(rightDrive, 2500, -670);
-			  EPidEnable(leftDrive, 2500, 670);
+			  EPidEnable(rightDrive, 3500, -670);
+			  EPidEnable(leftDrive, 3500, 670);
 			  step++;
 		  }
 
@@ -266,13 +266,13 @@ vexAutonomous( void *arg )
 //		  }
 
 		  // Get the ramp to open and shut the flywheels
-		  if(timeGap >= 50000 && step == 5)
+		  if(timeGap >= 54000 && step == 5)
 		  {
-		      vexDigitalPinSet(P_PISTON, 1);
 			  tbhDisable(topWheelCtrl);
 			  tbhDisable(botWheelCtrl);
 			  vexMotorSet(M_FEED_FRONT, 0);
-			  exMotorSet(M_FEED_SHOOT, 0);
+			  vexMotorSet(M_FEED_SHOOT, 0);
+			  vexDigitalPinSet(P_PISTON, 1);
 			  step++;
 		  }
 
@@ -280,6 +280,7 @@ vexAutonomous( void *arg )
 		  //Drive motors
 		  int16_t motorValL = EPidUpdate(leftDrive);
 		  int16_t motorValR = EPidUpdate(rightDrive);
+		  vex_printf ("%d       %d", motorValL, motorValR);
 		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
 		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
 		  vexMotorSet(M_DRIVE_LEFT1, motorValL);

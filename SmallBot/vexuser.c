@@ -80,9 +80,12 @@
 #define TOP_FLY_WHEEL_LOW_GAIN  0.05
 #define BOT_FLY_WHEEL_LOW_GAIN  0.05
 
+#define TOP_FLY_WHEEL_PB_GAIN  0.015
+#define BOT_FLY_WHEEL_PB_GAIN  0.015
+
 #define FLY_START_SPEED  7600
 #define FLY_SIDE_SPEED 	 6450
-#define FLY_PB_SPEED   	 5100
+#define FLY_PB_SPEED   	 4450
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
@@ -602,8 +605,8 @@ vexOperator( void *arg )
   	// }
 
     if(vexControllerGet(J_SHOOT_PB)) {
-      tbhEnableWithGain(topWheelCtrl, FLY_PB_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
-      tbhEnableWithGain(botWheelCtrl, FLY_PB_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
+      tbhEnableWithGain(topWheelCtrl, FLY_PB_SPEED, TOP_FLY_WHEEL_PB_GAIN);
+      tbhEnableWithGain(botWheelCtrl, FLY_PB_SPEED, BOT_FLY_WHEEL_PB_GAIN);
     }
     if(vexControllerGet(J_SHOOT_START)) {
       tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, TOP_FLY_WHEEL_DEFAULT_GAIN);
