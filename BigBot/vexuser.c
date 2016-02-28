@@ -226,48 +226,48 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 21000  && timeGap < 23000 && step == 1) // && timeGap < 22500
+		  if (timeGap >= 21000  && timeGap < 22500 && step == 1) // && timeGap < 22500
 		  {
 			  EPidEnable(rightDrive, 2000, -300);
 			  EPidEnable(leftDrive, 2000, 300);
 			  step++;
 		  }
 		  //Drive forward across the field
-		  if (timeGap >= 23000 && timeGap < 28000 && step == 2)
+		  if (timeGap >= 22500 && timeGap < 27500 && step == 2)
 		  {
 			  EPidEnable(rightDrive, 5000, 2000);			// If shooting from short, 3050
 			  EPidEnable(leftDrive, 5000, 2000);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 28000 && timeGap < 30500 && step == 3)
+		  if (timeGap >= 27500 && timeGap < 29000 && step == 3)
 		  {
-			  EPidEnable(rightDrive, 2500, 390);
-		 	  EPidEnable(leftDrive, 2500, -390);
+			  EPidEnable(rightDrive, 1500, 390);
+		 	  EPidEnable(leftDrive, 1500, -390);
 		 	  step++;
 		  }
 
 		  //Shoot for 20 second
 
 		  //Rotate 180 degrees right
-		  if (timeGap >= 50500 && timeGap < 54000 && step == 4)
+		  if (timeGap >= 50500 && timeGap < 53000 && step == 4)
 		  {
-			  EPidEnable(rightDrive, 3500, +650);
-			  EPidEnable(leftDrive, 3500, -650);
+			  EPidEnable(rightDrive, 2500, +650);
+			  EPidEnable(leftDrive, 2500, -650);
 			  step++;
 		  }
 
 		  //Move and hit against the wall
-		  if (timeGap >= 54000 && timeGap < 55000 && step == 5)
+		  if (timeGap >= 53000 && timeGap < 54000 && step == 5)
 		  {
-			  EPidEnable(rightDrive, 1000, -200);
-			  EPidEnable(leftDrive, 1000, -200);
+			  EPidEnable(rightDrive, 1000, -50);
+			  EPidEnable(leftDrive, 1000, -50);
 			  step++;
 
 		  }
 
 		  // Get the ramp to open and shut the flywheels
-		  if(timeGap >= 55000 && step == 6)
+		  if(timeGap >= 55000 && timeGap < 56000 && step == 6)
 		  {
 			  tbhDisable(topWheelCtrl);
 			  tbhDisable(botWheelCtrl);
@@ -277,6 +277,11 @@ vexAutonomous( void *arg )
 			  EPidDisable(rightDrive);
 			  EPidDisable(leftDrive);
 			  step++;
+		  }
+
+		  if(timeGap >= 56000 && step == 7)
+		  {
+		  	  vexDigitalPinSet(P_PISTON, 0);
 		  }
 
 
