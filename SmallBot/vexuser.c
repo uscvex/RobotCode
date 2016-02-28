@@ -80,12 +80,12 @@
 #define TOP_FLY_WHEEL_LOW_GAIN  0.05
 #define BOT_FLY_WHEEL_LOW_GAIN  0.05
 
-#define TOP_FLY_WHEEL_PB_GAIN  0.015
-#define BOT_FLY_WHEEL_PB_GAIN  0.015
+#define TOP_FLY_WHEEL_PB_GAIN  0.005
+#define BOT_FLY_WHEEL_PB_GAIN  0.005
 
 #define FLY_START_SPEED  7600
 #define FLY_SIDE_SPEED 	 6450
-#define FLY_PB_SPEED   	 4450
+#define FLY_PB_SPEED   	 4900
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
@@ -629,9 +629,9 @@ vexOperator( void *arg )
 
     // Shoot Feed
     if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) /*&& !isBallTop()*/) {
-       vexMotorSet(M_FEED_FRONT, 100);
+       vexMotorSet(M_FEED_FRONT, 60);
     } else if((/*vexControllerGet(J_FEED_FRONT_D) ||*/ vexControllerGet(J_FEED_SHOOT_D)) /*&& !isBallTop()*/) {
-       vexMotorSet(M_FEED_FRONT, -100);
+       vexMotorSet(M_FEED_FRONT, -60);
     //} else if(!isBallTop() && isBallBot()) {
       // vexMotorSet(M_FEED_SHOOT, 100);
     } else {
@@ -640,9 +640,9 @@ vexOperator( void *arg )
 
     // Front Feed
     if(vexControllerGet(J_FEED_SHOOT_U)) {
-       vexMotorSet(M_FEED_SHOOT, 100);
+       vexMotorSet(M_FEED_SHOOT, 90);
     } else if(vexControllerGet(J_FEED_SHOOT_D)) {
-       vexMotorSet(M_FEED_SHOOT, -100);
+       vexMotorSet(M_FEED_SHOOT, -90);
     //} else if(!isBallTop() && isBallBot()) {
        //vexMotorSet(M_FEED_FRONT, 100);
     } else {
