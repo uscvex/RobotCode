@@ -182,7 +182,7 @@ vexUserInit()
   botWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers
-  rightDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_RIGHT, false);
+  rightDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_RIGHT, true);
   leftDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_LEFT, true);
 }
 
@@ -205,12 +205,85 @@ vexAutonomous( void *arg )
   tbhEnable(botWheelCtrl, FLY_START_SPEED);
   systime_t waitTime = 0;
 
-  #define STEP(s) (step == s && (time-lastTime) > waitTime)
-  #define WAIT(t) do {lastTime = time;waitTime = (t);} while(false);
-  #define TIMEELAPSED(t) ((time-lastTime) > t)
+  //Skills or Competition
+  bool skills = true;
+  //true for red, false for blue
+//  bool color = isRed();
+
+	systime_t startTime = chTimeNow();
+	systime_t currTime = chTimeNow();
+	int32_t timeGap;
+	if (skills)
+	{
+	  while(!chThdShouldTerminate())
+	  {
+		  if(vexControllerGet(Btn7U))
+		  {
+		   	 break;
+		  }
+
+		  // Get Time
+		  currTime = chTimeNow();
+		  timeGap = currTime - startTime;
+
+		  //Enable flywheels for ~2 seconds on SHORT
+		  if (timeGap < 3000 && step==0)
+		  {
+			  tbhEnableWithGain(topWheelCtrl, FLY_SIDE_SPEED, 0.05);
+			  tbhEnableWithGain(botWheelCtrl, FLY_SIDE_SPEED, 0.05);
+			  step ++;
+
+		  }
+		  if (timeGap >= 3000 && timeGap < 8000 && step==1)
+		  {
+			  vexMotorSet(M_FEED_SHOOT, 100);
+			  vexMotorSet(M_FEED_FRONT, 50);
+//			  EPidEnable(rightDrive, 3000, 1300);			// If shooting from short, 3050
+//			  EPidEnable(leftDrive, 3000, 1300);
+			  step++;
+		  }
+		  if (timeGap >=8000 && timeGap < 11000 && step ==2){
+
+			  EPidEnable(rightDrive, 3000, 1000);
+			  EPidEnable(leftDrive, 3000, 1000);
+			  step++;
+		  }
+		  if (timeGap >= 11000 && step ==3){
+			  break;
+		  }
+
+		  //Drive motors
+		  int16_t motorValL = EPidUpdate(leftDrive);
+		  int16_t motorValR = EPidUpdate(rightDrive);
+		  vex_printf ("%d       %d", motorValL, motorValR);
+		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
+		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
+		  vexMotorSet(M_DRIVE_LEFT1, motorValL);
+		  vexMotorSet(M_DRIVE_LEFT2, motorValL);
+
+		  //Set flywheels
+		  vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
+		  vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
+
+		  //Control shoot feed
+
+		  // Don't hog cpu
+		  vexSleep( 10 );
+	  }
+
+	}
+	else{
+		#define STEP(s) (step == s && (time-lastTime) > waitTime)
+		#define WAIT(t) do {lastTime = time;waitTime = (t);} while(false);
+  	  	#define TIMEELAPSED(t) ((time-lastTime) > t)
 
   // wait for 3 seconds to let the flywheel spool
+
+
+
   WAIT(3000);
+
+
   while(!chThdShouldTerminate())
   {
     time = chTimeNow();
@@ -218,6 +291,7 @@ vexAutonomous( void *arg )
   	// {
   	// 	break;
   	// }
+
 
     if(STEP(0)) {
       vex_printf("Autonomos Step %d\n", step);
@@ -561,6 +635,8 @@ vexAutonomous( void *arg )
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
     vexSleep( 10 );
   }
+	}
+
   tbhDisable(topWheelCtrl);
   tbhDisable(botWheelCtrl);
   vexMotorSet(M_FEED_FRONT, 0);
@@ -599,10 +675,11 @@ vexOperator( void *arg )
 
     //vex_printf("right=%d left=%d\n", vexSensorValueGet(S_ENC_DRIVE_RIGHT), vexSensorValueGet(S_ENC_DRIVE_LEFT));
     //Test autonomous
-  	// if(vexControllerGet(J_START_AUTON))
-  	// {
-  	// 	vexAutonomous(NULL);
-  	// }
+  	 if(vexControllerGet(J_START_AUTON))
+  	 {
+  	 	vexAutonomous(NULL);
+  	 }
+
 
     if(vexControllerGet(J_SHOOT_PB)) {
       tbhEnableWithGain(topWheelCtrl, FLY_PB_SPEED, TOP_FLY_WHEEL_PB_GAIN);

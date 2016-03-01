@@ -228,58 +228,59 @@ vexAutonomous( void *arg )
 		  //Rotate 90 degrees right
 		  if (timeGap >= 21000  && timeGap < 22500 && step == 1) // && timeGap < 22500
 		  {
-			  EPidEnable(rightDrive, 2000, -300);
-			  EPidEnable(leftDrive, 2000, 300);
+			  EPidEnable(rightDrive, 1500, -285);
+			  EPidEnable(leftDrive, 1500, 285);
 			  step++;
 		  }
 		  //Drive forward across the field
-		  if (timeGap >= 22500 && timeGap < 27500 && step == 2)
+		  if (timeGap >= 22500 && timeGap < 26500 && step == 2)
 		  {
-			  EPidEnable(rightDrive, 5000, 2000);			// If shooting from short, 3050
-			  EPidEnable(leftDrive, 5000, 2000);
+			  EPidEnable(rightDrive, 4000, 1850);			// If shooting from short, 3050
+			  EPidEnable(leftDrive, 4000, 1850);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 27500 && timeGap < 29000 && step == 3)
+		  if (timeGap >= 26500 && timeGap < 28000 && step == 3)
 		  {
-			  EPidEnable(rightDrive, 1500, 390);
-		 	  EPidEnable(leftDrive, 1500, -390);
+			  EPidEnable(rightDrive, 1500, 380);
+		 	  EPidEnable(leftDrive, 1500, -380);
 		 	  step++;
 		  }
 
 		  //Shoot for 20 second
 
 		  //Rotate 180 degrees right
-		  if (timeGap >= 50500 && timeGap < 53000 && step == 4)
+		  if (timeGap >= 48000 && timeGap < 50000 && step == 4)
 		  {
-			  EPidEnable(rightDrive, 2500, +650);
-			  EPidEnable(leftDrive, 2500, -650);
+			  EPidEnable(rightDrive, 2000, +650);
+			  EPidEnable(leftDrive, 2000, -650);
 			  step++;
 		  }
 
 		  //Move and hit against the wall
-		  if (timeGap >= 53000 && timeGap < 54000 && step == 5)
+		  if (timeGap >= 50000 && timeGap < 50500 && step == 5)
 		  {
-			  EPidEnable(rightDrive, 1000, -50);
-			  EPidEnable(leftDrive, 1000, -50);
+			  EPidEnable(rightDrive, 500, -100);
+			  EPidEnable(leftDrive, 500, -100);
 			  step++;
 
 		  }
 
 		  // Get the ramp to open and shut the flywheels
-		  if(timeGap >= 55000 && timeGap < 56000 && step == 6)
+		  if(timeGap >= 50500 && timeGap < 51500 && step == 6)
 		  {
 			  tbhDisable(topWheelCtrl);
 			  tbhDisable(botWheelCtrl);
+			  EPidDisable(rightDrive);
+			  EPidDisable(leftDrive);
 			  vexMotorSet(M_FEED_FRONT, 0);
 			  vexMotorSet(M_FEED_SHOOT, 0);
 			  vexDigitalPinSet(P_PISTON, 1);
-			  EPidDisable(rightDrive);
-			  EPidDisable(leftDrive);
+
 			  step++;
 		  }
 
-		  if(timeGap >= 56000 && step == 7)
+		  if(timeGap >= 51500 && step == 7)
 		  {
 		  	  vexDigitalPinSet(P_PISTON, 0);
 		  }
@@ -514,6 +515,8 @@ vexAutonomous( void *arg )
 		  vexSleep( 10 );
 	  }
   }
+  EPidDisable(rightDrive);
+  EPidDisable(leftDrive);
   vex_printf("End\n");
   return (msg_t)0;
 
@@ -623,11 +626,13 @@ vexOperator( void *arg )
        vexMotorSet(M_FEED_FRONT, 63);
     } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_FRONT, -63);
-    } else if(!isBallTop() && isBallBot()) {
-       vexMotorSet(M_FEED_FRONT, 63);
-    } else {
-       vexMotorSet(M_FEED_FRONT, 0);
     }
+    //TODO: Turn On the Autofeed
+//    else if(!isBallTop() && isBallBot()) {
+//       vexMotorSet(M_FEED_FRONT, 63);
+//    } else {
+//       vexMotorSet(M_FEED_FRONT, 0);
+//    }
 
     // Shoot Feed
     if(vexControllerGet(J_FEED_SHOOT_U)) {
