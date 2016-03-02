@@ -238,18 +238,18 @@ vexAutonomous( void *arg )
 		  {
 			  vexMotorSet(M_FEED_SHOOT, 100);
 			  vexMotorSet(M_FEED_FRONT, 50);
-//			  EPidEnable(rightDrive, 3000, 1300);			// If shooting from short, 3050
-//			  EPidEnable(leftDrive, 3000, 1300);
 			  step++;
 		  }
-		  if (timeGap >=8000 && timeGap < 11000 && step ==2){
+		  if (timeGap >=8000 && timeGap < 10000 && step ==2){
 
-			  EPidEnable(rightDrive, 3000, 1000);
-			  EPidEnable(leftDrive, 3000, 1000);
+			  EPidEnable(rightDrive, 2000, 700);
+			  EPidEnable(leftDrive, 2000, 700);
 			  step++;
 		  }
-		  if (timeGap >= 11000 && step ==3){
-			  break;
+		  if (timeGap >= 10000 && timeGap <= 11000 && step ==3){
+			  EPidEnable(rightDrive, 1000, 200);
+			  EPidEnable(leftDrive, 1000, 200);
+			  step++;
 		  }
 
 		  //Drive motors
