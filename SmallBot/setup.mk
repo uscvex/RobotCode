@@ -12,6 +12,7 @@ VEXUSERSRC = vexuser.c \
              vexdefault.c \
              ../Common/easing.c \
              ../Common/takebackhalf.c \
+             ../Common/linefollower.c \
              ../Common/common.c
 
 # Uncomment and add/modify user include files
