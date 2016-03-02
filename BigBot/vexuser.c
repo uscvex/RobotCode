@@ -427,11 +427,11 @@ vexAutonomous( void *arg )
 			  EPidEnable(leftDrive, 1000, -TURN3);
 			  step++;
 		  }
-		  if((timeGap >= 24500 && timeGap < 25500) && step == 10)
+		  if((timeGap >= 25500 && timeGap < 28000) && step == 10)
 		  		  {
 		  			  //runShootFeed = false;
-		  			  EPidEnable(rightDrive, 1000, -200);
-		  			  EPidEnable(leftDrive, 1000, -200);
+		  			  EPidEnable(rightDrive, 2500, -700);
+		  			  EPidEnable(leftDrive, 2500, -700);
 		  			  step++;
 		  		  }
 
