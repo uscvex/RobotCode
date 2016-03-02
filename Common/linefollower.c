@@ -46,7 +46,7 @@ LineFollower *LineFollowerInit(int16_t sensorCount,
  * leftDriveOut - pointer to integer where left motor output will be stored
  * rightDriveOut - pointer to integer where right motor output will be stored
  */
-void LineFollowUpdate(LineFollower *lfol, int16_t *leftDriveOut, int16_t *rightDriveOut) {
+void LineFollowerUpdate(LineFollower *lfol) {
   float drive = 0;
   float turn = 0;
   int enableCount = 0;
@@ -56,6 +56,7 @@ void LineFollowUpdate(LineFollower *lfol, int16_t *leftDriveOut, int16_t *rightD
 
   // find sum of drive and turn values for all enabled sensors
   for(i = 0;i < lfol->sensorCount;i++) {
+    //vex_printf("#%d sensor_%d = %d threshold = %d\n", i, (lfol->firstSensor+i), vexAdcGet(lfol->firstSensor + i), lfol->thresholds[i]);
     bool enabled = (vexAdcGet(lfol->firstSensor + i) < lfol->thresholds[i]);
     if(lfol->log) {
       char label[10];
@@ -113,6 +114,6 @@ void LineFollowUpdate(LineFollower *lfol, int16_t *leftDriveOut, int16_t *rightD
   drive *= lfol->maxDriveSpeed;
   turn *= lfol->maxTurnSpeed;
 
-  *leftDriveOut = (int16_t)(drive + turn);
-  *rightDriveOut = (int16_t)(drive - turn);
+  lfol->leftDrive = (int16_t)(drive + turn);
+  lfol->rightDrive = (int16_t)(drive - turn);
 }

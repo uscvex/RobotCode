@@ -7,6 +7,7 @@
 #include "../Common/common.h"
 #include "../Common/takebackhalf.h"
 #include "../Common/easing.h"
+#include "../Common/linefollower.h"
 
 // Motor configs
 
@@ -41,11 +42,11 @@
 #define S_BALL_TOP              2
 #define S_COLOR_SELECTOR        0
 
-#define S_LINE_FOLLOWER_L2      4
-#define S_LINE_FOLLOWER_L1      5
-#define S_LINE_FOLLOWER_M       6
-#define S_LINE_FOLLOWER_R1      7
-#define S_LINE_FOLLOWER_R2      8
+#define S_LINE_FOLLOWER_L2      3
+#define S_LINE_FOLLOWER_L1      4
+#define S_LINE_FOLLOWER_M       5
+#define S_LINE_FOLLOWER_R1      6
+#define S_LINE_FOLLOWER_R2      7
 
 
 #define S_ENC_BOT_FLY         kVexSensorDigital_1
@@ -134,6 +135,12 @@ TBHController *botWheelCtrl;
 EPidController *rightDrive;
 EPidController *leftDrive;
 
+// Line Folower
+LineFollower *lfol;
+const int16_t lfolThresholds[5] = {200, 200, 200, 200, 200};
+const float lfolDrives[5] = {0, 0.5, 1,  0.5,  0};
+const float lfolTurns[5] = {-0.3, -0.1, 0, 0.1, 0.3};
+
 bool isBlue(void) {
   return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
 }
@@ -190,8 +197,47 @@ vexUserInit()
   //Initialize EPIDControllers
   rightDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_RIGHT, true);
   leftDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_LEFT, true);
+
+
+  // init line followers
+  lfol = LineFollowerInit(
+    5,                   // five sensors
+    S_LINE_FOLLOWER_L2,  // starting from the leftmost
+    50,                 // max forward speed
+    50,                 // max turn speed
+    lfolThresholds,
+    lfolDrives,
+    lfolTurns
+  );
+  lfol->log = true;
 }
 
+msg_t
+vexAutonomous( void *arg )
+{
+  (void)arg;
+  //vexTaskRegister("auton");
+  while(!chThdShouldTerminate())
+  {
+    if(vexControllerGet(Btn5U)) {
+      vexMotorSet(M_DRIVE_LEFT2, 0);
+      vexMotorSet(M_DRIVE_LEFT1, 0);
+      vexMotorSet(M_DRIVE_RIGHT1, 0);
+      vexMotorSet(M_DRIVE_RIGHT2, 0);
+      break;
+    }
+
+    LineFollowerUpdate(lfol);
+    vexMotorSet(M_DRIVE_LEFT2, lfol->leftDrive);
+    vexMotorSet(M_DRIVE_LEFT1, lfol->leftDrive);
+    vexMotorSet(M_DRIVE_RIGHT1, lfol->rightDrive);
+    vexMotorSet(M_DRIVE_RIGHT2, lfol->rightDrive);
+    vexSleep( 10 );
+  }
+  return (msg_t)0;
+}
+
+/*
 msg_t
 vexAutonomous( void *arg )
 {
@@ -281,12 +327,9 @@ vexAutonomous( void *arg )
 	else{
 		#define STEP(s) (step == s && (time-lastTime) > waitTime)
 		#define WAIT(t) do {lastTime = time;waitTime = (t);} while(false);
-  	  	#define TIMEELAPSED(t) ((time-lastTime) > t)
+  	#define TIMEELAPSED(t) ((time-lastTime) > t)
 
   // wait for 3 seconds to let the flywheel spool
-
-
-
   WAIT(3000);
 
 
@@ -651,7 +694,8 @@ vexAutonomous( void *arg )
   vexMotorSet(M_FLY_BOT_WHEEL, 0);
   vex_printf("Exit autonomous");
   return (msg_t)0;
-}
+} */
+
 
 msg_t
 vexOperator( void *arg )
