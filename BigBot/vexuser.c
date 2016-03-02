@@ -226,77 +226,48 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 21000  && timeGap < 23000 && step == 1) // && timeGap < 22500
+		  if (timeGap >= 21000  && timeGap < 22500 && step == 1) // && timeGap < 22500
 		  {
 			  EPidEnable(rightDrive, 1500, -285);
 			  EPidEnable(leftDrive, 1500, 285);
 			  step++;
 		  }
 		  //Drive forward across the field
-<<<<<<< HEAD
 		  if (timeGap >= 22500 && timeGap < 26500 && step == 2)
-=======
-		  if (timeGap >= 23000 && timeGap < 28000 && step == 2)
->>>>>>> parent of e27625f... Routine calibration
 		  {
 			  EPidEnable(rightDrive, 4000, 1850);			// If shooting from short, 3050
 			  EPidEnable(leftDrive, 4000, 1850);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-<<<<<<< HEAD
 		  if (timeGap >= 26500 && timeGap < 28000 && step == 3)
 		  {
 			  EPidEnable(rightDrive, 1500, 380);
 		 	  EPidEnable(leftDrive, 1500, -380);
-=======
-		  if (timeGap >= 28000 && timeGap < 30500 && step == 3)
-		  {
-			  EPidEnable(rightDrive, 2500, 390);
-		 	  EPidEnable(leftDrive, 2500, -390);
->>>>>>> parent of e27625f... Routine calibration
 		 	  step++;
 		  }
 
 		  //Shoot for 20 second
 
 		  //Rotate 180 degrees right
-<<<<<<< HEAD
 		  if (timeGap >= 48000 && timeGap < 50000 && step == 4)
 		  {
 			  EPidEnable(rightDrive, 2000, +650);
 			  EPidEnable(leftDrive, 2000, -650);
-=======
-		  if (timeGap >= 50500 && timeGap < 54000 && step == 4)
-		  {
-			  EPidEnable(rightDrive, 3500, +650);
-			  EPidEnable(leftDrive, 3500, -650);
->>>>>>> parent of e27625f... Routine calibration
 			  step++;
 		  }
 
 		  //Move and hit against the wall
-<<<<<<< HEAD
 		  if (timeGap >= 50000 && timeGap < 50500 && step == 5)
 		  {
 			  EPidEnable(rightDrive, 500, -100);
 			  EPidEnable(leftDrive, 500, -100);
-=======
-		  if (timeGap >= 54000 && timeGap < 55000 && step == 5)
-		  {
-			  EPidEnable(rightDrive, 1000, -200);
-			  EPidEnable(leftDrive, 1000, -200);
->>>>>>> parent of e27625f... Routine calibration
 			  step++;
 
 		  }
 
 		  // Get the ramp to open and shut the flywheels
-<<<<<<< HEAD
 		  if(timeGap >= 50500 && timeGap < 51500 && step == 6)
-=======
-		  if(timeGap >= 55000 && step == 6)
->>>>>>> parent of e27625f... Routine calibration
 		  {
 			  tbhDisable(topWheelCtrl);
 			  tbhDisable(botWheelCtrl);
@@ -309,14 +280,11 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 
-<<<<<<< HEAD
 		  if(timeGap >= 51500 && step == 7)
 		  {
 		  	  vexDigitalPinSet(P_PISTON, 0);
 		  }
 
-=======
->>>>>>> parent of e27625f... Routine calibration
 
 		  //Drive motors
 		  int16_t motorValL = EPidUpdate(leftDrive);
