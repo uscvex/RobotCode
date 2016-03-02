@@ -37,10 +37,16 @@
 #define P_ENC_DRIVE_LEFT_B    kVexDigital_8
 
 
-#define S_BALL_BOT              0
-#define S_BALL_BOT2             1
+#define S_BALL_BOT              1
 #define S_BALL_TOP              2
-#define S_COLOR_SELECTOR        3
+#define S_COLOR_SELECTOR        0
+
+#define S_LINE_FOLLOWER_L2      4
+#define S_LINE_FOLLOWER_L1      5
+#define S_LINE_FOLLOWER_M       6
+#define S_LINE_FOLLOWER_R1      7
+#define S_LINE_FOLLOWER_R2      8
+
 
 #define S_ENC_BOT_FLY         kVexSensorDigital_1
 #define S_ENC_TOP_FLY         kVexSensorDigital_4
@@ -160,7 +166,7 @@ bool isBallTop(void) {
 }
 
 bool isBallBot(void) {
-  return (vexAdcGet(S_BALL_BOT) < 2880) || (vexAdcGet(S_BALL_BOT2) < 2880);
+  return (vexAdcGet(S_BALL_BOT) < 2880);
 }
 
 void
