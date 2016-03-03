@@ -96,6 +96,8 @@
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
+#define AUTON_FEED_FAIL_TIME 4000
+
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -209,465 +211,87 @@ vexUserInit()
   lfol->log = true;
 }
 
+int autonStep = 0;
+int autonShootCount = 0;
+int autonTurn = 1;
+systime_t autonTime;
+systime_t autonLastTime;
+systime_t autonWaitTime;
+
+#define STEP(s) (autonStep == (s) && (autonTime-autonLastTime) > autonWaitTime)
+#define WAIT(t) do {autonLastTime = autonTime;autonWaitTime = (t);} while(false);
+#define TIMEELAPSED(t) ((autonTime-autonLastTime) > (t))
+
+/**
+ * 4 step routine that shoots N Balls
+ */
+void shootNBalls(int n, int startStep, int failSafeStep) {
+    if(STEP(startStep)) {
+      autonShootCount = 0;
+      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+      autonStep++;
+      WAIT(0);
+    }
+    if(autonStep == (startStep + 1) && TIMEELAPSED(AUTON_FEED_FAIL_TIME)) {
+      //fail safe
+      autonShootCount = 0;
+      vexMotorSet(M_FEED_SHOOT, 0);
+      vexMotorSet(M_FEED_FRONT, 0);
+      autonStep = failSafeStep;
+    }
+    if(STEP(startStep + 1) && isBallTop()) {
+      autonStep++;
+      WAIT(700);
+    }
+    if (STEP(startStep + 2)) {
+      vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
+      vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
+      autonStep++;
+      WAIT(100);
+    }
+    if (STEP(startStep + 3)) {
+      vexMotorSet(M_FEED_FRONT, 0);
+      vexMotorSet(M_FEED_SHOOT, 0);
+      autonShootCount++;
+      if(autonShootCount == n) {
+        autonShootCount = 0;
+        autonStep++;
+      } else {
+        autonStep = startStep;
+        WAIT(3000);
+      }
+    }
+}
+
 msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
   //vexTaskRegister("auton");
-  while(!chThdShouldTerminate())
-  {
-    if(vexControllerGet(Btn5U)) {
-      vexMotorSet(M_DRIVE_LEFT2, 0);
-      vexMotorSet(M_DRIVE_LEFT1, 0);
-      vexMotorSet(M_DRIVE_RIGHT1, 0);
-      vexMotorSet(M_DRIVE_RIGHT2, 0);
-      break;
-    }
-
-    LineFollowerUpdate(lfol);
-    vexMotorSet(M_DRIVE_LEFT2, lfol->leftDrive);
-    vexMotorSet(M_DRIVE_LEFT1, lfol->leftDrive);
-    vexMotorSet(M_DRIVE_RIGHT1, lfol->rightDrive);
-    vexMotorSet(M_DRIVE_RIGHT2, lfol->rightDrive);
-    vexSleep( 10 );
-  }
-  return (msg_t)0;
-}
-
-/*
-msg_t
-vexAutonomous( void *arg )
-{
-  (void)arg;
-  vexTaskRegister("auton");
 
   vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
   vexSensorValueSet(S_ENC_DRIVE_RIGHT, 0);
 
-  int turn = isBlue()?1:-1;
+  autonTurn = isBlue()?1:-1;
+  autonStep = 0;
+  autonShootCount = 0;
+  autonTime = chTimeNow();
+  autonWaitTime = 0;
 
-  int16_t step = 0;
-  int16_t shootCount = 0;
-  systime_t time = chTimeNow();
-  systime_t lastTime;
-  tbhEnable(topWheelCtrl, FLY_START_SPEED);
-  tbhEnable(botWheelCtrl, FLY_START_SPEED);
-  systime_t waitTime = 0;
-
-  //Skills or Competition
-  bool skills = true;
-  //true for red, false for blue
-//  bool color = isRed();
-
-	systime_t startTime = chTimeNow();
-	systime_t currTime = chTimeNow();
-	int32_t timeGap;
-	if (skills)
-	{
-	  while(!chThdShouldTerminate())
-	  {
-		  if(vexControllerGet(Btn7U))
-		  {
-		   	 break;
-		  }
-
-		  // Get Time
-		  currTime = chTimeNow();
-		  timeGap = currTime - startTime;
-
-		  //Enable flywheels for ~2 seconds on SHORT
-		  if (timeGap < 3000 && step==0)
-		  {
-			  tbhEnableWithGain(topWheelCtrl, FLY_SIDE_SPEED, 0.05);
-			  tbhEnableWithGain(botWheelCtrl, FLY_SIDE_SPEED, 0.05);
-			  step ++;
-
-		  }
-		  if (timeGap >= 3000 && timeGap < 8000 && step==1)
-		  {
-			  vexMotorSet(M_FEED_SHOOT, 100);
-			  vexMotorSet(M_FEED_FRONT, 50);
-//			  EPidEnable(rightDrive, 3000, 1300);			// If shooting from short, 3050
-//			  EPidEnable(leftDrive, 3000, 1300);
-			  step++;
-		  }
-		  if (timeGap >=8000 && timeGap < 11000 && step ==2){
-
-			  EPidEnable(rightDrive, 3000, 1000);
-			  EPidEnable(leftDrive, 3000, 1000);
-			  step++;
-		  }
-		  if (timeGap >= 11000 && step ==3){
-			  break;
-		  }
-
-		  //Drive motors
-		  int16_t motorValL = EPidUpdate(leftDrive);
-		  int16_t motorValR = EPidUpdate(rightDrive);
-		  vex_printf ("%d       %d", motorValL, motorValR);
-		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-		  vexMotorSet(M_DRIVE_LEFT1, motorValL);
-		  vexMotorSet(M_DRIVE_LEFT2, motorValL);
-
-		  //Set flywheels
-		  vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
-		  vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
-
-		  //Control shoot feed
-
-		  // Don't hog cpu
-		  vexSleep( 10 );
-	  }
-
-	}
-	else{
-		#define STEP(s) (step == s && (time-lastTime) > waitTime)
-		#define WAIT(t) do {lastTime = time;waitTime = (t);} while(false);
-  	#define TIMEELAPSED(t) ((time-lastTime) > t)
-
-  // wait for 3 seconds to let the flywheel spool
+  tbhEnable(topWheelCtrl, FLY_SIDE_SPEED);
+  tbhEnable(botWheelCtrl, FLY_SIDE_SPEED);
   WAIT(3000);
-
 
   while(!chThdShouldTerminate())
   {
-    time = chTimeNow();
-  	// if(vexControllerGet(J_STOP_AUTON))
-  	// {
-  	// 	break;
-  	// }
+    autonTime = chTimeNow();
+  	if(vexControllerGet(J_STOP_AUTON)) {
+  		break;
+  	}
 
-
-    if(STEP(0)) {
-      vex_printf("Autonomos Step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-      step++;
-    }
-    if(step == 1 && TIMEELAPSED(4000)) {
-      vex_printf("Failsafe Autonomos Step %d\n", step);
-      //fail safe
-      shootCount= 0;
-      vexMotorSet(M_FEED_SHOOT, 0);
-      vexMotorSet(M_FEED_FRONT, 0);
-      step = 4;
-    }
-    if (STEP(1) && isBallTop()) {
-      vex_printf("Autonomos Step %d\n", step);
-      step++;
-      WAIT(700);
-    }
-    if (STEP(2)) {
-      vex_printf("Autonomos Step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(100);
-    }
-    if (STEP(3)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, 0);
-      vexMotorSet(M_FEED_SHOOT, 0);
-      shootCount++;
-      if(shootCount == 4) {
-        vex_printf("Finished Preloads%d\n", step);
-        shootCount = 0;
-        step++;
-      } else {
-        // if we still have preloads, wait for spool up
-        // and go to step 0
-        step = 0;
-        WAIT(3000);
-      }
-    }
-    // start alte
-
-    // if(STEP(4)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   EPidEnable(leftDrive, 2500, 500);
-    //   EPidEnable(rightDrive, 2500, 500);
-    //   tbhEnable(topWheelCtrl, FLY_PB_SPEED);
-    //   tbhEnable(botWheelCtrl, FLY_PB_SPEED);
-    //   step++;
-    //   WAIT(3000);
-    // }
-    // if(STEP(5)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   EPidEnable(leftDrive, 2000, (-turn * 520));
-    //   EPidEnable(rightDrive, 2000, (turn * 520));
-    //   step++;
-    //   WAIT(2500);
-    // }
-    // if(STEP(6)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   EPidEnable(leftDrive, 2500, 700);
-    //   EPidEnable(rightDrive, 2500, 700);
-    //   vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-    //   vexMottorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-    //   step++;
-    //   WAIT(3000);
-    // }
-    // if(STEP(7)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   EPidEnable(leftDrive, 2000, (turn * 520));
-    //   EPidEnable(rightDrive, 2000, (-turn * 520));
-    //   step++;
-    //   WAIT(3000);
-    // }
-    // if(STEP(8)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   EPidEnable(leftDrive, 5000, 2800);
-    //   EPidEnable(rightDrive, 5000, 2800);
-    //   step++;
-    //   WAIT(6000);
-    // }
-    // if((step >= 6 && step <= 8) && isBallTop()) {
-    //   vex_printf("Ball reached top %d\n", step);
-    //   vexMotorSet(M_FEED_SHOOT, 0);
-    // }
-    // if(STEP(9)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-    //   vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-    //   step++;
-    //   WAIT(0);
-    // }
-    // if(step == 9 && TIMEELAPSED(4000)) {
-    //   vex_printf("Failsafe Autonomos Step %d\n", step);
-    //   //fail safe
-    //   shootCount= 0;
-    //   vexMotorSet(M_FEED_SHOOT, 0);
-    //   vexMotorSet(M_FEED_FRONT, 0);
-    //   step = 13;
-    // }
-    // if(STEP(10) && isBallTop()) {
-    //   vex_printf("Autonomos Step %d\n", step);
-    //   step++;
-    //   WAIT(700);
-    // }
-    // if (STEP(11)) {
-    //   vex_printf("Autonomos Step %d\n", step);
-    //   vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
-    //   vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-    //   step++;
-    //   WAIT(100);
-    // }
-    // if (STEP(12)) {
-    //   vex_printf("autonomos step %d\n", step);
-    //   vexMotorSet(M_FEED_FRONT, 0);
-    //   vexMotorSet(M_FEED_SHOOT, 0);
-    //   shootCount++;
-    //   if(shootCount == 4) {
-    //     vex_printf("Finished Preloads%d\n", step);
-    //     shootCount = 0;
-    //     step++;
-    //   } else {
-    //     step = 9;
-    //     WAIT(3000);
-    //   }
-    // }
-    // if(STEP(13)) {
-    //   break;
-    // }
-
-    // start original
-
+    shootNBalls(4, 0, 4);
     if(STEP(4)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 6600, 2520);
-      EPidEnable(rightDrive, 6600, 2520);
-      tbhEnable(topWheelCtrl, FLY_PB_SPEED);
-      tbhEnable(botWheelCtrl, FLY_PB_SPEED);
-      step++;
-      WAIT(7000);
-    }
-    if(STEP(5)) {
-      vex_printf("autonomos step %d\n", step);
-      //turn
-      EPidEnable(leftDrive, 1000, (-turn * 520));
-      EPidEnable(rightDrive, 1000, (turn * 520));
-      step++;
-      WAIT(2000);
-    }
-    if(STEP(6)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 3000, 750);
-      EPidEnable(rightDrive, 3000, 750);
-      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(2500);
-    }
-    if(STEP(7)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, 0);
-      vexMotorSet(M_FEED_SHOOT, 0);
-      step++;
-      WAIT(100);
-    }
-    if(STEP(8)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 900, 700);
-      EPidEnable(rightDrive, 900, 700);
-      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(1500);
-    }
-    if((step == 8 || step == 9 || step == 7) && isBallTop()) {
-      vex_printf("Ball reached top %d\n", step);
-      vexMotorSet(M_FEED_SHOOT, 0);
-    }
-    if(STEP(9)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 1000, (turn * 560));
-      EPidEnable(rightDrive, 1000, (-turn * 560));
-      vexMotorSet(M_FEED_FRONT, 0);
-      vexMotorSet(M_FEED_SHOOT, 0);
-      step++;
-      WAIT(2500);
-    }
-    if(STEP(10)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 1000, 520);
-      EPidEnable(rightDrive, 1000, 520);
-      step++;
-      WAIT(2500);
-    }
-    if(STEP(11)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(0);
-    }
-    if(step == 12 && TIMEELAPSED(4000)) {
-      vex_printf("Failsafe Autonomos Step %d\n", step);
-      //fail safe
-      shootCount= 0;
-      vexMotorSet(M_FEED_SHOOT, 0);
-      vexMotorSet(M_FEED_FRONT, 0);
-      step = 15;
-    }
-    if(STEP(12) && isBallTop()) {
-      vex_printf("Autonomos Step %d\n", step);
-      step++;
-      WAIT(700);
-    }
-    if (STEP(13)) {
-      vex_printf("Autonomos Step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(100);
-    }
-    if (STEP(14)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, 0);
-      vexMotorSet(M_FEED_SHOOT, 0);
-      shootCount++;
-      if(shootCount == 4) {
-        vex_printf("Finished Preloads%d\n", step);
-        shootCount = 0;
-        step++;
-      } else {
-        step = 11;
-        WAIT(3000);
-      }
-    }
-    if(STEP(15)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 2500, -1000);
-      EPidEnable(rightDrive, 2500, -1000);
-      step++;
-      WAIT(3000);
-    }
-    if(STEP(16)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 2000, (-turn * 560));
-      EPidEnable(rightDrive, 2000, (turn * 560));
-      step++;
-      WAIT(2500);
-    }
-    if(STEP(17)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-      EPidEnable(leftDrive, 2000, 1050);
-      EPidEnable(rightDrive, 2000, 1050);
-      step++;
-      WAIT(3000);
-    }
-    if((step == 17 || step == 18 || step == 19) && isBallTop()) {
-      vex_printf("Ball reached top %d\n", step);
-      vexMotorSet(M_FEED_SHOOT, 0);
-    }
-    if(STEP(18)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 2000, -1050);
-      EPidEnable(rightDrive, 2000, -1050);
-      step++;
-      WAIT(2500);
-    }
-    if(STEP(19)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, 0);
-      vexMotorSet(M_FEED_SHOOT, 0);
-      EPidEnable(leftDrive, 2000, (turn * 550));
-      EPidEnable(rightDrive, 2000, (-turn * 550));
-      step++;
-      WAIT(2500);
-    }
-    if(STEP(20)) {
-      vex_printf("autonomos step %d\n", step);
-      EPidEnable(leftDrive, 2500, 1000);
-      EPidEnable(rightDrive, 2500, 1000);
-      step++;
-      WAIT(3000);
-    }
-    if(STEP(21)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(0);
-    }
-    if(step == 22 && TIMEELAPSED(4000)) {
-      vex_printf("Failsafe Autonomos Step %d\n", step);
-      //fail safe
-      shootCount= 0;
-      vexMotorSet(M_FEED_SHOOT, 0);
-      vexMotorSet(M_FEED_FRONT, 0);
-      step = 25;
-    }
-    if(STEP(22) && isBallTop()) {
-      vex_printf("Autonomos Step %d\n", step);
-      step++;
-      WAIT(700);
-    }
-    if (STEP(23)) {
-      vex_printf("Autonomos Step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
-      vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
-      step++;
-      WAIT(100);
-    }
-    if (STEP(24)) {
-      vex_printf("autonomos step %d\n", step);
-      vexMotorSet(M_FEED_FRONT, 0);
-      vexMotorSet(M_FEED_SHOOT, 0);
-      shootCount++;
-      if(shootCount == 4) {
-        vex_printf("Finished Preloads%d\n", step);
-        shootCount = 0;
-        step++;
-      } else {
-        step = 21;
-        WAIT(3000);
-      }
-    }
-    if(STEP(25)) {
       break;
     }
 
@@ -680,18 +304,19 @@ vexAutonomous( void *arg )
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
     vexSleep( 10 );
-  }
 	}
 
   tbhDisable(topWheelCtrl);
   tbhDisable(botWheelCtrl);
+  EPidDisable(leftDrive);
+  EPidDisable(rightDrive);
   vexMotorSet(M_FEED_FRONT, 0);
   vexMotorSet(M_FEED_SHOOT, 0);
   vexMotorSet(M_FLY_TOP_WHEEL, 0);
   vexMotorSet(M_FLY_BOT_WHEEL, 0);
   vex_printf("Exit autonomous");
   return (msg_t)0;
-} */
+}
 
 
 msg_t
