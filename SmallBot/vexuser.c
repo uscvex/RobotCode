@@ -137,9 +137,8 @@ EPidController *leftDrive;
 
 // Line Folower
 LineFollower *lfol;
-const int16_t lfolThresholds[5] = {200, 200, 200, 200, 200};
-const float lfolDrives[5] = {0, 0.5, 1,  0.5,  0};
-const float lfolTurns[5] = {-0.3, -0.1, 0, 0.1, 0.3};
+const int16_t lfolThresholds[5] = {300, 300, 300, 300, 300};
+const float lfolDrives[5] = {-1, -0.8, -0.7, 0.6, 0};
 
 bool isBlue(void) {
   return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
@@ -149,7 +148,7 @@ bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
   int forward = VALLEY(vexControllerGet(J_DRIVE), 10, 127);
-  int turnChannel = vexControllerGet(J_TURN) * 0.8;
+  int turnChannel = vexControllerGet(J_TURN) * 0.7;
   if(vexControllerGet(J_HALF_SPEED))
   {
 	  turnChannel  *= .4;
@@ -203,11 +202,9 @@ vexUserInit()
   lfol = LineFollowerInit(
     5,                   // five sensors
     S_LINE_FOLLOWER_L2,  // starting from the leftmost
-    50,                 // max forward speed
-    50,                 // max turn speed
+    30,                 // max speed
     lfolThresholds,
-    lfolDrives,
-    lfolTurns
+    lfolDrives
   );
   lfol->log = true;
 }

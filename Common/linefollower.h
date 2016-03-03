@@ -3,15 +3,14 @@
 
 typedef struct _LineFollower {
   int16_t sensorCount;
-  int16_t maxDriveSpeed;
-  int16_t maxTurnSpeed;
+  int16_t maxSpeed;
   int16_t firstSensor;
   int16_t const *thresholds;
+  int16_t sensorDefault;
   int16_t leftDrive;
   int16_t rightDrive;
+  int16_t lastTurn;
   float const *drive;
-  float const *turn;
-  int lastSide;
   bool log;
 } LineFollower;
 
@@ -19,11 +18,9 @@ typedef struct _LineFollower {
 
 LineFollower *LineFollowerInit(int16_t sensorCount,
                                int16_t firstSensor,
-                               int16_t maxDriveSpeed,
-                               int16_t maxTurnSpeed,
+                               int16_t maxSpeed,
                                int16_t const *thresholds,
-                               float const *drive,
-                               float const *turn);
+                               float const *drive);
 
 void LineFollowerUpdate(LineFollower *lfol);
 
