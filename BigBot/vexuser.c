@@ -51,8 +51,8 @@
 //#define J_SHOOT      Btn6U
 #define J_SHOOT_START   Btn8R
 #define J_SHOOT_MID     Btn8U
-#define J_SHOOT_SHORT   Btn7U
-#define J_SHOOT_CORNER	Btn8L
+#define J_SHOOT_SHORT   Btn8L
+#define J_SHOOT_CORNER	Btn7U
 #define J_SHOOT_STOP    Btn8D
 
 #define J_START_AUTON	Btn7R
@@ -69,10 +69,10 @@
 #define DEFAULT_FEED_SPEED 127
 #define FEED_SPOOL_TIME    100
 
-#define FLY_CORNER_SPEED 6950
-#define FLY_SHORT_SPEED  4300
-#define FLY_START_SPEED  5750
-#define FLY_MID_SPEED    4450
+#define FLY_CORNER_SPEED 7200
+#define FLY_SHORT_SPEED  4500
+#define FLY_START_SPEED  6200
+#define FLY_MID_SPEED    4400
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -187,7 +187,7 @@ vexAutonomous( void *arg )
   vexSensorValueSet(S_ENC_DRIVE_LEFT,0);
   vexSensorValueSet(S_ENC_DRIVE_RIGHT,0);
   //Skills or Competition
-  bool skills = false;
+  bool skills = true;
   //true for red, false for blue
   bool color = isRed();
 
@@ -212,28 +212,28 @@ vexAutonomous( void *arg )
 		  currTime = chTimeNow();
 		  timeGap = currTime - startTime;
 		  //Enable flywheels for ~21 seconds on SHORT
-		  if (timeGap < 21000 && step == 0)
+		  if (timeGap < 15000 && step == 0)
 		  {
-			  tbhEnableWithGain(topWheelCtrl, FLY_SHORT_SPEED-100, 0.05);
-			  tbhEnableWithGain(botWheelCtrl, FLY_SHORT_SPEED-100, 0.05);
+			  tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED, 0.05);
+			  tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED, 0.05);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 21000  && timeGap < 22500 && step == 1) // && timeGap < 22500
+		  if (timeGap >= 15000  && timeGap < 16500 && step == 1) // && timeGap < 22500
 		  {
 			  EPidEnable(rightDrive, 1500, -285);
 			  EPidEnable(leftDrive, 1500, 285);
 			  step++;
 		  }
 		  //Drive forward across the field
-		  if (timeGap >= 22500 && timeGap < 26500 && step == 2)
+		  if (timeGap >= 16500 && timeGap < 20500 && step == 2)
 		  {
 			  EPidEnable(rightDrive, 4000, 1850);			// If shooting from short, 3050
 			  EPidEnable(leftDrive, 4000, 1850);
 			  step++;
 		  }
 		  //Rotate 90 degrees right
-		  if (timeGap >= 26500 && timeGap < 28000 && step == 3)
+		  if (timeGap >= 20500 && timeGap < 22000 && step == 3)
 		  {
 			  EPidEnable(rightDrive, 1500, 380);
 		 	  EPidEnable(leftDrive, 1500, -380);
@@ -242,30 +242,43 @@ vexAutonomous( void *arg )
 
 		  //Shoot for 20 second
 
-		  //Rotate 180 degrees right
-		  if (timeGap >= 48000 && timeGap < 50000 && step == 4)
+		  //Rotate ~90 degrees right
+		  if (timeGap >= 42000 && timeGap < 44000 && step == 4)
 		  {
-			  EPidEnable(rightDrive, 2000, +650);
-			  EPidEnable(leftDrive, 2000, -650);
+			  EPidEnable(rightDrive, 2000, +300);
+			  EPidEnable(leftDrive, 2000, -300);
 			  step++;
 		  }
 
-		  //Move and hit against the wall
-		  if (timeGap >= 50000 && timeGap < 50500 && step == 5)
+		  //Move forward ~a foot
+		  if (timeGap >= 44000 && timeGap < 45500 && step == 5)
 		  {
-			  EPidEnable(rightDrive, 500, -100);
-			  EPidEnable(leftDrive, 500, -100);
+			  EPidEnable(rightDrive, 1500, -530);
+			  EPidEnable(leftDrive, 1500, -530);
 			  step++;
 
 		  }
-
+		  //Turn 45 degrees
+		  if (timeGap >= 45500 && timeGap < 47000 && step == 6)
+		  {
+			  EPidEnable(rightDrive, 1500, +190);
+			  EPidEnable(leftDrive, 1500, -190);
+			  step++;
+		  }
+		  //Slam the wall
+		  if (timeGap >= 47000 && timeGap < 48000 && step == 7)
+		  {
+			  EPidEnable(rightDrive, 1000, -350);
+			  EPidEnable(leftDrive, 1000, -350);
+			  step++;
+		  }
 		  // Get the ramp to open and shut the flywheels
-		  if(timeGap >= 50500 && timeGap < 51500 && step == 6)
+		  if(timeGap >= 48000 && timeGap < 50000 && step == 8)
 		  {
 			  tbhDisable(topWheelCtrl);
 			  tbhDisable(botWheelCtrl);
-			  EPidDisable(rightDrive);
-			  EPidDisable(leftDrive);
+			  //EPidDisable(rightDrive);
+			  //EPidDisable(leftDrive);
 			  vexMotorSet(M_FEED_FRONT, 0);
 			  vexMotorSet(M_FEED_SHOOT, 0);
 			  vexDigitalPinSet(P_PISTON, 1);
@@ -273,7 +286,7 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 
-		  if(timeGap >= 51500 && step == 7)
+		  if(timeGap >= 52000 && step == 9)
 		  {
 		  	  vexDigitalPinSet(P_PISTON, 0);
 		  }
@@ -633,8 +646,8 @@ vexOperator( void *arg )
     }
     //Start position shot
     if(vexControllerGet(J_SHOOT_START)) {
-      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.05);
-      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.05);
+      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.0375);
+      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.0375);
     }
     //3/4 court shot
     if(vexControllerGet(J_SHOOT_MID)) {
