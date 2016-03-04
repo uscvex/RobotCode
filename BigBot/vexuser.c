@@ -51,13 +51,13 @@
 //#define J_SHOOT      Btn6U
 #define J_SHOOT_START   Btn8R
 #define J_SHOOT_MID     Btn8U
-#define J_SHOOT_SHORT   Btn8L
-#define J_SHOOT_CORNER	Btn7U
+#define J_SHOOT_SHORT   Btn7U
+#define J_SHOOT_CORNER	Btn8L
 #define J_SHOOT_STOP    Btn8D
 
 #define J_START_AUTON	Btn7R
 
-#define J_SLOW_TURN     Btn7L
+#define J_COMPRESS      Btn7L
 #define J_PISTON 		Btn7D
 
 #define J_FEED_SHOOT_U  Btn6U
@@ -71,7 +71,7 @@
 
 #define FLY_CORNER_SPEED 6950
 #define FLY_SHORT_SPEED  4300
-#define FLY_START_SPEED  6650
+#define FLY_START_SPEED  5750
 #define FLY_MID_SPEED    4450
 
 // Digi IO configuration
@@ -116,15 +116,8 @@ bool driveMotors(void) {
   //Calculate Motor Power
   int forward = VALLEY(vexControllerGet(J_DRIVE), 25, 127);
   int turn;
-  //Half turn speed if "Slow turn" button pressed
-  if(vexControllerGet(J_SLOW_TURN))
-  {
-	  turn    = VALLEY(vexControllerGet(J_TURN)*0.5, 25, 127);
-  }
-  else
-  {
-	  turn    = VALLEY(vexControllerGet(J_TURN), 25, 127);
-  }
+
+  turn = VALLEY(vexControllerGet(J_TURN), 25, 127);
   ld = VALLEY(forward + turn, 25, 127);
   rd = VALLEY(forward - turn, 25, 127);
 
@@ -306,21 +299,22 @@ vexAutonomous( void *arg )
 	  }
   }
   else {
-	  int TURN1,TURN2,TURN3,TURN4;
+	  int TURN1,TURN2,TURN3,TURN4,TURN5;
 	  TURN1 = 170;
-	  TURN2 = -155;
-	  TURN3 = 140;
-	  TURN4 = 355;
+	  TURN2 = 155;
+	  TURN3 = 130;
+	  TURN4 = 315;
+	  TURN5 = 100;
 	  if(!color)
 	  {
 		  TURN1 *= -1;
 		  TURN2 *= -1;
 		  TURN3 *= -1;
 		  TURN4 *= -1;
+		  TURN5 *= -1;
 	  }
 
 	  bool shotsReady = false;
-	  bool dontShoot = true;
 	  bool feeding = true;
 	  //bool runFrontFeed = false;
 	  //bool runShootFeed = false;
@@ -335,20 +329,84 @@ vexAutonomous( void *arg )
 		  //Get time
 		  currTime = chTimeNow();
 		  timeGap = currTime - startTime;
+		  /*
+		  /*
+		  //Set flywheels
+		  if(step == 0 && timeGap < 3000)
+		  {
+			  //dontShoot = false;
+			  shotsReady = false;
+		  	  tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED-200, 0.03);
+		  	  tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED-200, 0.03);
+		  	  step++;
+		  }
 
-		  //TODO: Fire Pre-loads
+		  //Set flywheels
+		  if(step == 0 && timeGap < 3000)
+		  {
+			  //dontShoot = false;
+			  shotsReady = false;
+		  	  tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED, 0.05);
+		  	  tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED, 0.05);
+		  	  step++;
+		  }
+		  //Turn ~90 degrees
+		  if((timeGap >= 3000 && timeGap < 5000) && step == 1)
+		  {
+			  EPidEnable(rightDrive, 2000, -TURN4);
+		 	  EPidEnable(leftDrive, 2000, TURN4);
+		 	  step++;
+		  }
+		  //Drive towards piles
+		  if((timeGap >= 5000 && timeGap < 8000) && step == 2)
+		  {
+			  //reverseFeed = true;
+		 	  EPidEnable(rightDrive, 3000, 1600);
+		 	  EPidEnable(leftDrive, 3000, 1600);
+		 	  step++;
+		  }
+		  //Drive forward and backward
+		  if((timeGap >= 8000 && timeGap < 9000) && step == 3)
+		  {
+			  EPidEnable(rightDrive, 1000, -150);
+			  EPidEnable(leftDrive, 1000, -150);
+			  step++;
+			  //runShootFeed = true;
+		  }
+
+		  if((timeGap >= 9000 && timeGap < 10000) && step == 4)
+		  {
+			  EPidEnable(rightDrive, 1000, 150);
+			  EPidEnable(leftDrive, 1000, 150);
+			  step++;
+		  }
+		  //Align shot
+		  if((timeGap >= 10000 && timeGap < 11500) && step == 5)
+		  {
+			  EPidEnable(rightDrive, 1500, TURN5);
+			  EPidEnable(leftDrive, 1500, -TURN5);
+			  step++;
+		  }
+		  //Fire shots
+		  if((timeGap >= 11500 && timeGap < 15000) && step == 6)
+		  {
+			  shotsReady = true;
+			  step++;
+		  }
+		  //*/
+
+		  ///*
 		  //Prepare flywheels
 		  if(step == 0 && timeGap < 3000)
 		  {
-			  tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.04);
-			  tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
+			  tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.05);
+			  tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.05);
 
 		  }
 		  //Fire balls
 		  if(step == 0 && timeGap >=3000 && timeGap < 6000)
 		  {
 			shotsReady = true;
-			dontShoot = false;
 			step++;
 		  }
 
@@ -362,25 +420,25 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 		  //Rotate ~30 degrees
-		  if((timeGap >= 9000 && timeGap < 11000)&& step == 2)
+		  if((timeGap >= 9000 && timeGap < 10500)&& step == 2)
 		  {
 			  EPidEnable(rightDrive, 1500, TURN1);
 			  EPidEnable(leftDrive, 1500, -TURN1);
 			  step++;
 		  }
 		  //Back up, get balls
-		  if((timeGap >= 11000 && timeGap < 14500) && step == 3)
+		  if((timeGap >= 10500 && timeGap < 13700) && step == 3)
 		  {
 			  feeding = true;
-			  EPidEnable(rightDrive, 3200, 1080);
-			  EPidEnable(leftDrive, 3200, 1080);
+			  EPidEnable(rightDrive, 3200, 1050);
+			  EPidEnable(leftDrive, 3200, 1050);
 			  tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED, 0.05);
 			  tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED, 0.05);
 			  step++;
 			  //runShootFeed = true;
 		  }
-		  //TODO Move back and forth
-		  if((timeGap >= 14500 && timeGap < 15500) && step == 4)
+		  //Move back and forth
+		  if((timeGap >= 13700 && timeGap < 14700) && step == 4)
 		  {
 			  EPidEnable(rightDrive, 1000, -150);
 			  EPidEnable(leftDrive, 1000, -150);
@@ -388,7 +446,7 @@ vexAutonomous( void *arg )
 			  //runShootFeed = true;
 		  }
 
-		  if((timeGap >= 15500 && timeGap < 16500) && step == 5)
+		  if((timeGap >= 14700 && timeGap < 15700) && step == 5)
 		  {
 			  EPidEnable(rightDrive, 1000, 150);
 			  EPidEnable(leftDrive, 1000, 150);
@@ -397,43 +455,89 @@ vexAutonomous( void *arg )
 		  }
 
 		  //Align shot
-		  if((timeGap >= 16500 && timeGap < 18500) && step == 6)
+		  if((timeGap >= 15700 && timeGap < 17700) && step == 6)
 		  {
-			  //runShootFeed = false;
 			  EPidEnable(rightDrive, 2000, -250);
 			  EPidEnable(leftDrive, 2000, -250);
 			  step++;
 		  }
-		  if((timeGap >= 18500 && timeGap < 20500) && step == 7)
+		  if((timeGap >= 17700 && timeGap < 19700) && step == 7)
 		  {
-			  EPidEnable(rightDrive, 2000, TURN2);
-			  EPidEnable(leftDrive, 2000, -TURN2);
+			  EPidEnable(rightDrive, 2000, -TURN2);
+			  EPidEnable(leftDrive, 2000, TURN2);
 			  step++;
 		  }
 		  //Shoot balls
-		  if((timeGap >= 20500 && timeGap < 24500) && step == 8)
+		  if((timeGap >= 19700 && timeGap < 23700) && step == 8)
 		  {
 			  tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED, 0.05);
 			  tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED, 0.05);
-			   shotsReady = true;
-			   step++;
+			  shotsReady = true;
+			  step++;
 		  }
 		  //TODO: Release balls in case of a jam
+
 		  //Turn to face center
-		  if((timeGap >= 24500 && timeGap < 25500) && step == 9)
+		  if((timeGap >= 23700 && timeGap < 24700) && step == 9)
 		  {
-			  //runShootFeed = false;
+			  shotsReady = false;
+			  feeding = false;
 			  EPidEnable(rightDrive, 1000, TURN3);
 			  EPidEnable(leftDrive, 1000, -TURN3);
 			  step++;
 		  }
-		  if((timeGap >= 24500 && timeGap < 25500) && step == 10)
-		  		  {
-		  			  //runShootFeed = false;
-		  			  EPidEnable(rightDrive, 1000, -200);
-		  			  EPidEnable(leftDrive, 1000, -200);
-		  			  step++;
-		  		  }
+		  //Drive to center of field
+		  if((timeGap >= 24700 && timeGap < 27500) && step == 10)
+		  {
+		  	  EPidEnable(rightDrive, 2800, -1600);
+			  EPidEnable(leftDrive, 2800, -1600);
+ 			  step++;
+  		  }
+		  //Turn ~90 degrees
+		  if((timeGap >= 27500 && timeGap < 29500) && step == 11)
+		  {
+			  EPidEnable(rightDrive, 2000, -TURN4);
+		 	  EPidEnable(leftDrive, 2000, TURN4);
+		 	  step++;
+		  }
+		  //Drive towards piles
+		  if((timeGap >= 29500 && timeGap < 32500) && step == 12)
+		  {
+			  feeding = true;
+		 	  EPidEnable(rightDrive, 3000, 1600);
+		 	  EPidEnable(leftDrive, 3000, 1600);
+		 	  step++;
+		  }
+		  //Drive forward and backward
+		  if((timeGap >= 32500 && timeGap < 33500) && step == 13)
+		  {
+			  EPidEnable(rightDrive, 1000, -150);
+			  EPidEnable(leftDrive, 1000, -150);
+			  step++;
+			  //runShootFeed = true;
+		  }
+
+		  if((timeGap >= 33500 && timeGap < 34500) && step == 14)
+		  {
+			  EPidEnable(rightDrive, 1000, 150);
+			  EPidEnable(leftDrive, 1000, 150);
+			  step++;
+		  }
+		  //Align shot
+		  if((timeGap >= 34500 && timeGap < 36000) && step == 15)
+		  {
+			  EPidEnable(rightDrive, 1500, TURN5);
+			  EPidEnable(leftDrive, 1500, -TURN5);
+			  step++;
+		  }
+		  //Fire shots
+		  if((timeGap >= 36000 && timeGap < 38500) && step == 16)
+		  {
+			  shotsReady = true;
+			  step++;
+		  }
+
+		  //*/
 
 		  //Drive motors
 		  int16_t motorValL = EPidUpdate(leftDrive);
@@ -448,17 +552,16 @@ vexAutonomous( void *arg )
 		  vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
 		  //Control shoot feed
-		  if((shotsReady || !isBallTop()) && !dontShoot)
-		  {
+		  if((shotsReady || !isBallTop())) {
 			  vexMotorSet(M_FEED_SHOOT, 77);
-		  }
-		  else
-		  {
+		  } else {
 			  vexMotorSet(M_FEED_SHOOT, 0);
 		  }
-		  if(feeding)
-		  {
+		  //Front feed control
+		  if(feeding) {
 			  vexMotorSet(M_FEED_FRONT, 50);
+		  } else {
+			  vexMotorSet(M_FEED_FRONT, 0);
 		  }
 		  // Don't hog cpu
 		  vexSleep( 10 );
@@ -530,8 +633,8 @@ vexOperator( void *arg )
     }
     //Start position shot
     if(vexControllerGet(J_SHOOT_START)) {
-      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.04);
-      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
+      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.05);
+      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.05);
     }
     //3/4 court shot
     if(vexControllerGet(J_SHOOT_MID)) {
@@ -589,8 +692,3 @@ vexOperator( void *arg )
   return (msg_t)0;
 }
 
-//A function for rotating degrees
-//void rotate90()
-//{
-
-//}

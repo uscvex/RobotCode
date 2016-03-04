@@ -21,22 +21,19 @@ static LineFollower lineFollowers[MAX_LINE_FOLLOWERS];
  **/
 LineFollower *LineFollowerInit(int16_t sensorCount,
                                int16_t firstSensor,
-                               int16_t maxDriveSpeed,
-                               int16_t maxTurnSpeed,
+                               int16_t maxSpeed,
                                int16_t const *thresholds,
-                               float const *drive,
-                               float const *turn)
+                               float const *drive)
 {
   LineFollower *lfol = &lineFollowers[nextLineFollower++];
   lfol->sensorCount= sensorCount;
   lfol->firstSensor = firstSensor;
-  lfol->maxDriveSpeed = maxDriveSpeed;
-  lfol->maxTurnSpeed = maxTurnSpeed;
+  lfol->maxSpeed = maxSpeed;
   lfol->thresholds = thresholds;
   lfol->drive = drive;
-  lfol->turn = turn;
-  lfol->lastSide = 0;
+  lfol->lastTurn = 0;
   lfol->log = false;
+  //lfol->lastTurn = 0;
   return lfol;
 }
 
@@ -46,73 +43,65 @@ LineFollower *LineFollowerInit(int16_t sensorCount,
  * leftDriveOut - pointer to integer where left motor output will be stored
  * rightDriveOut - pointer to integer where right motor output will be stored
  */
-void LineFollowUpdate(LineFollower *lfol, int16_t *leftDriveOut, int16_t *rightDriveOut) {
-  float drive = 0;
-  float turn = 0;
+void LineFollowerUpdate(LineFollower *lfol) {
+  float leftDrive = 0;
+  float rightDrive = 0;
   int enableCount = 0;
-  int minEnableIndex = lfol->sensorCount;
-  int maxEnableIndex = -1;
   int i;
 
   // find sum of drive and turn values for all enabled sensors
   for(i = 0;i < lfol->sensorCount;i++) {
-    bool enabled = (vexAdcGet(lfol->firstSensor + i) < lfol->thresholds[i]);
+    bool enabled = vexAdcGet(lfol->firstSensor + i) < lfol->thresholds[i];
     if(lfol->log) {
-      char label[10];
+      char label[15];
       vex_sprintf(label, "sensor_%d", i);
       serialLog(label, (double)enabled, NULL);
     }
     if(!enabled) {
       continue;
     }
-    drive += lfol->drive[i];
-    turn += lfol->turn[i];
-    if(i < minEnableIndex) {
-      minEnableIndex = i;
-    }
-    if(i > maxEnableIndex) {
-      maxEnableIndex = i;
-    }
+    rightDrive += lfol->drive[i];
+    leftDrive += lfol->drive[lfol->sensorCount - 1 - i];
+    vex_printf("here\n");
     enableCount++;
   }
 
+  serialLog("enableCount", (double)enableCount,
+            "rightDriveF", (double)rightDrive,
+            "leftDriveF",  (double)leftDrive, NULL);
+
   if(enableCount) {
     // find average of drive and turn values for enabled sensors
-    drive = drive/enableCount;
-    turn = turn/enableCount;
+    lfol->leftDrive = (int16_t)((leftDrive/enableCount) * lfol->maxSpeed);
+    lfol->rightDrive = (int16_t)((rightDrive/enableCount) * lfol->maxSpeed);
 
-    // update the last turn side
-    float mid = lfol->sensorCount/2.0;
-    lfol->lastSide = 0;
-    if(minEnableIndex < mid && maxEnableIndex < mid) {
-      lfol->lastSide = -1;
-    }
-    if(minEnableIndex > mid && maxEnableIndex > mid) {
-      lfol->lastSide = 1;
+    // update last turn values
+    if(lfol->leftDrive > lfol->rightDrive) {
+      lfol->lastTurn = 1;
+    } else if(lfol->rightDrive > lfol->leftDrive) {
+      lfol->lastTurn = -1;
+    } else {
+      lfol->lastTurn = 0;
     }
   } else {
-    // if no sensors were enabled then take a move based
-    // on the last direction
-    if(lfol->lastSide == 1) { // last dir right, so turn left
-      drive = 0;
-      turn = lfol->turn[0];
-    } else if(lfol->lastSide == -1) { // last dir left, so turn right
-      drive = 0;
-      turn = lfol->turn[lfol->sensorCount - 1];
-    } else { // keep moving forward
-      drive = lfol->drive[lfol->sensorCount/2];
-      turn = 0;
+    // if no sensors were detected in place rotate in
+    // a direction opposite to last turn
+    if(lfol->lastTurn != 0) {
+      rightDrive = lfol->lastTurn * lfol->drive[lfol->sensorCount/2];
+      leftDrive = -lfol->lastTurn * lfol->drive[lfol->sensorCount/2];
+    } else {
+      rightDrive = lfol->drive[lfol->sensorCount/2];
+      leftDrive =  lfol->drive[lfol->sensorCount/2];
     }
+
+    lfol->leftDrive = (int16_t)(leftDrive * lfol->maxSpeed);
+    lfol->rightDrive = (int16_t)(rightDrive * lfol->maxSpeed);
   }
+
 
   if(lfol->log) {
-    serialLog("drive", (double)drive,
-              "turn", (double)turn, NULL);
+    serialLog("leftDrive", (double)(lfol->leftDrive/127.0),
+              "rightDrive", (double)(lfol->rightDrive/127.0),
+              "lastTurn", (double)(lfol->lastTurn), NULL);
   }
-
-  drive *= lfol->maxDriveSpeed;
-  turn *= lfol->maxTurnSpeed;
-
-  *leftDriveOut = (int16_t)(drive + turn);
-  *rightDriveOut = (int16_t)(drive - turn);
 }
