@@ -154,7 +154,7 @@ void
 vexUserInit()
 {
   //Initialize TBHControllers
-  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.01, 10500, false);
+  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.01, 10500, true);
   topWheelCtrl->powerZeroClamp = true;
   topWheelCtrl->log = false;
   botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.01, 10500, true);
@@ -603,8 +603,6 @@ vexOperator( void *arg )
   //Run until asked to terminate
   while(!chThdShouldTerminate())
   {
-	  vex_printf ("%f, %f`\n",topWheelCtrl->lastSpeed,  botWheelCtrl->lastSpeed);
-
 	  //  if(vexControllerGet(Btn8U)) {
 		 // driveMotors();
 	  //} else {
@@ -705,4 +703,3 @@ vexOperator( void *arg )
   return (msg_t)0;
   return (msg_t)0;
 }
-
