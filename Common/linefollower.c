@@ -33,8 +33,17 @@ LineFollower *LineFollowerInit(int16_t sensorCount,
   lfol->drive = drive;
   lfol->lastTurn = 0;
   lfol->log = false;
+  lfol->enabled = false;
   //lfol->lastTurn = 0;
   return lfol;
+}
+
+void LineFollowerEnable(LineFollower *lfol) {
+  lfol->enabled = true;
+}
+
+void LineFollowerDisable(LineFollower *lfol) {
+  lfol->enabled = false;
 }
 
 /**
@@ -49,6 +58,12 @@ void LineFollowerUpdate(LineFollower *lfol) {
   int enableCount = 0;
   int i;
 
+  if(!lfol->enabled) {
+    lfol->leftDrive = 0;
+    lfol->rightDrive = 0;
+    return;
+  }
+
   // find sum of drive and turn values for all enabled sensors
   for(i = 0;i < lfol->sensorCount;i++) {
     bool enabled = vexAdcGet(lfol->firstSensor + i) < lfol->thresholds[i];
@@ -62,13 +77,8 @@ void LineFollowerUpdate(LineFollower *lfol) {
     }
     rightDrive += lfol->drive[i];
     leftDrive += lfol->drive[lfol->sensorCount - 1 - i];
-    vex_printf("here\n");
     enableCount++;
   }
-
-  serialLog("enableCount", (double)enableCount,
-            "rightDriveF", (double)rightDrive,
-            "leftDriveF",  (double)leftDrive, NULL);
 
   if(enableCount) {
     // find average of drive and turn values for enabled sensors

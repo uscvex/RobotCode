@@ -31,11 +31,11 @@
 #define P_ENC_TOP_FLY_A       kVexDigital_3
 #define P_ENC_TOP_FLY_B       kVexDigital_4
 
-#define P_ENC_DRIVE_RIGHT_A   kVexDigital_5
-#define P_ENC_DRIVE_RIGHT_B   kVexDigital_6
+#define P_ENC_DRIVE_RIGHT_A   kVexDigital_7
+#define P_ENC_DRIVE_RIGHT_B   kVexDigital_8
 
-#define P_ENC_DRIVE_LEFT_A    kVexDigital_7
-#define P_ENC_DRIVE_LEFT_B    kVexDigital_8
+#define P_ENC_DRIVE_LEFT_A    kVexDigital_5
+#define P_ENC_DRIVE_LEFT_B    kVexDigital_6
 
 
 #define S_BALL_BOT              1
@@ -51,8 +51,8 @@
 
 #define S_ENC_BOT_FLY         kVexSensorDigital_1
 #define S_ENC_TOP_FLY         kVexSensorDigital_4
-#define S_ENC_DRIVE_RIGHT     kVexSensorDigital_6
-#define S_ENC_DRIVE_LEFT      kVexSensorDigital_8
+#define S_ENC_DRIVE_RIGHT     kVexSensorDigital_8
+#define S_ENC_DRIVE_LEFT      kVexSensorDigital_6
 
 
 // Joystick settings
@@ -96,7 +96,7 @@
 #define FLY_CLOSE_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
-#define AUTON_FEED_FAIL_TIME 4000
+#define AUTON_FEED_FAIL_TIME 2500
 
 
 // Digi IO configuration
@@ -146,6 +146,25 @@ bool isBlue(void) {
   return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
 }
 
+bool isLineOn(int sensor) {
+  return (vexAdcGet(sensor) < lfolThresholds[(sensor - S_LINE_FOLLOWER_L2)]);
+}
+
+bool isAllLineOn(void) {
+  int i = 0;
+  for(i = 0;i < 5;i++) {
+    if(vexAdcGet(i+S_LINE_FOLLOWER_L2) >= lfolThresholds[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool isEndsOn(void) {
+  return ((isLineOn(S_LINE_FOLLOWER_L2) || isLineOn(S_LINE_FOLLOWER_L1)) &&
+          (isLineOn(S_LINE_FOLLOWER_R2) || isLineOn(S_LINE_FOLLOWER_R1)));
+}
+
 bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
@@ -192,110 +211,12 @@ vexUserInit()
   topWheelCtrl->log = false;
 
   botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, TOP_FLY_WHEEL_DEFAULT_GAIN, 10500, false);
-  botWheelCtrl->log = true;
+  botWheelCtrl->log = false;
   botWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers
-  rightDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_RIGHT, true);
-  leftDrive = EPidInit(kMinJerk,0.001,0,0,S_ENC_DRIVE_LEFT, true);
-<<<<<<< HEAD
-}
-
-msg_t
-vexAutonomous( void *arg )
-{
-  (void)arg;
-  vexTaskRegister("auton");
-
-  vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
-  vexSensorValueSet(S_ENC_DRIVE_RIGHT, 0);
-
-  int turn = isBlue()?1:-1;
-
-  int16_t step = 0;
-  int16_t shootCount = 0;
-  systime_t time = chTimeNow();
-  systime_t lastTime;
-  tbhEnable(topWheelCtrl, FLY_START_SPEED);
-  tbhEnable(botWheelCtrl, FLY_START_SPEED);
-  systime_t waitTime = 0;
-
-  //Skills or Competition
-  bool skills = true;
-  //true for red, false for blue
-//  bool color = isRed();
-
-	systime_t startTime = chTimeNow();
-	systime_t currTime = chTimeNow();
-	int32_t timeGap;
-	if (skills)
-	{
-	  while(!chThdShouldTerminate())
-	  {
-		  if(vexControllerGet(Btn7U))
-		  {
-		   	 break;
-		  }
-
-		  // Get Time
-		  currTime = chTimeNow();
-		  timeGap = currTime - startTime;
-
-		  //Enable flywheels for ~2 seconds on SHORT
-		  if (timeGap < 3000 && step==0)
-		  {
-			  tbhEnableWithGain(topWheelCtrl, FLY_SIDE_SPEED, 0.05);
-			  tbhEnableWithGain(botWheelCtrl, FLY_SIDE_SPEED, 0.05);
-			  step ++;
-
-		  }
-		  if (timeGap >= 3000 && timeGap < 8000 && step==1)
-		  {
-			  vexMotorSet(M_FEED_SHOOT, 100);
-			  vexMotorSet(M_FEED_FRONT, 50);
-			  step++;
-		  }
-		  if (timeGap >=8000 && timeGap < 10000 && step ==2){
-
-			  EPidEnable(rightDrive, 2000, 700);
-			  EPidEnable(leftDrive, 2000, 700);
-			  step++;
-		  }
-		  if (timeGap >= 10000 && timeGap <= 11000 && step ==3){
-			  EPidEnable(rightDrive, 1000, 200);
-			  EPidEnable(leftDrive, 1000, 200);
-			  step++;
-		  }
-
-		  //Drive motors
-		  int16_t motorValL = EPidUpdate(leftDrive);
-		  int16_t motorValR = EPidUpdate(rightDrive);
-		  vex_printf ("%d       %d", motorValL, motorValR);
-		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-		  vexMotorSet(M_DRIVE_LEFT1, motorValL);
-		  vexMotorSet(M_DRIVE_LEFT2, motorValL);
-
-		  //Set flywheels
-		  vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
-		  vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
-
-		  //Control shoot feed
-
-		  // Don't hog cpu
-		  vexSleep( 10 );
-	  }
-
-	}
-	else{
-		#define STEP(s) (step == s && (time-lastTime) > waitTime)
-		#define WAIT(t) do {lastTime = time;waitTime = (t);} while(false);
-  	  	#define TIMEELAPSED(t) ((time-lastTime) > t)
-
-  // wait for 3 seconds to let the flywheel spool
-
-=======
->>>>>>> 37e6df430af837eb1ee6d0d90415bdbb763a512a
+  rightDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_RIGHT, true);
+  leftDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_LEFT, true);
 
 
   // init line followers
@@ -306,7 +227,7 @@ vexAutonomous( void *arg )
     lfolThresholds,
     lfolDrives
   );
-  lfol->log = true;
+  lfol->log = false;
 }
 
 int autonStep = 0;
@@ -320,35 +241,173 @@ systime_t autonWaitTime;
 #define WAIT(t) do {autonLastTime = autonTime;autonWaitTime = (t);} while(false);
 #define TIMEELAPSED(t) ((autonTime-autonLastTime) > (t))
 
+int rotateClockWise(int startStep, int target, float speed) {
+  if(STEP(startStep)) {
+    vex_printf("rotateClockWise run\n");
+    int32_t duration = (ABS(target)/speed)*1000;
+    int32_t waitTime = duration * 1.1;
+    EPidEnable(leftDrive, duration, target);
+    EPidEnable(rightDrive, duration, -target);
+    autonStep++;
+    WAIT(waitTime);
+  }
+  return (startStep + 1);
+}
+
+int move(int startStep, int target, float speed) {
+  if(STEP(startStep)) {
+    vex_printf("move run\n");
+    int32_t duration = (ABS(target)/speed)*1000;
+    int32_t waitTime = duration * 1.5;
+    EPidEnable(leftDrive, duration, target);
+    EPidEnable(rightDrive, duration, target);
+    autonStep++;
+    WAIT(waitTime);
+  }
+  return (startStep + 1);
+}
+
+int rotateCWTillLine(int startStep, int motorPower) {
+  int sensor;
+  if(motorPower > 0) {
+    sensor = S_LINE_FOLLOWER_L2;
+  } else {
+    sensor = S_LINE_FOLLOWER_R2;
+  }
+  if(STEP(startStep)) {
+    vex_printf("rotateCWTillLine run\n");
+    EPidDisable(leftDrive);
+    EPidDisable(rightDrive);
+	  vexMotorSet(M_DRIVE_LEFT1, motorPower);
+	  vexMotorSet(M_DRIVE_LEFT2, motorPower);
+	  vexMotorSet(M_DRIVE_RIGHT1, -motorPower);
+	  vexMotorSet(M_DRIVE_RIGHT2, -motorPower);
+    autonStep++;
+    WAIT(0);
+  }
+  if(STEP(startStep+1) && isLineOn(sensor)) {
+    vex_printf("rotateCWTillLine lineup\n");
+    EPidEnable(leftDrive, 2000, 0);
+    EPidEnable(rightDrive, 2000, 0);
+    autonStep++;
+    WAIT(2500);
+  }
+  return (startStep + 2);
+}
+
+
+int restDown(int startStep) {
+  if(STEP(startStep)) {
+    // rest
+    vex_printf("rest!!\n");
+    EPidDisable(leftDrive);
+    EPidDisable(rightDrive);
+    LineFollowerDisable(lfol);
+    vexMotorSet(M_DRIVE_LEFT1, 0);
+    vexMotorSet(M_DRIVE_LEFT2, 0);
+    vexMotorSet(M_DRIVE_RIGHT1, 0);
+    vexMotorSet(M_DRIVE_RIGHT2, 0);
+    autonStep++;
+    WAIT(2000);
+  }
+  return (startStep + 1);
+}
+
+int punch(int startStep) {
+  if(STEP(startStep)) {
+    vex_printf("punch!! punch!!\n");
+    EPidDisable(leftDrive);
+    EPidDisable(rightDrive);
+	  vexMotorSet(M_DRIVE_LEFT1, 127);
+	  vexMotorSet(M_DRIVE_LEFT2, 127);
+	  vexMotorSet(M_DRIVE_RIGHT1, 127);
+	  vexMotorSet(M_DRIVE_RIGHT2, 127);
+    autonStep++;
+    WAIT(3000);
+  }
+  return (startStep + 1);
+}
+
+#define TILLMIDDLE 0
+#define TILLENDS   1
+#define SOMETIME 2
+
+int lineFollow(int startStep, int end) {
+  bool endCondition = false;
+  if(end == TILLMIDDLE) {
+    endCondition = isAllLineOn();
+  } else if(end == TILLENDS) {
+    endCondition = isEndsOn();
+  } else if(end == SOMETIME) {
+    endCondition = true;
+  }
+
+  if(STEP(startStep)) {
+    vex_printf("lineFollowTillMiddle start\n");
+    EPidDisable(leftDrive);
+    EPidDisable(rightDrive);
+    LineFollowerEnable(lfol);
+    autonStep++;
+    if(end == SOMETIME) {
+      WAIT(2000);
+    } else {
+      WAIT(0);
+    }
+  }
+  if(STEP(startStep+1) && endCondition) {
+    vex_printf("lineFollowTillMiddle start\n");
+    LineFollowerDisable(lfol);
+    EPidEnable(leftDrive, 2000, 0);
+    EPidEnable(rightDrive, 2000, 0);
+    autonStep++;
+    WAIT(2500);
+  }
+  return (startStep + 2);
+}
+
 /**
  * 4 step routine that shoots N Balls
  */
-void shootNBalls(int n, int startStep, int failSafeStep) {
+int shootNBalls(int startStep, int n, int failSafeStep) {
+    failSafeStep = failSafeStep < 0 ? (startStep+5) : failSafeStep;
+
     if(STEP(startStep)) {
+      vex_printf("shootNBalls step Init\n", autonStep);
       autonShootCount = 0;
       vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
       vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
       autonStep++;
       WAIT(0);
     }
-    if(autonStep == (startStep + 1) && TIMEELAPSED(AUTON_FEED_FAIL_TIME)) {
+    if(STEP(startStep+1)) {
+      vex_printf("shootNBalls step Feed through\n", autonStep);
+      vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+      vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+      autonStep++;
+      WAIT(0);
+    }
+    if(autonStep == (startStep+2) && TIMEELAPSED(AUTON_FEED_FAIL_TIME)) {
+      vex_printf("shootNBalls Failsafe\n");
       //fail safe
       autonShootCount = 0;
       vexMotorSet(M_FEED_SHOOT, 0);
       vexMotorSet(M_FEED_FRONT, 0);
       autonStep = failSafeStep;
     }
-    if(STEP(startStep + 1) && isBallTop()) {
+    if(STEP(startStep+2) && isBallTop()) {
+      vex_printf("shootNBalls Shoot\n");
       autonStep++;
-      WAIT(700);
+      WAIT(500);
     }
-    if (STEP(startStep + 2)) {
+    if (STEP(startStep+3)) {
+      vex_printf("shootNBalls Tiny Backup\n");
       vexMotorSet(M_FEED_FRONT, -DEFAULT_FEED_SPEED);
       vexMotorSet(M_FEED_SHOOT, -DEFAULT_FEED_SPEED);
       autonStep++;
       WAIT(100);
     }
-    if (STEP(startStep + 3)) {
+    if (STEP(startStep+4)) {
+      vex_printf("shootNBalls Repeat step=%d ballCount=%d\n", autonStep, autonShootCount);
       vexMotorSet(M_FEED_FRONT, 0);
       vexMotorSet(M_FEED_SHOOT, 0);
       autonShootCount++;
@@ -356,10 +415,11 @@ void shootNBalls(int n, int startStep, int failSafeStep) {
         autonShootCount = 0;
         autonStep++;
       } else {
-        autonStep = startStep;
-        WAIT(3000);
+        autonStep = startStep+1;
+        WAIT(1000);
       }
     }
+    return (startStep + 5);
 }
 
 msg_t
@@ -377,10 +437,15 @@ vexAutonomous( void *arg )
   autonTime = chTimeNow();
   autonWaitTime = 0;
 
+  vex_printf("starting autonomous\n");
   tbhEnable(topWheelCtrl, FLY_SIDE_SPEED);
   tbhEnable(botWheelCtrl, FLY_SIDE_SPEED);
-  WAIT(3000);
+  WAIT(2000);
 
+  int nextStep;
+  #define RUNSTEP(stepName, ...) nextStep = stepName(nextStep, ##__VA_ARGS__)
+
+  vex_printf("enc=%d,%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
   while(!chThdShouldTerminate())
   {
     autonTime = chTimeNow();
@@ -388,21 +453,48 @@ vexAutonomous( void *arg )
   		break;
   	}
 
-    shootNBalls(4, 0, 4);
-    if(STEP(4)) {
+    nextStep = 0;
+    RUNSTEP(shootNBalls, 8, -1);
+    RUNSTEP(rotateClockWise, 475, 300);
+    RUNSTEP(move, -2020, 300);
+    RUNSTEP(rotateCWTillLine, -35);
+    RUNSTEP(lineFollow, TILLMIDDLE);
+    RUNSTEP(move, -100, 100);
+    RUNSTEP(lineFollow, TILLENDS);
+    RUNSTEP(rotateClockWise, 300, 300);
+    RUNSTEP(rotateCWTillLine, 35);
+    RUNSTEP(rotateClockWise, 30, 300);
+    //RUNSTEP(lineFollow, SOMETIME);
+    RUNSTEP(move, 700, 400);
+    RUNSTEP(restDown);
+    RUNSTEP(punch);
+    if(STEP(nextStep)) {
+      vex_printf("Exit step %d\n", autonStep);
       break;
     }
 
+    LineFollowerUpdate(lfol);
   	int16_t motorValL = EPidUpdate(leftDrive);
   	int16_t motorValR = EPidUpdate(rightDrive);
-	  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-	  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-	  vexMotorSet(M_DRIVE_LEFT1, motorValL);
-	  vexMotorSet(M_DRIVE_LEFT2, motorValL);
+    if(leftDrive->pidc->enabled) {
+  	  vexMotorSet(M_DRIVE_LEFT1, motorValL);
+  	  vexMotorSet(M_DRIVE_LEFT2, motorValL);
+    }
+    if(rightDrive->pidc->enabled) {
+  	  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
+  	  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
+    }
+    if(lfol->enabled) {
+  	  vexMotorSet(M_DRIVE_LEFT1, lfol->leftDrive);
+  	  vexMotorSet(M_DRIVE_LEFT2, lfol->leftDrive);
+  	  vexMotorSet(M_DRIVE_RIGHT1, lfol->rightDrive);
+  	  vexMotorSet(M_DRIVE_RIGHT2, lfol->rightDrive);
+    }
     vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
     vexSleep( 10 );
 	}
+
 
   tbhDisable(topWheelCtrl);
   tbhDisable(botWheelCtrl);

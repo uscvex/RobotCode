@@ -43,6 +43,9 @@ int32_t EasingUpdate(EasingConfig *conf) {
 	double t = MIN(1.0, (chTimeNow() - conf->start_time)/((double)conf->duration));
 	double v = 0;
 	switch(conf->func) {
+		case kFlat:
+			v = 1;
+			break;
 		case kLinear:
 			v = t;
 			break;
@@ -72,11 +75,13 @@ void EPidEnable(EPidController *epid, int32_t duration, int32_t target) {
 	if(epid->pidc->sensor_reverse) {
 		sensorValue = -sensorValue;
 	}
+	epid->pidc->enabled = 1;
 	EasingEnable(epid->easing, duration, sensorValue, sensorValue+target);
 }
 
 void EPidDisable(EPidController *epid) {
 	EasingDisable(epid->easing);
+	epid->pidc->enabled = 0;
 }
 
 int16_t EPidUpdate(EPidController *epid) {

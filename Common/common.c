@@ -27,7 +27,7 @@ double SpeedometerUpdate(Speedometer *spdmtr) {
 }
 
 void serialLog(char *first, ...) {
-  char buf[100];
+  static char buf[100];
   va_list argp;
   va_start(argp, first);
   systime_t time = chTimeNow();

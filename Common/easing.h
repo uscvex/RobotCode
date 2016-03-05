@@ -10,7 +10,8 @@
 
 typedef enum {
 	kLinear = 0,
-	kMinJerk
+	kMinJerk,
+	kFlat
 } tEasingFunc;
 
 typedef struct _EasingConfig {
