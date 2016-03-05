@@ -164,7 +164,7 @@ vexUserInit()
 
   //Initialize EPIDControllers
   rightDrive = EPidInit(kMinJerk,0.01,0,0.01,S_ENC_DRIVE_RIGHT, true);
-  rightDrive->log = true;
+  rightDrive->log = false;
   leftDrive = EPidInit(kMinJerk,0.01,0,0.01,S_ENC_DRIVE_LEFT, false);
 }
 
@@ -295,7 +295,7 @@ vexAutonomous( void *arg )
 		  //Drive motors
 		  int16_t motorValL = EPidUpdate(leftDrive);
 		  int16_t motorValR = EPidUpdate(rightDrive);
-		  vex_printf ("%d       %d", motorValL, motorValR);
+
 		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
 		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
 		  vexMotorSet(M_DRIVE_LEFT1, motorValL);
@@ -342,7 +342,6 @@ vexAutonomous( void *arg )
 		  //Get time
 		  currTime = chTimeNow();
 		  timeGap = currTime - startTime;
-		  /*
 		  /*
 		  //Set flywheels
 		  if(step == 0 && timeGap < 3000)
@@ -604,7 +603,9 @@ vexOperator( void *arg )
   //Run until asked to terminate
   while(!chThdShouldTerminate())
   {
-	//  if(vexControllerGet(Btn8U)) {
+	  vex_printf ("%f, %f`\n",topWheelCtrl->lastSpeed,  botWheelCtrl->lastSpeed);
+
+	  //  if(vexControllerGet(Btn8U)) {
 		 // driveMotors();
 	  //} else {
 	//	  vexMotorSet(M_DRIVE_RIGHT1, 0);
