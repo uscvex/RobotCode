@@ -51,13 +51,13 @@
 //#define J_SHOOT      Btn6U
 #define J_SHOOT_START   Btn8R
 #define J_SHOOT_MID     Btn8U
-#define J_SHOOT_SHORT   Btn8L
+//#define J_SHOOT_SHORT   Btn8L
 #define J_SHOOT_CORNER	Btn7U
 #define J_SHOOT_STOP    Btn8D
 
 #define J_START_AUTON	Btn7R
 
-#define J_COMPRESS      Btn7L
+#define J_COMPRESS      Btn8L
 #define J_PISTON 		Btn7D
 
 #define J_FEED_SHOOT_U  Btn6U
@@ -71,8 +71,8 @@
 
 #define FLY_CORNER_SPEED 7200
 #define FLY_SHORT_SPEED  4500
-#define FLY_START_SPEED  6200
-#define FLY_MID_SPEED    4400
+#define FLY_START_SPEED  7000
+#define FLY_MID_SPEED    6200
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -253,27 +253,27 @@ vexAutonomous( void *arg )
 		  //Move forward ~a foot
 		  if (timeGap >= 44000 && timeGap < 45500 && step == 5)
 		  {
-			  EPidEnable(rightDrive, 1500, -530);
-			  EPidEnable(leftDrive, 1500, -530);
+			  EPidEnable(rightDrive, 1500, -540);
+			  EPidEnable(leftDrive, 1500, -540);
 			  step++;
 
 		  }
 		  //Turn 45 degrees
 		  if (timeGap >= 45500 && timeGap < 47000 && step == 6)
 		  {
-			  EPidEnable(rightDrive, 1500, +190);
-			  EPidEnable(leftDrive, 1500, -190);
+			  EPidEnable(rightDrive, 1500, +170);
+			  EPidEnable(leftDrive, 1500, -170);
 			  step++;
 		  }
 		  //Slam the wall
-		  if (timeGap >= 47000 && timeGap < 48000 && step == 7)
+		  if (timeGap >= 47000 && timeGap < 48500 && step == 7)
 		  {
-			  EPidEnable(rightDrive, 1000, -350);
-			  EPidEnable(leftDrive, 1000, -350);
+			  EPidEnable(rightDrive, 1500, -280);
+			  EPidEnable(leftDrive, 1500, -280);
 			  step++;
 		  }
 		  // Get the ramp to open and shut the flywheels
-		  if(timeGap >= 48000 && timeGap < 50000 && step == 8)
+		  if(timeGap >= 48500 && timeGap < 50000 && step == 8)
 		  {
 			  tbhDisable(topWheelCtrl);
 			  tbhDisable(botWheelCtrl);
@@ -286,7 +286,7 @@ vexAutonomous( void *arg )
 			  step++;
 		  }
 
-		  if(timeGap >= 52000 && step == 9)
+		  if(timeGap >= 50000 && step == 9)
 		  {
 		  	  vexDigitalPinSet(P_PISTON, 0);
 		  }
@@ -639,10 +639,10 @@ vexOperator( void *arg )
       vexDigitalPinSet(P_PISTON, 0);
     }
     //Short range shot
-    if(vexControllerGet(J_SHOOT_SHORT)) {
-    	tbhEnableWithGain(topWheelCtrl, FLY_SHORT_SPEED,0.01);
-    	tbhEnableWithGain(botWheelCtrl, FLY_SHORT_SPEED,0.01);
-    }
+    //if(vexControllerGet(J_SHOOT_SHORT)) {
+    //	tbhEnableWithGain(topWheelCtrl, FLY_SHORT_SPEED,0.01);
+    //	tbhEnableWithGain(botWheelCtrl, FLY_SHORT_SPEED,0.01);
+    //}
     //Start position shot
     if(vexControllerGet(J_SHOOT_START)) {
       tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.0375);
@@ -650,8 +650,8 @@ vexOperator( void *arg )
     }
     //3/4 court shot
     if(vexControllerGet(J_SHOOT_MID)) {
-    	tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED,0.05);
-    	tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED,0.05);
+    	tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED,0.0375);
+    	tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED,0.0375);
     }
     //Full court shot
     if(vexControllerGet(J_SHOOT_CORNER)) {
@@ -674,7 +674,7 @@ vexOperator( void *arg )
     	botSensorTime = chTimeNow();
     }
     // Front Feed Controls
-    if(vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
+    if(vexControllerGet(J_COMPRESS) || vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
        vexMotorSet(M_FEED_FRONT, 63);
     } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_FRONT, -63);
@@ -687,7 +687,7 @@ vexOperator( void *arg )
     if(vexControllerGet(J_FEED_SHOOT_U)) {
     	   vexMotorSet(M_FEED_SHOOT, 77);
 
-    } else if(vexControllerGet(J_FEED_SHOOT_D)) {
+    } else if(vexControllerGet(J_COMPRESS) || vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_SHOOT, -77);
     } else if(!isBallTop() && (sensorTimeGap < 250)) {
        vexMotorSet(M_FEED_SHOOT, 77);
