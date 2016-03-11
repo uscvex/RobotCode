@@ -35,7 +35,7 @@ void serialLog(char *first, ...) {
   char *label = first;
   while(label) {
     value = va_arg(argp, double);
-    vex_sprintf(buf, "%d,%s,%f", time, label, value);
+    vex_sprintf(buf, "Time: %d,label: %s,value: %f", time, label, value);
     int checkSum = 0;
     char *p = buf;
     while(*p) {
