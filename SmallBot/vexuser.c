@@ -414,7 +414,8 @@ int shootNBalls(int startStep, int n, int failSafeStep) {
       if(autonShootCount == n) {
         autonShootCount = 0;
         autonStep++;
-      } else {
+      } 
+      else {
         autonStep = startStep+1;
         WAIT(1000);
       }
