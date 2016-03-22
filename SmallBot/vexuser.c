@@ -81,6 +81,21 @@
 #define DEFAULT_FEED_SPEED 100
 #define FEED_SPOOL_TIME 100
 
+#define TOP_FLY_WHEEL_DEFAULT_GAIN  0.05
+#define BOT_FLY_WHEEL_DEFAULT_GAIN  0.05
+
+#define TOP_FLY_WHEEL_LOW_GAIN  0.05
+#define BOT_FLY_WHEEL_LOW_GAIN  0.05
+
+#define TOP_FLY_WHEEL_PB_GAIN  0.005
+#define BOT_FLY_WHEEL_PB_GAIN  0.005
+
+#define FLY_START_SPEED  7600
+#define FLY_SIDE_SPEED 	 6450
+#define FLY_PB_SPEED   	 4900
+#define FLY_CLOSE_SPEED  6100
+#define FLY_MID_SPEED  	 5000
+
 #define AUTON_FEED_FAIL_TIME 2500
 
 
@@ -113,6 +128,7 @@ static  vexMotorCfg mConfig[] = {
   { M_DRIVE_RIGHT2,   kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 }
 };
 
+
 // TBH Controllers
 TBHController *topWheelCtrl;
 TBHController *botWheelCtrl;
@@ -126,7 +142,28 @@ LineFollower *lfol;
 const int16_t lfolThresholds[5] = {300, 300, 300, 300, 300};
 const float lfolDrives[5] = {-1, -0.8, -0.7, 0.6, 0};
 
-#include "SmallBot_Sensor.cpp"
+bool isBlue(void) {
+  return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
+}
+
+bool isLineOn(int sensor) {
+  return (vexAdcGet(sensor) < lfolThresholds[(sensor - S_LINE_FOLLOWER_L2)]);
+}
+
+bool isAllLineOn(void) {
+  int i = 0;
+  for(i = 0;i < 5;i++) {
+    if(vexAdcGet(i+S_LINE_FOLLOWER_L2) >= lfolThresholds[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool isEndsOn(void) {
+  return ((isLineOn(S_LINE_FOLLOWER_L2) || isLineOn(S_LINE_FOLLOWER_L1)) &&
+          (isLineOn(S_LINE_FOLLOWER_R2) || isLineOn(S_LINE_FOLLOWER_R1)));
+}
 
 bool driveMotors(void) {
   short ld, rd ;
@@ -151,7 +188,13 @@ bool driveMotors(void) {
   return (ld != 0 || rd != 0);
 }
 
+bool isBallTop(void) {
+  return (vexAdcGet(S_BALL_TOP) < 2200);
+}
 
+bool isBallBot(void) {
+  return (vexAdcGet(S_BALL_BOT) < 2880);
+}
 
 void
 vexUserSetup()
@@ -371,7 +414,8 @@ int shootNBalls(int startStep, int n, int failSafeStep) {
       if(autonShootCount == n) {
         autonShootCount = 0;
         autonStep++;
-      } else {
+      } 
+      else {
         autonStep = startStep+1;
         WAIT(1000);
       }
