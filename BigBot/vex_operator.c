@@ -1,7 +1,7 @@
 void enable_flywheels(int32_t speed, float gain){
   /* Set the flywheel speed and gain and start running*/
   tbhEnableWithGain(topWheelCtrl, 
-                    spped, gain);
+                    speed, gain);
   tbhEnableWithGain(botWheelCtrl, 
                     speed, gain);
 }

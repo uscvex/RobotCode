@@ -403,3 +403,5 @@ vexAutonomous( void *arg )
   return (msg_t)0;
 
 }
+
+#endif

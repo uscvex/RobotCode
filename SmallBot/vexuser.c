@@ -10,7 +10,7 @@
 #include "../Common/linefollower.h"
 
 #include "smallbot_defineval.cpp"
-
+#include "val.cpp"
 #define DEFAULT_FEED_SPEED 100
 #define FEED_SPOOL_TIME 100
 
