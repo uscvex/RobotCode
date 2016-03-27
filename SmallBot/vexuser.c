@@ -595,7 +595,7 @@ vexOperator( void *arg )
     if (vexControllerGet(J_PUNCH)){
       vexMotorSet(M_PUNCHER, 80);
     } 
-    else if (vexControllerGet(J_STOP_AUTON))
+    else
     {
       vexMotorSet(M_PUNCHER, 0);
     }
