@@ -3,6 +3,8 @@
 #include "vex.h"
 #include "common.h"
 #include "takebackhalf.h"
+#include <string.h>
+
 
 static int16_t nextTBHController = 0;
 static TBHController controllers[MAX_TBH_CONTROLLERS];
@@ -55,54 +57,57 @@ void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain) {
 	if(ctrl->sensorReverse) {
 		ctrl->lastValue = -ctrl->lastValue;
 	}
+	memset(ctrl->errorArr, 0, sizeof(double)*SIZEOFERRORARRAY);
 	ctrl->lastTime = chTimeNow();
 	ctrl->lastError = 0;
 	ctrl->lastSpeed = 0;
 	ctrl->acceleration = 0;
 	ctrl->tbh = (ctrl->targetSpeed/((double)ctrl->maxSpeed));
 	ctrl->power = ctrl->tbh;
-	//vex_printf("tbh = %f\n", ctrl->tbh);
 	ctrl->motorPower = ctrl->power * 127;
+	ctrl->counter = 0;
 }
 
 void tbhDisable(TBHController *ctrl) {
 	ctrl->enabled = false;
 }
 
-/*
- * Sample N values, and then calculate the min and the max.
- */
-//bool tbhIsStable(TBHController *ctrl){
-//	double max, min;
-//	min = max = Flywheel_Sample_speed[0];
-//	for (int i=1;i<Flywheel_Speed_Sample.size;i++){
-//		if (Flywheel_Speed_Sample[i]>max){
-//			max = Flywheel_Speed_Sample[i];
-//		}
-//		if (Flywheel_Speed_Sample[i]<min){
-//			min = Flywheel_Speed_Sample[i];
-//		}
-//	}
-//	return ((max-min)<TBH_Threshold*Ideal_Speed);
-//}
+
+bool tbhIsStable(TBHController* ctrl){
+	double avgError = 0;
+	unsigned int i;
+	for(i = 0; i < SIZEOFERRORARRAY; i++)
+	{
+		avgError += ctrl->errorArr[i];
+	}
+	avgError /= sizeof(ctrl->errorArr);
+	return (avgError <= 0.05);
+}
+
 
 int16_t tbhUpdate(TBHController *ctrl) {
-	//double 44e;
 	double error;
 	int32_t value;
 	systime_t currTime = chTimeNow();
 
+	//Set motor power to 0 if disable
 	if(!ctrl->enabled) {
 		ctrl->motorPower = 0;
 	} else if(currTime != ctrl->lastTime) {
+		//Get number of ticks from encoder
 		value = vexSensorValueGet(ctrl->sensor);
 		if(ctrl->sensorReverse) {
 			value = -value;
 		}
+		//Calculate speed as ticks per second
 		int32_t speed = (value - ctrl->lastValue)/((double)(currTime - ctrl->lastTime));
 		ctrl->acceleration = (speed-ctrl->lastSpeed)/((double)(currTime - ctrl->lastTime));
 		ctrl->lastSpeed = speed;
+		if(ctrl->counter == 5) {ctrl->counter = 0;}
 		error = (ctrl->targetSpeed/1000.0) - speed;
+		ctrl->errorArr[ctrl->counter] = error;
+		ctrl->counter++;
+
 		/*
 		 * If there is a error, then mid point is calculated.
 		 */

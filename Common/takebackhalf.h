@@ -1,6 +1,7 @@
 #ifndef __TAKEBACKHALF_H__
 #define __TAKEBACKHALF_H__
 
+#define SIZEOFERRORARRAY 5
 
 #include "ch.h"
 #include "hal.h"
@@ -23,6 +24,8 @@ typedef struct _TBHController {
 	bool enabled;
 	int32_t lastValue;
 	double lastError;
+	double errorArr[SIZEOFERRORARRAY];
+	int counter;
 	systime_t lastTime;
 	bool powerZeroClamp;
 	bool sensorReverse;
