@@ -146,10 +146,10 @@ bool driveMotors(void) {
   brd = VALLEY(forward + strafe - turn, 25, 127);
 
 
-  vexMotorSet(M_DRIVE_FRONT_RIGHT,  ld);
-  vexMotorSet(M_DRIVE_BACK_RIGHT,  ld);
-  vexMotorSet(M_DRIVE_BACK_LEFT, rd);
-  vexMotorSet(M_DRIVE_FRONT_LEFT, rd);
+  vexMotorSet(M_DRIVE_FRONT_RIGHT,  frd);
+  vexMotorSet(M_DRIVE_BACK_RIGHT,  brd);
+  vexMotorSet(M_DRIVE_BACK_LEFT, bld);
+  vexMotorSet(M_DRIVE_FRONT_LEFT, fld);
 
   return (ld != 0 || rd != 0);
 }
