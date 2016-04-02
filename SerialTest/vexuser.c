@@ -6,6 +6,7 @@
 #include "robotc_glue.h"
 #include "math.h"
 #include "../Common/common.h"
+#include "../Common/mousedeadreck.h"
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -34,24 +35,6 @@ vexAutonomous( void *arg )
     return (msg_t)0;
 }
 
-//msg_t
-//serialComm(void *arg) {
-//	(void)arg;
-//	static char testString[] = "HELLO\n";
-//	SerialConfig serialConf = {
-//		115200,
-//		0,
-//		0,
-//		0
-//	};
-//	sdStart(&SD1, &serialConf);
-//	while(chThdShouldTerminate()) {
-//		sdWrite(&SD1, (unsigned char *)testString, 6);
-//		vexSleep(10);
-//	}
-//	return (msg_t)0;
-//}
-
 /*-----------------------------------------------------------------------------*/
 /** @brief      Driver control                                                 */
 /*-----------------------------------------------------------------------------*/
@@ -62,43 +45,17 @@ msg_t
 vexOperator( void *arg )
 {
 	(void)arg;
-	double i;
+
+    DeadReck *dreck = deadReckInit(&SD3, 115200);
+    deadReckStart(dreck);
+
 	while(!chThdShouldTerminate())
 	{
-		for(i = 0;i < (2*3.14);i += 0.1) {
-			serialLog("target", i, "sin", sin(i), NULL);
-		  vexSleep( 10 );
-		}
+        deadReckUpdate(dreck);
+        vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
+		// Write Demo
+        vexSleep( 10 );
 	}
-
-// 	#define S_RASPI &SD3
-// 	// Must call this
-// 	vexTaskRegister("operator");
-// //	StartTask(serialComm);
-// 	static char testString[] = "HELLO\n";
-// 	SerialConfig serialConf = {
-// 		115200,
-// 		0,
-// 		0,
-// 		0
-// 	};
-// 	sdStart(S_RASPI, &serialConf);
-//
-// 	int counter = 0;
-// 	while(!chThdShouldTerminate())
-// 	{
-// 		// Write Demo
-// 		//sdWrite(S_RASPI, (unsigned char *)testString, 6);
-//
-// 		// Read Demo
-// 		if(!sdGetWouldBlock(S_RASPI)) {
-// 			int c = sdGetTimeout(S_RASPI, TIME_IMMEDIATE);
-// 			if(c != Q_TIMEOUT && c != Q_RESET) {
-// 				vex_printf("%c", (char)c);
-// 			}
-// 		}
-//         vexSleep( 10 );
-// 	}
 
 	return (msg_t)0;
 }
