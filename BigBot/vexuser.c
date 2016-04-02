@@ -9,15 +9,16 @@
 #include "../Common/easing.h"
 
 // Motor configs
-#define M_DRIVE_RIGHT1    kVexMotor_7
+#define M_DRIVE_FRONT_RIGHT  kVexMotor_3
+#define M_DRIVE_FRONT_LEFT   kVexMotor_4
+#define M_DRIVE_BACK_LEFT    kVexMotor_7
+#define M_DRIVE_BACK_RIGHT   kVexMotor_8
+
 
 #define M_FLY_BOT_WHEEL      kVexMotor_5
 #define M_FLY_TOP_WHEEL      kVexMotor_6
 
 #define M_FEED_FRONT      kVexMotor_2
-#define M_DRIVE_RIGHT2    kVexMotor_4
-#define M_DRIVE_LEFT1     kVexMotor_3
-#define M_DRIVE_LEFT2     kVexMotor_8
 #define M_FEED_SHOOT      kVexMotor_9
 
 // Sensor channels
@@ -45,8 +46,10 @@
 #define S_ENC_DRIVE_LEFT      kVexSensorDigital_6
 
 // Joystick settings
-#define J_DRIVE      Ch3
 #define J_TURN       Ch1
+#define J_DRIVE      Ch3
+#define J_STRAFE	 Ch4
+
 
 //#define J_SHOOT      Btn6U
 #define J_SHOOT_START   Btn8R
@@ -92,16 +95,16 @@ static  vexDigiCfg  dConfig[] = {
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-  { M_DRIVE_LEFT1,    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_2 },
-  { M_DRIVE_RIGHT1,   kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_1 },
-  { M_FEED_SHOOT,     kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
+  { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_2 },
+  { M_DRIVE_BACK_LEFT, 	    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_1 },
+  { M_FEED_SHOOT,           kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
 
   { M_FLY_BOT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
   { M_FLY_TOP_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
-  { M_FEED_FRONT,     kVexMotor393S,           kVexMotorNormal,   	  kVexSensorNone,        0 },
-  { M_DRIVE_LEFT2,    kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
-  { M_DRIVE_RIGHT2,   kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 }
+  { M_FEED_FRONT,         kVexMotor393S,           kVexMotorNormal,   	  kVexSensorNone,        0 },
+  { M_DRIVE_BACK_RIGHT    kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
+  { M_DRIVE_FRONT_LEFT,   kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 }
 };
 
 // TBH Controllers
@@ -112,24 +115,44 @@ TBHController *topWheelCtrl;
 EPidController *rightDrive;
 EPidController *leftDrive;
 
+/* Top down view of robot:
+
+    MotorFL, Port4    MotorFR, Port3
+   +++      ###    F    ###      +--
+          ###             ###
+        ###                 ###
+
+
+		L 					  R
+
+
+        ###                 ###
+          ###             ###
+   +-+      ###    B    ###      ++-
+    MotorBL, Port7    MotorBR, Port8
+*/
+
 bool driveMotors(void) {
-  short ld, rd ;
+  short fld, frd, brd, bld;
   //Calculate Motor Power
   int forward = VALLEY(vexControllerGet(J_DRIVE), 25, 127);
-  int turn;
+  int strafe = VALLET(vexControllerGet(J_STRAFE), 25, 127);
+  int turn = VALLEY(vexControllerGet(J_TURN), 25, 127);
 
-  turn = VALLEY(vexControllerGet(J_TURN), 25, 127);
-  ld = VALLEY(forward + turn, 25, 127);
-  rd = VALLEY(forward - turn, 25, 127);
+  //Four drives
+  fld = VALLEY(forward + strafe + turn, 25, 127);
+  frd = VALLEY(forward - strafe - turn, 25, 127);
+  bld = VALLEY(forward - strafe + turn, 25, 127);
+  brd = VALLEY(forward + strafe - turn, 25, 127);
 
-  vexMotorSet(M_DRIVE_LEFT1,  ld);
-  vexMotorSet(M_DRIVE_LEFT2,  ld);
-  vexMotorSet(M_DRIVE_RIGHT1, rd);
-  vexMotorSet(M_DRIVE_RIGHT2, rd);
+
+  vexMotorSet(M_DRIVE_FRONT_RIGHT,  ld);
+  vexMotorSet(M_DRIVE_BACK_RIGHT,  ld);
+  vexMotorSet(M_DRIVE_BACK_LEFT, rd);
+  vexMotorSet(M_DRIVE_FRONT_LEFT, rd);
 
   return (ld != 0 || rd != 0);
 }
-
 
 bool isBallTop(void) {
   return (vexAdcGet(S_BALL_TOP) < 1000);
@@ -180,6 +203,7 @@ bool isRed(void) {
   return (vexAdcGet(S_COLOR_SELECTOR) > 2000);
 }
 msg_t
+
 vexAutonomous( void *arg )
 {
   (void)arg;
@@ -315,10 +339,10 @@ vexAutonomous( void *arg )
   		  int16_t motorValL = EPidUpdate(leftDrive);
   		  int16_t motorValR = EPidUpdate(rightDrive);
 
-  		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-  		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-  		  vexMotorSet(M_DRIVE_LEFT1, motorValL);
-  		  vexMotorSet(M_DRIVE_LEFT2, motorValL);
+  		  vexMotorSet(M_DRIVE_BACK_LEFT, motorValR);
+  		  vexMotorSet(M_DRIVE_FRONT_LEFT, motorValR);
+  		  vexMotorSet(M_DRIVE_FRONT_RIGHT, motorValL);
+  		  vexMotorSet(M_DRIVE_BACK_RIGHT, motorValL);
 
   		  //Set flywheels
   		  vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
@@ -533,10 +557,10 @@ vexAutonomous( void *arg )
 		  //Drive motors
 		  int16_t motorValL = EPidUpdate(leftDrive);
 		  int16_t motorValR = EPidUpdate(rightDrive);
-		  vexMotorSet(M_DRIVE_RIGHT1, motorValR);
-		  vexMotorSet(M_DRIVE_RIGHT2, motorValR);
-		  vexMotorSet(M_DRIVE_LEFT1, motorValL);
-		  vexMotorSet(M_DRIVE_LEFT2, motorValL);
+		  vexMotorSet(M_DRIVE_BACK_LEFT, motorValR);
+		  vexMotorSet(M_DRIVE_FRONT_LEFT, motorValR);
+		  vexMotorSet(M_DRIVE_FRONT_RIGHT, motorValL);
+		  vexMotorSet(M_DRIVE_BACK_RIGHT, motorValL);
 
 		  //Set flywheels
 		  vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
@@ -585,10 +609,6 @@ vexOperator( void *arg )
 	  //  if(vexControllerGet(Btn8U)) {
 		 // driveMotors();
 	  //} else {
-	//	  vexMotorSet(M_DRIVE_RIGHT1, 0);
-	//	  vexMotorSet(M_DRIVE_LEFT1, 0);
-	//	  vexMotorSet(M_DRIVE_RIGHT2, 0);
-	//	  vexMotorSet(M_DRIVE_LEFT2, 0);
     // }
 	  //vexSleep(10);
 	  //continue;
