@@ -103,7 +103,7 @@ static  vexMotorCfg mConfig[] = {
   { M_FLY_TOP_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
 
   { M_FEED_FRONT,         kVexMotor393S,           kVexMotorNormal,   	  kVexSensorNone,        0 },
-  { M_DRIVE_BACK_RIGHT    kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
+  { M_DRIVE_BACK_RIGHT,    kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
   { M_DRIVE_FRONT_LEFT,   kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 }
 };
 
@@ -123,7 +123,7 @@ EPidController *leftDrive;
         ###                 ###
 
 
-		L 					  R
+		   L 					             R
 
 
         ###                 ###
@@ -136,7 +136,7 @@ bool driveMotors(void) {
   short fld, frd, brd, bld;
   //Calculate Motor Power
   int forward = VALLEY(vexControllerGet(J_DRIVE), 25, 127);
-  int strafe = VALLET(vexControllerGet(J_STRAFE), 25, 127);
+  int strafe = VALLEY(vexControllerGet(J_STRAFE), 25, 127);
   int turn = VALLEY(vexControllerGet(J_TURN), 25, 127);
 
   //Four drives
@@ -151,7 +151,7 @@ bool driveMotors(void) {
   vexMotorSet(M_DRIVE_BACK_LEFT, bld);
   vexMotorSet(M_DRIVE_FRONT_LEFT, fld);
 
-  return (ld != 0 || rd != 0);
+  return (fld != 0 || frd != 0 || bld != 0 || brd != 0);
 }
 
 bool isBallTop(void) {
