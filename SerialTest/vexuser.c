@@ -48,12 +48,28 @@ vexOperator( void *arg )
 
     DeadReck *dreck = deadReckInit(&SD3, 115200);
     deadReckStart(dreck);
+ 	/* SerialConfig serialConf = { */
+ 	/* 	115200, */
+ 	/* 	0, */
+ 	/* 	0, */
+ 	/* 	0 */
+ 	/* }; */
+    /* #define S_RASPI &SD3 */
+ 	/* sdStart(S_RASPI, &serialConf); */
 
+    deadReckClear(dreck, 1000);
 	while(!chThdShouldTerminate())
 	{
         deadReckUpdate(dreck);
         vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
-		// Write Demo
+
+ 		// Read Demo
+		/* if(!sdGetWouldBlock(S_RASPI)) { */
+		/* 	int c = sdGetTimeout(S_RASPI, TIME_IMMEDIATE); */
+		/* 	if(c != Q_TIMEOUT && c != Q_RESET) { */
+		/* 		vex_printf("%c", (char)c); */
+		/* 	} */
+		/* } */
         vexSleep( 10 );
 	}
 
