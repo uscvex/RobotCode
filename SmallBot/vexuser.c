@@ -11,8 +11,8 @@
 
 // Motor configs
 
-#define M_FLY_WHEEL      kVexMotor_5
-#define M_PUNCHER            kVexMotor_6
+#define M_FLY_WHEEL       kVexMotor_5
+#define M_PUNCHER         kVexMotor_6
 
 #define M_FEED_FRONT      kVexMotor_2
 
@@ -53,7 +53,7 @@
 #define J_TURN       Ch1
 //#define J_SHOOT      Btn6U
 
-#define J_SHOOT_START   Btn7L
+#define J_SHOOT_MAX   Btn7L
 #define J_SHOOT_CLOSE   Btn8U
 #define J_SHOOT_PB      Btn8L
 #define J_SHOOT_SIDE    Btn7U
@@ -126,6 +126,8 @@ TBHController *botWheelCtrl;
 EPidController *rightDrive;
 EPidController *leftDrive;
 
+Speedometer* speedometer;
+double maxSpeed = 0;
 // Line Folower
 LineFollower *lfol;
 const int16_t lfolThresholds[5] = {300, 300, 300, 300, 300};
@@ -202,7 +204,7 @@ vexUserInit()
   //Initialize EPIDControllers
   rightDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_RIGHT, true);
   leftDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_LEFT, true);
-
+  speedometer = SpeedometerInit(S_ENC_FLY);
 
   // init line followers
   lfol = LineFollowerInit(
@@ -551,7 +553,12 @@ vexOperator( void *arg )
     if(speed > maxSpeed) {
         maxSpeed = speed;
     }
+
     vex_printf("maxSpeed=%f\n", maxSpeed);
+
+//    if(vexControllerGet(J_SHOOT_MAX)){
+//    	vexMotorSet(M_FLY_WHEEL, 127);
+//    }
 
     // Shoot Feed
     if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) /*&& !isBallTop()*/) {

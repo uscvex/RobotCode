@@ -14,12 +14,11 @@
 #define M_DRIVE_BACK_LEFT    kVexMotor_7
 #define M_DRIVE_BACK_RIGHT   kVexMotor_8
 
+#define M_FLY_A				 kVexMotor_2
+#define M_FLY_B 		     kVexMotor_5
+#define M_FLY_C      		 kVexMotor_6
 
-#define M_FLY_BOT_WHEEL      kVexMotor_5
-#define M_FLY_TOP_WHEEL      kVexMotor_6
-
-#define M_FEED_FRONT      kVexMotor_2
-#define M_FEED_SHOOT      kVexMotor_9
+#define M_FEED_SHOOT      	  kVexMotor_9
 
 // Sensor channels
 #define P_PISTON              kVexDigital_9
@@ -40,8 +39,8 @@
 #define S_BALL_TOP              1
 #define S_COLOR_SELECTOR		2
 
-#define S_ENC_BOT_FLY         kVexSensorDigital_4
-#define S_ENC_TOP_FLY         kVexSensorDigital_2
+//#define S_ENC_BOT_FLY         kVexSensorDigital_4
+#define S_ENC_FLY         	  kVexSensorDigital_1
 #define S_ENC_DRIVE_RIGHT     kVexSensorDigital_8
 #define S_ENC_DRIVE_LEFT      kVexSensorDigital_6
 
@@ -95,16 +94,19 @@ static  vexDigiCfg  dConfig[] = {
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-  { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_2 },
-  { M_DRIVE_BACK_LEFT, 	    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         kImeChannel_1 },
+  { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorNormal,    	kVexSensorIME,         0 },
+  { M_DRIVE_BACK_LEFT, 	    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         0 },
+  { M_DRIVE_BACK_RIGHT,    	kVexMotor393S,           kVexMotorNormal,     	kVexSensorNone,        0 },
+  { M_DRIVE_FRONT_LEFT,    	kVexMotor393S,           kVexMotorNormal,     	kVexSensorNone,        0 },
+
   { M_FEED_SHOOT,           kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
 
-  { M_FLY_BOT_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_1 },
-  { M_FLY_TOP_WHEEL,     kVexMotor393T,      kVexMotorNormal,     kVexSensorQuadEncoder, kVexQuadEncoder_2 },
+  { M_FLY_A,     kVexMotor393T,      kVexMotorNormal,     kVexSensorNone, 0 },
+  { M_FLY_B,     kVexMotor393T,      kVexMotorNormal,     kVexSensorNone, 0 },
+  { M_FLY_C,     kVexMotor393T,      kVexMotorNormal,     kVexSensorNone, 0 }
 
-  { M_FEED_FRONT,         kVexMotor393S,           kVexMotorNormal,   	  kVexSensorNone,        0 },
-  { M_DRIVE_BACK_RIGHT,    kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
-  { M_DRIVE_FRONT_LEFT,   kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 }
+  //Motors
+
 };
 
 // TBH Controllers
@@ -114,6 +116,7 @@ TBHController *topWheelCtrl;
 //PID Controllers
 EPidController *rightDrive;
 EPidController *leftDrive;
+double maxSpeed;
 
 /* Top down view of robot:
 
@@ -178,18 +181,17 @@ void
 vexUserInit()
 {
   //Initialize TBHControllers
-  topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.01, 10500, true);
-  topWheelCtrl->powerZeroClamp = true;
-  topWheelCtrl->log = false;
-  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.01, 10500, true);
-  botWheelCtrl->log = false;
-  botWheelCtrl->powerZeroClamp = true;
-  vex_printf("puTTy Test");
-
-  //Initialize EPIDControllers
-  rightDrive = EPidInit(kMinJerk,0.01,0,0.01,S_ENC_DRIVE_RIGHT, true);
-  rightDrive->log = false;
-  leftDrive = EPidInit(kMinJerk,0.01,0,0.01,S_ENC_DRIVE_LEFT, false);
+ // topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.01, 10500, true);
+//  topWheelCtrl->powerZeroClamp = true;
+//  topWheelCtrl->log = false;
+//  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.01, 10500, true);
+//  botWheelCtrl->log = false;
+//  botWheelCtrl->powerZeroClamp = true;
+//  vex_printf("puTTy Test");
+//
+//  //Initialize EPIDControllers
+//  rightDrive = EPidInit(kMinJerk,0.01,0,0.01,S_ENC_DRIVE_RIGHT, true);
+//  rightDrive->log = false;
 }
 
 bool isBotFlyWheelStable(void) {
@@ -208,7 +210,7 @@ vexAutonomous( void *arg )
 {
   (void)arg;
   vexTaskRegister("auton");
-
+/*
   vexSensorValueSet(S_ENC_DRIVE_LEFT,0);
   vexSensorValueSet(S_ENC_DRIVE_RIGHT,0);
   //Skills or Competition
@@ -394,12 +396,12 @@ vexAutonomous( void *arg )
 
 		  ///*
 		  //Prepare flywheels
-		  if(step == 0 && timeGap < 3000)
-		  {
-			  tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.04);
-			  tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
-
-		  }
+//		  if(step == 0 && timeGap < 3000)
+//		  {
+//			  tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.04);
+//			  tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
+//
+//		  }
 		  //Fire balls
 		  if(step == 0 && timeGap >=3000 && timeGap < 6000)
 		  {
@@ -585,6 +587,7 @@ vexAutonomous( void *arg )
   EPidDisable(rightDrive);
   EPidDisable(leftDrive);
   vex_printf("End\n");
+  */
   return (msg_t)0;
 
 }
@@ -596,12 +599,14 @@ vexOperator( void *arg )
   (void)arg;
   //vex_printf("Putty Connection test");
   // Must call this
+
   vexTaskRegister("operator");
   systime_t currentTime = 0;
   systime_t botSensorTime = 0;
   systime_t pneumaticPressed = 0;
   int32_t sensorTimeGap = currentTime - botSensorTime;
   int32_t pneumaticTimeGap;
+  Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
 
   //Run until asked to terminate
   while(!chThdShouldTerminate())
@@ -627,6 +632,15 @@ vexOperator( void *arg )
 		vexAutonomous(NULL);
 	}
 
+    //vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE));
+    //vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE));
+    //vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE));
+    //double speed = SpeedometerUpdate(spdm)*-1;
+    //if(speed > maxSpeed) {
+    //    maxSpeed = speed;
+    //}
+
+    vex_printf("maxSpeed=%f\n", maxSpeed);
     bool motorRunning = driveMotors();
     //vex_printf("left=%d right=%d\n", vexSensorValueGet(S_ENC_DRIVE_LEFT), vexSensorValueGet(S_ENC_DRIVE_RIGHT));
     //if(vexControllerGet(Btn7R)){
@@ -668,21 +682,21 @@ vexOperator( void *arg )
       tbhDisable(botWheelCtrl);
     }
     //Activate/deactivate flywheel motors
-    vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
-    vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
+    //vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
+    //vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
     if(isBallBot())
     {
     	botSensorTime = chTimeNow();
     }
     // Front Feed Controls
-    if( vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
-       vexMotorSet(M_FEED_FRONT, 63);
-    } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
-       vexMotorSet(M_FEED_FRONT, -63);
-    } else {
-       vexMotorSet(M_FEED_FRONT, 0);
-    }
+//    if( vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
+//       vexMotorSet(M_FEED_FRONT, 63);
+//    } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
+//       vexMotorSet(M_FEED_FRONT, -63);
+//    } else {
+//       vexMotorSet(M_FEED_FRONT, 0);
+//    }
 
 
     // Shoot Feed
