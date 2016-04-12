@@ -57,11 +57,14 @@ vexOperator( void *arg )
     /* #define S_RASPI &SD3 */
  	/* sdStart(S_RASPI, &serialConf); */
 
-    deadReckClear(dreck, 1000);
 	while(!chThdShouldTerminate())
 	{
+        if(vexControllerGet(Btn8U)) {
+            vex_printf("Clearing...\n");
+            deadReckClear(dreck, 1000);
+            vex_printf("Clear ACK Received\n");
+        }
         deadReckUpdate(dreck);
-        vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
 
  		// Read Demo
 		/* if(!sdGetWouldBlock(S_RASPI)) { */

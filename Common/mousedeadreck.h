@@ -28,6 +28,7 @@ typedef struct _DeadReck {
     int readState;
     uint8_t buffer[MAX_BUFFER_SIZE];
     int bufLen;
+    bool log;
 } DeadReck;
 
 

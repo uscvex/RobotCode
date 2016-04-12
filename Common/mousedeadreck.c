@@ -3,6 +3,8 @@
 #include "vex.h"
 #include "mousedeadreck.h"
 
+#define LOG(dreck, ...) if(dreck->log) { vex_printf(__VA_ARGS__); }
+
 static DeadReck deadRecks[MAXDEADRECK];
 static int currDeadReck = 0;
 
@@ -30,6 +32,7 @@ DeadReck *deadReckInit(SerialDriver *driver, int baud) {
     dreck->botTheta = 0;
     dreck->readState = RDST_SEARCHING;
     dreck->bufLen = 0;
+    dreck->log = false;
     return dreck;
 }
 
@@ -51,28 +54,33 @@ void deadReckStop(DeadReck *dreck) {
     sdStop(dreck->driver);
 }
 
-int16_t deadReckRead(DeadReck *dreck) {
-    int16_t retVal = 0;
+uint8_t deadReckRead(DeadReck *dreck) {
     while(!sdGetWouldBlock(dreck->driver)) {
         uint8_t readValue = sdGetTimeout(dreck->driver, TIME_IMMEDIATE);
+        LOG(dreck, "Read %x\n", readValue);
         switch(dreck->readState) {
             case RDST_SEARCHING: // searching for start byte
+                LOG(dreck, "searching\n");
                 if(readValue == START_BYTE) {
+                    LOG(dreck, "Start Byte Received\n");
                     dreck->readState = RDST_FILL;
                     dreck->buffer[dreck->bufLen++] = readValue;
                 }
                 break;
             case RDST_FILL: // filling packet bytes
+                LOG(dreck, "filling\n");
                 if(readValue == START_BYTE) {
                     dreck->readState = RDST_STUFF_START;
                 } else if(readValue == END_BYTE) {
+                    LOG(dreck, "Received Full Packet\n");
                     uint8_t checkSum = 0;
                     int i;
                     for(i = 1;i < dreck->bufLen;i++) {
                         checkSum ^= dreck->buffer[i];
                     }
                     if(checkSum == 0) {
-                        retVal = dreck->buffer[2];
+                        LOG(dreck, "Checksum Okay\n");
+                        return dreck->buffer[2];
                     } else {
                         dreck->bufLen = 0;
                         dreck->readState = RDST_SEARCHING;
@@ -83,7 +91,9 @@ int16_t deadReckRead(DeadReck *dreck) {
                 }
                 break;
             case RDST_STUFF_START: // found byte stuffing
-                if(readValue != START_BYTE || readValue != END_BYTE) {
+                LOG(dreck, "stuffing\n");
+                if(readValue != START_BYTE && readValue != END_BYTE) {
+                    LOG(dreck, "Corrupt Packet\n");
                     // we may have somehow reached beginning of
                     // another packet. discard previous packet and
                     // continue reading
@@ -97,8 +107,14 @@ int16_t deadReckRead(DeadReck *dreck) {
                 dreck->readState = RDST_FILL;
                 break;
         }
+        if(dreck->bufLen >= MAX_BUFFER_SIZE) {
+            // this should never/very rarely happen
+            // but better safe
+            dreck->bufLen = 0;
+            dreck->readState = RDST_SEARCHING;
+        }
     }
-    return retVal;
+    return 0;//retVal;
 }
 
 /**
@@ -116,17 +132,21 @@ void deadReckClear(DeadReck *dreck, systime_t timeout) {
 	while(!chThdShouldTerminate()) {
         systime_t currentTime = chTimeNow();
         if(lastTime == 0 || (currentTime - lastTime) > timeout) {
+            LOG(dreck, "sending clear command\n");
             lastTime = currentTime;
             sdWrite(dreck->driver, clearPacket, sizeof(clearPacket));
         }
-        int16_t code = deadReckRead(dreck);
+        uint8_t code = deadReckRead(dreck);
         if(code) {
+            LOG(dreck, "Got Code %x\n", code);
             dreck->bufLen = 0;
             dreck->readState = RDST_SEARCHING;
             if(code == PCKT_TYPE_CLEAR_ACK) {
+                LOG(dreck, "Got Clear ACK\n");
                 return;
             }
         }
+        vexSleep(10);
     }
 }
 
@@ -135,7 +155,7 @@ void deadReckClear(DeadReck *dreck, systime_t timeout) {
  * Call once in the beginning of main loop.
  */
 void deadReckUpdate(DeadReck *dreck) {
-    int16_t code = deadReckRead(dreck);
+    uint8_t code = deadReckRead(dreck);
     if(code) {
         if(code == PCKT_TYPE_UPDATE) {
             // copy from buffer to double
@@ -144,6 +164,7 @@ void deadReckUpdate(DeadReck *dreck) {
             copyDouble(&(dreck->buffer[3]), &(dreck->botX));
             copyDouble(&(dreck->buffer[11]), &(dreck->botY));
             copyDouble(&(dreck->buffer[19]), &(dreck->botTheta));
+            vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
         }
         dreck->bufLen = 0;
         dreck->readState = RDST_SEARCHING;
