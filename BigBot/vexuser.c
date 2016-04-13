@@ -60,10 +60,10 @@
 
 #define J_START_AUTON	Btn7R
 
-#define J_SHOOT_LESS      Btn8L
+#define J_SHOOT_LESS    Btn8L
 #define J_PISTON 		Btn7D
 
-#define J_FEED_SHOOT_U  Btn6U
+#define J_FEED_SOLE_U  Btn6U
 #define J_FEED_SHOOT_D  Btn6D
 #define J_FEED_FRONT_D  Btn5D
 #define J_FEED_FRONT_U  Btn5U
@@ -700,16 +700,33 @@ vexOperator( void *arg )
 
 
     // Shoot Feed
-    if(vexControllerGet(J_FEED_SHOOT_U)) {
+
+    //if 6U then retract solenoid else deploy
+    if(vexControllerGet(J_FEED_SOLE_U)) {
     	   vexMotorSet(M_FEED_SHOOT, 77);
-    	   vexDigitalPinSet(P_SOLENOID, 1);
-    } else if(vexControllerGet(J_FEED_SHOOT_D)) {
-       vexMotorSet(M_FEED_SHOOT, -77);
-    } else if(!isBallTop() && (sensorTimeGap < 250)) {
-       vexMotorSet(M_FEED_SHOOT, 77);
-    } else {
-       vexMotorSet(M_FEED_SHOOT, 0);
+    	   vexDigitalPinSet(P_SOLENOID, 0);
     }
+    //5U Feed In, 5D Feed Out
+    else if (vexControllerGet(J_FEED_FRONT_D)){
+    	vexMotorSet(M_FEED_SHOOT, -77);
+    }
+    else if (vexControllerGet(J_FEED_FRONT_U)){
+    	vexMotorSet(M_FEED_SHOOT, 77);
+    }
+    else{
+    	vexDigitalPinSet(P_SOLENOID, 1);
+    	vexMotorSet(M_FEED_SHOOT, 0);
+    }
+//    else if(vexControllerGet(J_FEED_SHOOT_D)) {
+//       vexMotorSet(M_FEED_SHOOT, -77);
+//       vexDigitalPinSet(P_SOLENOID, 0);
+//    }
+
+//    else if(!isBallTop() && (sensorTimeGap < 250)) {
+//       vexMotorSet(M_FEED_SHOOT, 77);
+//    } else {
+//       vexMotorSet(M_FEED_SHOOT, 0);
+//    }
 
     //Don't hog CPU
     vexSleep( 10 );
