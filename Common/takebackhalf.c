@@ -14,10 +14,10 @@ static TBHController controllers[MAX_TBH_CONTROLLERS];
 //
 //
 //// Array of Ten Sample values to calculate max and min
-//double Flywheel_Speed_Sample[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+double values_sensor[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 //
 //// Global variable to add the values to add values to array
-//int ptr = 0;
+int32_t ptr = 0;
 TBHController *TBHControllerInit(tVexSensors sensor, double gain, int32_t maxSpeed, bool sensorReverse) {
 	TBHController *ctrl = &controllers[nextTBHController++];
 
@@ -84,6 +84,17 @@ bool tbhIsStable(TBHController* ctrl){
 	return (avgError <= 0.05);
 }
 
+int32_t getAverage(int32_t val){
+	values_sensor[ptr%10] = val;
+	ptr++;
+	int32_t avg = 0, i=0;
+	while (i<10){
+			avg+=values_sensor[i];
+			i++;
+	}
+	return (avg/10);
+
+}
 
 int16_t tbhUpdate(TBHController *ctrl) {
 	double error;
@@ -95,7 +106,7 @@ int16_t tbhUpdate(TBHController *ctrl) {
 		ctrl->motorPower = 0;
 	} else if(currTime != ctrl->lastTime) {
 		//Get number of ticks from encoder
-		value = vexSensorValueGet(ctrl->sensor);
+		value = getAverage(vexSensorValueGet(ctrl->sensor));
 		if(ctrl->sensorReverse) {
 			value = -value;
 		}
