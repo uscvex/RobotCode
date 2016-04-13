@@ -51,10 +51,10 @@
 // Joystick settings
 #define J_DRIVE      Ch3
 #define J_TURN       Ch1
-//#define J_SHOOT      Btn6U
 
-#define J_SHOOT_MAX   Btn7L
-#define J_SHOOT_CLOSE   Btn8U
+// Shot settings
+#define J_PUNCH         Btn7L
+#define J_SHOOT_QUARTER Btn8U
 #define J_SHOOT_PB      Btn8L
 #define J_SHOOT_SIDE    Btn7U
 #define J_SHOOT_MID     Btn8R
@@ -63,29 +63,24 @@
 #define J_START_AUTON	Btn7R
 #define J_STOP_AUTON	Btn5U
 
-
 #define J_FEED_SHOOT_U 	Btn6U
 #define J_FEED_SHOOT_D  Btn6D
 #define J_FEED_FRONT_U 	Btn5U
 
 #define J_HALF_SPEED 	Btn5D
 
-#define J_PUNCH       Btn7R
-
 // Constants
 #define DEFAULT_FEED_SPEED 100
 #define FEED_SPOOL_TIME 100
 
 #define FLY_WHEEL_DEFAULT_GAIN  0.05
+#define FLY_WHEEL_SIDE_GAIN     0.0055
+#define FLY_WHEEL_LOW_GAIN      0.05
+#define FLY_WHEEL_PB_GAIN      0.005
 
-#define FLY_WHEEL_LOW_GAIN  0.05
-
-#define FLY_WHEEL_PB_GAIN  0.005
-
-#define FLY_START_SPEED  7600
-#define FLY_SIDE_SPEED 	 6450
-#define FLY_PB_SPEED   	 4900
-#define FLY_CLOSE_SPEED  6100
+#define FLY_SIDE_SPEED 	 7000
+#define FLY_PB_SPEED   	 6300
+#define FLY_QUARTER_SPEED  6100
 #define FLY_MID_SPEED  	 5000
 
 #define AUTON_FEED_FAIL_TIME 2500
@@ -119,8 +114,7 @@ static  vexMotorCfg mConfig[] = {
 
 
 // TBH Controllers
-TBHController *topWheelCtrl;
-TBHController *botWheelCtrl;
+TBHController *flyWheelCtrl;
 
 //PID Controllers
 EPidController *rightDrive;
@@ -160,11 +154,13 @@ bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
   int forward = VALLEY(vexControllerGet(J_DRIVE), 10, 127);
-  int turnChannel = vexControllerGet(J_TURN) * 0.7;
+  int turnChannel = vexControllerGet(J_TURN); // * 0.7;
+  /*
   if(vexControllerGet(J_HALF_SPEED))
   {
 	  turnChannel  *= .4;
   }
+  */
   int turn  = VALLEY(turnChannel, 10, 127);
 
   ld = VALLEY(forward + turn, 45, 127);
@@ -197,9 +193,9 @@ vexUserSetup()
 void
 vexUserInit()
 {
-  botWheelCtrl = TBHControllerInit(S_ENC_FLY, FLY_WHEEL_DEFAULT_GAIN, 10500, false);
-  botWheelCtrl->log = false;
-  botWheelCtrl->powerZeroClamp = true;
+  flyWheelCtrl = TBHControllerInit(S_ENC_FLY, FLY_WHEEL_DEFAULT_GAIN, 10500, false);
+  flyWheelCtrl->log = false;
+  flyWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers
   rightDrive = EPidInit(kMinJerk,0.01,0,0,S_ENC_DRIVE_RIGHT, true);
@@ -426,8 +422,7 @@ vexAutonomous( void *arg )
   autonWaitTime = 0;
 
   vex_printf("starting autonomous\n");
-  tbhEnable(topWheelCtrl, FLY_SIDE_SPEED);
-  tbhEnable(botWheelCtrl, FLY_SIDE_SPEED);
+  tbhEnable(flyWheelCtrl, FLY_SIDE_SPEED);
   WAIT(2000);
 
   int nextStep;
@@ -478,14 +473,12 @@ vexAutonomous( void *arg )
   	  vexMotorSet(M_DRIVE_RIGHT1, lfol->rightDrive);
   	  vexMotorSet(M_DRIVE_RIGHT2, lfol->rightDrive);
     }
-    vexMotorSet(M_PUNCHER, tbhUpdate(topWheelCtrl));
-    vexMotorSet(M_FLY_WHEEL, tbhUpdate(botWheelCtrl));
+    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
     vexSleep( 10 );
 	}
 
 
-  tbhDisable(topWheelCtrl);
-  tbhDisable(botWheelCtrl);
+  tbhDisable(flyWheelCtrl);
   EPidDisable(leftDrive);
   EPidDisable(rightDrive);
   vexMotorSet(M_FEED_FRONT, 0);
@@ -504,61 +497,44 @@ vexOperator( void *arg )
   // Must call this
   vexTaskRegister("operator");
 
-  Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
-  double maxSpeed = 0;
+  //Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
+  //double maxSpeed = 0;
   // Run until asked to terminate
+
+
   while(!chThdShouldTerminate())
   {
-    // if(vexControllerGet(Btn8U)) {
-    //   int16_t val = 20;
-    //   vexMotorSet(M_DRIVE_LEFT2, val);
-    //   vexMotorSet(M_DRIVE_LEFT1, val);
-    //   vexMotorSet(M_DRIVE_RIGHT1, val);
-    //   vexMotorSet(M_DRIVE_RIGHT2, val);
-    // } else {
-    //   vexMotorSet(M_DRIVE_LEFT2, 0);
-    //   vexMotorSet(M_DRIVE_LEFT1, 0);
-    //   vexMotorSet(M_DRIVE_RIGHT1, 0);
-    //   vexMotorSet(M_DRIVE_RIGHT2, 0);
-    // }
-    // continue;
-    // driveMotors();
+     bool motorRunning = driveMotors();
 
-    //vex_printf("right=%d left=%d\n", vexSensorValueGet(S_ENC_DRIVE_RIGHT), vexSensorValueGet(S_ENC_DRIVE_LEFT));
-    //Test autonomous
-  	 // if(vexControllerGet(J_START_AUTON))
-  	 // {
-  	 // 	vexAutonomous(NULL);
-  	 // }
+     if(vexControllerGet(J_SHOOT_SIDE)) { 
+       tbhEnableWithGain(flyWheelCtrl, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN); 
+     } 
+     if(vexControllerGet(J_SHOOT_PB)) { 
+       tbhEnableWithGain(flyWheelCtrl, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN); 
+     } 
+     if(vexControllerGet(J_SHOOT_QUARTER)) { 
+       tbhEnableWithGain(flyWheelCtrl, FLY_QUARTER_SPEED, FLY_WHEEL_DEFAULT_GAIN); 
+     } 
+     if(vexControllerGet(J_SHOOT_MID)) { 
+       tbhEnableWithGain(flyWheelCtrl, FLY_MID_SPEED, FLY_WHEEL_DEFAULT_GAIN); 
+     } 
+    
+     if(vexControllerGet(J_SHOOT_STOP)) { 
+       tbhDisable(flyWheelCtrl); 
+     } 
 
 
-    /* if(vexControllerGet(J_SHOOT_PB)) { */
-    /*   tbhEnableWithGain(botWheelCtrl, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN); */
-    /* } */
-    /* if(vexControllerGet(J_SHOOT_START)) { */
-    /*   tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, FLY_WHEEL_DEFAULT_GAIN); */
-    /* } */
-    /* if(vexControllerGet(J_SHOOT_CLOSE)) { */
-    /*   tbhEnableWithGain(botWheelCtrl, FLY_CLOSE_SPEED, FLY_WHEEL_DEFAULT_GAIN); */
-    /* } */
-    /* if(vexControllerGet(J_SHOOT_SIDE)) { */
-    /*   tbhEnableWithGain(botWheelCtrl, FLY_SIDE_SPEED, FLY_WHEEL_LOW_GAIN); */
-    /* } */
-    /* if(vexControllerGet(J_SHOOT_STOP)) { */
-    /*   tbhDisable(topWheelCtrl); */
-    /*   tbhDisable(botWheelCtrl); */
-    /* } */
-    vexMotorSet(M_FLY_WHEEL, vexControllerGet(J_DRIVE));
+    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
+
+    //Code for measuring Max Speed
+    /*vexMotorSet(M_FLY_WHEEL, vexControllerGet(J_DRIVE));
     double speed = SpeedometerUpdate(spdm);
     if(speed > maxSpeed) {
         maxSpeed = speed;
     }
 
     vex_printf("maxSpeed=%f\n", maxSpeed);
-
-//    if(vexControllerGet(J_SHOOT_MAX)){
-//    	vexMotorSet(M_FLY_WHEEL, 127);
-//    }
+    */
 
     // Shoot Feed
     if((vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U)) /*&& !isBallTop()*/) {
@@ -582,15 +558,14 @@ vexOperator( void *arg )
        vexMotorSet(M_FEED_SHOOT, 0);
     }
 
+
     if (vexControllerGet(J_PUNCH)){
-      vexMotorSet(M_PUNCHER, 50);
+      vexMotorSet(M_PUNCHER, 80);
     } 
     else
     {
       vexMotorSet(M_PUNCHER, 0);
     }
-
-
 
     vexSleep( 10 );
   }
