@@ -21,10 +21,11 @@
 #define M_FEED_SHOOT      	  kVexMotor_9
 
 // Sensor channels
-#define P_PISTON              kVexDigital_9
+#define P_PISTON              kVexDigital_4
+#define P_SOLENOID			  kVexDigital_3
 
-#define P_ENC_BOT_FLY_A       kVexDigital_3
-#define P_ENC_BOT_FLY_B       kVexDigital_4
+//#define P_ENC_BOT_FLY_A       kVexDigital_9
+//#define P_ENC_BOT_FLY_B       kVexDigital_4
 
 #define P_ENC_TOP_FLY_A       kVexDigital_1
 #define P_ENC_TOP_FLY_B       kVexDigital_2
@@ -79,8 +80,8 @@
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
-  { P_ENC_BOT_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
-  { P_ENC_BOT_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
+//  { P_ENC_BOT_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_1},
+//  { P_ENC_BOT_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_1},
 
   { P_ENC_TOP_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
   { P_ENC_TOP_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2},
@@ -394,7 +395,7 @@ vexAutonomous( void *arg )
 		  currTime = chTimeNow();
 		  timeGap = currTime - startTime;
 
-		  ///*
+		  ///
 		  //Prepare flywheels
 //		  if(step == 0 && timeGap < 3000)
 //		  {
@@ -589,7 +590,6 @@ vexAutonomous( void *arg )
   vex_printf("End\n");
   */
   return (msg_t)0;
-
 }
 
 msg_t
@@ -659,27 +659,27 @@ vexOperator( void *arg )
     //Start position shot
     if(vexControllerGet(J_SHOOT_START)) {
       tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.04);
-      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
+//      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
     }
     //3/4 court shot
     if(vexControllerGet(J_SHOOT_MID)) {
     	tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED,0.035);
-    	tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED,0.035);
+//    	tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED,0.035);
     }
     //Full court shot
     if(vexControllerGet(J_SHOOT_CORNER)) {
     	tbhEnableWithGain(topWheelCtrl, FLY_CORNER_SPEED,0.0125);
-    	tbhEnableWithGain(botWheelCtrl, FLY_CORNER_SPEED,0.0125);
+//    	tbhEnableWithGain(botWheelCtrl, FLY_CORNER_SPEED,0.0125);
     }
     if(vexControllerGet(J_SHOOT_LESS)) {
        	tbhEnableWithGain(topWheelCtrl, FLY_LESS_SPEED,0.04);
-       	tbhEnableWithGain(botWheelCtrl, FLY_LESS_SPEED,0.04);
+//       	tbhEnableWithGain(botWheelCtrl, FLY_LESS_SPEED,0.04);
        }
 
     //Turn off flywheels
     if(vexControllerGet(J_SHOOT_STOP)) {
       tbhDisable(topWheelCtrl);
-      tbhDisable(botWheelCtrl);
+//      tbhDisable(botWheelCtrl);
     }
     //Activate/deactivate flywheel motors
     //vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
@@ -702,7 +702,7 @@ vexOperator( void *arg )
     // Shoot Feed
     if(vexControllerGet(J_FEED_SHOOT_U)) {
     	   vexMotorSet(M_FEED_SHOOT, 77);
-
+    	   vexDigitalPinSet(P_SOLENOID, 1);
     } else if(vexControllerGet(J_FEED_SHOOT_D)) {
        vexMotorSet(M_FEED_SHOOT, -77);
     } else if(!isBallTop() && (sensorTimeGap < 250)) {
