@@ -102,9 +102,9 @@ static  vexMotorCfg mConfig[] = {
 
   { M_FEED_SHOOT,           kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
 
-  { M_FLY_A,     kVexMotor393T,      kVexMotorNormal,     kVexSensorNone, 0 },
-  { M_FLY_B,     kVexMotor393T,      kVexMotorNormal,     kVexSensorNone, 0 },
-  { M_FLY_C,     kVexMotor393T,      kVexMotorNormal,     kVexSensorNone, 0 }
+  { M_FLY_A,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 },
+  { M_FLY_B,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 },
+  { M_FLY_C,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 }
 
   //Motors
 
@@ -182,9 +182,9 @@ void
 vexUserInit()
 {
   //Initialize TBHControllers
- // topWheelCtrl = TBHControllerInit(S_ENC_TOP_FLY, 0.01, 10500, true);
-//  topWheelCtrl->powerZeroClamp = true;
-//  topWheelCtrl->log = false;
+  topWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 10500, true);
+  topWheelCtrl->powerZeroClamp = true;
+  topWheelCtrl->log = false;
 //  botWheelCtrl = TBHControllerInit(S_ENC_BOT_FLY, 0.01, 10500, true);
 //  botWheelCtrl->log = false;
 //  botWheelCtrl->powerZeroClamp = true;
@@ -591,7 +591,7 @@ vexAutonomous( void *arg )
   */
   return (msg_t)0;
 }
-
+bool sol = true;
 msg_t
 //User control settings
 vexOperator( void *arg )
@@ -632,9 +632,9 @@ vexOperator( void *arg )
 		vexAutonomous(NULL);
 	}
 
-    //vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE));
-    //vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE));
-    //vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE));
+//    vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE));
+//    vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE));
+//    vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE));
     //double speed = SpeedometerUpdate(spdm)*-1;
     //if(speed > maxSpeed) {
     //    maxSpeed = speed;
@@ -682,7 +682,9 @@ vexOperator( void *arg )
 //      tbhDisable(botWheelCtrl);
     }
     //Activate/deactivate flywheel motors
-    //vexMotorSet(M_FLY_TOP_WHEEL, tbhUpdate(topWheelCtrl));
+    vexMotorSet(M_FLY_A, tbhUpdate(topWheelCtrl));
+    vexMotorSet(M_FLY_B, tbhUpdate(topWheelCtrl));
+    vexMotorSet(M_FLY_C, tbhUpdate(topWheelCtrl));
     //vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
     if(isBallBot())
@@ -705,6 +707,7 @@ vexOperator( void *arg )
     if(vexControllerGet(J_FEED_SOLE_U)) {
     	   vexMotorSet(M_FEED_SHOOT, 77);
     	   vexDigitalPinSet(P_SOLENOID, 0);
+    	   sol = false;
     }
     //5U Feed In, 5D Feed Out
     else if (vexControllerGet(J_FEED_FRONT_D)){
@@ -715,18 +718,22 @@ vexOperator( void *arg )
     }
     else{
     	vexDigitalPinSet(P_SOLENOID, 1);
+    	sol = true;
     	vexMotorSet(M_FEED_SHOOT, 0);
     }
-//    else if(vexControllerGet(J_FEED_SHOOT_D)) {
-//       vexMotorSet(M_FEED_SHOOT, -77);
-//       vexDigitalPinSet(P_SOLENOID, 0);
-//    }
 
-//    else if(!isBallTop() && (sensorTimeGap < 250)) {
-//       vexMotorSet(M_FEED_SHOOT, 77);
-//    } else {
-//       vexMotorSet(M_FEED_SHOOT, 0);
-//    }
+    if (vexControllerGet(J_FEED_SHOOT_D)){
+    	if (sol){
+    		vexDigitalPinSet(P_SOLENOID, 0);
+    		sol= false;
+    	}
+    	else{
+    		vexDigitalPinSet(P_SOLENOID, 1);
+    		sol = true;
+    	}
+
+    }
+
 
     //Don't hog CPU
     vexSleep( 10 );
