@@ -73,15 +73,15 @@
 #define DEFAULT_FEED_SPEED 100
 #define FEED_SPOOL_TIME 100
 
-#define FLY_WHEEL_DEFAULT_GAIN  0.05
+#define FLY_WHEEL_MID_GAIN  0.0055
 #define FLY_WHEEL_SIDE_GAIN     0.0055
-#define FLY_WHEEL_LOW_GAIN      0.05
+#define FLY_WHEEL_QUARTER_GAIN      0.05
 #define FLY_WHEEL_PB_GAIN      0.005
 
-#define FLY_SIDE_SPEED 	 7000
+#define FLY_SIDE_SPEED 	 6950
 #define FLY_PB_SPEED   	 6300
 #define FLY_QUARTER_SPEED  6100
-#define FLY_MID_SPEED  	 5000
+#define FLY_MID_SPEED  	 8250
 
 #define AUTON_FEED_FAIL_TIME 2500
 
@@ -193,7 +193,7 @@ vexUserSetup()
 void
 vexUserInit()
 {
-  flyWheelCtrl = TBHControllerInit(S_ENC_FLY, FLY_WHEEL_DEFAULT_GAIN, 10500, false);
+  flyWheelCtrl = TBHControllerInit(S_ENC_FLY, FLY_WHEEL_MID_GAIN, 10500, false);
   flyWheelCtrl->log = false;
   flyWheelCtrl->powerZeroClamp = true;
 
@@ -513,10 +513,10 @@ vexOperator( void *arg )
        tbhEnableWithGain(flyWheelCtrl, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN); 
      } 
      if(vexControllerGet(J_SHOOT_QUARTER)) { 
-       tbhEnableWithGain(flyWheelCtrl, FLY_QUARTER_SPEED, FLY_WHEEL_DEFAULT_GAIN); 
+       tbhEnableWithGain(flyWheelCtrl, FLY_QUARTER_SPEED, FLY_WHEEL_QUARTER_GAIN); 
      } 
      if(vexControllerGet(J_SHOOT_MID)) { 
-       tbhEnableWithGain(flyWheelCtrl, FLY_MID_SPEED, FLY_WHEEL_DEFAULT_GAIN); 
+       tbhEnableWithGain(flyWheelCtrl, FLY_MID_SPEED, FLY_WHEEL_MID_GAIN); 
      } 
     
      if(vexControllerGet(J_SHOOT_STOP)) { 
