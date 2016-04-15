@@ -7,6 +7,7 @@
 #include "../Common/common.h"
 #include "../Common/takebackhalf.h"
 #include "../Common/easing.h"
+#include "../Common/mousedeadreck.h"
 
 // Motor configs
 #define M_DRIVE_FRONT_RIGHT  kVexMotor_3
@@ -21,8 +22,8 @@
 #define M_FEED            kVexMotor_9
 
 // Sensor channels
-#define P_FEED_RELEASE        kVexDigital_4
-#define P_RAMP_RELEASE        kVexDigital_3
+#define P_RAMP        kVexDigital_4
+#define P_FEED_RELEASE        kVexDigital_3
 
 #define P_ENC_TOP_FLY_A       kVexDigital_1
 #define P_ENC_TOP_FLY_B       kVexDigital_2
@@ -44,8 +45,6 @@
 #define J_DRIVE      Ch3
 #define J_STRAFE     Ch4
 
-
-//#define J_SHOOT      Btn6U
 #define J_SHOOT_START   Btn8R
 #define J_SHOOT_MID     Btn8U
 #define J_SHOOT_CORNER  Btn7U
@@ -54,12 +53,11 @@
 #define J_START_AUTON   Btn7R
 
 #define J_SHOOT_LESS    Btn8L
-#define J_FEED_RELEASE      Btn7D
+#define J_RAMP  Btn7D
 
-#define J_RAMP_RELEASE  Btn6U
-#define J_FEED_SHOOT_D  Btn6D
-#define J_FEED_FRONT_D  Btn5D
-#define J_FEED_FRONT_U  Btn5U
+#define J_FEED_RELEASE  Btn6U
+#define J_FEED_D  Btn5D
+#define J_FEED_U  Btn5U
 
 // Constants
 #define DEFAULT_FEED_SPEED 127
@@ -98,6 +96,9 @@ static  vexMotorCfg mConfig[] = {
 // TBH Controllers
 TBHController *flyWheelCtrl;
 
+// Dead Reckoning Controller
+DeadReck *dreck;
+
 void
 vexUserSetup()
 {
@@ -113,6 +114,9 @@ vexUserInit()
     flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 10500, true);
     flyWheelCtrl->powerZeroClamp = true;
     flyWheelCtrl->log = false;
+
+    // Initialize Dead Reckoning Controller
+    dreck = deadReckInit(&SD3, 115200);
 }
 
 bool isRed(void) {
@@ -138,41 +142,47 @@ vexOperator( void *arg )
     systime_t currentTime = 0;
     systime_t pneumaticPressed = 0;
     int32_t pneumaticTimeGap;
-    bool ramp = true;
+    bool feedRelease = false;
+    systime_t feedReleaseTime = 0;
+
+    deadReckStart(dreck);
 
     //Run until asked to terminate
-    while(!chThdShouldTerminate())
-    {
+    while(!chThdShouldTerminate()) {
+        deadReckUpdate(dreck);
+        vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
+
         currentTime = chTimeNow();
         pneumaticTimeGap = currentTime - pneumaticPressed;
         //Stop timer for piston if the button is pressed
-        if(!vexControllerGet(J_FEED_RELEASE))
-            {
-                pneumaticPressed = currentTime;
-            }
+        if(!vexControllerGet(J_RAMP)) {
+            pneumaticPressed = currentTime;
+        }
 
         //Test autonomous
-        if(vexControllerGet(J_START_AUTON))
-            {
-                vexAutonomous(NULL);
-            }
+        if(vexControllerGet(J_START_AUTON)) {
+            vex_printf("clearing\n");
+            deadReckClear(dreck, 1000);
+            vex_printf("cleared\n");
+            //vexAutonomous(NULL);
+        }
 
         //Calculate Motor Power
         xDriveMotors(
-                        vexControllerGet(J_DRIVE),
-                        vexControllerGet(J_STRAFE),
-                        vexControllerGet(J_TURN),
-                        M_DRIVE_FRONT_RIGHT,
-                        M_DRIVE_BACK_RIGHT,
-                        M_DRIVE_FRONT_LEFT,
-                        M_DRIVE_BACK_LEFT,
-                        25, 127, 25, 127
-                        );
+            vexControllerGet(J_DRIVE),
+            vexControllerGet(J_STRAFE),
+            vexControllerGet(J_TURN),
+            M_DRIVE_FRONT_RIGHT,
+            M_DRIVE_BACK_RIGHT,
+            M_DRIVE_FRONT_LEFT,
+            M_DRIVE_BACK_LEFT,
+            25, 127, 25, 127
+        );
 
         if(pneumaticTimeGap >= 250) {
-            vexDigitalPinSet(P_FEED_RELEASE, 1);
+            vexDigitalPinSet(P_RAMP, 1);
         } else {
-            vexDigitalPinSet(P_FEED_RELEASE, 0);
+            vexDigitalPinSet(P_RAMP, 0);
         }
         //Start position shot
         if(vexControllerGet(J_SHOOT_START)) {
@@ -201,33 +211,31 @@ vexOperator( void *arg )
         // Shoot Feed
 
         //if 6U then retract solenoid else deploy
-        if(vexControllerGet(J_RAMP_RELEASE)) {
-            vexMotorSet(M_FEED, 77);
-            vexDigitalPinSet(P_RAMP_RELEASE, 0);
-            ramp = false;
+        if(vexControllerGet(J_FEED_RELEASE)) {
+            vexDigitalPinSet(P_FEED_RELEASE, 0);
+            if(!feedRelease) {
+                feedReleaseTime = currentTime;
+                feedRelease = true;
+            }
         }
-        //5U Feed In, 5D Feed Out
-        else if (vexControllerGet(J_FEED_FRONT_D)){
-            vexMotorSet(M_FEED, -77);
-        }
-        else if (vexControllerGet(J_FEED_FRONT_U)){
-            vexMotorSet(M_FEED, 77);
-        }
-        else{
-            vexDigitalPinSet(P_RAMP_RELEASE, 1);
-            ramp = true;
-            vexMotorSet(M_FEED, 0);
+        else {
+            if(feedRelease) {
+                feedRelease = false;
+                feedReleaseTime = currentTime;
+            }
+            else if((currentTime - feedReleaseTime) > 500) {
+                vexDigitalPinSet(P_FEED_RELEASE, 1);
+            }
         }
 
-        if (vexControllerGet(J_FEED_SHOOT_D)){
-            if (ramp){
-                vexDigitalPinSet(P_RAMP_RELEASE, 0);
-                ramp= false;
-            }
-            else{
-                vexDigitalPinSet(P_RAMP_RELEASE, 1);
-                ramp = true;
-            }
+        //5U Feed In, 5D Feed Out
+        if (vexControllerGet(J_FEED_D)){
+            vexMotorSet(M_FEED, -77);
+        }
+        else if (vexControllerGet(J_FEED_U) || (feedRelease && (currentTime - feedReleaseTime) > 500)){
+            vexMotorSet(M_FEED, 77);
+        } else {
+            vexMotorSet(M_FEED, 0);
         }
 
         //Don't hog CPU
