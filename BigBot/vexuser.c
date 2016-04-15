@@ -73,26 +73,26 @@
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
-    { P_ENC_TOP_FLY_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_2},
-    { P_ENC_TOP_FLY_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_2},
+    { P_ENC_TOP_FLY_A, kVexSensorQuadEncoder,  kVexConfigQuadEnc1, kVexQuadEncoder_2 },
+    { P_ENC_TOP_FLY_B, kVexSensorQuadEncoder,  kVexConfigQuadEnc2, kVexQuadEncoder_2 },
 
-    { P_ENC_DRIVE_RIGHT_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_3},
-    { P_ENC_DRIVE_RIGHT_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_3},
+    { P_ENC_DRIVE_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_3 },
+    { P_ENC_DRIVE_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_3 },
 
-    { P_ENC_DRIVE_LEFT_A,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc1,    kVexQuadEncoder_4},
-    { P_ENC_DRIVE_LEFT_B,      kVexSensorQuadEncoder ,  kVexConfigQuadEnc2,    kVexQuadEncoder_4}
+    { P_ENC_DRIVE_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_4 },
+    { P_ENC_DRIVE_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_4 }
 };
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-    { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorNormal,     kVexSensorIME,         0 },
-    { M_DRIVE_BACK_LEFT,        kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         0 },
-    { M_DRIVE_BACK_RIGHT,       kVexMotor393S,           kVexMotorNormal,       kVexSensorNone,        0 },
-    { M_DRIVE_FRONT_LEFT,       kVexMotor393S,           kVexMotorNormal,       kVexSensorNone,        0 },
-    { M_FEED,           kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
-    { M_FLY_A,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 },
-    { M_FLY_B,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 },
-    { M_FLY_C,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 }
+    { M_DRIVE_FRONT_RIGHT, kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
+    { M_DRIVE_BACK_LEFT,   kVexMotor393S, kVexMotorReversed, kVexSensorNone, 0 },
+    { M_DRIVE_BACK_RIGHT,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
+    { M_DRIVE_FRONT_LEFT,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
+    { M_FEED,              kVexMotor393S, kVexMotorReversed, kVexSensorNone, 0 },
+    { M_FLY_A,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 },
+    { M_FLY_B,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 },
+    { M_FLY_C,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 }
 };
 
 // TBH Controllers
