@@ -85,6 +85,8 @@
 
 #define AUTON_FEED_FAIL_TIME 2500
 
+/*-------------------------------MOTOR CONFIGURATIONS-------------------------------*/
+
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -112,6 +114,8 @@ static  vexMotorCfg mConfig[] = {
   { M_DRIVE_RIGHT2,   kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 }
 };
 
+/*----------------------CONTROLLERS FOR FLYWHEELS AND MOTORS------------------------*/
+
 
 // TBH Controllers
 TBHController *flyWheelCtrl;
@@ -120,8 +124,14 @@ TBHController *flyWheelCtrl;
 EPidController *rightDrive;
 EPidController *leftDrive;
 
+//Speedometer
 Speedometer* speedometer;
 double maxSpeed = 0;
+
+
+
+/*----------------------------MISCELLANEOUS FUNCTIONS-------------------------------*/
+
 // Line Folower
 LineFollower *lfol;
 const int16_t lfolThresholds[5] = {300, 300, 300, 300, 300};
@@ -213,12 +223,17 @@ vexUserInit()
   lfol->log = false;
 }
 
+
+/*------------------------FUNCTIONS AND CONSTANTS FOR AUTON--------------------------------*/
+
+
 int autonStep = 0;
 int autonShootCount = 0;
 int autonTurn = 1;
 systime_t autonTime;
 systime_t autonLastTime;
 systime_t autonWaitTime;
+
 
 #define STEP(s) (autonStep == (s) && (autonTime-autonLastTime) > autonWaitTime)
 #define WAIT(t) do {autonLastTime = autonTime;autonWaitTime = (t);} while(false);
@@ -368,6 +383,18 @@ int shootNBalls(int startStep, int n, int failSafeStep) {
       vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
       autonStep++;
       WAIT(0);
+    endCondition = isEndsOn();
+  } else if(end == SOMETIME) {
+    endCondition = true;
+  }
+
+  if(STEP(startStep)) {
+    vex_printf("lineFollowTillMiddle start\n");
+    EPidDisable(leftDrive);
+    EPidDisable(rightDrive);
+    LineFollowerEnable(lfol);
+    autonStep++;
+    if(end == SOMETIME) {
     }
     if(autonStep == (startStep+2) && TIMEELAPSED(AUTON_FEED_FAIL_TIME)) {
       vex_printf("shootNBalls Failsafe\n");
@@ -406,12 +433,21 @@ int shootNBalls(int startStep, int n, int failSafeStep) {
     return (startStep + 5);
 }
 
+
+
+
+
+/*-------------------------------------AUTONOMOUS-----------------------------------*/
+
+
+
 msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
   //vexTaskRegister("auton");
 
+  //Reset sensors
   vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
   vexSensorValueSet(S_ENC_DRIVE_RIGHT, 0);
 
@@ -432,9 +468,12 @@ vexAutonomous( void *arg )
   while(!chThdShouldTerminate())
   {
     autonTime = chTimeNow();
+
+    /*
   	if(vexControllerGet(J_STOP_AUTON)) {
   		break;
   	}
+    */
 
     nextStep = 0;
     RUNSTEP(shootNBalls, 8, -1);
@@ -488,6 +527,11 @@ vexAutonomous( void *arg )
   vex_printf("Exit autonomous");
   return (msg_t)0;
 }
+
+
+
+/*---------------------------------------DRIVER CONTROL ----------------------------------------*/
+
 
 
 msg_t

@@ -50,20 +50,18 @@
 #define J_DRIVE      Ch3
 #define J_STRAFE	 Ch4
 
-
-//#define J_SHOOT      Btn6U
+//Shots
 #define J_SHOOT_START   Btn8R
 #define J_SHOOT_MID     Btn8U
-//#define J_SHOOT_SHORT   Btn8L
 #define J_SHOOT_CORNER	Btn7U
 #define J_SHOOT_STOP    Btn8D
 
-#define J_START_AUTON	Btn7R
+#define J_START_AUTON 	Btn7R
 
 #define J_SHOOT_LESS    Btn8L
-#define J_PISTON 		Btn7D
+#define J_PISTON 		    Btn7D
 
-#define J_FEED_SOLE_U  Btn6U
+#define J_FEED_SOLE_U   Btn6U
 #define J_FEED_SHOOT_D  Btn6D
 #define J_FEED_FRONT_D  Btn5D
 #define J_FEED_FRONT_U  Btn5U
@@ -74,9 +72,11 @@
 
 #define FLY_CORNER_SPEED 7200
 #define FLY_SHORT_SPEED  4500
-#define FLY_START_SPEED  7000
+#define FLY_START_SPEED  11000
 #define FLY_MID_SPEED    6000
 #define FLY_LESS_SPEED   6800
+
+#define FLY_START_GAIN 0.006
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -658,12 +658,12 @@ vexOperator( void *arg )
     //}
     //Start position shot
     if(vexControllerGet(J_SHOOT_START)) {
-      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, 0.04);
-//      tbhEnableWithGain(botWheelCtrl, FLY_START_SPEED, 0.04);
+      tbhEnableWithGain(topWheelCtrl, FLY_START_SPEED, FLY_START_GAIN);
+
     }
     //3/4 court shot
     if(vexControllerGet(J_SHOOT_MID)) {
-    	tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED,0.035);
+    	tbhEnableWithGain(topWheelCtrl, FLY_MID_SPEED, 0.005);
 //    	tbhEnableWithGain(botWheelCtrl, FLY_MID_SPEED,0.035);
     }
     //Full court shot
@@ -685,7 +685,6 @@ vexOperator( void *arg )
     vexMotorSet(M_FLY_A, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_B, tbhUpdate(topWheelCtrl));
     vexMotorSet(M_FLY_C, tbhUpdate(topWheelCtrl));
-    //vexMotorSet(M_FLY_BOT_WHEEL, tbhUpdate(botWheelCtrl));
 
     if(isBallBot())
     {
