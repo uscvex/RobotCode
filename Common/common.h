@@ -25,5 +25,7 @@ typedef struct _Speedometer {
 Speedometer *SpeedometerInit(tVexSensors sensor);
 double SpeedometerUpdate(Speedometer *spm);
 void serialLog(char *first, ...);
-
+bool xDriveMotors(int forward, int strafe, int turn,
+                 int16_t mfr, int16_t mbr, int16_t mfl, int16_t mbl,
+                 int iMin, int iMax, int oMin, int oMax);
 #endif

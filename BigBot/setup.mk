@@ -12,7 +12,8 @@ VEXUSERSRC = vexuser.c \
              vexdefault.c \
              ../Common/easing.c \
              ../Common/takebackhalf.c \
-             ../Common/common.c
+             ../Common/common.c \
+             ../Common/mousedeadreck.c
 
 # Uncomment and add/modify user include files
 #VEXUSERINC = myfile.h
