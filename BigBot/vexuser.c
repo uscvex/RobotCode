@@ -95,7 +95,7 @@ static  vexDigiCfg  dConfig[] = {
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-  { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorNormal,    	kVexSensorIME,         0 },
+  { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorNormal,    	  kVexSensorIME,         0 },
   { M_DRIVE_BACK_LEFT, 	    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         0 },
   { M_DRIVE_BACK_RIGHT,    	kVexMotor393S,           kVexMotorNormal,     	kVexSensorNone,        0 },
   { M_DRIVE_FRONT_LEFT,    	kVexMotor393S,           kVexMotorNormal,     	kVexSensorNone,        0 },
@@ -678,7 +678,7 @@ vexOperator( void *arg )
 
     //Turn off flywheels
     if(vexControllerGet(J_SHOOT_STOP)) {
-      tbhDisable(topWheelCtrl);
+      tbhDisable(topWheelCtrl);7n
 //      tbhDisable(botWheelCtrl);
     }
     //Activate/deactivate flywheel motors
