@@ -45,29 +45,40 @@
 #define J_DRIVE      Ch3
 #define J_STRAFE     Ch4
 
-#define J_SHOOT_START   Btn8R
-#define J_SHOOT_MID     Btn8U
-#define J_SHOOT_CORNER  Btn7U
-#define J_SHOOT_STOP    Btn8D
+#define J_SHOOT_MAX       Btn7L
+#define J_SHOOT_SIDE      Btn7U
+#define J_SHOOT_OFF       Btn7R
+#define J_SHOOT_BAR_MID   Btn8L
+#define J_SHOOT_BAR_EDGE  Btn8U
+#define J_SHOOT_MID       Btn8R
+#define J_SHOOT_START     Btn8D
 
-#define J_START_AUTON   Btn7R
-
-#define J_SHOOT_LESS    Btn8L
-#define J_RAMP  Btn7D
-
-#define J_FEED_RELEASE  Btn6U
-#define J_FEED_D  Btn5D
-#define J_FEED_U  Btn5U
+#define J_RAMP            Btn7D
+#define J_FEED_RELEASE    Btn6U
+#define J_FEED_D          Btn5D
+#define J_FEED_U          Btn5U
 
 // Constants
 #define DEFAULT_FEED_SPEED 127
 #define FEED_SPOOL_TIME    100
 
-#define FLY_CORNER_SPEED 7200
-#define FLY_SHORT_SPEED  4500
-#define FLY_START_SPEED  7000
-#define FLY_MID_SPEED    6000
-#define FLY_LESS_SPEED   6800
+// fly wheel speeds
+typedef struct _FlyWheelCalib {
+    tCtlIndex button;
+    int32_t speed;
+    float gain;
+    bool useTbh;
+    double tbh;
+} FlyWheelCalib;
+
+static FlyWheelCalib flyWheelCalibration[] = {
+    {J_SHOOT_MAX       , 5000, 0.01,   false, 0},
+    {J_SHOOT_SIDE      , 5000, 0.01,   false, 0},
+    {J_SHOOT_BAR_MID   , 6250, 0.00005,  false, 0},
+    {J_SHOOT_BAR_EDGE  , 6300, 0.00005,  false, 0},
+    {J_SHOOT_MID       , 5000, 0.01,   false, 0},
+    {J_SHOOT_START     , 10000, 0.00005, true,  0.4}
+};
 
 // Digi IO configuration
 static  vexDigiCfg  dConfig[] = {
@@ -129,7 +140,7 @@ vexUserInit()
     //Initialize TBHControllers
     flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 10500, true);
     flyWheelCtrl->powerZeroClamp = true;
-    flyWheelCtrl->log = false;
+    flyWheelCtrl->log = true;
 
     // Initialize Dead Reckoning Controller
     dreck = deadReckInit(&SD3, 115200);
@@ -155,9 +166,9 @@ vexOperator( void *arg )
     (void)arg;
     vexTaskRegister("operator");
 
+    int i;
     systime_t currentTime = 0;
-    systime_t pneumaticPressed = 0;
-    int32_t pneumaticTimeGap;
+    systime_t rampReleaseTime = 0;
     bool feedRelease = false;
     systime_t feedReleaseTime = 0;
 
@@ -166,24 +177,20 @@ vexOperator( void *arg )
     //Run until asked to terminate
     while(!chThdShouldTerminate()) {
         deadReckUpdate(dreck);
-        vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
+        //vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
 
         currentTime = chTimeNow();
-        pneumaticTimeGap = currentTime - pneumaticPressed;
         //Stop timer for piston if the button is pressed
         if(!vexControllerGet(J_RAMP)) {
-            pneumaticPressed = currentTime;
+            rampReleaseTime = currentTime;
+        }
+        if((currentTime - rampReleaseTime) >= 250) {
+            vexDigitalPinSet(P_RAMP, 1);
+        } else {
+            vexDigitalPinSet(P_RAMP, 0);
         }
 
-        //Test autonomous
-        if(vexControllerGet(J_START_AUTON)) {
-            vex_printf("clearing\n");
-            deadReckClear(dreck, 1000);
-            vex_printf("cleared\n");
-            //vexAutonomous(NULL);
-        }
-
-        //Calculate Motor Power
+        /* //Calculate Motor Power */
         xDriveMotors(
             vexControllerGet(J_DRIVE),
             vexControllerGet(J_STRAFE),
@@ -195,34 +202,36 @@ vexOperator( void *arg )
             25, 127, 25, 127
         );
 
-        if(pneumaticTimeGap >= 250) {
-            vexDigitalPinSet(P_RAMP, 1);
-        } else {
-            vexDigitalPinSet(P_RAMP, 0);
-        }
-        //Start position shot
-        if(vexControllerGet(J_SHOOT_START)) {
-            tbhEnableWithGain(flyWheelCtrl, FLY_START_SPEED, 0.04);
-        }
-        //3/4 court shot
-        if(vexControllerGet(J_SHOOT_MID)) {
-            tbhEnableWithGain(flyWheelCtrl, FLY_MID_SPEED,0.035);
-        }
-        //Full court shot
-        if(vexControllerGet(J_SHOOT_CORNER)) {
-            tbhEnableWithGain(flyWheelCtrl, FLY_CORNER_SPEED,0.0125);
-        }
-        if(vexControllerGet(J_SHOOT_LESS)) {
-            tbhEnableWithGain(flyWheelCtrl, FLY_LESS_SPEED,0.04);
+        // Enable fly wheel
+        for(i = 0;i < 6;i++) {
+            FlyWheelCalib *calib = &(flyWheelCalibration[i]);
+            if(vexControllerGet(calib->button)) {
+                if(calib->useTbh) {
+                    tbhEnableWithGainTBH(flyWheelCtrl, calib->speed, calib->gain, calib->tbh);
+                }
+                else {
+                    tbhEnableWithGain(flyWheelCtrl, calib->speed, calib->gain);
+                }
+                break;
+            }
         }
         //Turn off flywheels
-        if(vexControllerGet(J_SHOOT_STOP)) {
+        if(vexControllerGet(J_SHOOT_OFF)) {
             tbhDisable(flyWheelCtrl);
         }
         //Activate/deactivate flywheel motors
-        vexMotorSet(M_FLY_A, tbhUpdate(flyWheelCtrl));
-        vexMotorSet(M_FLY_B, tbhUpdate(flyWheelCtrl));
-        vexMotorSet(M_FLY_C, tbhUpdate(flyWheelCtrl));
+        int16_t flyMotor = CLAMP(tbhUpdate(flyWheelCtrl), 0, 90);
+        vexMotorSet(M_FLY_A, flyMotor);
+        vexMotorSet(M_FLY_B, flyMotor);
+        vexMotorSet(M_FLY_C, flyMotor);
+
+        /* if(!flyWheelCtrl->enabled) { */
+        /*     vex_printf("%d\n", vexControllerGet(J_DRIVE)); */
+        /*     vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE)); */
+        /*     vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE)); */
+        /*     vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE)); */
+        /* } */
+
 
         // Shoot Feed
 

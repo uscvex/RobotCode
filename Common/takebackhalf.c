@@ -46,7 +46,7 @@ void tbhEnable(TBHController *ctrl, int32_t targetSpeed) {
 	tbhEnableWithGain(ctrl, targetSpeed, ctrl->gain);
 }
 
-void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain) {
+void tbhEnableWithGainTBH(TBHController *ctrl, int32_t targetSpeed, float gain, double tbh) {
 	if(ctrl->enabled && ctrl->targetSpeed == targetSpeed) {
 		return;
 	}
@@ -62,10 +62,14 @@ void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain) {
 	ctrl->lastError = 0;
 	ctrl->lastSpeed = 0;
 	ctrl->acceleration = 0;
-	ctrl->tbh = (ctrl->targetSpeed/((double)ctrl->maxSpeed));
+	ctrl->tbh = tbh;
 	ctrl->power = ctrl->tbh;
 	ctrl->motorPower = ctrl->power * 127;
 	ctrl->counter = 0;
+}
+
+void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain) {
+    tbhEnableWithGainTBH(ctrl, targetSpeed, gain, (targetSpeed/((double)ctrl->maxSpeed)));
 }
 
 void tbhDisable(TBHController *ctrl) {
