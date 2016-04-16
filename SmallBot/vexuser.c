@@ -72,7 +72,7 @@
 #define DEFAULT_FEED_SPEED 100
 #define FEED_SPOOL_TIME    100
 
-#define FLY_WHEEL_MID_GAIN      0.006
+#define FLY_WHEEL_MID_GAIN      0.00625
 #define FLY_WHEEL_SIDE_GAIN     0.00575
 #define FLY_WHEEL_QUARTER_GAIN  0.005
 #define FLY_WHEEL_PB_GAIN       0.005
@@ -185,7 +185,9 @@ bool driveMotors(void) {
 }
 
 bool isBallTop(void) {
-   return (vexAdcGet(S_BALL_TOP) < 2200);
+   //int32_t sensorValue = ;
+   //vex_printf("Sensor value: %d", sensorValue);
+   return vexAdcGet(S_BALL_TOP) < 2200;
 }
 
 // bool isBallBot(void) {
@@ -253,11 +255,12 @@ int rotateClockWise(int startStep, int target, float speed) {
 }
 
 
-int setFlySpeed(int startStep, int32_t speed){
+int setFlySpeed(int startStep, int32_t speed, int32_t gain){
   if(STEP(startStep)){
-    tbhEnable(flyWheelCtrl, speed);
+    tbhEnableWithGain(flyWheelCtrl, speed, gain);
+    autonStep++;
+    WAIT(0);
   }
-  autonStep++;
   return (startStep + 1); 
 }
 int move(int startStep, int target, float speed) {
@@ -398,6 +401,7 @@ int lineFollow(int startStep, int end) {
   return (startStep + 2);
 }
 
+/*
 int shootAllBalls(int startStep){
    if(STEP(startStep)) {
     readyToShoot = true;
@@ -408,8 +412,20 @@ int shootAllBalls(int startStep){
   }
   return (startStep + 1);
 }
+*/
 
-int shutOffFeed(int startStep){
+int shootAllBalls(int startStep, int32_t time){
+   if(STEP(startStep)) {
+    readyToShoot = true;
+    //vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
+    //vexMotorSet(M_FEED_SHOOT, DEFAULT_FEED_SPEED);
+    autonStep++;
+    WAIT(time);
+  }
+  return (startStep + 1);
+}
+
+int setReadyToShootFalse(int startStep){
    if(STEP(startStep)) {
     readyToShoot = false;
     //vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
@@ -559,12 +575,15 @@ vexAutonomous( void *arg )
     }
 
     nextStep = 0;
-    RUNSTEP(move, 1800, 400);
-    RUNSTEP(shootAllBalls);
+    RUNSTEP(move, 1900, 500);
+    RUNSTEP(shootAllBalls, 2750);
+    //RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
     RUNSTEP(rotateClockWise, 130*autonTurn, 140);
     RUNSTEP(move, 600, 400);
-    //RUNSTEP(shutOffFeed);
     RUNSTEP(rotateClockWise, -140*autonTurn, 140);
+    //RUNSTEP(setReadyToShootFalse);
+    RUNSTEP(move, 1100, 400);
+    RUNSTEP(shootAllBalls, 1500);
 
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
@@ -658,9 +677,9 @@ vexOperator( void *arg )
        tbhDisable(flyWheelCtrl); 
      }
 
-     if(!isBallTop()){
-      vex_printf("Ball is top\n");
-     } 
+     //if(isBallTop()){
+     // vex_printf("Ball is top\n");
+     //} 
 
 
     vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
