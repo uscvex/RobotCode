@@ -9,15 +9,6 @@
 static int16_t nextTBHController = 0;
 static TBHController controllers[MAX_TBH_CONTROLLERS];
 
-//#define Ideal_Speed			00
-//#define TBH_Threshold		00
-//
-//
-//// Array of Ten Sample values to calculate max and min
-double values_sensor[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-//
-//// Global variable to add the values to add values to array
-int32_t ptr = 0;
 TBHController *TBHControllerInit(tVexSensors sensor, double gain, int32_t maxSpeed, bool sensorReverse) {
 	TBHController *ctrl = &controllers[nextTBHController++];
 
@@ -26,15 +17,15 @@ TBHController *TBHControllerInit(tVexSensors sensor, double gain, int32_t maxSpe
 	ctrl->tbh = 0;
 	ctrl->power = 0;
 	ctrl->motorPower = 0;
-
 	ctrl->maxSpeed = maxSpeed;
-
 	ctrl->gain = gain;
 	ctrl->enabled = false;
-	ctrl->lastValue = 0;
-	ctrl->lastError = 0;
+	memset(ctrl->lastErrors, 0, sizeof(double)*SIZEOF_LAST_ERRORS);
+	ctrl->lastErrPtr = 0;
+	/* memset(ctrl->lastValues, 0, sizeof(double)*SIZEOF_LAST_VALUES); */
+	/* ctrl->lastValPtr = 0; */
+    ctrl->lastAvgValue = 0;
 	ctrl->lastTime = 0;
-	ctrl->lastSpeed = 0;
 	ctrl->powerZeroClamp = false;
 	ctrl->sensorReverse = sensorReverse;
 	ctrl->log = false;
@@ -53,19 +44,23 @@ void tbhEnableWithGainTBH(TBHController *ctrl, int32_t targetSpeed, float gain, 
 	ctrl->gain = gain;
 	ctrl->targetSpeed = targetSpeed;
 	ctrl->enabled = true;
-	ctrl->lastValue = vexSensorValueGet(ctrl->sensor);
-	if(ctrl->sensorReverse) {
-		ctrl->lastValue = -ctrl->lastValue;
-	}
-	memset(ctrl->errorArr, 0, sizeof(double)*SIZEOFERRORARRAY);
+
+	memset(ctrl->lastErrors, 0, sizeof(double)*SIZEOF_LAST_ERRORS);
+	ctrl->lastErrors[0] = 0;
+	ctrl->lastErrPtr = 1;
+
+	/* memset(ctrl->lastValues, 0, sizeof(double)*SIZEOF_LAST_VALUES); */
+	/* ctrl->lastValues[0] = vexSensorValueGet(ctrl->sensor); */
+	/* if(ctrl->sensorReverse) { */
+	/* 	ctrl->lastValues[0] = -ctrl->lastValues[0]; */
+	/* } */
+	/* ctrl->lastValPtr = 1; */
+    ctrl->lastAvgValue = 0;
+
 	ctrl->lastTime = chTimeNow();
-	ctrl->lastError = 0;
-	ctrl->lastSpeed = 0;
-	ctrl->acceleration = 0;
 	ctrl->tbh = tbh;
 	ctrl->power = ctrl->tbh;
 	ctrl->motorPower = ctrl->power * 127;
-	ctrl->counter = 0;
 }
 
 void tbhEnableWithGain(TBHController *ctrl, int32_t targetSpeed, float gain) {
@@ -76,29 +71,26 @@ void tbhDisable(TBHController *ctrl) {
 	ctrl->enabled = false;
 }
 
-
 bool tbhIsStable(TBHController* ctrl){
 	double avgError = 0;
 	unsigned int i;
-	for(i = 0; i < SIZEOFERRORARRAY; i++)
+	for(i = 0; i < SIZEOF_LAST_ERRORS; i++)
 	{
-		avgError += ctrl->errorArr[i];
+		avgError += ctrl->lastErrors[i];
 	}
-	avgError /= sizeof(ctrl->errorArr);
+	avgError /= SIZEOF_LAST_ERRORS;
 	return (avgError <= 0.05);
 }
 
-int32_t getAverage(int32_t val){
-	values_sensor[ptr%10] = val;
-	ptr++;
-	int32_t avg = 0, i=0;
-	while (i<10){
-			avg+=values_sensor[i];
-			i++;
-	}
-	return (avg/10);
-
-}
+/* int32_t getAverageSensorValue(TBHController *ctrl) { */
+/*     int i; */
+/*     double avgSensorValue = 0; */
+/*     for(i = 0;i < SIZEOF_LAST_VALUES;i++) { */
+/*         avgSensorValue += ctrl->lastValues[i]; */
+/*     } */
+/*     avgSensorValue /= SIZEOF_LAST_VALUES; */
+/*     return (int32_t)(avgSensorValue); */
+/* } */
 
 int16_t tbhUpdate(TBHController *ctrl) {
 	double error;
@@ -109,27 +101,31 @@ int16_t tbhUpdate(TBHController *ctrl) {
 	if(!ctrl->enabled) {
 		ctrl->motorPower = 0;
 	} else if(currTime != ctrl->lastTime) {
+        double lastError;
+        if(ctrl->lastErrPtr == 0) {
+            lastError = ctrl->lastErrors[SIZEOF_LAST_ERRORS-1];   
+        }
+        else {
+            lastError = ctrl->lastErrors[ctrl->lastErrPtr-1];   
+        }
+
 		//Get number of ticks from encoder
-		value = getAverage(vexSensorValueGet(ctrl->sensor));
+		value = vexSensorValueGet(ctrl->sensor);
 		if(ctrl->sensorReverse) {
 			value = -value;
 		}
-		//Calculate speed as ticks per second
-		int32_t speed = (value - ctrl->lastValue)/((double)(currTime - ctrl->lastTime));
-		ctrl->acceleration = (speed-ctrl->lastSpeed)/((double)(currTime - ctrl->lastTime));
-		ctrl->lastSpeed = speed;
-		if(ctrl->counter == 5) {ctrl->counter = 0;}
+		/* ctrl->lastValues[ctrl->lastValPtr] = value; */
+		/* ctrl->lastValPtr = (ctrl->lastValPtr+1) % SIZEOF_LAST_VALUES; */
+        /* value = getAverageSensorValue(ctrl); */
+
+		//Calculate speed 
+		double speed = (value - ctrl->lastAvgValue)/((double)(currTime - ctrl->lastTime));
 		error = (ctrl->targetSpeed/1000.0) - speed;
-		ctrl->errorArr[ctrl->counter] = error;
-		ctrl->counter++;
 
 		/*
 		 * If there is a error, then mid point is calculated.
 		 */
-		if(SIGN(error) != SIGN(ctrl->lastError)) {
-			/*
-			 *
-			 */
+		if(SIGN(error) != SIGN(lastError)) {
 			ctrl->power = 0.5 * (ctrl->power + ctrl->tbh);
 			ctrl->tbh = ctrl->power;
 		} else {
@@ -139,18 +135,21 @@ int16_t tbhUpdate(TBHController *ctrl) {
 				ctrl->power = CLAMP(ctrl->power + ctrl->gain*error, -1, 1);
 			}
 		}
-		ctrl->lastError = error;
+
+		ctrl->lastErrors[ctrl->lastErrPtr] = error;
+		ctrl->lastErrPtr = (ctrl->lastErrPtr+1) % SIZEOF_LAST_ERRORS;
+
+        ctrl->lastAvgValue = value;
 		ctrl->lastTime = currTime;
-		ctrl->lastValue = value;
 		ctrl->motorPower = ctrl->power * 127;
 
 		if(ctrl->log) {
 			//vex_printf("speed=%f error=%f motor_power = %d\n", speed, error, ctrl->motorPower);
-			//vex_printf("%f,%f,%f,%f\n", speed, error, ctrl->tbh, ctrl->power);
-			serialLog("speed", (double)speed,
-			          "error", (double)error,
-								"tbh", (double)ctrl->tbh,
-								"power", (double)ctrl->power, NULL);
+			vex_printf("%d,%d,%f,%f,%f,%f\n", value, ctrl->lastAvgValue, speed, error, ctrl->tbh, ctrl->power);
+			/* serialLog("speed", (double)speed, */
+			/*           "error", (double)error, */
+            /*           "tbh", (double)ctrl->tbh, */
+            /*           "power", (double)ctrl->power, NULL); */
 			//vex_printf(, value);
 		}
 	}

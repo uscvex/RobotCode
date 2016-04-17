@@ -72,12 +72,12 @@ typedef struct _FlyWheelCalib {
 } FlyWheelCalib;
 
 static FlyWheelCalib flyWheelCalibration[] = {
-    {J_SHOOT_MAX       , 5000, 0.01,   false, 0},
-    {J_SHOOT_SIDE      , 5000, 0.01,   false, 0},
+    {J_SHOOT_MAX       , 5000, 0.01,     false, 0},
+    {J_SHOOT_SIDE      , 5000, 0.01,     false, 0},
     {J_SHOOT_BAR_MID   , 6250, 0.00005,  false, 0},
     {J_SHOOT_BAR_EDGE  , 6300, 0.00005,  false, 0},
-    {J_SHOOT_MID       , 5000, 0.01,   false, 0},
-    {J_SHOOT_START     , 10000, 0.00005, true,  0.4}
+    {J_SHOOT_MID       , 5000, 0.01,     false, 0},
+    {J_SHOOT_START     , 11000, 0.00015, true,  0.4}
 };
 
 // Digi IO configuration
@@ -94,21 +94,6 @@ static  vexDigiCfg  dConfig[] = {
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-<<<<<<< HEAD
-  { M_DRIVE_FRONT_RIGHT,    kVexMotor393S,           kVexMotorNormal,    	  kVexSensorIME,         0 },
-  { M_DRIVE_BACK_LEFT, 	    kVexMotor393S,           kVexMotorReversed,     kVexSensorIME,         0 },
-  { M_DRIVE_BACK_RIGHT,    	kVexMotor393S,           kVexMotorNormal,     	kVexSensorNone,        0 },
-  { M_DRIVE_FRONT_LEFT,    	kVexMotor393S,           kVexMotorNormal,     	kVexSensorNone,        0 },
-
-  { M_FEED_SHOOT,           kVexMotor393S,           kVexMotorReversed,     kVexSensorNone,        0 },
-
-  { M_FLY_A,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 },
-  { M_FLY_B,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 },
-  { M_FLY_C,     kVexMotor393T,      kVexMotorReversed,     kVexSensorNone, 0 }
-
-  //Motors
-
-=======
     { M_DRIVE_FRONT_RIGHT, kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
     { M_DRIVE_BACK_LEFT,   kVexMotor393S, kVexMotorReversed, kVexSensorNone, 0 },
     { M_DRIVE_BACK_RIGHT,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
@@ -117,7 +102,6 @@ static  vexMotorCfg mConfig[] = {
     { M_FLY_A,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 },
     { M_FLY_B,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 },
     { M_FLY_C,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 }
->>>>>>> 8230ebbd7c17f0aa156b4017edba7866859b83a5
 };
 
 // TBH Controllers
@@ -266,75 +250,6 @@ vexOperator( void *arg )
         //Don't hog CPU
         vexSleep( 10 );
     }
-<<<<<<< HEAD
-    if(vexControllerGet(J_SHOOT_LESS)) {
-       	tbhEnableWithGain(topWheelCtrl, FLY_LESS_SPEED,0.04);
-//       	tbhEnableWithGain(botWheelCtrl, FLY_LESS_SPEED,0.04);
-       }
-
-    //Turn off flywheels
-    if(vexControllerGet(J_SHOOT_STOP)) {
-      tbhDisable(topWheelCtrl);7n
-//      tbhDisable(botWheelCtrl);
-    }
-    //Activate/deactivate flywheel motors
-    vexMotorSet(M_FLY_A, tbhUpdate(topWheelCtrl));
-    vexMotorSet(M_FLY_B, tbhUpdate(topWheelCtrl));
-    vexMotorSet(M_FLY_C, tbhUpdate(topWheelCtrl));
-
-    if(isBallBot())
-    {
-    	botSensorTime = chTimeNow();
-    }
-    // Front Feed Controls
-//    if( vexControllerGet(J_FEED_FRONT_U) || vexControllerGet(J_FEED_SHOOT_U) || motorRunning) {
-//       vexMotorSet(M_FEED_FRONT, 63);
-//    } else if(vexControllerGet(J_FEED_FRONT_D) || vexControllerGet(J_FEED_SHOOT_D)) {
-//       vexMotorSet(M_FEED_FRONT, -63);
-//    } else {
-//       vexMotorSet(M_FEED_FRONT, 0);
-//    }
-
-
-    // Shoot Feed
-
-    //if 6U then retract solenoid else deploy
-    if(vexControllerGet(J_FEED_SOLE_U)) {
-    	   vexMotorSet(M_FEED_SHOOT, 77);
-    	   vexDigitalPinSet(P_SOLENOID, 0);
-    	   sol = false;
-    }
-    //5U Feed In, 5D Feed Out
-    else if (vexControllerGet(J_FEED_FRONT_D)){
-    	vexMotorSet(M_FEED_SHOOT, -77);
-    }
-    else if (vexControllerGet(J_FEED_FRONT_U)){
-    	vexMotorSet(M_FEED_SHOOT, 77);
-    }
-    else{
-    	vexDigitalPinSet(P_SOLENOID, 1);
-    	sol = true;
-    	vexMotorSet(M_FEED_SHOOT, 0);
-    }
-
-    if (vexControllerGet(J_FEED_SHOOT_D)){
-    	if (sol){
-    		vexDigitalPinSet(P_SOLENOID, 0);
-    		sol= false;
-    	}
-    	else{
-    		vexDigitalPinSet(P_SOLENOID, 1);
-    		sol = true;
-    	}
-
-    }
-
-
-    //Don't hog CPU
-    vexSleep( 10 );
-  }
-=======
->>>>>>> 8230ebbd7c17f0aa156b4017edba7866859b83a5
 
     return (msg_t)0;
 }

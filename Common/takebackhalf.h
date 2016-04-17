@@ -1,7 +1,8 @@
 #ifndef __TAKEBACKHALF_H__
 #define __TAKEBACKHALF_H__
 
-#define SIZEOFERRORARRAY 5
+#define SIZEOF_LAST_ERRORS 5
+#define SIZEOF_LAST_VALUES 10
 
 #include "ch.h"
 #include "hal.h"
@@ -17,15 +18,16 @@ typedef struct _TBHController {
 	int32_t targetSpeed; // target speed in ticks per second
 	int32_t maxSpeed;
 
-	double lastSpeed;
-	double acceleration;
-
 	double gain;
 	bool enabled;
-	int32_t lastValue;
-	double lastError;
-	double errorArr[SIZEOFERRORARRAY];
-	int counter;
+
+    int32_t lastAvgValue;
+    /* int32_t lastValues[SIZEOF_LAST_VALUES]; */
+    /* int lastValPtr; */
+
+	double lastErrors[SIZEOF_LAST_ERRORS];
+	int lastErrPtr;
+
 	systime_t lastTime;
 	bool powerZeroClamp;
 	bool sensorReverse;
