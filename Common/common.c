@@ -35,7 +35,7 @@ void serialLog(char *first, ...) {
   char *label = first;
   while(label) {
     value = va_arg(argp, double);
-    vex_sprintf(buf, "Time: %d,label: %s,value: %f", time, label, value);
+    vex_sprintf(buf, "%d,%s,%f", time, label, value);
     int checkSum = 0;
     char *p = buf;
     while(*p) {
@@ -85,4 +85,37 @@ bool xDriveMotors(int forward, int strafe, int turn,
   vexMotorSet(mfl, fld);
 
   return (fld != 0 || frd != 0 || bld != 0 || brd != 0);
+}
+
+void debounceInit(Debouncer *dbnc, tCtlIndex button, systime_t debounceTime) {
+    dbnc->button = button;
+    dbnc->debounceTime = debounceTime;
+    dbnc->lastValue = 0;
+    dbnc->lastDebouncedValue = 0;
+    dbnc->lastTime = 0;
+    dbnc->lastPress = 0;
+}
+
+int16_t debounceGet(Debouncer *dbnc) {
+    int16_t value = vexControllerGet(dbnc->button);
+    systime_t currTime = chTimeNow();
+    if(dbnc->lastValue != value) {
+        dbnc->lastTime = currTime;
+    }
+    dbnc->lastValue = value;
+
+    if((currTime - dbnc->lastTime) > dbnc->debounceTime) {
+        dbnc->lastDebouncedValue = value;
+        return value;
+    }
+    else {
+        return dbnc->lastDebouncedValue;
+    }
+}
+
+bool debounceKeyDown(Debouncer *dbnc) {
+    int16_t value = debounceGet(dbnc);
+    bool keyDown = (value != dbnc->lastPress && value);
+    dbnc->lastPress = value;
+    return keyDown;
 }
