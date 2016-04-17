@@ -75,11 +75,11 @@
 #define FLY_WHEEL_MID_GAIN      0.00625
 #define FLY_WHEEL_SIDE_GAIN     0.00575
 #define FLY_WHEEL_QUARTER_GAIN  0.005
-#define FLY_WHEEL_PB_GAIN       0.005
+#define FLY_WHEEL_PB_GAIN       0.0030
 
 #define FLY_SIDE_SPEED 	   8000
-#define FLY_PB_SPEED   	   6300
-#define FLY_QUARTER_SPEED  6100
+#define FLY_PB_SPEED   	   6100
+#define FLY_QUARTER_SPEED  5600
 #define FLY_MID_SPEED  	   8000
 
 #define AUTON_FEED_FAIL_TIME 2500
@@ -575,14 +575,14 @@ vexAutonomous( void *arg )
     }
 
     nextStep = 0;
-    RUNSTEP(move, 1900, 500);
+    RUNSTEP(move, 1900, 400);
     RUNSTEP(shootAllBalls, 2750);
-    //RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
+    RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
     RUNSTEP(rotateClockWise, 130*autonTurn, 140);
     RUNSTEP(move, 600, 400);
     RUNSTEP(rotateClockWise, -140*autonTurn, 140);
-    //RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(move, 1100, 400);
+    RUNSTEP(setReadyToShootFalse);
+    RUNSTEP(move, 1200, 500);
     RUNSTEP(shootAllBalls, 1500);
 
     if(!isBallTop() || readyToShoot == true){
