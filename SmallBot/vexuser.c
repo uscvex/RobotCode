@@ -72,15 +72,15 @@
 #define DEFAULT_FEED_SPEED 100
 #define FEED_SPOOL_TIME    100
 
-#define FLY_WHEEL_MID_GAIN      0.00625
+#define FLY_WHEEL_MID_GAIN      0.007
 #define FLY_WHEEL_SIDE_GAIN     0.00575
 #define FLY_WHEEL_QUARTER_GAIN  0.005
-#define FLY_WHEEL_PB_GAIN       0.0030
+#define FLY_WHEEL_PB_GAIN       0.005
 
-#define FLY_SIDE_SPEED 	   8000
-#define FLY_PB_SPEED   	   6100
-#define FLY_QUARTER_SPEED  5600
-#define FLY_MID_SPEED  	   8000
+#define FLY_SIDE_SPEED 	   9500
+#define FLY_PB_SPEED   	   7400
+#define FLY_QUARTER_SPEED  8000
+#define FLY_MID_SPEED  	   9500
 
 #define AUTON_FEED_FAIL_TIME 2500
 
@@ -205,7 +205,7 @@ void
 vexUserInit()
 {
   flyWheelCtrl = TBHControllerInit(S_ENC_FLY, FLY_WHEEL_MID_GAIN, 10500, false);
-  flyWheelCtrl->log = false;
+  flyWheelCtrl->log = true;
   flyWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers
@@ -574,17 +574,26 @@ vexAutonomous( void *arg )
       vexMotorSet(M_FEED_SHOOT, 0);
     }
 
+    tbhEnable(flyWheelCtrl, FLY_MID_SPEED);
     nextStep = 0;
-    RUNSTEP(move, 1900, 400);
+    RUNSTEP(move, 1900, 420);
+    RUNSTEP(rotateClockWise, 60, 60);
     RUNSTEP(shootAllBalls, 2750);
     RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
-    RUNSTEP(rotateClockWise, 130*autonTurn, 140);
+    RUNSTEP(rotateClockWise, 70*autonTurn, 70);
     RUNSTEP(move, 600, 400);
     RUNSTEP(rotateClockWise, -140*autonTurn, 140);
     RUNSTEP(setReadyToShootFalse);
     RUNSTEP(move, 1200, 500);
-    RUNSTEP(shootAllBalls, 1500);
+    RUNSTEP(shootAllBalls, 2750);
+    RUNSTEP(setFlySpeed, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN);
+    RUNSTEP(setReadyToShootFalse);
+    RUNSTEP(move, -300, 300);
+    RUNSTEP(rotateClockWise, 400*autonTurn, 400);
+    RUNSTEP(move, 1200, 500);
 
+
+    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
       vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
@@ -617,7 +626,6 @@ vexAutonomous( void *arg )
   	  vexMotorSet(M_DRIVE_RIGHT1, lfol->rightDrive);
   	  vexMotorSet(M_DRIVE_RIGHT2, lfol->rightDrive);
     }
-    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
     vexSleep( 10 );
 	}
 
