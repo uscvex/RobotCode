@@ -46,21 +46,19 @@
 #define J_STRAFE     Ch4
 
 #define J_SHOOT_MAX       Btn7L
-#define J_SHOOT_SIDE      Btn7U
-#define J_SHOOT_OFF       Btn7R
+#define J_SHOOT_OFF       Btn8D
 #define J_SHOOT_BAR_MID   Btn8L
 #define J_SHOOT_BAR_EDGE  Btn8U
 #define J_SHOOT_MID       Btn8R
-#define J_SHOOT_START     Btn8D
 
-#define J_RAMP            Btn7D
-#define J_FEED_RELEASE    Btn6U
-#define J_FEED_D          Btn5D
-#define J_FEED_U          Btn5U
+#define J_RAMP             Btn7D
+#define J_FEED_RELEASE     Btn6U
+#define J_FEED_RELEASE_OFF Btn6D
+#define J_FEED_D           Btn5D
+#define J_FEED_U           Btn5U
 
 // Constants
-#define DEFAULT_FEED_SPEED 127
-#define FEED_SPOOL_TIME    100
+#define FEED_SPEED 63
 
 // fly wheel speeds
 typedef struct _FlyWheelCalib {
@@ -71,13 +69,12 @@ typedef struct _FlyWheelCalib {
     double tbh;
 } FlyWheelCalib;
 
+#define CALIB_SIZE 4
 static FlyWheelCalib flyWheelCalibration[] = {
-    {J_SHOOT_MAX       , 5000, 0.01,     false, 0},
-    {J_SHOOT_SIDE      , 5000, 0.01,     false, 0},
-    {J_SHOOT_BAR_MID   , 6250, 0.00005,  false, 0},
-    {J_SHOOT_BAR_EDGE  , 6300, 0.00005,  false, 0},
-    {J_SHOOT_MID       , 5000, 0.01,     false, 0},
-    {J_SHOOT_START     , 11000, 0.00015, true,  0.4}
+    {J_SHOOT_MAX       , 12000, 0.05,  true, 0.3},
+    {J_SHOOT_BAR_MID   , 6650,  0.1,   false, 0},
+    {J_SHOOT_BAR_EDGE  , 7200,  0.2,   false, 0},
+    {J_SHOOT_MID       , 8400,  0.1,   false, 0}
 };
 
 // Digi IO configuration
@@ -122,7 +119,7 @@ void
 vexUserInit()
 {
     //Initialize TBHControllers
-    flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 10500, true);
+    flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, true);
     flyWheelCtrl->powerZeroClamp = true;
     flyWheelCtrl->log = true;
 
@@ -154,8 +151,13 @@ vexOperator( void *arg )
     systime_t currentTime = 0;
     systime_t rampReleaseTime = 0;
     bool feedRelease = false;
+    bool feedReleaseOff = false;
     systime_t feedReleaseTime = 0;
 
+    Debouncer dbncJFeedReleaseOff;
+    debounceInit(&dbncJFeedReleaseOff, J_FEED_RELEASE_OFF, 50);
+
+    Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
     deadReckStart(dreck);
 
     //Run until asked to terminate
@@ -174,7 +176,7 @@ vexOperator( void *arg )
             vexDigitalPinSet(P_RAMP, 0);
         }
 
-        /* //Calculate Motor Power */
+        //Calculate Motor Power
         xDriveMotors(
             vexControllerGet(J_DRIVE),
             vexControllerGet(J_STRAFE),
@@ -187,7 +189,7 @@ vexOperator( void *arg )
         );
 
         // Enable fly wheel
-        for(i = 0;i < 6;i++) {
+        for(i = 0;i < CALIB_SIZE;i++) {
             FlyWheelCalib *calib = &(flyWheelCalibration[i]);
             if(vexControllerGet(calib->button)) {
                 if(calib->useTbh) {
@@ -209,12 +211,10 @@ vexOperator( void *arg )
         vexMotorSet(M_FLY_B, flyMotor);
         vexMotorSet(M_FLY_C, flyMotor);
 
-        /* if(!flyWheelCtrl->enabled) { */
-        /*     vex_printf("%d\n", vexControllerGet(J_DRIVE)); */
-        /*     vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE)); */
-        /*     vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE)); */
-        /*     vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE)); */
-        /* } */
+        /* vex_printf("speed = %f, jostick=%d\n", SpeedometerUpdate(spdm), vexControllerGet(J_DRIVE)); */
+        /* vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE)); */
+        /* vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE)); */
+        /* vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE)); */
 
 
         // Shoot Feed
@@ -232,17 +232,24 @@ vexOperator( void *arg )
                 feedRelease = false;
                 feedReleaseTime = currentTime;
             }
-            else if((currentTime - feedReleaseTime) > 500) {
+            else if((currentTime - feedReleaseTime) > 250) {
                 vexDigitalPinSet(P_FEED_RELEASE, 1);
             }
         }
 
+        if(debounceKeyDown(&dbncJFeedReleaseOff)) {
+            feedReleaseOff = !feedReleaseOff;
+        }
+        if(feedReleaseOff) {
+            vexDigitalPinSet(P_FEED_RELEASE, 1);
+        }
+
         //5U Feed In, 5D Feed Out
         if (vexControllerGet(J_FEED_D)){
-            vexMotorSet(M_FEED, -77);
+            vexMotorSet(M_FEED, -FEED_SPEED);
         }
         else if (vexControllerGet(J_FEED_U) || (feedRelease && (currentTime - feedReleaseTime) > 500)){
-            vexMotorSet(M_FEED, 77);
+            vexMotorSet(M_FEED, FEED_SPEED);
         } else {
             vexMotorSet(M_FEED, 0);
         }

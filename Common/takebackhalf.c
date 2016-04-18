@@ -145,11 +145,11 @@ int16_t tbhUpdate(TBHController *ctrl) {
 
 		if(ctrl->log) {
 			//vex_printf("speed=%f error=%f motor_power = %d\n", speed, error, ctrl->motorPower);
-			vex_printf("%d,%d,%f,%f,%f,%f\n", value, ctrl->lastAvgValue, speed, error, ctrl->tbh, ctrl->power);
-			/* serialLog("speed", (double)speed, */
-			/*           "error", (double)error, */
-            /*           "tbh", (double)ctrl->tbh, */
-            /*           "power", (double)ctrl->power, NULL); */
+			/* vex_printf("%d,%d,%f,%f,%f,%f\n", value, ctrl->lastAvgValue, speed, error, ctrl->tbh, ctrl->power); */
+			serialLog("speed", (double)speed,
+			          "error", (double)error,
+                      "tbh", (double)ctrl->tbh,
+                      "power", (double)ctrl->power, NULL);
 			//vex_printf(, value);
 		}
 	}

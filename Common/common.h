@@ -28,4 +28,18 @@ void serialLog(char *first, ...);
 bool xDriveMotors(int forward, int strafe, int turn,
                  int16_t mfr, int16_t mbr, int16_t mfl, int16_t mbl,
                  int iMin, int iMax, int oMin, int oMax);
+
+typedef struct _Debouncer {
+    tCtlIndex button;
+    systime_t debounceTime;
+    int16_t lastValue;
+    int16_t lastDebouncedValue;
+    systime_t lastTime;
+    int16_t lastPress;
+} Debouncer;
+
+void debounceInit(Debouncer *dbnc, tCtlIndex button, systime_t debounceTime);
+int16_t debounceGet(Debouncer *dbnc);
+bool debounceKeyDown(Debouncer *dbnc);
+
 #endif
