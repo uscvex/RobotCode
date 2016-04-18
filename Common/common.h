@@ -25,9 +25,9 @@ typedef struct _Speedometer {
 Speedometer *SpeedometerInit(tVexSensors sensor);
 double SpeedometerUpdate(Speedometer *spm);
 void serialLog(char *first, ...);
-bool xDriveMotors(int forward, int strafe, int turn,
+bool xDriveMotors(int16_t forward, int16_t strafe, int16_t turn,
                  int16_t mfr, int16_t mbr, int16_t mfl, int16_t mbl,
-                 int iMin, int iMax, int oMin, int oMax);
+                 int oMin, int oMax);
 
 typedef struct _Debouncer {
     tCtlIndex button;

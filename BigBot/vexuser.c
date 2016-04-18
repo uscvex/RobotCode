@@ -157,7 +157,7 @@ vexOperator( void *arg )
     Debouncer dbncJFeedReleaseOff;
     debounceInit(&dbncJFeedReleaseOff, J_FEED_RELEASE_OFF, 50);
 
-    Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
+    //Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
     deadReckStart(dreck);
 
     //Run until asked to terminate
@@ -178,14 +178,14 @@ vexOperator( void *arg )
 
         //Calculate Motor Power
         xDriveMotors(
-            vexControllerGet(J_DRIVE),
-            vexControllerGet(J_STRAFE),
-            vexControllerGet(J_TURN),
+            VALLEY(vexControllerGet(J_DRIVE), 25, 127),
+            VALLEY(vexControllerGet(J_STRAFE), 25, 127),
+            VALLEY((int16_t)(vexControllerGet(J_TURN) * 0.70), 15, 127),
             M_DRIVE_FRONT_RIGHT,
             M_DRIVE_BACK_RIGHT,
             M_DRIVE_FRONT_LEFT,
             M_DRIVE_BACK_LEFT,
-            25, 127, 25, 127
+            25, 127
         );
 
         // Enable fly wheel
@@ -215,7 +215,6 @@ vexOperator( void *arg )
         /* vexMotorSet(M_FLY_A, vexControllerGet(J_DRIVE)); */
         /* vexMotorSet(M_FLY_B, vexControllerGet(J_DRIVE)); */
         /* vexMotorSet(M_FLY_C, vexControllerGet(J_DRIVE)); */
-
 
         // Shoot Feed
 

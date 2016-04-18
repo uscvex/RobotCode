@@ -64,14 +64,10 @@ void serialLog(char *first, ...) {
    +-+      ###    B    ###      ++-
     MotorBL, Port7    MotorBR, Port8
 */
-bool xDriveMotors(int forward, int strafe, int turn,
+bool xDriveMotors(int16_t forward, int16_t strafe, int16_t turn,
                   int16_t mfr, int16_t mbr, int16_t mfl, int16_t mbl,
-                  int iMin, int iMax, int oMin, int oMax) {
+                  int oMin, int oMax) {
   short fld, frd, brd, bld;
-
-  forward = VALLEY(forward, iMin, iMax);
-  strafe = VALLEY(strafe, iMin, iMax);
-  turn = VALLEY(turn, iMin, iMax);
 
   //Four drives
   fld = VALLEY(forward + strafe + turn, oMin, oMax);
@@ -87,6 +83,11 @@ bool xDriveMotors(int forward, int strafe, int turn,
   return (fld != 0 || frd != 0 || bld != 0 || brd != 0);
 }
 
+/**
+ * initialize debouncer
+ * button - button to be debounced
+ * debounceTime - debounce check delay
+ */
 void debounceInit(Debouncer *dbnc, tCtlIndex button, systime_t debounceTime) {
     dbnc->button = button;
     dbnc->debounceTime = debounceTime;
@@ -96,6 +97,9 @@ void debounceInit(Debouncer *dbnc, tCtlIndex button, systime_t debounceTime) {
     dbnc->lastPress = 0;
 }
 
+/**
+ * returns debounced value
+ */
 int16_t debounceGet(Debouncer *dbnc) {
     int16_t value = vexControllerGet(dbnc->button);
     systime_t currTime = chTimeNow();
@@ -113,6 +117,9 @@ int16_t debounceGet(Debouncer *dbnc) {
     }
 }
 
+/**
+ * returns debbounced key down values
+ */
 bool debounceKeyDown(Debouncer *dbnc) {
     int16_t value = debounceGet(dbnc);
     bool keyDown = (value != dbnc->lastPress && value);
