@@ -255,15 +255,27 @@ int rotateClockWise(int startStep, int target, float speed) {
 }
 
 
-int setFlySpeed(int startStep, int32_t speed, int32_t gain){
+int setFlySpeed(int startStep, int32_t speed, float gain){
   if(STEP(startStep)){
     vex_printf("Setting flywheel speed to: %d \n", speed);
+    vexMotorSet(M_FLY_WHEEL, 0);
     tbhEnableWithGain(flyWheelCtrl, speed, gain);
     autonStep++;
     WAIT(0);
   }
   return (startStep + 1); 
 }
+
+int shutFlyWheelOff(int startStep){
+  if(STEP(startStep)){
+    vex_printf("Disabling flywheel");
+    tbhDisable(flyWheelCtrl);
+    autonStep++;
+    WAIT(0);
+  }
+  return (startStep + 1); 
+}
+
 int move(int startStep, int target, float speed) {
   if(STEP(startStep)) {
     vex_printf("move run\n");
@@ -560,8 +572,6 @@ vexAutonomous( void *arg )
       vexMotorSet(M_FEED_SHOOT, 0);
     }
 
-    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
-
     nextStep = 0;
     RUNSTEP(move, 1900, 420);
     RUNSTEP(rotateClockWise, 60, 60);
@@ -587,9 +597,7 @@ vexAutonomous( void *arg )
     RUNSTEP(shootAllBalls, 2750);
 
 
-    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
-   // vex_printf("target speed: %d \n",flyWheelCtrl->targetSpeed);
-
+    vex_printf("motorPower at: %d", flyWheelCtrl->motorPower);
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
       vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
@@ -599,6 +607,7 @@ vexAutonomous( void *arg )
       vexMotorSet(M_FEED_SHOOT, 0);
     }
 
+    vexMotorSet(M_FLY_WHEEL, tbhUpdate(flyWheelCtrl));
 
     if(STEP(nextStep)) {
      // vex_printf("Exit step %d\n", autonStep);
