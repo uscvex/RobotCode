@@ -69,7 +69,7 @@
 #define J_COMPRESS   	  Btn5D
 
 // Constants
-#define DEFAULT_FEED_SPEED 70
+#define DEFAULT_FEED_SPEED 80
 #define FEED_SPOOL_TIME    100
 
 #define FLY_WHEEL_MID_GAIN      0.01
@@ -79,8 +79,8 @@
 
 #define FLY_SIDE_SPEED 	   9500
 #define FLY_PB_SPEED   	   7400
-#define FLY_QUARTER_SPEED  8700
-#define FLY_MID_SPEED  	   9400
+#define FLY_QUARTER_SPEED  8500
+#define FLY_MID_SPEED  	   9500
 
 #define AUTON_FEED_FAIL_TIME 2500
 
@@ -254,6 +254,24 @@ int rotateClockWise(int startStep, int target, float speed) {
   return (startStep + 1);
 }
 
+int punchBall(int startStep){
+  if(STEP(startStep)) {
+    vex_printf("Punch ball\n");
+    vexMotorSet(M_PUNCHER, 80);
+    autonStep++;
+    WAIT(1050);
+  }
+  return (startStep + 1);
+}
+int shutOffPuncher(startStep){
+  if(STEP(startStep)) {
+     vex_printf("PShut off Puncher\n");
+    vexMotorSet(M_PUNCHER, 0);
+    autonStep++;
+    WAIT(0);
+  }
+  return (startStep + 1);
+}
 
 int setFlySpeed(int startStep, int32_t speed, float gain){
   if(STEP(startStep)){
@@ -503,7 +521,7 @@ msg_t
 vexAutonomous( void *arg )
 {
   (void)arg;
-  //vexTaskRegister("auton");
+  vexTaskRegister("auton");
 
   //Reset sensors
   vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
@@ -531,37 +549,9 @@ vexAutonomous( void *arg )
     autonTime = chTimeNow();
 
     
-  	if(vexControllerGet(J_STOP_AUTON)) {
-  		break;
-  	}
-
-    //Old auton routine
-    /*
-    RUNSTEP(shootNBalls, 8, -1);
-    RUNSTEP(rotateClockWise, 475*autonTurn, 300);
-    RUNSTEP(move, -2020, 300);
-    RUNSTEP(rotateCWTillLine, -35);
-    RUNSTEP(lineFollow, TILLMIDDLE);
-    RUNSTEP(move, -100, 100);
-    RUNSTEP(lineFollow, TILLENDS);
-    RUNSTEP(rotateClockWise, 300, 300);
-    RUNSTEP(rotateCWTillLine, 35);
-    RUNSTEP(rotateClockWise, 30, 300);
-    //RUNSTEP(lineFollow, SOMETIME);
-    RUNSTEP(move, 700, 400);
-    RUNSTEP(restDown);
-    RUNSTEP(punch);
-    */
-    /*
-    New Routine:
-    -Punch one shot
-    -Drive forward
-    -Rotate 45
-    -Drive until line is found
-    -Drive forward
-    -Rotate 45
-    -Shoot balls
-    */
+  //	if(vexControllerGet(J_STOP_AUTON)) {
+  //		break;
+  //	}
 
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
@@ -573,10 +563,13 @@ vexAutonomous( void *arg )
     }
 
     nextStep = 0;
-    RUNSTEP(move, 1900, 550);
+    RUNSTEP(punchBall);
+    RUNSTEP(shutOffPuncher);
+    RUNSTEP(move, 1950, 500);
     RUNSTEP(rotateClockWise, 60, 60);
     RUNSTEP(shootAllBalls, 2750);
     RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
+    RUNSTEP(setReadyToShootFalse);
     RUNSTEP(rotateClockWise, 100*autonTurn, 100);
     RUNSTEP(move, 500, 350);
     RUNSTEP(rotateClockWise, -120*autonTurn, 120);
@@ -588,13 +581,16 @@ vexAutonomous( void *arg )
     RUNSTEP(move, -300, 250);
     RUNSTEP(rotateClockWise, 300*autonTurn, 300);
     RUNSTEP(move, 1200, 400);
-    RUNSTEP(rotateClockWise, -385*autonTurn, 385);
+    RUNSTEP(rotateClockWise, -395*autonTurn, 395);
+    RUNSTEP(move, 100, 70);
     RUNSTEP(shootAllBalls, 2750);
     RUNSTEP(setReadyToShootFalse);
     RUNSTEP(rotateClockWise, 160*autonTurn, 160);
     RUNSTEP(move, 400, 200);
-    RUNSTEP(move, -150, 150);
-    RUNSTEP(rotateClockWise, -140*autonTurn, 140);
+    RUNSTEP(move, -180, 180);
+    RUNSTEP(move, 180,180);
+    RUNSTEP(move, -200,100);
+    RUNSTEP(rotateClockWise, -160*autonTurn, 160);
     RUNSTEP(shootAllBalls, 2750);
 
 
@@ -670,9 +666,9 @@ vexOperator( void *arg )
      bool motorRunning = driveMotors();
 
      //Auton testing
-     if(vexControllerGet(J_START_AUTON)){
-      vexAutonomous(NULL); 
-     }
+    // if(vexControllerGet(J_START_AUTON)){
+     // vexAutonomous(NULL); 
+     //}
 
      if(vexControllerGet(J_SHOOT_SIDE)) { 
        tbhEnableWithGain(flyWheelCtrl, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN); 
