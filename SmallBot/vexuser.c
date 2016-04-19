@@ -69,18 +69,18 @@
 #define J_COMPRESS   	  Btn5D
 
 // Constants
-#define DEFAULT_FEED_SPEED 100
+#define DEFAULT_FEED_SPEED 70
 #define FEED_SPOOL_TIME    100
 
-#define FLY_WHEEL_MID_GAIN      0.007
+#define FLY_WHEEL_MID_GAIN      0.01
 #define FLY_WHEEL_SIDE_GAIN     0.00575
 #define FLY_WHEEL_QUARTER_GAIN  0.005
 #define FLY_WHEEL_PB_GAIN       0.005
 
 #define FLY_SIDE_SPEED 	   9500
 #define FLY_PB_SPEED   	   7400
-#define FLY_QUARTER_SPEED  8000
-#define FLY_MID_SPEED  	   9500
+#define FLY_QUARTER_SPEED  8700
+#define FLY_MID_SPEED  	   9400
 
 #define AUTON_FEED_FAIL_TIME 2500
 
@@ -573,27 +573,28 @@ vexAutonomous( void *arg )
     }
 
     nextStep = 0;
-    RUNSTEP(move, 1900, 420);
+    RUNSTEP(move, 1900, 550);
     RUNSTEP(rotateClockWise, 60, 60);
     RUNSTEP(shootAllBalls, 2750);
     RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
     RUNSTEP(rotateClockWise, 100*autonTurn, 100);
-    RUNSTEP(move, 600, 400);
+    RUNSTEP(move, 500, 350);
     RUNSTEP(rotateClockWise, -120*autonTurn, 120);
     RUNSTEP(setReadyToShootFalse);
     RUNSTEP(move, 1200, 500);
     RUNSTEP(shootAllBalls, 2750);
     RUNSTEP(setFlySpeed, FLY_QUARTER_SPEED, FLY_WHEEL_QUARTER_GAIN);
     RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(move, -300, 300);
-    RUNSTEP(rotateClockWise, 400*autonTurn, 400);
-    RUNSTEP(move, 1200, 500);
-    RUNSTEP(rotateClockWise, -360*autonTurn, 360);
+    RUNSTEP(move, -300, 250);
+    RUNSTEP(rotateClockWise, 300*autonTurn, 300);
+    RUNSTEP(move, 1200, 400);
+    RUNSTEP(rotateClockWise, -385*autonTurn, 385);
     RUNSTEP(shootAllBalls, 2750);
     RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(rotateClockWise, 130*autonTurn, 130);
-    RUNSTEP(move, 600, 300);
-    RUNSTEP(rotateClockWise, -130*autonTurn, 130);
+    RUNSTEP(rotateClockWise, 160*autonTurn, 160);
+    RUNSTEP(move, 400, 200);
+    RUNSTEP(move, -150, 150);
+    RUNSTEP(rotateClockWise, -140*autonTurn, 140);
     RUNSTEP(shootAllBalls, 2750);
 
 
