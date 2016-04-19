@@ -68,11 +68,20 @@
 #define J_FEED_FRONT_U 	Btn5U
 #define J_COMPRESS   	  Btn5D
 
+//Autonomous modes
+
+#define RED_DEFENSIVE   0
+#define RED_AGGRESSIVE  1
+#define BLUE_DEFENSIVE  2
+#define BLUE_AGGRESSIVE 3
+#define SKILLS          4
+  
+
 // Constants
 #define DEFAULT_FEED_SPEED 80
 #define FEED_SPOOL_TIME    100
 
-#define FLY_WHEEL_MID_GAIN      0.01
+#define FLY_WHEEL_MID_GAIN      0.015
 #define FLY_WHEEL_SIDE_GAIN     0.00575
 #define FLY_WHEEL_QUARTER_GAIN  0.05
 #define FLY_WHEEL_PB_GAIN       0.005
@@ -138,6 +147,23 @@ const float lfolDrives[5] = {-1, -0.8, -0.7, 0.6, 0};
 
 bool isBlue(void) {
   return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
+}
+
+int getMode(){
+  int sensorValue = vexAdcGet(S_COLOR_SELECTOR);
+  int mode;
+  if(sensorValue < 800){
+    mode = RED_DEFENSIVE;
+  } else if (sensorValue >=800 && sensorValue < 1600){
+    mode = RED_AGGRESSIVE;
+  } else if (sensorValue >=1600 && sensorValue < 2400){
+    mode = BLUE_DEFENSIVE;
+  } else if (sensorValue >=2400 && sensorValue < 3200){
+    mode = BLUE_AGGRESSIVE;
+  } else if (sensorValue >=3200){
+    mode = SKILLS;
+  }
+  return mode;
 }
 
 bool isLineOn(int sensor) {
@@ -231,6 +257,7 @@ vexUserInit()
 int autonStep = 0;
 int autonShootCount = 0;
 int autonTurn = -1;
+int mode;
 bool readyToShoot = false;
 systime_t autonTime;
 systime_t autonLastTime;
@@ -263,9 +290,9 @@ int punchBall(int startStep){
   }
   return (startStep + 1);
 }
-int shutOffPuncher(startStep){
+int shutOffPuncher(int startStep){
   if(STEP(startStep)) {
-     vex_printf("PShut off Puncher\n");
+     vex_printf("Shut off Puncher\n");
     vexMotorSet(M_PUNCHER, 0);
     autonStep++;
     WAIT(0);
@@ -527,8 +554,8 @@ vexAutonomous( void *arg )
   vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
   vexSensorValueSet(S_ENC_DRIVE_RIGHT, 0);
 
-  //autonTurn = isBlue()?1:-1;
   autonTurn = 1;
+  mode = getMode();
   autonStep = 0;
   autonShootCount = 0;
   autonTime = chTimeNow();
@@ -563,35 +590,72 @@ vexAutonomous( void *arg )
     }
 
     nextStep = 0;
-    RUNSTEP(punchBall);
-    RUNSTEP(shutOffPuncher);
-    RUNSTEP(move, 1950, 500);
-    RUNSTEP(rotateClockWise, 60, 60);
-    RUNSTEP(shootAllBalls, 2750);
-    RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
-    RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(rotateClockWise, 100*autonTurn, 100);
-    RUNSTEP(move, 500, 350);
-    RUNSTEP(rotateClockWise, -120*autonTurn, 120);
-    RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(move, 1200, 500);
-    RUNSTEP(shootAllBalls, 2750);
-    RUNSTEP(setFlySpeed, FLY_QUARTER_SPEED, FLY_WHEEL_QUARTER_GAIN);
-    RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(move, -300, 250);
-    RUNSTEP(rotateClockWise, 300*autonTurn, 300);
-    RUNSTEP(move, 1200, 400);
-    RUNSTEP(rotateClockWise, -395*autonTurn, 395);
-    RUNSTEP(move, 100, 70);
-    RUNSTEP(shootAllBalls, 2750);
-    RUNSTEP(setReadyToShootFalse);
-    RUNSTEP(rotateClockWise, 160*autonTurn, 160);
-    RUNSTEP(move, 400, 200);
-    RUNSTEP(move, -180, 180);
-    RUNSTEP(move, 180,180);
-    RUNSTEP(move, -200,100);
-    RUNSTEP(rotateClockWise, -160*autonTurn, 160);
-    RUNSTEP(shootAllBalls, 2750);
+
+    if(mode == RED_DEFENSIVE){
+        RUNSTEP(punchBall);
+        RUNSTEP(shutOffPuncher);
+        RUNSTEP(move, 1950, 500);
+        RUNSTEP(rotateClockWise, 60*autonTurn, 60);
+        RUNSTEP(shootAllBalls, 2750);
+        RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(rotateClockWise, 100*autonTurn, 100);
+        RUNSTEP(move, 500, 350);
+        RUNSTEP(rotateClockWise, -120*autonTurn, 120);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(move, 1200, 500);
+        RUNSTEP(shootAllBalls, 2750);
+        RUNSTEP(setFlySpeed, FLY_QUARTER_SPEED, FLY_WHEEL_QUARTER_GAIN);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(move, -300, 250);
+        RUNSTEP(rotateClockWise, 300*autonTurn, 300);
+        RUNSTEP(move, 1200, 400);
+        RUNSTEP(rotateClockWise, -395*autonTurn, 395);
+        RUNSTEP(move, 100, 70);
+        RUNSTEP(shootAllBalls, 2750);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(rotateClockWise, 160*autonTurn, 160);
+        RUNSTEP(move, 400, 200);
+        RUNSTEP(move, -180, 180);
+        RUNSTEP(move, 180,180);
+        RUNSTEP(move, -200,100);
+        RUNSTEP(rotateClockWise, -160*autonTurn, 160);
+        RUNSTEP(shootAllBalls, 2750);
+    }
+
+    else if(mode == BLUE_DEFENSIVE){
+        autonTurn = -1;
+        RUNSTEP(punchBall);
+        RUNSTEP(shutOffPuncher);
+        RUNSTEP(move, 1950, 500);
+        //RUNSTEP(rotateClockWise, 60*autonTurn, 60);
+        RUNSTEP(shootAllBalls, 2750);
+        RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(rotateClockWise, 100*autonTurn, 100);
+        RUNSTEP(move, 500, 350);
+        RUNSTEP(rotateClockWise, -120*autonTurn, 120);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(move, 1200, 500);
+        RUNSTEP(shootAllBalls, 2750);
+        RUNSTEP(setFlySpeed, FLY_QUARTER_SPEED, FLY_WHEEL_QUARTER_GAIN);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(move, -300, 250);
+        RUNSTEP(rotateClockWise, 300*autonTurn, 300);
+        RUNSTEP(move, 1200, 400);
+        RUNSTEP(rotateClockWise, -395*autonTurn, 395);
+        RUNSTEP(move, 100, 70);
+        RUNSTEP(shootAllBalls, 2750);
+        RUNSTEP(setReadyToShootFalse);
+        RUNSTEP(rotateClockWise, 160*autonTurn, 160);
+        RUNSTEP(move, 400, 200);
+        RUNSTEP(move, -180, 180);
+        RUNSTEP(move, 180,180);
+        RUNSTEP(move, -200,100);
+        RUNSTEP(rotateClockWise, -160*autonTurn, 160);
+        RUNSTEP(shootAllBalls, 2750);
+    }
+
 
 
     vex_printf("motorPower at: %d", flyWheelCtrl->motorPower);
