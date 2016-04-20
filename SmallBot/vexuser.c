@@ -36,7 +36,7 @@
 
 //#define S_BALL_BOT              1
 #define S_BALL_TOP              7
-#define S_COLOR_SELECTOR        6
+#define S_COLOR_SELECTOR        5
 
 #define S_LINE_FOLLOWER_L2      1
 #define S_LINE_FOLLOWER_L1      2
@@ -81,12 +81,12 @@
 #define DEFAULT_FEED_SPEED 80
 #define FEED_SPOOL_TIME    100
 
-#define FLY_WHEEL_MID_GAIN      0.015
-#define FLY_WHEEL_SIDE_GAIN     0.00575
+#define FLY_WHEEL_MID_GAIN      0.02
+#define FLY_WHEEL_SIDE_GAIN     0.02
 #define FLY_WHEEL_QUARTER_GAIN  0.05
 #define FLY_WHEEL_PB_GAIN       0.005
 
-#define FLY_SIDE_SPEED 	   9500
+#define FLY_SIDE_SPEED 	   9900
 #define FLY_PB_SPEED   	   7400
 #define FLY_QUARTER_SPEED  8550
 #define FLY_MID_SPEED  	   9500
@@ -149,20 +149,20 @@ bool isBlue(void) {
   return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
 }
 
-int getMode(){
-  int sensorValue = vexAdcGet(S_COLOR_SELECTOR);
-  int mode;
-  if(sensorValue < 800){
+int getMode(void){
+  int mode = 0;
+  if(vexAdcGet(S_COLOR_SELECTOR) < 400){
     mode = RED_DEFENSIVE;
-  } else if (sensorValue >=800 && sensorValue < 1600){
+  } else if (vexAdcGet(S_COLOR_SELECTOR) >=400 && vexAdcGet(S_COLOR_SELECTOR) < 1600){
     mode = RED_AGGRESSIVE;
-  } else if (sensorValue >=1600 && sensorValue < 2400){
+  } else if (vexAdcGet(S_COLOR_SELECTOR) >=1600 && vexAdcGet(S_COLOR_SELECTOR) < 2400){
     mode = BLUE_DEFENSIVE;
-  } else if (sensorValue >=2400 && sensorValue < 3200){
+  } else if (vexAdcGet(S_COLOR_SELECTOR) >=2400 && vexAdcGet(S_COLOR_SELECTOR) < 3600){
     mode = BLUE_AGGRESSIVE;
-  } else if (sensorValue >=3200){
+  } else if (vexAdcGet(S_COLOR_SELECTOR) >=3600){
     mode = SKILLS;
   }
+  vex_printf("Mode is: %d \n", mode);
   return mode;
 }
 
@@ -231,7 +231,7 @@ void
 vexUserInit()
 {
   flyWheelCtrl = TBHControllerInit(S_ENC_FLY, FLY_WHEEL_MID_GAIN, 10500, false);
-  flyWheelCtrl->log = true;
+  flyWheelCtrl->log = false;
   flyWheelCtrl->powerZeroClamp = true;
 
   //Initialize EPIDControllers
@@ -286,10 +286,30 @@ int punchBall(int startStep){
     vex_printf("Punch ball\n");
     vexMotorSet(M_PUNCHER, 80);
     autonStep++;
-    WAIT(1050);
+    WAIT(2000);
   }
   return (startStep + 1);
 }
+
+int punchContinuously(int startStep){
+  if(STEP(startStep)) {
+    vex_printf("DON'T STOP PUNCHING!!!\n");
+    vexMotorSet(M_PUNCHER, 80);
+    autonStep++;
+    WAIT(0);
+  }
+  return (startStep + 1);
+}
+
+int fuckAround(int startStep){
+  if(STEP(startStep)) {
+    vex_printf("fuck around for a bitl\n");
+    autonStep++;
+    WAIT(3000);
+  }
+  return (startStep + 1);
+}
+
 int shutOffPuncher(int startStep){
   if(STEP(startStep)) {
      vex_printf("Shut off Puncher\n");
@@ -313,7 +333,7 @@ int setFlySpeed(int startStep, int32_t speed, float gain){
 
 int shutFlyWheelOff(int startStep){
   if(STEP(startStep)){
-    vex_printf("Disabling flywheel");
+    vex_printf("Disabling flywheel\n");
     tbhDisable(flyWheelCtrl);
     autonStep++;
     WAIT(0);
@@ -416,6 +436,21 @@ int punch(int startStep) {
 	  vexMotorSet(M_DRIVE_LEFT2, 127);
 	  vexMotorSet(M_DRIVE_RIGHT1, 127);
 	  vexMotorSet(M_DRIVE_RIGHT2, 127);
+    autonStep++;
+    WAIT(3000);
+  }
+  return (startStep + 1);
+}
+
+int backwardsPunch(int startStep) {
+  if(STEP(startStep)) {
+    vex_printf("punch!! punch!!\n");
+    EPidDisable(leftDrive);
+    EPidDisable(rightDrive);
+    vexMotorSet(M_DRIVE_LEFT1,-127);
+    vexMotorSet(M_DRIVE_LEFT2, -127);
+    vexMotorSet(M_DRIVE_RIGHT1, -127);
+    vexMotorSet(M_DRIVE_RIGHT2, -127);
     autonStep++;
     WAIT(3000);
   }
@@ -564,7 +599,7 @@ vexAutonomous( void *arg )
 
   vex_printf("starting autonomous\n");
   tbhEnable(flyWheelCtrl, FLY_MID_SPEED);
-  vex_printf("Starting speed at %d", flyWheelCtrl->targetSpeed);
+  //vex_printf("Starting speed at %d", flyWheelCtrl->targetSpeed);
   //WAIT(2000);
 
   int nextStep;
@@ -576,9 +611,9 @@ vexAutonomous( void *arg )
     autonTime = chTimeNow();
 
     
-  //	if(vexControllerGet(J_STOP_AUTON)) {
-  //		break;
-  //	}
+  if(vexControllerGet(J_STOP_AUTON)) {
+  		break;
+  }
 
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
@@ -611,15 +646,15 @@ vexAutonomous( void *arg )
         RUNSTEP(rotateClockWise, 300*autonTurn, 300);
         RUNSTEP(move, 1200, 400);
         RUNSTEP(rotateClockWise, -395*autonTurn, 395);
-        RUNSTEP(move, 100, 70);
+        RUNSTEP(move, 150, 70);
         RUNSTEP(shootAllBalls, 2750);
         RUNSTEP(setReadyToShootFalse);
-        RUNSTEP(rotateClockWise, 160*autonTurn, 160);
-        RUNSTEP(move, 400, 200);
-        RUNSTEP(move, -180, 180);
-        RUNSTEP(move, 180,180);
+        RUNSTEP(rotateClockWise, 205*autonTurn, 205);
+        RUNSTEP(move, 400, 150);
+        RUNSTEP(move, -180, 100);
+        RUNSTEP(move, 180,100);
         RUNSTEP(move, -200,100);
-        RUNSTEP(rotateClockWise, -160*autonTurn, 160);
+        RUNSTEP(rotateClockWise, -210*autonTurn, 210);
         RUNSTEP(shootAllBalls, 2750);
     }
 
@@ -632,11 +667,11 @@ vexAutonomous( void *arg )
         RUNSTEP(shootAllBalls, 2750);
         RUNSTEP(setFlySpeed, FLY_PB_SPEED, FLY_WHEEL_PB_GAIN);
         RUNSTEP(setReadyToShootFalse);
-        RUNSTEP(rotateClockWise, 100*autonTurn, 100);
-        RUNSTEP(move, 500, 350);
-        RUNSTEP(rotateClockWise, -120*autonTurn, 120);
+        RUNSTEP(rotateClockWise, 90*autonTurn, 90);
+        RUNSTEP(move, 250, 200);
+        RUNSTEP(rotateClockWise, -100*autonTurn, 100);
         RUNSTEP(setReadyToShootFalse);
-        RUNSTEP(move, 1200, 500);
+        RUNSTEP(move, 1350, 550);
         RUNSTEP(shootAllBalls, 2750);
         RUNSTEP(setFlySpeed, FLY_QUARTER_SPEED, FLY_WHEEL_QUARTER_GAIN);
         RUNSTEP(setReadyToShootFalse);
@@ -644,21 +679,37 @@ vexAutonomous( void *arg )
         RUNSTEP(rotateClockWise, 300*autonTurn, 300);
         RUNSTEP(move, 1200, 400);
         RUNSTEP(rotateClockWise, -395*autonTurn, 395);
-        RUNSTEP(move, 100, 70);
+        RUNSTEP(move, 150, 70);
         RUNSTEP(shootAllBalls, 2750);
         RUNSTEP(setReadyToShootFalse);
-        RUNSTEP(rotateClockWise, 160*autonTurn, 160);
-        RUNSTEP(move, 400, 200);
-        RUNSTEP(move, -180, 180);
-        RUNSTEP(move, 180,180);
+        RUNSTEP(rotateClockWise, 205*autonTurn, 205);
+        RUNSTEP(move, 400, 150);
+        RUNSTEP(move, -180, 100);
+        RUNSTEP(move, 180,100);
         RUNSTEP(move, -200,100);
-        RUNSTEP(rotateClockWise, -160*autonTurn, 160);
+        RUNSTEP(rotateClockWise, -210*autonTurn, 210);
         RUNSTEP(shootAllBalls, 2750);
+    }
+    else if(mode == SKILLS){
+        RUNSTEP(setFlySpeed, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN);
+        RUNSTEP(punchContinuously);
+        RUNSTEP(shootAllBalls, 24000);
+        RUNSTEP(shutOffPuncher);
+        RUNSTEP(rotateClockWise, 205, 205);
+        RUNSTEP(move, 4000, 600);
+        RUNSTEP(rotateClockWise, -205, 205);
+        RUNSTEP(punchContinuously);
+        RUNSTEP(shootAllBalls, 14000);
+        RUNSTEP(move, 500, 300);
+        RUNSTEP(fuckAround);
+        RUNSTEP(move, -600, 500);
+        RUNSTEP(restDown);
+        RUNSTEP(backwardsPunch);
     }
 
 
 
-    vex_printf("motorPower at: %d", flyWheelCtrl->motorPower);
+    //vex_printf("motorPower at: %d", flyWheelCtrl->motorPower);
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
       vexMotorSet(M_FEED_FRONT, DEFAULT_FEED_SPEED);
@@ -730,9 +781,9 @@ vexOperator( void *arg )
      bool motorRunning = driveMotors();
 
      //Auton testing
-    // if(vexControllerGet(J_START_AUTON)){
-     // vexAutonomous(NULL); 
-     //}
+     if(vexControllerGet(J_START_AUTON)){
+      vexAutonomous(NULL); 
+     }
 
      if(vexControllerGet(J_SHOOT_SIDE)) { 
        tbhEnableWithGain(flyWheelCtrl, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN); 
