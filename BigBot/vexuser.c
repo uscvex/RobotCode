@@ -7,7 +7,6 @@
 #include "../Common/common.h"
 #include "../Common/takebackhalf.h"
 #include "../Common/easing.h"
-#include "../Common/mousedeadreck.h"
 
 // Motor configs
 #define M_DRIVE_FRONT_RIGHT  kVexMotor_3
@@ -34,11 +33,15 @@
 #define P_ENC_DRIVE_LEFT_A    kVexDigital_5
 #define P_ENC_DRIVE_LEFT_B    kVexDigital_6
 
+#define P_ENC_DRIVE_BACK_A    kVexDigital_9
+#define P_ENC_DRIVE_BACK_B    kVexDigital_10
+
 #define S_COLOR_SELECTOR        2
 
 #define S_ENC_FLY             kVexSensorDigital_1
 #define S_ENC_DRIVE_RIGHT     kVexSensorDigital_8
 #define S_ENC_DRIVE_LEFT      kVexSensorDigital_6
+#define S_ENC_DRIVE_BACK      kVexSensorDigital_10
 
 // Joystick settings
 #define J_TURN       Ch1
@@ -50,6 +53,8 @@
 #define J_SHOOT_BAR_MID   Btn8L
 #define J_SHOOT_BAR_EDGE  Btn8U
 #define J_SHOOT_MID       Btn8R
+#define J_AUTON           Btn7R
+#define J_AUTON_STOP       Btn7L
 
 #define J_RAMP             Btn7D
 #define J_FEED_RELEASE     Btn6U
@@ -70,11 +75,20 @@ typedef struct _FlyWheelCalib {
 } FlyWheelCalib;
 
 #define CALIB_SIZE 4
+#define AUTON_DRIVE_SPEED 275
+#define AUTON_TURN_SPEED 550
+
+#define MAX_FEED_RELEASE_COUNT 10
+
+#define FLY_MAX      0
+#define FLY_BAR_MID  1
+#define FLY_BAR_EDGE 2
+#define FLY_MID      3
 static FlyWheelCalib flyWheelCalibration[] = {
-    {J_SHOOT_MAX       , 12000, 0.05,  true, 0.3},
-    {J_SHOOT_BAR_MID   , 6650,  0.1,   false, 0},
+    {J_SHOOT_MAX       , 12000, 0.05,  true,  0.3},
+    {J_SHOOT_BAR_MID   , 6600,  0.1,   false, 0},
     {J_SHOOT_BAR_EDGE  , 7200,  0.2,   false, 0},
-    {J_SHOOT_MID       , 8400,  0.1,   false, 0}
+    {J_SHOOT_MID       , 8300,  0.1,   false, 0}
 };
 
 // Digi IO configuration
@@ -86,7 +100,10 @@ static  vexDigiCfg  dConfig[] = {
     { P_ENC_DRIVE_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_3 },
 
     { P_ENC_DRIVE_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_4 },
-    { P_ENC_DRIVE_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_4 }
+    { P_ENC_DRIVE_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_4 },
+
+    { P_ENC_DRIVE_BACK_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_5 },
+    { P_ENC_DRIVE_BACK_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_5 }
 };
 
 // Motor Config
@@ -104,8 +121,26 @@ static  vexMotorCfg mConfig[] = {
 // TBH Controllers
 TBHController *flyWheelCtrl;
 
-// Dead Reckoning Controller
-DeadReck *dreck;
+// PID Controllers
+EPidController *forwardPid;
+EPidController *turnPid;
+EPidController *strafePid;
+
+void enableFlyWheel(int calibIndex) {
+    FlyWheelCalib *calib = &(flyWheelCalibration[calibIndex]);
+    if(calib->useTbh) {
+        tbhEnableWithGainTBH(flyWheelCtrl, calib->speed, calib->gain, calib->tbh);
+    }
+    else {
+        tbhEnableWithGain(flyWheelCtrl, calib->speed, calib->gain);
+    }
+}
+
+void clearDriveEncoders(void) {
+    vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
+    vexSensorValueSet(S_ENC_DRIVE_RIGHT, 0);
+    vexSensorValueSet(S_ENC_DRIVE_BACK, 0);
+}
 
 void
 vexUserSetup()
@@ -121,22 +156,229 @@ vexUserInit()
     //Initialize TBHControllers
     flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, true);
     flyWheelCtrl->powerZeroClamp = true;
-    flyWheelCtrl->log = true;
+    flyWheelCtrl->log = false;
 
-    // Initialize Dead Reckoning Controller
-    dreck = deadReckInit(&SD3, 115200);
+    // Initialize PID
+    forwardPid = EPidInit(kFlat, 0.01, 0, 0.001, -1, false);
+    turnPid    = EPidInit(kFlat, 0.01, 0, 0.05, -1, false);
+    strafePid  = EPidInit(kFlat, 0.01, 0, 0, -1, false);
+    turnPid->log = true;
 }
 
 bool isRed(void) {
     return (vexAdcGet(S_COLOR_SELECTOR) > 2000);
 }
 
+int32_t getForwardValue(void) {
+    return -(vexSensorValueGet(S_ENC_DRIVE_LEFT) + vexSensorValueGet(S_ENC_DRIVE_RIGHT))/2;
+}
+
+int32_t getStrafeValue(void) {
+    return vexSensorValueGet(S_ENC_DRIVE_BACK);
+}
+
+int32_t leftDriveLastValue = 0;
+int32_t rightDriveLastValue = 0;
+int32_t getTurnValue(void) {
+    int32_t leftDrive = -vexSensorValueGet(S_ENC_DRIVE_LEFT) - leftDriveLastValue;
+    int32_t rightDrive = -vexSensorValueGet(S_ENC_DRIVE_RIGHT) - rightDriveLastValue;
+    return leftDrive-rightDrive;
+}
+
+void xDrivePidEnable(int forward, int strafe, int turn, int32_t duration, int enableForward, int enableStrafe, int enableTurn) {
+    vex_printf("xdrive pid enable\n");
+    leftDriveLastValue = -vexSensorValueGet(S_ENC_DRIVE_LEFT);
+    rightDriveLastValue = -vexSensorValueGet(S_ENC_DRIVE_RIGHT);
+    if(enableForward) {
+        EPidEnableWithValue(forwardPid, duration, forward, getForwardValue());
+    }
+    else {
+        EPidDisable(forwardPid);
+    }
+
+    if(enableStrafe) {
+        EPidEnableWithValue(strafePid, duration, strafe, getStrafeValue());
+    }
+    else {
+        EPidDisable(strafePid);
+    }
+
+    if(enableTurn) {
+        vex_printf("Enabling turn");
+        EPidEnableWithValue(turnPid, duration, turn, getTurnValue());
+    }
+    else {
+        EPidDisable(turnPid);
+    }
+}
+
+void disableDrivePids(void) {
+    EPidDisable(forwardPid);
+    EPidDisable(strafePid);
+    EPidDisable(turnPid);
+}
+
+void xDrivePidUpdate(void) {
+    EPidUpdateWithValue(forwardPid, getForwardValue());
+    EPidUpdateWithValue(strafePid, getStrafeValue());
+    EPidUpdateWithValue(turnPid, getTurnValue());
+}
+
+int autonStep = 0;
+int autonTurn = 1;
+int feedReleaseCount = 0;
+systime_t autonTime;
+systime_t autonLastTime;
+systime_t autonWaitTime;
+#define STEP(s) (autonStep == (s) && (autonTime-autonLastTime) > autonWaitTime)
+#define WAIT(t) do {autonLastTime = autonTime;autonWaitTime = (t);} while(false);
+#define TIMEELAPSED(t) ((autonTime-autonLastTime) > (t))
+
+int enableFeed(int startStep, int16_t value) {
+    if(STEP(startStep)) {
+        vexMotorSet(M_FEED, value);
+        autonStep++;
+    }
+    return (startStep+1);
+}
+
+int move(int startStep, int target, float speed) {
+    if(STEP(startStep)) {
+        vex_printf("Move\n");
+        int32_t duration = (ABS(target)/speed)*1000;
+        int32_t waitTime = duration * 2;
+        forwardPid->easing->func = kMinJerk;
+        strafePid->easing->func = kFlat;
+        turnPid->easing->func = kMinJerk;
+        xDrivePidEnable(target, 0, 0, duration, true, false, true);
+        autonStep++;
+        WAIT(waitTime);
+    }
+    if(STEP(startStep+1)){
+        disableDrivePids();
+        autonStep++;
+    }
+    return (startStep+2);
+}
+
+int turn(int startStep, int target, float speed) {
+    target *= 2;
+    if(STEP(startStep)) {
+        vex_printf("Turn\n");
+        int32_t duration = (ABS(target)/speed)*1000;
+        int32_t waitTime = duration * 3;
+        forwardPid->easing->func = kFlat;
+        strafePid->easing->func = kFlat;
+        turnPid->easing->func = kMinJerk;
+        xDrivePidEnable(0, 0, target, duration, false, false, true);
+        autonStep++;
+        WAIT(waitTime);
+    }
+    if(STEP(startStep+1)){
+        disableDrivePids();
+        autonStep++;
+    }
+    return (startStep+2);
+}
+
+int shootBalls(int startStep) {
+    if(STEP(startStep)) {
+        vex_printf("Feed release\n");
+        feedReleaseCount++;
+        vexDigitalPinSet(P_FEED_RELEASE, 0);
+        WAIT(250);
+        autonStep++;
+    }
+    if(STEP(startStep+1)) {
+        vex_printf("Feed Out\n");
+        vexMotorSet(M_FEED, FEED_SPEED);
+        WAIT(3500);
+        autonStep++;
+    }
+    if(STEP(startStep+2)) {
+        vex_printf("Feed stop\n");
+        vexMotorSet(M_FEED, 0);
+        WAIT(250);
+        autonStep++;
+    }
+    if(STEP(startStep+3)) {
+        vex_printf("Feed close\n");
+        vexDigitalPinSet(P_FEED_RELEASE, 1);
+        autonStep++;
+    }
+    return (startStep+4);
+}
+
 msg_t
 vexAutonomous( void *arg )
 {
     (void)arg;
-    vexTaskRegister("auton");
-    while(!chThdShouldTerminate());
+    //vexTaskRegister("auton");
+
+    if(!isRed()) {
+        autonTurn *= -1;
+    }
+    clearDriveEncoders();
+    int nextStep;
+    #define RUNSTEP(stepName, ...) nextStep = stepName(nextStep, ##__VA_ARGS__)
+    enableFlyWheel(FLY_MID);
+    WAIT(3000);
+
+    autonStep = 0;
+    vex_printf("starting Autonomous\n");
+    while(!chThdShouldTerminate()) {
+        autonTime = chTimeNow();
+        if(vexControllerGet(J_AUTON_STOP)) {
+            break;
+        }
+
+        nextStep = 0;
+        RUNSTEP(turn, autonTurn * -150,  AUTON_TURN_SPEED);
+        RUNSTEP(move, -1700, 450);
+        RUNSTEP(turn, isRed()?-65:50,  AUTON_TURN_SPEED);
+        RUNSTEP(shootBalls); // preloads
+        RUNSTEP(enableFeed, FEED_SPEED);
+        RUNSTEP(turn, isRed()?150:-190,  AUTON_TURN_SPEED);
+        RUNSTEP(move, 1200,  350);
+        RUNSTEP(enableFeed, 0);
+        RUNSTEP(move, -1200,  350);
+        RUNSTEP(turn, isRed()?-150:190,  AUTON_TURN_SPEED);
+        RUNSTEP(shootBalls); // target B
+        RUNSTEP(turn, isRed()?300:-300, AUTON_TURN_SPEED);
+        RUNSTEP(enableFeed, FEED_SPEED);
+        RUNSTEP(move, 1450,  370);
+        RUNSTEP(enableFeed, 0);
+        RUNSTEP(move, -1450, 370);
+        RUNSTEP(turn, isRed()?-300:300,  AUTON_TURN_SPEED);
+        RUNSTEP(shootBalls); // target C
+        if(STEP(nextStep)) {
+            vex_printf("Exit step %d\n", autonStep);
+            break;
+        }
+
+        xDrivePidUpdate();
+        vex_printf("Forward = %d Strafe = %d Turn = %d\n",
+                    forwardPid->pidc->drive_cmd,
+                    strafePid->pidc->drive_cmd,
+                    turnPid->pidc->drive_cmd);
+        xDriveMotors(
+            forwardPid->pidc->drive_cmd,
+            strafePid->pidc->drive_cmd,
+            turnPid->pidc->drive_cmd,
+            M_DRIVE_FRONT_RIGHT,
+            M_DRIVE_BACK_RIGHT,
+            M_DRIVE_FRONT_LEFT,
+            M_DRIVE_BACK_LEFT,
+            25, 127
+        );
+
+        int16_t flyWheelOut = tbhUpdate(flyWheelCtrl);
+        vexMotorSet(M_FLY_A, flyWheelOut);
+        vexMotorSet(M_FLY_B, flyWheelOut);
+        vexMotorSet(M_FLY_C, flyWheelOut);
+
+        vexSleep(10);
+    }
     return (msg_t)0;
 }
 
@@ -149,7 +391,6 @@ vexOperator( void *arg )
 
     int i;
     systime_t currentTime = 0;
-    systime_t rampReleaseTime = 0;
     bool feedRelease = false;
     bool feedReleaseOff = false;
     systime_t feedReleaseTime = 0;
@@ -158,22 +399,20 @@ vexOperator( void *arg )
     debounceInit(&dbncJFeedReleaseOff, J_FEED_RELEASE_OFF, 50);
 
     //Speedometer *spdm = SpeedometerInit(S_ENC_FLY);
-    deadReckStart(dreck);
 
+    vexDigitalPinSet(P_RAMP, 0);
     //Run until asked to terminate
     while(!chThdShouldTerminate()) {
-        deadReckUpdate(dreck);
-        //vex_printf("botX = %f, botY = %f, botTheta = %f\n", dreck->botX, dreck->botY, dreck->botTheta);
+        if(vexControllerGet(J_AUTON)) {
+            vexAutonomous(NULL);
+        }
 
         currentTime = chTimeNow();
         //Stop timer for piston if the button is pressed
         if(!vexControllerGet(J_RAMP)) {
-            rampReleaseTime = currentTime;
-        }
-        if((currentTime - rampReleaseTime) >= 250) {
-            vexDigitalPinSet(P_RAMP, 1);
-        } else {
             vexDigitalPinSet(P_RAMP, 0);
+        } else {
+            vexDigitalPinSet(P_RAMP, 1);
         }
 
         //Calculate Motor Power
@@ -192,13 +431,7 @@ vexOperator( void *arg )
         for(i = 0;i < CALIB_SIZE;i++) {
             FlyWheelCalib *calib = &(flyWheelCalibration[i]);
             if(vexControllerGet(calib->button)) {
-                if(calib->useTbh) {
-                    tbhEnableWithGainTBH(flyWheelCtrl, calib->speed, calib->gain, calib->tbh);
-                }
-                else {
-                    tbhEnableWithGain(flyWheelCtrl, calib->speed, calib->gain);
-                }
-                break;
+                enableFlyWheel(i);
             }
         }
         //Turn off flywheels
@@ -220,6 +453,7 @@ vexOperator( void *arg )
 
         //if 6U then retract solenoid else deploy
         if(vexControllerGet(J_FEED_RELEASE)) {
+            feedReleaseCount++;
             vexDigitalPinSet(P_FEED_RELEASE, 0);
             if(!feedRelease) {
                 feedReleaseTime = currentTime;
@@ -231,10 +465,15 @@ vexOperator( void *arg )
                 feedRelease = false;
                 feedReleaseTime = currentTime;
             }
-            else if((currentTime - feedReleaseTime) > 250) {
+            else if((currentTime - feedReleaseTime) > 100) {
                 vexDigitalPinSet(P_FEED_RELEASE, 1);
             }
         }
+
+        // feed release override
+        /* if(feedReleaseCount >= MAX_FEED_RELEASE_COUNT) { */
+        /*     vexDigitalPinSet(P_FEED_RELEASE, 0); */
+        /* } */
 
         if(debounceKeyDown(&dbncJFeedReleaseOff)) {
             feedReleaseOff = !feedReleaseOff;

@@ -44,8 +44,9 @@ int32_t EasingUpdate(EasingConfig *conf);
 //Constructor for EPidController
 EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSensors port, int16_t sensor_reverse);
 void EPidEnable(EPidController *epid, int32_t duration, int32_t target);
+void EPidEnableWithValue(EPidController *epid, int32_t duration, int32_t target, int32_t sensorValue);
 void EPidDisable(EPidController *epid);
+int16_t EPidUpdateWithValue(EPidController *epid, int32_t value);
 int16_t EPidUpdate(EPidController *epid);
-
 
 #endif

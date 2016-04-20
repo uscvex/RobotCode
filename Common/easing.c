@@ -70,13 +70,11 @@ EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSen
 	return epidc;
 }
 
-void EPidEnable(EPidController *epid, int32_t duration, int32_t target) {
-	int32_t sensorValue = vexSensorValueGet(epid->pidc->sensor_port);
-	if(epid->pidc->sensor_reverse) {
-		sensorValue = -sensorValue;
-	}
+void EPidEnableWithValue(EPidController *epid, int32_t duration, int32_t target, int32_t sensorValue) {
+    vex_printf("Enabling %d, %d, %d\n", duration, target, sensorValue);
 	epid->pidc->enabled = 1;
 	EasingEnable(epid->easing, duration, sensorValue, sensorValue+target);
+    vex_printf("Easing start=%d, target=%d\n", epid->easing->start, epid->easing->target);
 }
 
 void EPidDisable(EPidController *epid) {
@@ -84,15 +82,21 @@ void EPidDisable(EPidController *epid) {
 	epid->pidc->enabled = 0;
 }
 
-int16_t EPidUpdate(EPidController *epid) {
+int16_t EPidUpdateWithValue(EPidController *epid, int32_t value) {
 	SpeedometerUpdate(epid->spdmtr);
 	epid->pidc->target_value = EasingUpdate(epid->easing);
+    epid->pidc->error = (epid->pidc->target_value) - value;
 	int16_t motorPower = PidControllerUpdate(epid->pidc);
 	if(epid->log) {
-		float distance = epid->easing->target - epid->easing->start;
-		float normTarget = (epid->easing->value - epid->easing->start)/distance;
-		float normError = epid->pidc->error/distance;
-		vex_printf("%f,%f,%f,%f\n", normTarget, normError, epid->pidc->drive, epid->spdmtr->speed);
+        vex_printf("v = %d t = %d e = %f cmd=%d\n", value, epid->pidc->target_value, epid->pidc->error, epid->pidc->drive_cmd);
+		/* float distance = epid->easing->target - epid->easing->start; */
+		/* float normTarget = (epid->easing->value - epid->easing->start)/distance; */
+		/* float normError = epid->pidc->error/distance; */
+		/* vex_printf("%f,%f,%f,%f\n", normTarget, normError, epid->pidc->drive, epid->spdmtr->speed); */
 	}
 	return motorPower;
+}
+
+int16_t EPidUpdate(EPidController *epid) {
+    return EPidUpdateWithValue(epid, 0);
 }
