@@ -86,7 +86,7 @@
 #define FLY_WHEEL_QUARTER_GAIN  0.05
 #define FLY_WHEEL_PB_GAIN       0.005
 
-#define FLY_SIDE_SPEED 	   9900
+#define FLY_SIDE_SPEED 	   9800
 #define FLY_PB_SPEED   	   7400
 #define FLY_QUARTER_SPEED  8550
 #define FLY_MID_SPEED  	   9500
@@ -649,7 +649,7 @@ vexAutonomous( void *arg )
         RUNSTEP(move, 150, 70);
         RUNSTEP(shootAllBalls, 2750);
         RUNSTEP(setReadyToShootFalse);
-        RUNSTEP(rotateClockWise, 205*autonTurn, 205);
+        RUNSTEP(rotateClockWise, 230*autonTurn, 230);
         RUNSTEP(move, 400, 150);
         RUNSTEP(move, -180, 100);
         RUNSTEP(move, 180,100);
@@ -692,14 +692,15 @@ vexAutonomous( void *arg )
     }
     else if(mode == SKILLS){
         RUNSTEP(setFlySpeed, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN);
-        RUNSTEP(punchContinuously);
-        RUNSTEP(shootAllBalls, 24000);
-        RUNSTEP(shutOffPuncher);
-        RUNSTEP(rotateClockWise, 205, 205);
-        RUNSTEP(move, 4000, 600);
-        RUNSTEP(rotateClockWise, -205, 205);
+        //RUNSTEP(punchContinuously);
+        //RUNSTEP(shootAllBalls, 24000);
+        //RUNSTEP(shutOffPuncher);
+        RUNSTEP(rotateClockWise, 265, 265);
+        RUNSTEP(move, 3200, 600);
+        RUNSTEP(rotateClockWise, -250, 250);
         RUNSTEP(punchContinuously);
         RUNSTEP(shootAllBalls, 14000);
+        RUNSTEP(shutOffPuncher);
         RUNSTEP(move, 500, 300);
         RUNSTEP(fuckAround);
         RUNSTEP(move, -600, 500);
