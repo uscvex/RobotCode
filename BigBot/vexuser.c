@@ -36,7 +36,7 @@
 #define P_ENC_DRIVE_BACK_A    kVexDigital_9
 #define P_ENC_DRIVE_BACK_B    kVexDigital_10
 
-#define S_COLOR_SELECTOR        2
+#define S_COLOR_SELECTOR        6
 
 #define S_ENC_FLY             kVexSensorDigital_1
 #define S_ENC_DRIVE_RIGHT     kVexSensorDigital_8
@@ -167,7 +167,7 @@ vexUserInit()
 }
 
 bool isRed(void) {
-    return (vexAdcGet(S_COLOR_SELECTOR) > 2000);
+    return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
 }
 
 int32_t getForwardValue(void) {
@@ -370,14 +370,14 @@ vexAutonomous( void *arg )
         nextStep = 0;
         if(compAuton) {
             // Preloads
-            RUNSTEP(turn, (redSide ? -150 : 150),  AUTON_TURN_SPEED);
-            RUNSTEP(move, -1700, 450);
+            RUNSTEP(turn, (redSide ? -149 : 150),  AUTON_TURN_SPEED);
+            RUNSTEP(move, (redSide ? -1700: -1705), 450);
             RUNSTEP(turn, (redSide ? -65 : 45),  AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500); 
 
             // target B
             RUNSTEP(enableFeed, FEED_SPEED);
-            RUNSTEP(turn, (redSide ? 150 : -180),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? 155 : -180),  AUTON_TURN_SPEED);
             RUNSTEP(move, 1200,  350);
             RUNSTEP(enableFeed, 0);
             RUNSTEP(move, -1200,  350);
@@ -385,12 +385,12 @@ vexAutonomous( void *arg )
             RUNSTEP(shootBalls, 3500);
 
             // target C
-            RUNSTEP(turn, (redSide ? 300 : -300), AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? 250 : -300), AUTON_TURN_SPEED);
             RUNSTEP(enableFeed, FEED_SPEED);
             RUNSTEP(move, 1450,  370);
             RUNSTEP(enableFeed, 0);
             RUNSTEP(move, -1450, 370);
-            RUNSTEP(turn, (redSide ? -300 : 310),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? -250 : 310),  AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500);
         }
         else {
@@ -453,6 +453,7 @@ vexOperator( void *arg )
     vexDigitalPinSet(P_RAMP, 0);
     //Run until asked to terminate
     while(!chThdShouldTerminate()) {
+        vex_printf("mode=%s\n", (isRed()?"red":"blue"));
         if(vexControllerGet(J_AUTON)) {
             vexAutonomous(NULL);
         }
