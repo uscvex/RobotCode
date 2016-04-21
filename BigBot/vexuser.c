@@ -89,7 +89,7 @@ static FlyWheelCalib flyWheelCalibration[] = {
     {J_SHOOT_MAX       , 12000, 0.05,  true,  0.3},
     {J_SHOOT_BAR_MID   , 6600,  0.1,   false, 0},
     {J_SHOOT_BAR_EDGE  , 7200,  0.2,   false, 0},
-    {J_SHOOT_MID       , 8300,  0.1,   false, 0}
+    {J_SHOOT_MID       , 8700,  0.1,   false, 0}
 };
 
 // Digi IO configuration
@@ -363,25 +363,25 @@ vexAutonomous( void *arg )
     vex_printf("starting Autonomous %s\n", (redSide?"red":"blue"));
     while(!chThdShouldTerminate()) {
         autonTime = chTimeNow();
-        /* if(vexControllerGet(J_AUTON_STOP)) { */
-        /*     break; */
-        /* } */
+        if(vexControllerGet(J_AUTON_STOP)) {
+            break;
+        }
 
         nextStep = 0;
         if(compAuton) {
             // Preloads
             RUNSTEP(turn, (redSide ? -150 : 150),  AUTON_TURN_SPEED);
             RUNSTEP(move, -1700, 450);
-            RUNSTEP(turn, (redSide ? -65 : 50),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? -65 : 45),  AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500); 
 
             // target B
             RUNSTEP(enableFeed, FEED_SPEED);
-            RUNSTEP(turn, (redSide ? 150 : -190),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? 150 : -180),  AUTON_TURN_SPEED);
             RUNSTEP(move, 1200,  350);
             RUNSTEP(enableFeed, 0);
             RUNSTEP(move, -1200,  350);
-            RUNSTEP(turn, (redSide ? -150 : 190),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? -150 : 100),  AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500);
 
             // target C
@@ -390,7 +390,7 @@ vexAutonomous( void *arg )
             RUNSTEP(move, 1450,  370);
             RUNSTEP(enableFeed, 0);
             RUNSTEP(move, -1450, 370);
-            RUNSTEP(turn, (redSide ? -300 : 300),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, (redSide ? -300 : 310),  AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500);
         }
         else {
@@ -453,9 +453,9 @@ vexOperator( void *arg )
     vexDigitalPinSet(P_RAMP, 0);
     //Run until asked to terminate
     while(!chThdShouldTerminate()) {
-        /* if(vexControllerGet(J_AUTON)) { */
-        /*     vexAutonomous(NULL); */
-        /* } */
+        if(vexControllerGet(J_AUTON)) {
+            vexAutonomous(NULL);
+        }
 
         currentTime = chTimeNow();
         //Stop timer for piston if the button is pressed
