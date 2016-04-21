@@ -64,6 +64,7 @@
 
 // Constants
 #define FEED_SPEED 63
+#define FEED_MAX_SPEED 127
 
 // fly wheel speeds
 typedef struct _FlyWheelCalib {
@@ -281,7 +282,39 @@ int turn(int startStep, int target, float speed) {
     return (startStep+2);
 }
 
-int shootBalls(int startStep) {
+int strafe(int startStep, int target, float speed) {
+    if(STEP(startStep)) {
+        vex_printf("strafe\n");
+        int32_t duration = (ABS(target)/speed)*1000;
+        int32_t waitTime = duration * 2;
+        forwardPid->easing->func = kFlat;
+        strafePid->easing->func = kMinJerk;
+        turnPid->easing->func = kFlat;
+        xDrivePidEnable(0, target, 0, duration, false, true, false);
+        autonStep++;
+        WAIT(waitTime);
+    }
+    if(STEP(startStep+1)){
+        disableDrivePids();
+        autonStep++;
+    }
+    return (startStep+2);
+}
+
+int rampDeploy(int startStep) {
+    if(STEP(startStep)) {
+        vexDigitalPinSet(P_RAMP, 1);
+        WAIT(1000);
+        autonStep++;
+    }
+    if(STEP(startStep + 1)) {
+        vexDigitalPinSet(P_RAMP, 0);
+        autonStep++;
+    }
+    return (startStep+1);
+}
+
+int shootBalls(int startStep, int duration) {
     if(STEP(startStep)) {
         vex_printf("Feed release\n");
         feedReleaseCount++;
@@ -292,7 +325,7 @@ int shootBalls(int startStep) {
     if(STEP(startStep+1)) {
         vex_printf("Feed Out\n");
         vexMotorSet(M_FEED, FEED_SPEED);
-        WAIT(3500);
+        WAIT(duration);
         autonStep++;
     }
     if(STEP(startStep+2)) {
@@ -313,11 +346,13 @@ msg_t
 vexAutonomous( void *arg )
 {
     (void)arg;
-    //vexTaskRegister("auton");
+    vexTaskRegister("auton");
 
     if(!isRed()) {
         autonTurn *= -1;
     }
+    bool compAuton = true;
+    bool redSide = isRed();
     clearDriveEncoders();
     int nextStep;
     #define RUNSTEP(stepName, ...) nextStep = stepName(nextStep, ##__VA_ARGS__)
@@ -325,42 +360,57 @@ vexAutonomous( void *arg )
     WAIT(3000);
 
     autonStep = 0;
-    vex_printf("starting Autonomous\n");
+    vex_printf("starting Autonomous %s\n", (redSide?"red":"blue"));
     while(!chThdShouldTerminate()) {
         autonTime = chTimeNow();
-        if(vexControllerGet(J_AUTON_STOP)) {
-            break;
-        }
+        /* if(vexControllerGet(J_AUTON_STOP)) { */
+        /*     break; */
+        /* } */
 
         nextStep = 0;
-        RUNSTEP(turn, autonTurn * -150,  AUTON_TURN_SPEED);
-        RUNSTEP(move, -1700, 450);
-        RUNSTEP(turn, isRed()?-65:50,  AUTON_TURN_SPEED);
-        RUNSTEP(shootBalls); // preloads
-        RUNSTEP(enableFeed, FEED_SPEED);
-        RUNSTEP(turn, isRed()?150:-190,  AUTON_TURN_SPEED);
-        RUNSTEP(move, 1200,  350);
-        RUNSTEP(enableFeed, 0);
-        RUNSTEP(move, -1200,  350);
-        RUNSTEP(turn, isRed()?-150:190,  AUTON_TURN_SPEED);
-        RUNSTEP(shootBalls); // target B
-        RUNSTEP(turn, isRed()?300:-300, AUTON_TURN_SPEED);
-        RUNSTEP(enableFeed, FEED_SPEED);
-        RUNSTEP(move, 1450,  370);
-        RUNSTEP(enableFeed, 0);
-        RUNSTEP(move, -1450, 370);
-        RUNSTEP(turn, isRed()?-300:300,  AUTON_TURN_SPEED);
-        RUNSTEP(shootBalls); // target C
+        if(compAuton) {
+            // Preloads
+            RUNSTEP(turn, (redSide ? -150 : 150),  AUTON_TURN_SPEED);
+            RUNSTEP(move, -1700, 450);
+            RUNSTEP(turn, (redSide ? -65 : 50),  AUTON_TURN_SPEED);
+            RUNSTEP(shootBalls, 3500); 
+
+            // target B
+            RUNSTEP(enableFeed, FEED_SPEED);
+            RUNSTEP(turn, (redSide ? 150 : -190),  AUTON_TURN_SPEED);
+            RUNSTEP(move, 1200,  350);
+            RUNSTEP(enableFeed, 0);
+            RUNSTEP(move, -1200,  350);
+            RUNSTEP(turn, (redSide ? -150 : 190),  AUTON_TURN_SPEED);
+            RUNSTEP(shootBalls, 3500);
+
+            // target C
+            RUNSTEP(turn, (redSide ? 300 : -300), AUTON_TURN_SPEED);
+            RUNSTEP(enableFeed, FEED_SPEED);
+            RUNSTEP(move, 1450,  370);
+            RUNSTEP(enableFeed, 0);
+            RUNSTEP(move, -1450, 370);
+            RUNSTEP(turn, (redSide ? -300 : 300),  AUTON_TURN_SPEED);
+            RUNSTEP(shootBalls, 3500);
+        }
+        else {
+            RUNSTEP(shootBalls, 1500);
+            RUNSTEP(strafe, (redSide ? 1500 : -1500), 350);
+            RUNSTEP(shootBalls, 1500);
+            RUNSTEP(move, 500, 350);
+            RUNSTEP(rampDeploy);
+        }
+
         if(STEP(nextStep)) {
             vex_printf("Exit step %d\n", autonStep);
             break;
         }
 
         xDrivePidUpdate();
-        vex_printf("Forward = %d Strafe = %d Turn = %d\n",
-                    forwardPid->pidc->drive_cmd,
-                    strafePid->pidc->drive_cmd,
-                    turnPid->pidc->drive_cmd);
+        /* vex_printf("Forward = %d Strafe = %d Turn = %d\n", */
+        /*             forwardPid->pidc->drive_cmd, */
+        /*             strafePid->pidc->drive_cmd, */
+        /*             turnPid->pidc->drive_cmd); */
         xDriveMotors(
             forwardPid->pidc->drive_cmd,
             strafePid->pidc->drive_cmd,
@@ -403,9 +453,9 @@ vexOperator( void *arg )
     vexDigitalPinSet(P_RAMP, 0);
     //Run until asked to terminate
     while(!chThdShouldTerminate()) {
-        if(vexControllerGet(J_AUTON)) {
-            vexAutonomous(NULL);
-        }
+        /* if(vexControllerGet(J_AUTON)) { */
+        /*     vexAutonomous(NULL); */
+        /* } */
 
         currentTime = chTimeNow();
         //Stop timer for piston if the button is pressed
@@ -479,7 +529,7 @@ vexOperator( void *arg )
             feedReleaseOff = !feedReleaseOff;
         }
         if(feedReleaseOff) {
-            vexDigitalPinSet(P_FEED_RELEASE, 1);
+            vexDigitalPinSet(P_FEED_RELEASE, 0);
         }
 
         //5U Feed In, 5D Feed Out
@@ -487,7 +537,7 @@ vexOperator( void *arg )
             vexMotorSet(M_FEED, -FEED_SPEED);
         }
         else if (vexControllerGet(J_FEED_U) || (feedRelease && (currentTime - feedReleaseTime) > 500)){
-            vexMotorSet(M_FEED, FEED_SPEED);
+            vexMotorSet(M_FEED, feedRelease?FEED_MAX_SPEED:FEED_SPEED);
         } else {
             vexMotorSet(M_FEED, 0);
         }
