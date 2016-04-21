@@ -611,9 +611,9 @@ vexAutonomous( void *arg )
     autonTime = chTimeNow();
 
     
-  if(vexControllerGet(J_STOP_AUTON)) {
-  		break;
-  }
+  /* if(vexControllerGet(J_STOP_AUTON)) { */
+  /* 		break; */
+  /* } */
 
     if(!isBallTop() || readyToShoot == true){
       //Run feeds
@@ -782,9 +782,9 @@ vexOperator( void *arg )
      bool motorRunning = driveMotors();
 
      //Auton testing
-     if(vexControllerGet(J_START_AUTON)){
-      vexAutonomous(NULL); 
-     }
+     /* if(vexControllerGet(J_START_AUTON)){ */
+     /*  vexAutonomous(NULL);  */
+     /* } */
 
      if(vexControllerGet(J_SHOOT_SIDE)) { 
        tbhEnableWithGain(flyWheelCtrl, FLY_SIDE_SPEED, FLY_WHEEL_SIDE_GAIN); 

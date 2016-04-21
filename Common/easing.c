@@ -70,6 +70,14 @@ EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSen
 	return epidc;
 }
 
+void EPidEnable(EPidController *epid, int32_t duration, int32_t target) {
+	int32_t sensorValue = vexSensorValueGet(epid->pidc->sensor_port);
+	if(epid->pidc->sensor_reverse) {
+		sensorValue = -sensorValue;
+	}
+    EPidEnableWithValue(epid, duration, target, sensorValue);
+}
+
 void EPidEnableWithValue(EPidController *epid, int32_t duration, int32_t target, int32_t sensorValue) {
     vex_printf("Enabling %d, %d, %d\n", duration, target, sensorValue);
 	epid->pidc->enabled = 1;
