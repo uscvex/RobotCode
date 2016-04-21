@@ -9,10 +9,10 @@
 #include "../Common/easing.h"
 
 // Motor configs
-#define M_DRIVE_FRONT_RIGHT  kVexMotor_3
-#define M_DRIVE_FRONT_LEFT   kVexMotor_4
-#define M_DRIVE_BACK_LEFT    kVexMotor_7
-#define M_DRIVE_BACK_RIGHT   kVexMotor_8
+#define M_DRIVE_LEFT_A    kVexMotor_3
+#define M_DRIVE_LEFT_B    kVexMotor_4
+#define M_DRIVE_RIGHT_A   kVexMotor_7
+#define M_DRIVE_RIGHT_B   kVexMotor_8
 
 #define M_FLY_A              kVexMotor_2
 #define M_FLY_B              kVexMotor_5
@@ -33,20 +33,15 @@
 #define P_ENC_DRIVE_LEFT_A    kVexDigital_5
 #define P_ENC_DRIVE_LEFT_B    kVexDigital_6
 
-#define P_ENC_DRIVE_BACK_A    kVexDigital_9
-#define P_ENC_DRIVE_BACK_B    kVexDigital_10
-
 #define S_COLOR_SELECTOR        6
 
 #define S_ENC_FLY             kVexSensorDigital_1
 #define S_ENC_DRIVE_RIGHT     kVexSensorDigital_8
 #define S_ENC_DRIVE_LEFT      kVexSensorDigital_6
-#define S_ENC_DRIVE_BACK      kVexSensorDigital_10
 
 // Joystick settings
 #define J_TURN       Ch1
 #define J_DRIVE      Ch3
-#define J_STRAFE     Ch4
 
 #define J_SHOOT_MAX       Btn7L
 #define J_SHOOT_OFF       Btn8D
@@ -76,7 +71,7 @@ typedef struct _FlyWheelCalib {
 } FlyWheelCalib;
 
 #define CALIB_SIZE 4
-#define AUTON_DRIVE_SPEED 275
+#define AUTON_DRIVE_SPEED 450
 #define AUTON_TURN_SPEED 550
 
 #define MAX_FEED_RELEASE_COUNT 10
@@ -101,19 +96,18 @@ static  vexDigiCfg  dConfig[] = {
     { P_ENC_DRIVE_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_3 },
 
     { P_ENC_DRIVE_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_4 },
-    { P_ENC_DRIVE_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_4 },
-
-    { P_ENC_DRIVE_BACK_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_5 },
-    { P_ENC_DRIVE_BACK_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_5 }
+    { P_ENC_DRIVE_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_4 }
 };
 
 // Motor Config
 static  vexMotorCfg mConfig[] = {
-    { M_DRIVE_FRONT_RIGHT, kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
-    { M_DRIVE_BACK_LEFT,   kVexMotor393S, kVexMotorReversed, kVexSensorNone, 0 },
-    { M_DRIVE_BACK_RIGHT,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
-    { M_DRIVE_FRONT_LEFT,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone, 0 },
+    { M_DRIVE_LEFT_A,   kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
+    { M_DRIVE_LEFT_B,   kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
+    { M_DRIVE_RIGHT_A,  kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
+    { M_DRIVE_RIGHT_B,  kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
+
     { M_FEED,              kVexMotor393S, kVexMotorReversed, kVexSensorNone, 0 },
+
     { M_FLY_A,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 },
     { M_FLY_B,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 },
     { M_FLY_C,             kVexMotor393T, kVexMotorReversed, kVexSensorNone, 0 }
@@ -123,9 +117,8 @@ static  vexMotorCfg mConfig[] = {
 TBHController *flyWheelCtrl;
 
 // PID Controllers
-EPidController *forwardPid;
-EPidController *turnPid;
-EPidController *strafePid;
+EPidController *leftDrivePid;
+EPidController *rightDrivePid;
 
 void enableFlyWheel(int calibIndex) {
     FlyWheelCalib *calib = &(flyWheelCalibration[calibIndex]);
@@ -140,7 +133,6 @@ void enableFlyWheel(int calibIndex) {
 void clearDriveEncoders(void) {
     vexSensorValueSet(S_ENC_DRIVE_LEFT, 0);
     vexSensorValueSet(S_ENC_DRIVE_RIGHT, 0);
-    vexSensorValueSet(S_ENC_DRIVE_BACK, 0);
 }
 
 void
@@ -160,73 +152,39 @@ vexUserInit()
     flyWheelCtrl->log = false;
 
     // Initialize PID
-    forwardPid = EPidInit(kFlat, 0.01, 0, 0.001, -1, false);
-    turnPid    = EPidInit(kFlat, 0.01, 0, 0.05, -1, false);
-    strafePid  = EPidInit(kFlat, 0.01, 0, 0, -1, false);
-    turnPid->log = true;
+    leftDrivePid = EPidInit(kFlat, 0.01, 0, 0.01, S_ENC_DRIVE_LEFT, false);
+    rightDrivePid = EPidInit(kFlat, 0.01, 0, 0.01, S_ENC_DRIVE_RIGHT, false);
+}
+
+bool driveMotors(void) {
+  short ld, rd ;
+  //Calculate Motor Power
+  int forward = VALLEY(vexControllerGet(J_DRIVE), 25, 127);
+  int turn;
+
+  turn = VALLEY(vexControllerGet(J_TURN), 25, 127);
+  ld = VALLEY(forward + turn, 25, 127);
+  rd = VALLEY(forward - turn, 25, 127);
+
+  vexMotorSet(M_DRIVE_LEFT_A,  ld);
+  vexMotorSet(M_DRIVE_LEFT_B,  ld);
+  vexMotorSet(M_DRIVE_RIGHT_A, rd);
+  vexMotorSet(M_DRIVE_RIGHT_B, rd);
+
+  return (ld != 0 || rd != 0);
 }
 
 bool isRed(void) {
     return (vexAdcGet(S_COLOR_SELECTOR) < 2000);
 }
 
-int32_t getForwardValue(void) {
-    return -(vexSensorValueGet(S_ENC_DRIVE_LEFT) + vexSensorValueGet(S_ENC_DRIVE_RIGHT))/2;
-}
-
-int32_t getStrafeValue(void) {
-    return vexSensorValueGet(S_ENC_DRIVE_BACK);
-}
-
-int32_t leftDriveLastValue = 0;
-int32_t rightDriveLastValue = 0;
-int32_t getTurnValue(void) {
-    int32_t leftDrive = -vexSensorValueGet(S_ENC_DRIVE_LEFT) - leftDriveLastValue;
-    int32_t rightDrive = -vexSensorValueGet(S_ENC_DRIVE_RIGHT) - rightDriveLastValue;
-    return leftDrive-rightDrive;
-}
-
-void xDrivePidEnable(int forward, int strafe, int turn, int32_t duration, int enableForward, int enableStrafe, int enableTurn) {
-    vex_printf("xdrive pid enable\n");
-    leftDriveLastValue = -vexSensorValueGet(S_ENC_DRIVE_LEFT);
-    rightDriveLastValue = -vexSensorValueGet(S_ENC_DRIVE_RIGHT);
-    if(enableForward) {
-        EPidEnableWithValue(forwardPid, duration, forward, getForwardValue());
-    }
-    else {
-        EPidDisable(forwardPid);
-    }
-
-    if(enableStrafe) {
-        EPidEnableWithValue(strafePid, duration, strafe, getStrafeValue());
-    }
-    else {
-        EPidDisable(strafePid);
-    }
-
-    if(enableTurn) {
-        vex_printf("Enabling turn");
-        EPidEnableWithValue(turnPid, duration, turn, getTurnValue());
-    }
-    else {
-        EPidDisable(turnPid);
-    }
-}
-
 void disableDrivePids(void) {
-    EPidDisable(forwardPid);
-    EPidDisable(strafePid);
-    EPidDisable(turnPid);
-}
-
-void xDrivePidUpdate(void) {
-    EPidUpdateWithValue(forwardPid, getForwardValue());
-    EPidUpdateWithValue(strafePid, getStrafeValue());
-    EPidUpdateWithValue(turnPid, getTurnValue());
+    EPidDisable(leftDrivePid);
+    EPidDisable(rightDrivePid);
 }
 
 int autonStep = 0;
-int autonTurn = 1;
+int autonTurnDir = 1;
 int feedReleaseCount = 0;
 systime_t autonTime;
 systime_t autonLastTime;
@@ -243,15 +201,13 @@ int enableFeed(int startStep, int16_t value) {
     return (startStep+1);
 }
 
-int move(int startStep, int target, float speed) {
+int moveForward(int startStep, int target, float speed) {
     if(STEP(startStep)) {
         vex_printf("Move\n");
         int32_t duration = (ABS(target)/speed)*1000;
         int32_t waitTime = duration * 2;
-        forwardPid->easing->func = kMinJerk;
-        strafePid->easing->func = kFlat;
-        turnPid->easing->func = kMinJerk;
-        xDrivePidEnable(target, 0, 0, duration, true, false, true);
+        EPidEnable(rightDrivePid, duration, target);
+        EPidEnable(leftDrivePid, duration, target);
         autonStep++;
         WAIT(waitTime);
     }
@@ -262,35 +218,13 @@ int move(int startStep, int target, float speed) {
     return (startStep+2);
 }
 
-int turn(int startStep, int target, float speed) {
-    target *= 2;
+int turn(int startStep, int target, int dir, float speed) {
     if(STEP(startStep)) {
         vex_printf("Turn\n");
         int32_t duration = (ABS(target)/speed)*1000;
         int32_t waitTime = duration * 3;
-        forwardPid->easing->func = kFlat;
-        strafePid->easing->func = kFlat;
-        turnPid->easing->func = kMinJerk;
-        xDrivePidEnable(0, 0, target, duration, false, false, true);
-        autonStep++;
-        WAIT(waitTime);
-    }
-    if(STEP(startStep+1)){
-        disableDrivePids();
-        autonStep++;
-    }
-    return (startStep+2);
-}
-
-int strafe(int startStep, int target, float speed) {
-    if(STEP(startStep)) {
-        vex_printf("strafe\n");
-        int32_t duration = (ABS(target)/speed)*1000;
-        int32_t waitTime = duration * 2;
-        forwardPid->easing->func = kFlat;
-        strafePid->easing->func = kMinJerk;
-        turnPid->easing->func = kFlat;
-        xDrivePidEnable(0, target, 0, duration, false, true, false);
+        EPidEnable(rightDrivePid, duration, dir * target);
+        EPidEnable(rightDrivePid, duration, -dir * target);
         autonStep++;
         WAIT(waitTime);
     }
@@ -349,7 +283,7 @@ vexAutonomous( void *arg )
     vexTaskRegister("auton");
 
     if(!isRed()) {
-        autonTurn *= -1;
+        autonTurnDir *= -1;
     }
     bool compAuton = true;
     bool redSide = isRed();
@@ -370,35 +304,46 @@ vexAutonomous( void *arg )
         nextStep = 0;
         if(compAuton) {
             // Preloads
-            RUNSTEP(turn, (redSide ? -149 : 150),  AUTON_TURN_SPEED);
-            RUNSTEP(move, (redSide ? -1700: -1705), 450);
-            RUNSTEP(turn, (redSide ? -65 : 45),  AUTON_TURN_SPEED);
-            RUNSTEP(shootBalls, 3500); 
-
-            // target B
-            RUNSTEP(enableFeed, FEED_SPEED);
-            RUNSTEP(turn, (redSide ? 155 : -180),  AUTON_TURN_SPEED);
-            RUNSTEP(move, 1200,  350);
-            RUNSTEP(enableFeed, 0);
-            RUNSTEP(move, -1200,  350);
-            RUNSTEP(turn, (redSide ? -150 : 100),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, 150, autonTurnDir, AUTON_TURN_SPEED);
+            RUNSTEP(moveForward, -1700, AUTON_DRIVE_SPEED);
+            RUNSTEP(turn, 65, autonTurnDir, AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500);
 
-            // target C
-            RUNSTEP(turn, (redSide ? 250 : -300), AUTON_TURN_SPEED);
-            RUNSTEP(enableFeed, FEED_SPEED);
-            RUNSTEP(move, 1450,  370);
+            // Target E
+            RUNSTEP(moveForward, 400, AUTON_DRIVE_SPEED); // move back
+            RUNSTEP(turn, 235, autonTurnDir, AUTON_TURN_SPEED); // line up for E
+            RUNSTEP(enableFeed, FEED_SPEED); // Run feeds and intake balls
+            RUNSTEP(moveForward, 200, AUTON_DRIVE_SPEED);
+            RUNSTEP(moveForward, -200, AUTON_DRIVE_SPEED);
+            RUNSTEP(moveForward, 200, AUTON_DRIVE_SPEED);
+            RUNSTEP(moveForward, -1200, AUTON_DRIVE_SPEED); // go to center of field
             RUNSTEP(enableFeed, 0);
-            RUNSTEP(move, -1450, 370);
-            RUNSTEP(turn, (redSide ? -250 : 310),  AUTON_TURN_SPEED);
+            RUNSTEP(turn, -235, autonTurnDir, AUTON_TURN_SPEED); // line up for shot
+            RUNSTEP(shootBalls, 3500);
+
+            // Target G
+            RUNSTEP(enableFeed, FEED_SPEED);
+            RUNSTEP(moveForward, 500, AUTON_DRIVE_SPEED);
+            RUNSTEP(moveForward, -500, AUTON_DRIVE_SPEED);
+            RUNSTEP(enableFeed, 0);
+            RUNSTEP(shootBalls, 3500);
+
+            // Target I/J
+            RUNSTEP(turn, -255, autonTurnDir, AUTON_TURN_SPEED); // turn 45
+            RUNSTEP(enableFeed, FEED_SPEED);
+            RUNSTEP(moveForward, 1200, AUTON_DRIVE_SPEED);
+            RUNSTEP(moveForward, -1200, AUTON_DRIVE_SPEED);
+            RUNSTEP(enableFeed, 0);
+            RUNSTEP(turn, 255, autonTurnDir, AUTON_TURN_SPEED);
             RUNSTEP(shootBalls, 3500);
         }
         else {
             RUNSTEP(shootBalls, 1500);
-            RUNSTEP(strafe, (redSide ? 1500 : -1500), 350);
+            RUNSTEP(turn, 510, autonTurnDir, AUTON_TURN_SPEED); // turn 90
+            RUNSTEP(moveForward, -2000, AUTON_DRIVE_SPEED);
+            RUNSTEP(turn, -510, autonTurnDir, AUTON_TURN_SPEED); // turn -90
             RUNSTEP(shootBalls, 1500);
-            RUNSTEP(move, 500, 350);
-            RUNSTEP(rampDeploy);
+            RUNSTEP(moveForward, 150, AUTON_DRIVE_SPEED);//slam against corner
         }
 
         if(STEP(nextStep)) {
@@ -406,21 +351,12 @@ vexAutonomous( void *arg )
             break;
         }
 
-        xDrivePidUpdate();
-        /* vex_printf("Forward = %d Strafe = %d Turn = %d\n", */
-        /*             forwardPid->pidc->drive_cmd, */
-        /*             strafePid->pidc->drive_cmd, */
-        /*             turnPid->pidc->drive_cmd); */
-        xDriveMotors(
-            forwardPid->pidc->drive_cmd,
-            strafePid->pidc->drive_cmd,
-            turnPid->pidc->drive_cmd,
-            M_DRIVE_FRONT_RIGHT,
-            M_DRIVE_BACK_RIGHT,
-            M_DRIVE_FRONT_LEFT,
-            M_DRIVE_BACK_LEFT,
-            25, 127
-        );
+        int16_t rightDriveVal = EPidUpdate(rightDrivePid);
+        int16_t leftDriveVal = EPidUpdate(leftDrivePid);
+        vexMotorSet(M_DRIVE_RIGHT_A, rightDriveVal);
+        vexMotorSet(M_DRIVE_RIGHT_B, rightDriveVal);
+        vexMotorSet(M_DRIVE_LEFT_A, leftDriveVal);
+        vexMotorSet(M_DRIVE_LEFT_B, leftDriveVal);
 
         int16_t flyWheelOut = tbhUpdate(flyWheelCtrl);
         vexMotorSet(M_FLY_A, flyWheelOut);
@@ -466,17 +402,8 @@ vexOperator( void *arg )
             vexDigitalPinSet(P_RAMP, 1);
         }
 
-        //Calculate Motor Power
-        xDriveMotors(
-            VALLEY(vexControllerGet(J_DRIVE), 25, 127),
-            VALLEY(vexControllerGet(J_STRAFE), 25, 127),
-            VALLEY((int16_t)(vexControllerGet(J_TURN) * 0.70), 15, 127),
-            M_DRIVE_FRONT_RIGHT,
-            M_DRIVE_BACK_RIGHT,
-            M_DRIVE_FRONT_LEFT,
-            M_DRIVE_BACK_LEFT,
-            25, 127
-        );
+        // user control drive
+        driveMotors();
 
         // Enable fly wheel
         for(i = 0;i < CALIB_SIZE;i++) {
