@@ -9,10 +9,10 @@
 #include "../Common/easing.h"
 
 // Motor configs
-#define M_DRIVE_LEFT_A    kVexMotor_3
+#define M_DRIVE_LEFT_A    kVexMotor_7
 #define M_DRIVE_LEFT_B    kVexMotor_4
-#define M_DRIVE_RIGHT_A   kVexMotor_7
-#define M_DRIVE_RIGHT_B   kVexMotor_8
+#define M_DRIVE_RIGHT_A   kVexMotor_8
+#define M_DRIVE_RIGHT_B   kVexMotor_3
 
 #define M_FLY_A              kVexMotor_2
 #define M_FLY_B              kVexMotor_5
@@ -24,8 +24,8 @@
 #define P_RAMP        kVexDigital_4
 #define P_FEED_RELEASE        kVexDigital_3
 
-#define P_ENC_TOP_FLY_A       kVexDigital_1
-#define P_ENC_TOP_FLY_B       kVexDigital_2
+#define P_ENC_TOP_FLY_A       kVexDigital_9
+#define P_ENC_TOP_FLY_B       kVexDigital_10
 
 #define P_ENC_DRIVE_RIGHT_A   kVexDigital_7
 #define P_ENC_DRIVE_RIGHT_B   kVexDigital_8
@@ -35,7 +35,7 @@
 
 #define S_COLOR_SELECTOR        6
 
-#define S_ENC_FLY             kVexSensorDigital_1
+#define S_ENC_FLY             kVexSensorDigital_9
 #define S_ENC_DRIVE_RIGHT     kVexSensorDigital_8
 #define S_ENC_DRIVE_LEFT      kVexSensorDigital_6
 
@@ -71,8 +71,8 @@ typedef struct _FlyWheelCalib {
 } FlyWheelCalib;
 
 #define CALIB_SIZE 4
-#define AUTON_DRIVE_SPEED 450
-#define AUTON_TURN_SPEED 550
+#define AUTON_DRIVE_SPEED 350
+#define AUTON_TURN_SPEED 450
 
 #define MAX_FEED_RELEASE_COUNT 10
 
@@ -102,7 +102,7 @@ static  vexDigiCfg  dConfig[] = {
 // Motor Config
 static  vexMotorCfg mConfig[] = {
     { M_DRIVE_LEFT_A,   kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
-    { M_DRIVE_LEFT_B,   kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
+    { M_DRIVE_LEFT_B,   kVexMotor393S, kVexMotorReversed,  kVexSensorNone, 0 },
     { M_DRIVE_RIGHT_A,  kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
     { M_DRIVE_RIGHT_B,  kVexMotor393S, kVexMotorNormal,  kVexSensorNone, 0 },
 
@@ -147,13 +147,13 @@ void
 vexUserInit()
 {
     //Initialize TBHControllers
-    flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, true);
+    flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, false);
     flyWheelCtrl->powerZeroClamp = true;
     flyWheelCtrl->log = false;
 
     // Initialize PID
-    leftDrivePid = EPidInit(kFlat, 0.01, 0, 0.01, S_ENC_DRIVE_LEFT, false);
-    rightDrivePid = EPidInit(kFlat, 0.01, 0, 0.01, S_ENC_DRIVE_RIGHT, false);
+    leftDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_LEFT, true);
+    rightDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_RIGHT, true);
 }
 
 bool driveMotors(void) {
@@ -282,7 +282,7 @@ vexAutonomous( void *arg )
     (void)arg;
     vexTaskRegister("auton");
 
-    if(!isRed()) {
+    if(isRed()) {
         autonTurnDir *= -1;
     }
     bool compAuton = true;
@@ -314,28 +314,28 @@ vexAutonomous( void *arg )
             RUNSTEP(turn, 235, autonTurnDir, AUTON_TURN_SPEED); // line up for E
             RUNSTEP(enableFeed, FEED_SPEED); // Run feeds and intake balls
             RUNSTEP(moveForward, 200, AUTON_DRIVE_SPEED);
-            RUNSTEP(moveForward, -200, AUTON_DRIVE_SPEED);
-            RUNSTEP(moveForward, 200, AUTON_DRIVE_SPEED);
+            /* RUNSTEP(moveForward, -200, AUTON_DRIVE_SPEED); */
+            /* RUNSTEP(moveForward, 200, AUTON_DRIVE_SPEED); */
             RUNSTEP(moveForward, -1200, AUTON_DRIVE_SPEED); // go to center of field
             RUNSTEP(enableFeed, 0);
             RUNSTEP(turn, -235, autonTurnDir, AUTON_TURN_SPEED); // line up for shot
             RUNSTEP(shootBalls, 3500);
 
             // Target G
-            RUNSTEP(enableFeed, FEED_SPEED);
-            RUNSTEP(moveForward, 500, AUTON_DRIVE_SPEED);
-            RUNSTEP(moveForward, -500, AUTON_DRIVE_SPEED);
-            RUNSTEP(enableFeed, 0);
-            RUNSTEP(shootBalls, 3500);
+            /* RUNSTEP(enableFeed, FEED_SPEED); */
+            /* RUNSTEP(moveForward, 500, AUTON_DRIVE_SPEED); */
+            /* RUNSTEP(moveForward, -500, AUTON_DRIVE_SPEED); */
+            /* RUNSTEP(enableFeed, 0); */
+            /* RUNSTEP(shootBalls, 3500); */
 
-            // Target I/J
-            RUNSTEP(turn, -255, autonTurnDir, AUTON_TURN_SPEED); // turn 45
-            RUNSTEP(enableFeed, FEED_SPEED);
-            RUNSTEP(moveForward, 1200, AUTON_DRIVE_SPEED);
-            RUNSTEP(moveForward, -1200, AUTON_DRIVE_SPEED);
-            RUNSTEP(enableFeed, 0);
-            RUNSTEP(turn, 255, autonTurnDir, AUTON_TURN_SPEED);
-            RUNSTEP(shootBalls, 3500);
+            /* // Target I/J */
+            /* RUNSTEP(turn, -255, autonTurnDir, AUTON_TURN_SPEED); // turn 45 */
+            /* RUNSTEP(enableFeed, FEED_SPEED); */
+            /* RUNSTEP(moveForward, 1200, AUTON_DRIVE_SPEED); */
+            /* RUNSTEP(moveForward, -1200, AUTON_DRIVE_SPEED); */
+            /* RUNSTEP(enableFeed, 0); */
+            /* RUNSTEP(turn, 255, autonTurnDir, AUTON_TURN_SPEED); */
+            /* RUNSTEP(shootBalls, 3500); */
         }
         else {
             RUNSTEP(shootBalls, 1500);
@@ -389,7 +389,7 @@ vexOperator( void *arg )
     vexDigitalPinSet(P_RAMP, 0);
     //Run until asked to terminate
     while(!chThdShouldTerminate()) {
-        vex_printf("mode=%s\n", (isRed()?"red":"blue"));
+        vex_printf("mode = %s\n", (isRed()?"red":"bue"));
         if(vexControllerGet(J_AUTON)) {
             vexAutonomous(NULL);
         }
