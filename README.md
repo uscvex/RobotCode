@@ -30,3 +30,6 @@
 
 1. Open MSYS shell
 2. run `plink.exe -serial COM3 -sercfg 115200`. Replace COM3 with serial port (COM3 usually works, try COM1-COM9 if not)
+
+## Mac OSX
+bit.ly/vexmac
