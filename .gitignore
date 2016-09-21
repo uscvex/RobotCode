@@ -1,3 +1,6 @@
 */bin/*
 */.dep/*
 */.settings
+BigBot/setup.mk
+SmallBot/setup.mk
+SerialTest/setup.mk
