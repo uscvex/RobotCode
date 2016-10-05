@@ -55,9 +55,7 @@ void serialLog(char *first, ...) {
           ###             ###
         ###                 ###
 
-
 		   L 					             R
-
 
         ###                 ###
           ###             ###
