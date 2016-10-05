@@ -9,23 +9,25 @@
 
 // Motor mappings
 
+
+// 5, 2
 // Lift
-#define M_LIFT_LEFT   kVexMotor_8
-#define M_LIFT_RIGHT  kVexMotor_3
+#define M_LIFT_LEFT   kVexMotor_8    // left Lift correct.
+#define M_LIFT_RIGHT  kVexMotor_2     // 
 #define M_CLAW        kVexMotor_5
 
 
 // Drive
-#define M_DRIVE_RIGHT1  kVexMotor_2
-#define M_DRIVE_RIGHT2  kVexMotor_4
-#define M_DRIVE_LEFT1   kVexMotor_7
-#define M_DRIVE_LEFT2   kVexMotor_6
+#define M_DRIVE_RIGHT1  kVexMotor_3       // Right frnt
+#define M_DRIVE_RIGHT2  kVexMotor_4       // Right Back
+#define M_DRIVE_LEFT1   kVexMotor_7       // Forward left
+#define M_DRIVE_LEFT2   kVexMotor_6       // LEft 2 is correct 
 
 
 // Controller mappings
 #define J_LIFT_UP    Btn6U
 #define J_LIFT_DOWN  Btn5U
-#define J_DRIVE      Ch1
+#define J_DRIVE      Ch2
 #define J_TURN       Ch4
 #define J_CLAW_OPEN  Btn6D
 #define J_CLAW_CLOSE Btn5D
@@ -36,12 +38,12 @@
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-  { M_LIFT_LEFT,     kVexMotor393S, kVexMotorReversed, kVexSensorNone,  0 },
-  { M_LIFT_RIGHT,    kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
+  { M_LIFT_LEFT,     kVexMotor393S, kVexMotorNormal, kVexSensorNone,  0 },
+  { M_LIFT_RIGHT,    kVexMotor393S, kVexMotorReversed,   kVexSensorNone,  0 },
   { M_DRIVE_RIGHT1,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
   { M_DRIVE_RIGHT2,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
-  { M_DRIVE_LEFT1,   kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
-  { M_DRIVE_LEFT2,   kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
+  { M_DRIVE_LEFT1,   kVexMotor393S, kVexMotorReversed,   kVexSensorNone,  0 },
+  { M_DRIVE_LEFT2,   kVexMotor393S, kVexMotorReversed,   kVexSensorNone,  0 },
   { M_CLAW,          kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 }
 };
 
@@ -119,6 +121,7 @@ msg_t vexOperator( void *arg )
       isMoving = driveMotors();
 
       // Controls for lift
+      
       if(vexControllerGet(J_LIFT_UP)) {
         vexMotorSet(M_LIFT_RIGHT, 100);
         vexMotorSet(M_LIFT_LEFT, 100);
@@ -139,12 +142,14 @@ msg_t vexOperator( void *arg )
       }
 
       else if(vexControllerGet(J_CLAW_CLOSE)) {
-        vexMotorSet(M_LIFT_RIGHT, -60);
+        vexMotorSet(M_CLAW, -60);
       }
       else {
         vexMotorSet(M_CLAW, 0);
       }
+      
 
+      // vexMotorSet(M_LIFT_RIGHT, -25);
       //Don't hog cpu
       vexSleep(10);
     }
