@@ -12,16 +12,16 @@
 
 // 5, 2
 // Lift
-#define M_LIFT_LEFT   kVexMotor_8    // left Lift correct.
-#define M_LIFT_RIGHT  kVexMotor_2     // 
+#define M_LIFT_LEFT   kVexMotor_8    
+#define M_LIFT_RIGHT  kVexMotor_2     
 #define M_CLAW        kVexMotor_5
 
 
 // Drive
-#define M_DRIVE_RIGHT1  kVexMotor_3       // Right frnt
-#define M_DRIVE_RIGHT2  kVexMotor_4       // Right Back
-#define M_DRIVE_LEFT1   kVexMotor_7       // Forward left
-#define M_DRIVE_LEFT2   kVexMotor_6       // LEft 2 is correct 
+#define M_DRIVE_RIGHT1  kVexMotor_3       
+#define M_DRIVE_RIGHT2  kVexMotor_4       
+#define M_DRIVE_LEFT1   kVexMotor_7       
+#define M_DRIVE_LEFT2   kVexMotor_6        
 
 
 // Controller mappings
