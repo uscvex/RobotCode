@@ -9,20 +9,19 @@
 
 // Motor mappings
 
-
-// 5, 2
 // Lift
-#define M_LIFT_LEFT   kVexMotor_8    
-#define M_LIFT_RIGHT  kVexMotor_2     
+#define M_LIFT_LEFT   kVexMotor_8
+#define M_LIFT_RIGHT  kVexMotor_2
 #define M_CLAW        kVexMotor_5
 
 
 // Drive
-#define M_DRIVE_RIGHT1  kVexMotor_3       
-#define M_DRIVE_RIGHT2  kVexMotor_4       
-#define M_DRIVE_LEFT1   kVexMotor_7       
-#define M_DRIVE_LEFT2   kVexMotor_6        
+#define M_DRIVE_RIGHT1  kVexMotor_3
+#define M_DRIVE_RIGHT2  kVexMotor_4
+#define M_DRIVE_LEFT1   kVexMotor_7
+#define M_DRIVE_LEFT2   kVexMotor_6
 
+// Sensor mappings
 
 // Controller mappings
 #define J_LIFT_UP    Btn6U
@@ -38,13 +37,13 @@
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-  { M_LIFT_LEFT,     kVexMotor393S, kVexMotorNormal, kVexSensorNone,  0 },
-  { M_LIFT_RIGHT,    kVexMotor393S, kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT1,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT2,  kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 },
-  { M_DRIVE_LEFT1,   kVexMotor393S, kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_DRIVE_LEFT2,   kVexMotor393S, kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_CLAW,          kVexMotor393S, kVexMotorNormal,   kVexSensorNone,  0 }
+  { M_LIFT_LEFT,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_LIFT_RIGHT,    kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT1,  kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT2,  kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_DRIVE_LEFT1,   kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
+  { M_DRIVE_LEFT2,   kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
+  { M_CLAW,          kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
 };
 
 //-------------------Setup----------------------------------------------------//
@@ -89,7 +88,13 @@ bool driveMotors(void) {
   return (ld != 0 || rd != 0);
 }
 
+bool raiseLift(void){
 
+  //Start with a base value of 100
+  short ld = 100;
+  short rd = 100;
+
+}
 
 //---------------------Autonomous routine-------------------------------------//
 
@@ -121,7 +126,7 @@ msg_t vexOperator( void *arg )
       isMoving = driveMotors();
 
       // Controls for lift
-      
+
       if(vexControllerGet(J_LIFT_UP)) {
         vexMotorSet(M_LIFT_RIGHT, 100);
         vexMotorSet(M_LIFT_LEFT, 100);
@@ -147,7 +152,7 @@ msg_t vexOperator( void *arg )
       else {
         vexMotorSet(M_CLAW, 0);
       }
-      
+
 
       // vexMotorSet(M_LIFT_RIGHT, -25);
       //Don't hog cpu
