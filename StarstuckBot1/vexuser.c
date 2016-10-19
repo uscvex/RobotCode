@@ -46,6 +46,9 @@
 #define J_CLAW_CLOSE Btn5U
 
 
+// PID Controls
+EPidController *leftDrivePid;
+EPidController *rightDrivePid;
 
 
 //------------------Motor Configurations--------------------------------------//
@@ -86,15 +89,15 @@ void vexUserSetup()
 
 void vexUserInit()
 {
-    /*//Initialize TBHControllers
-    flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, false);
-    flyWheelCtrl->powerZeroClamp = true;
-    flyWheelCtrl->log = false;
+    // //Initialize TBHControllers
+    // flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, false);
+    // flyWheelCtrl->powerZeroClamp = true;
+    // flyWheelCtrl->log = false;
 
     // Initialize PID
     leftDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_LEFT, true);
     rightDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_RIGHT, true);
-    */
+    
 }
 
 //-------------Miscellaneous functions----------------------------------------//
@@ -148,7 +151,7 @@ void raiseLift(void){
 
 void lowerLift(void){
 
-  //Start with a base value of 100
+  //Start with a base value of -52 as we are going down.
   short ld = -52;
   short rd = -52;
 
@@ -172,6 +175,24 @@ void clearDriveEncoders(void) {
     vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
     vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
 }
+/*--------------------------Auton Routine Functions---------------------------*/
+
+void Move_Forward (int taget, int time) {
+  const int SPEED = 350;
+  int32_t duration = (ABS(target)/SPEED)*1000;
+  EPidEnable(rightDrivePid, duration, target);
+  EPidEnable(leftDrivePid, duration, target);
+}
+
+void Move_in_Dir (int taget, int time, int dir) {
+  const int SPEED = 250;
+  int32_t duration = (ABS(target)/SPEED)*1000;
+  EPidEnable(rightDrivePid, duration, -dir*target);
+  EPidEnable(leftDrivePid, duration, dir*target);
+}
+
+
+
 
 //---------------------Autonomous routine-------------------------------------//
 
@@ -185,6 +206,8 @@ msg_t vexAutonomous( void *arg )
 
     while(!chThdShouldTerminate())
     {
+      systime_t autonTime = chTimeNow();
+
       vexSleep(10);
     }
 
