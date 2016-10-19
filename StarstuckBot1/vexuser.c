@@ -22,6 +22,20 @@
 #define M_DRIVE_LEFT2   kVexMotor_6
 
 // Sensor mappings
+#define P_LIFT_ENC_LEFT_A   kVexDigital_1
+#define P_LIFT_ENC_LEFT_B   kVexDigital_2
+#define P_LIFT_ENC_RIGHT_A  kVexDigital_3
+#define P_LIFT_ENC_RIGHT_B  kVexDigital_4
+
+#define P_DRIVE_ENC_RIGHT_A kVexDigital_5
+#define P_DRIVE_ENC_RIGHT_B kVexDigital_6
+#define P_DRIVE_ENC_LEFT_A kVexDigital_7
+#define P_DRIVE_ENC_LEFT_B kVexDigital_8
+
+#define S_LIFT_ENC_LEFT   kVexSensorDigital_1
+#define S_LIFT_ENC_RIGHT  kVexSensorDigital_2
+#define S_DRIVE_ENC_LEFT  kVexSensorDigital_3
+#define S_DRIVE_ENC_RIGHT kVexSensorDigital_4
 
 // Controller mappings
 #define J_LIFT_UP    Btn6U
@@ -46,12 +60,22 @@ static vexMotorCfg mConfig[] = {
   { M_CLAW,          kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
 };
 
+static vexDigiCfg dConfig[] = {
+
+  { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_2 },
+  { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
+
+  { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
+  { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 }
+
+};
+
 //-------------------Setup----------------------------------------------------//
 void vexUserSetup()
 {
     //vexDigitalPinSet(kVexDigital_5, 0);
-    //vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
     vexMotorConfigure( mConfig, MOT_CONFIG_SIZE( mConfig ) )  ;
+    vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
 }
 
 void vexUserInit()
@@ -88,12 +112,54 @@ bool driveMotors(void) {
   return (ld != 0 || rd != 0);
 }
 
-bool raiseLift(void){
+// Raises lift, adjusting motor output to rise smoothly
+void raiseLift(void){
 
   //Start with a base value of 100
   short ld = 100;
   short rd = 100;
 
+  //Get lift encoder values
+  int32_t right_enc_value = vexSensorValueGet(S_LIFT_ENC_RIGHT);
+  int32_t left_enc_value = vexSensorValueGet(S_LIFT_ENC_LEFT);
+
+  int32_t diff = right_enc_value - left_enc_value;
+  if (diff > 5){
+    rd = 0;
+  }
+  if (diff < -5) {
+    ld = 0;
+  }
+
+  vexMotorSet(M_LIFT_RIGHT, rd);
+  vexMotorSet(M_LIFT_LEFT, ld);
+}
+
+void lowerLift(void){
+
+  //Start with a base value of 100
+  short ld = -52;
+  short rd = -52;
+
+  //Get lift encoder values
+  int32_t right_enc_value = vexSensorValueGet(S_LIFT_ENC_RIGHT);
+  int32_t left_enc_value = vexSensorValueGet(S_LIFT_ENC_LEFT);
+
+  int32_t diff = right_enc_value - left_enc_value;
+  if (diff > 5){
+    rd = 0;
+  }
+  if (diff < -5) {
+    ld = 0;
+  }
+
+  vexMotorSet(M_LIFT_RIGHT, rd);
+  vexMotorSet(M_LIFT_LEFT, ld);
+}
+
+void clearDriveEncoders(void) {
+    vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
+    vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
 }
 
 //---------------------Autonomous routine-------------------------------------//
@@ -102,6 +168,9 @@ msg_t vexAutonomous( void *arg )
 {
     (void)arg;
     vexTaskRegister("auton");
+
+    //Reset encoders
+    clearDriveEncoders();
 
     while(!chThdShouldTerminate())
     {
@@ -121,6 +190,9 @@ msg_t vexOperator( void *arg )
 
     bool isMoving;
 
+    //Clear encoders
+    clearDriveEncoders();
+
     while(!chThdShouldTerminate())
     {
       isMoving = driveMotors();
@@ -128,13 +200,11 @@ msg_t vexOperator( void *arg )
       // Controls for lift
 
       if(vexControllerGet(J_LIFT_UP)) {
-        vexMotorSet(M_LIFT_RIGHT, 100);
-        vexMotorSet(M_LIFT_LEFT, 100);
+        raiseLift();
       }
 
       else if(vexControllerGet(J_LIFT_DOWN)) {
-        vexMotorSet(M_LIFT_RIGHT, -52);
-        vexMotorSet(M_LIFT_LEFT, -52);
+        lowerLift();
       }
       else {
         vexMotorSet(M_LIFT_RIGHT, 0);
