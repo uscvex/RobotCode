@@ -12,7 +12,7 @@
 // Lift
 #define M_LIFT_LEFT   kVexMotor_8
 #define M_LIFT_RIGHT  kVexMotor_2
-#define M_CLAW        kVexMotor_5
+#define M_CLAW        kVexMotor_9
 
 
 // Drive
@@ -29,21 +29,21 @@
 
 #define P_DRIVE_ENC_RIGHT_A kVexDigital_5
 #define P_DRIVE_ENC_RIGHT_B kVexDigital_6
-#define P_DRIVE_ENC_LEFT_A kVexDigital_7
-#define P_DRIVE_ENC_LEFT_B kVexDigital_8
+#define P_DRIVE_ENC_LEFT_A  kVexDigital_7
+#define P_DRIVE_ENC_LEFT_B  kVexDigital_8
 
 #define S_LIFT_ENC_LEFT   kVexSensorDigital_1
-#define S_LIFT_ENC_RIGHT  kVexSensorDigital_2
-#define S_DRIVE_ENC_LEFT  kVexSensorDigital_3
-#define S_DRIVE_ENC_RIGHT kVexSensorDigital_4
+#define S_LIFT_ENC_RIGHT  kVexSensorDigital_3
+#define S_DRIVE_ENC_LEFT  kVexSensorDigital_5
+#define S_DRIVE_ENC_RIGHT kVexSensorDigital_7
 
 // Controller mappings
 #define J_LIFT_UP    Btn6U
-#define J_LIFT_DOWN  Btn5U
+#define J_LIFT_DOWN  Btn6D
 #define J_DRIVE      Ch2
 #define J_TURN       Ch4
-#define J_CLAW_OPEN  Btn6D
-#define J_CLAW_CLOSE Btn5D
+#define J_CLAW_OPEN  Btn5D
+#define J_CLAW_CLOSE Btn5U
 
 
 
@@ -56,7 +56,7 @@ static vexMotorCfg mConfig[] = {
   { M_DRIVE_RIGHT1,  kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_DRIVE_RIGHT2,  kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_DRIVE_LEFT1,   kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
-  { M_DRIVE_LEFT2,   kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
+  { M_DRIVE_LEFT2,   kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_CLAW,          kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
 };
 
@@ -66,7 +66,13 @@ static vexDigiCfg dConfig[] = {
   { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
 
   { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
-  { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 }
+  { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+
+  { P_LIFT_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
+  { P_LIFT_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
+
+  { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
+  { P_LIFT_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
 
 };
 
@@ -120,16 +126,21 @@ void raiseLift(void){
   short rd = 100;
 
   //Get lift encoder values
-  int32_t right_enc_value = vexSensorValueGet(S_LIFT_ENC_RIGHT);
-  int32_t left_enc_value = vexSensorValueGet(S_LIFT_ENC_LEFT);
+  int32_t right_enc_value = abs(vexSensorValueGet(S_LIFT_ENC_RIGHT));
+  int32_t left_enc_value = abs(vexSensorValueGet(S_LIFT_ENC_LEFT));
 
   int32_t diff = right_enc_value - left_enc_value;
-  if (diff > 5){
+  if (diff > 5 || right_enc_value > 1100){
     rd = 0;
   }
-  if (diff < -5) {
+  if (diff < -5 || left_enc_value > 1100) {
     ld = 0;
   }
+  // vex_printf("right motor power: %d \n", rd);
+  // vex_printf("left motor power: %d \n", ld);
+  // vex_printf("right encoder: %d \n", right_enc_value);
+  // vex_printf("left encoder:  %d \n", left_enc_value);
+  // vex_printf("\n");
 
   vexMotorSet(M_LIFT_RIGHT, rd);
   vexMotorSet(M_LIFT_LEFT, ld);
@@ -142,15 +153,15 @@ void lowerLift(void){
   short rd = -52;
 
   //Get lift encoder values
-  int32_t right_enc_value = vexSensorValueGet(S_LIFT_ENC_RIGHT);
-  int32_t left_enc_value = vexSensorValueGet(S_LIFT_ENC_LEFT);
+  int32_t right_enc_value = abs(vexSensorValueGet(S_LIFT_ENC_RIGHT));
+  int32_t left_enc_value = abs(vexSensorValueGet(S_LIFT_ENC_LEFT));
 
   int32_t diff = right_enc_value - left_enc_value;
   if (diff > 5){
-    rd = 0;
+    ld = 0;
   }
   if (diff < -5) {
-    ld = 0;
+    rd = 0;
   }
 
   vexMotorSet(M_LIFT_RIGHT, rd);
