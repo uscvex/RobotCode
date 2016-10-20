@@ -91,7 +91,7 @@ void vexUserInit()
 {
     // //Initialize TBHControllers
     // flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, false);
-    // flyWheelCtrl->powerZeroClamp = true;
+    // flyWheelCtrl->powerqZeroClamp = true;
     // flyWheelCtrl->log = false;
 
     // Initialize PID
@@ -101,7 +101,6 @@ void vexUserInit()
 }
 
 //-------------Miscellaneous functions----------------------------------------//
-
 
 bool driveMotors(void) {
   short ld, rd ;
