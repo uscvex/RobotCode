@@ -38,12 +38,16 @@
 #define S_DRIVE_ENC_RIGHT kVexSensorDigital_7
 
 // Controller mappings
-#define J_LIFT_UP    Btn6U
-#define J_LIFT_DOWN  Btn6D
-#define J_DRIVE      Ch2
-#define J_TURN       Ch4
-#define J_CLAW_OPEN  Btn5D
-#define J_CLAW_CLOSE Btn5U
+#define J_LIFT_UP     Btn6U
+#define J_LIFT_DOWN   Btn6D
+#define J_DRIVE       Ch3
+#define J_TURN        Ch1
+#define J_CLAW_OPEN   Btn5D
+#define J_CLAW_CLOSE  Btn5U
+#define J_RAISE_LEFT  Btn7U
+#define J_LOWER_LEFT  Btn7D
+#define J_RAISE_RIGHT Btn8U
+#define J_LOWER_RIGHT Btn8D
 
 
 // PID Controls
@@ -105,12 +109,15 @@ void vexUserInit()
 bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
-  int forward = VALLEY(vexControllerGet(J_DRIVE), 25, 127);
+  int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127);
   int turn;
 
-  turn = VALLEY(vexControllerGet(J_TURN), 25, 127);
-  ld = VALLEY(forward + turn, 25, 127);
-  rd = VALLEY(forward - turn, 25, 127);
+
+  int turnChannel = vexControllerGet(J_TURN) * 0.7;
+
+  turn = VALLEY(turnChannel, 20, 127);
+  ld = VALLEY(forward + turn, 20, 127);
+  rd = VALLEY(forward - turn, 20, 127);
 
   vexMotorSet(M_DRIVE_LEFT1,  ld);
   vexMotorSet(M_DRIVE_LEFT2,  ld);
@@ -132,10 +139,16 @@ void raiseLift(void){
   int32_t left_enc_value = abs(vexSensorValueGet(S_LIFT_ENC_LEFT));
 
   int32_t diff = right_enc_value - left_enc_value;
-  if (diff > 5 || right_enc_value > 1100){
+  if (diff > 5){
+    rd = rd - 3*diff;
+  }
+  if (diff < -5) {
+    ld = ld - 3*diff;
+  }
+  if (right_enc_value > 1100){
     rd = 0;
   }
-  if (diff < -5 || left_enc_value > 1100) {
+  if (left_enc_value > 1100){
     ld = 0;
   }
   // vex_printf("right motor power: %d \n", rd);
@@ -193,6 +206,7 @@ void Move_in_Dir (int taget, int time, int dir) {
 
 
 
+
 //---------------------Autonomous routine-------------------------------------//
 
 msg_t vexAutonomous( void *arg )
@@ -214,6 +228,7 @@ msg_t vexAutonomous( void *arg )
 }
 
 
+
 //---------------------User control settings----------------------------------//
 
 msg_t vexOperator( void *arg )
@@ -222,6 +237,11 @@ msg_t vexOperator( void *arg )
     vexTaskRegister("operator");
 
     bool isMoving;
+    systime_t encoderStopTime = chTimeNow();
+    int32_t curr_drive_enc_val_right = 0;
+    int32_t curr_drive_enc_val_left = 0;
+    int32_t last_drive_enc_val_right = 0;
+    int32_t last_drive_enc_val_left = 0;
 
     //Clear encoders
     clearDriveEncoders();
@@ -230,14 +250,48 @@ msg_t vexOperator( void *arg )
     {
       isMoving = driveMotors();
 
+      //Prevent motors from burning out if stuck
+      /*
+      curr_drive_enc_val_right = vexSensorValueGet(S_DRIVE_ENC_RIGHT);
+      curr_drive_enc_val_left = vexSensorValueGet(S_DRIVE_ENC_LEFT);
+      if (isMoving && (curr_drive_enc_val_left == last_drive_enc_val_left || curr_drive_enc_val_right == last_drive_enc_val_right)){
+        encoderStopTime = chTimeNow();
+      }
+      if(!isMoving){
+        encoderStopTime = chTimeNow();
+      }
+      if (chTimeNow() - encoderStopTime > 250) {
+        vexMotorSet(M_DRIVE_LEFT1,  0);
+        vexMotorSet(M_DRIVE_LEFT2,  0);
+        vexMotorSet(M_DRIVE_RIGHT1, 0);
+        vexMotorSet(M_DRIVE_RIGHT2, 0);
+        vexSleep(3000);
+        encoderStopTime = chTimeNow();
+      }
+      last_drive_enc_val_left = curr_drive_enc_val_left;
+      last_drive_enc_val_right = curr_drive_enc_val_right;
+      */
+
       // Controls for lift
 
       if(vexControllerGet(J_LIFT_UP)) {
         raiseLift();
       }
-
       else if(vexControllerGet(J_LIFT_DOWN)) {
         lowerLift();
+      }
+      else if(vexControllerGet(J_RAISE_LEFT)){
+        vexMotorSet(M_LIFT_LEFT, 70);
+      }
+      else if(vexControllerGet(J_LOWER_LEFT)){
+        vexMotorSet(M_LIFT_LEFT, -25);
+      }
+      else if(vexControllerGet(J_RAISE_RIGHT)){
+        vexMotorSet(M_LIFT_RIGHT, 70);
+      }
+
+      else if(vexControllerGet(J_LOWER_RIGHT)){
+        vexMotorSet(M_LIFT_RIGHT, -25);
       }
       else {
         vexMotorSet(M_LIFT_RIGHT, 0);
