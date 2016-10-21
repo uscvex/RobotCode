@@ -101,7 +101,7 @@ void vexUserInit()
     // Initialize PID
     leftDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_LEFT, true);
     rightDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_RIGHT, true);
-    
+
 }
 
 //-------------Miscellaneous functions----------------------------------------//
@@ -203,8 +203,6 @@ void Move_in_Dir (int taget, int time, int dir) {
   EPidEnable(rightDrivePid, duration, -dir*target);
   EPidEnable(leftDrivePid, duration, dir*target);
 }
-
-
 
 
 
