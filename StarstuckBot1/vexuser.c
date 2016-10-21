@@ -10,18 +10,17 @@
 // Motor mappings
 
 // Lift
-#define M_LIFT_LEFT_A   kVexMotor_7
-#define M_LIFT_LEFT_B   kVexMotor_8
+#define M_LIFT_LEFT_A   kVexMotor_8
+#define M_LIFT_LEFT_B   kVexMotor_7
 
-#define M_LIFT_RIGHT_A  kVexMotor_2
-#define M_LIFT_RIGHT_B  kVexMotor_3
+#define M_LIFT_RIGHT_A  kVexMotor_3
+#define M_LIFT_RIGHT_B  kVexMotor_2
 
-#define M_CLAW        kVexMotor_5
+#define M_CLAW          kVexMotor_5
 
 
 // Drive
 #define M_DRIVE_RIGHT  kVexMotor_4
-
 #define M_DRIVE_LEFT   kVexMotor_6
 
 
@@ -62,13 +61,13 @@ EPidController *rightDrivePid;
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-  { M_LIFT_LEFT_A,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_LIFT_LEFT_B,    kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
-  { M_LIFT_RIGHT_A,   kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_LIFT_RIGHT_B,   kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_CLAW,           kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_DRIVE_LEFT,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
+  { M_LIFT_LEFT_A,    kVexMotor393S, kVexMotorNormal,      kVexSensorNone,  0 },
+  { M_LIFT_LEFT_B,    kVexMotor393S, kVexMotorNormal,      kVexSensorNone,  0 },
+  { M_LIFT_RIGHT_A,   kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_LIFT_RIGHT_B,   kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_CLAW,           kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT,    kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
 };
 
 static vexDigiCfg dConfig[] = {
@@ -97,21 +96,10 @@ void vexUserSetup()
 
 void vexUserInit()
 {
-    // //Initialize TBHControllers
-    // flyWheelCtrl = TBHControllerInit(S_ENC_FLY, 0.01, 11000, false);
-    // flyWheelCtrl->powerqZeroClamp = true;
-    // flyWheelCtrl->log = false;
-
     // Initialize PID
-<<<<<<< HEAD
-    leftDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_LEFT, true);
-    rightDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_ENC_DRIVE_RIGHT, true);
-
-=======
     leftDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_DRIVE_ENC_LEFT, true);
     rightDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_DRIVE_ENC_RIGHT, true);
-    
->>>>>>> 8d7725f6f41f00236df16a03423180faae9b93bc
+
 }
 
 //-------------Miscellaneous functions----------------------------------------//
@@ -159,11 +147,6 @@ void raiseLift(void){
   if (left_enc_value > 1100){
     ld = 0;
   }
-  // vex_printf("right motor power: %d \n", rd);
-  // vex_printf("left motor power: %d \n", ld);
-  // vex_printf("right encoder: %d \n", right_enc_value);
-  // vex_printf("left encoder:  %d \n", left_enc_value);
-  // vex_printf("\n");
 
   vexMotorSet(M_LIFT_RIGHT_A, rd);
   vexMotorSet(M_LIFT_RIGHT_B, rd);
@@ -214,11 +197,6 @@ void Move_in_Dir (int target, int dir) {
   EPidEnable(leftDrivePid, duration, dir*target);
 }
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 8d7725f6f41f00236df16a03423180faae9b93bc
 //---------------------Autonomous routine-------------------------------------//
 
 msg_t vexAutonomous( void *arg )
@@ -259,7 +237,7 @@ msg_t vexOperator( void *arg )
     (void)arg;
     vexTaskRegister("operator");
 
-    // bool isMoving;
+    bool isMoving;
     // systime_t encoderStopTime = chTimeNow();
     // int32_t curr_drive_enc_val_right = 0;
     // int32_t curr_drive_enc_val_left = 0;
@@ -271,7 +249,7 @@ msg_t vexOperator( void *arg )
 
     while(!chThdShouldTerminate())
     {
-      // isMoving = driveMotors();
+      isMoving = driveMotors();
 
       //Prevent motors from burning out if stuck
       /*
@@ -339,8 +317,6 @@ msg_t vexOperator( void *arg )
         vexMotorSet(M_CLAW, 0);
       }
 
-
-      // vexMotorSet(M_LIFT_RIGHT, -25);
       //Don't hog cpu
       vexSleep(10);
     }
