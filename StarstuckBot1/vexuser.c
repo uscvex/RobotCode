@@ -244,6 +244,13 @@ msg_t vexAutonomous( void *arg )
 
         EPidEnable(leftDrivePid, 2500, 700);
         EPidEnable(rightDrivePid, 2500, 700);
+      }
+      else if (autonTime < 15000 && step == 3){
+        Move_in_Dir(300, -90);
+        step++;
+      }
+      else if (autonTime < 19000 && step == 4){
+        Move_Forward(2000);
         step++;
       } else if (autonTime>12000 && autonTime > 9000 && step == 4){
         raiseLift();
