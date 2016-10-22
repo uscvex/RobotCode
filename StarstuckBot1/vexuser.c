@@ -51,11 +51,13 @@
 #define J_LOWER_LEFT  Btn7D
 #define J_RAISE_RIGHT Btn8U
 #define J_LOWER_RIGHT Btn8D
-
+#define J_AUTON_CONT  Btn7L
 
 // PID Controls
 EPidController *leftDrivePid;
 EPidController *rightDrivePid;
+EPidController *rightLiftPid;
+EPidController *leftLiftPid;
 
 
 //------------------Motor Configurations--------------------------------------//
@@ -97,9 +99,10 @@ void vexUserSetup()
 void vexUserInit()
 {
     // Initialize PID
-    leftDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_DRIVE_ENC_LEFT, true);
-    rightDrivePid = EPidInit(kFlat, 0.001, 0, 0.01, S_DRIVE_ENC_RIGHT, true);
-
+    leftDrivePid = EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_LEFT, false);
+    rightDrivePid = EPidInit(kMinJerk  , 0.01, 0, 0.01, S_DRIVE_ENC_RIGHT, true);
+    rightLiftPid = EPidInit(kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_RIGHT, false);
+    leftLiftPid = EPidInit (kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_LEFT, false);
 }
 
 //-------------Miscellaneous functions----------------------------------------//
@@ -127,7 +130,7 @@ bool driveMotors(void) {
 void raiseLift(void){
 
   //Start with a base value of 100
-  short ld = 100;
+  short ld =100;
   short rd = 100;
 
   //Get lift encoder values
@@ -135,16 +138,16 @@ void raiseLift(void){
   int32_t left_enc_value = abs(vexSensorValueGet(S_LIFT_ENC_LEFT));
 
   int32_t diff = right_enc_value - left_enc_value;
-  if (diff > 5){
+  if (diff > 2){
     rd = rd - 3*diff;
   }
-  if (diff < -5) {
+  if (diff < -2) {
     ld = ld - 3*diff;
   }
-  if (right_enc_value > 1100){
+  if (right_enc_value > 315){
     rd = 0;
   }
-  if (left_enc_value > 1100){
+  if (left_enc_value > 310){
     ld = 0;
   }
 
@@ -206,35 +209,85 @@ msg_t vexAutonomous( void *arg )
 
     //Reset encoders
     clearDriveEncoders();
+    // vexSensorValueSet(S_ENC_DRIVE_LEFT,0);
+    // vexSensorValueSet(S_ENC_DRIVE_RIGHT,0);
     systime_t init_time = chTimeNow();
     int step = 0;
     while(!chThdShouldTerminate())
     {
       systime_t autonTime = chTimeNow() - init_time;
-      if (autonTime<1500 && step==0){
-        Move_in_Dir(300, 90);
+      if (vexControllerGet(Btn7R)){
+        break;
+      }
+
+      if (autonTime<1000 && step==0){
+        EPidEnable(leftDrivePid, 900, -430);
+        EPidEnable(rightDrivePid, 900, 430);
+        step++;
+      } else if (autonTime < 1000 && autonTime > 600 && step ==1){
         vexMotorSet(M_CLAW, -60);
-        step ++;
-      } else if (autonTime < 2000 && step ==1){
+      } else if (autonTime < 4000 && autonTime>1000 && step ==1){
+        vexMotorSet(M_CLAW, 60);
+        EPidEnable(leftDrivePid, 4800, 2700);
+        EPidEnable(rightDrivePid,4800, 2700);
+        step++;
+      }  else if (autonTime > 1400 && autonTime < 2000){
         vexMotorSet(M_CLAW, 0);
+      }else if (autonTime<5000 && autonTime>4400 && step ==  2){
+        vexMotorSet(M_CLAW, -60);
+      }  else if (autonTime<6300 && autonTime>4800 && step == 2){
+        vexMotorSet(M_CLAW, 0);
+        EPidEnable(leftDrivePid, 1350, 450);
+        EPidEnable(rightDrivePid, 1350, -450);
         step++;
-      } else if (autonTime < 8000 && step ==2){
-        Move_Forward(1000);
+      } else if (autonTime < 9000 && autonTime > 6200 && step == 3){
+
+        EPidEnable(leftDrivePid, 2500, 700);
+        EPidEnable(rightDrivePid, 2500, 700);
         step++;
-      } 
-      else if (autonTime < 15000 && step == 3){
-        Move_in_Dir(300, -90);
-        step++
-      }
-      else if (autonTime < 19000 && step == 4){
-        Move_Forward(2000);
-        step++;
-      } else if (autonTime < 26000 && step == 5){
+      } else if (autonTime>12000 && autonTime > 9000 && step == 4){
         raiseLift();
-        step++;
-      } else if (autonTime < 31000 && step == 6){
-        
       }
+      else if (autonTime< 14000 && autonTime> 12000 && step == 4){
+        EPidEnable(leftDrivePid, 1000, 200);
+        EPidEnable(rightDrivePid, 1000, 200);
+      }
+      else if (autonTime>14000){
+        EPidDisable(leftDrivePid);
+        EPidDisable(rightDrivePid);
+        break;
+      }
+      // } else if (autonTime < 8000 && step ==2){
+      //   Move_Forward(1000);
+      //   step++;
+
+      // else if (autonTime < 15000 && step == 3){
+      //   Move_in_Dir(300, -90);
+      //   step++
+      // }
+      // else if (autonTime < 19000 && step == 4){
+      //   Move_Forward(2000);
+      //   step++;
+      // } else if (autonTime < 26000 && step == 5){
+      //   raiseLift();
+      //   step++;
+      // }
+
+      int16_t motorValL = EPidUpdate(leftDrivePid);
+		  int16_t motorValR = EPidUpdate(rightDrivePid);
+      int16_t leftLiftVal = EPidUpdate(leftLiftPid);
+      int16_t rightLiftVal = EPidUpdate(rightLiftPid);
+
+		  // vex_printf ("%d       %d", motorValL, motorValR);
+
+		  vexMotorSet(M_DRIVE_RIGHT, motorValR);
+		  vexMotorSet(M_DRIVE_LEFT, motorValL);
+
+      vexMotorSet(M_LIFT_LEFT_A, leftLiftVal);
+      vexMotorSet(M_LIFT_LEFT_B, leftLiftVal);
+
+      vexMotorSet(M_LIFT_RIGHT_A, rightLiftVal);
+      vexMotorSet(M_LIFT_RIGHT_B, rightLiftVal);
 
       vexSleep(10);
     }
@@ -287,8 +340,10 @@ msg_t vexOperator( void *arg )
       last_drive_enc_val_right = curr_drive_enc_val_right;
       */
 
-      // Controls for lift
-
+      // Controls for lift LIFT
+      if(vexControllerGet(J_AUTON_CONT)){
+        vexAutonomous(NULL);
+      }
       if(vexControllerGet(J_LIFT_UP)) {
         raiseLift();
       }

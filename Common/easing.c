@@ -66,7 +66,7 @@ EPidController *EPidInit(tEasingFunc func, float Kp, float Ki, float Kd, tVexSen
 	epidc->pidc = PidControllerInit(Kp, Ki, Kd, port, sensor_reverse);
 	epidc->easing = EasingInit(func);
 	epidc->spdmtr = SpeedometerInit(port);
-	epidc->log = false;
+	epidc->log = true;
 	return epidc;
 }
 
