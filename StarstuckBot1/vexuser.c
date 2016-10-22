@@ -224,7 +224,7 @@ msg_t vexAutonomous( void *arg )
       } 
       else if (autonTime < 15000 && step == 3){
         Move_in_Dir(300, -90);
-        step++
+        step++;
       }
       else if (autonTime < 19000 && step == 4){
         Move_Forward(2000);
