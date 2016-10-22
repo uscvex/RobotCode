@@ -220,6 +220,20 @@ msg_t vexAutonomous( void *arg )
         step++;
       } else if (autonTime < 8000 && step ==2){
         Move_Forward(1000);
+        step++;
+      } 
+      else if (autonTime < 15000 && step == 3){
+        Move_in_Dir(300, -90);
+        step++
+      }
+      else if (autonTime < 19000 && step == 4){
+        Move_Forward(2000);
+        step++;
+      } else if (autonTime < 26000 && step == 5){
+        raiseLift();
+        step++;
+      } else if (autonTime < 31000 && step == 6){
+        
       }
 
       vexSleep(10);
