@@ -383,40 +383,11 @@ msg_t vexOperator( void *arg )
       else if(vexControllerGet(J_LIFT_DOWN)) {
         lowerLift();
       }
-      else if(vexControllerGet(J_RAISE_LEFT)){
-        vexMotorSet(M_LIFT_LEFT_A, 70);
-        vexMotorSet(M_LIFT_LEFT_B, 70);
-      }
-      else if(vexControllerGet(J_LOWER_LEFT)){
-        vexMotorSet(M_LIFT_LEFT_A, -25);
-        vexMotorSet(M_LIFT_LEFT_B, -25);
-      }
-      else if(vexControllerGet(J_RAISE_RIGHT)){
-        vexMotorSet(M_LIFT_RIGHT_A, 70);
-        vexMotorSet(M_LIFT_RIGHT_B, 70);
-      }
-
-      else if(vexControllerGet(J_LOWER_RIGHT)){
-        vexMotorSet(M_LIFT_RIGHT_A, -25);
-        vexMotorSet(M_LIFT_RIGHT_B, -25);
-      }
       else {
         vexMotorSet(M_LIFT_RIGHT_A, 0);
         vexMotorSet(M_LIFT_RIGHT_B, 0);
         vexMotorSet(M_LIFT_LEFT_A, 0);
         vexMotorSet(M_LIFT_LEFT_B, 0);
-      }
-
-      //Controls for claw
-      if(vexControllerGet(J_CLAW_OPEN)) {
-        vexMotorSet(M_CLAW, 60);
-      }
-
-      else if(vexControllerGet(J_CLAW_CLOSE)) {
-        vexMotorSet(M_CLAW, -60);
-      }
-      else {
-        vexMotorSet(M_CLAW, 0);
       }
 
       //Don't hog cpu
