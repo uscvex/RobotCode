@@ -10,18 +10,18 @@
 // Motor mappings
 
 // Lift
-#define M_LIFT_LEFT_A   kVexMotor_8
+#define M_LIFT_LEFT_A   kVexMotor_6
 #define M_LIFT_LEFT_B   kVexMotor_7
 
-#define M_LIFT_RIGHT_A  kVexMotor_3
-#define M_LIFT_RIGHT_B  kVexMotor_2
-
-#define M_CLAW          kVexMotor_5
+#define M_LIFT_RIGHT_A  kVexMotor_4
+#define M_LIFT_RIGHT_B  kVexMotor_5
 
 
 // Drive
-#define M_DRIVE_RIGHT  kVexMotor_4
-#define M_DRIVE_LEFT   kVexMotor_6
+#define M_DRIVE_RIGHT_A  kVexMotor_2
+#define M_DRIVE_RIGHT_B  kVexMotor_3
+#define M_DRIVE_LEFT_A   kVexMotor_8
+#define M_DRIVE_LEFT_B   kVexMotor_9
 
 
 // Sensor mappings
@@ -35,6 +35,8 @@
 #define P_DRIVE_ENC_LEFT_A  kVexDigital_7
 #define P_DRIVE_ENC_LEFT_B  kVexDigital_8
 
+#define P_TOSS_PNU          kVexDigital_9
+
 #define S_LIFT_ENC_LEFT   kVexSensorDigital_1
 #define S_LIFT_ENC_RIGHT  kVexSensorDigital_3
 #define S_DRIVE_ENC_LEFT  kVexSensorDigital_5
@@ -45,12 +47,8 @@
 #define J_LIFT_DOWN   Btn6D
 #define J_DRIVE       Ch3
 #define J_TURN        Ch1
-#define J_CLAW_OPEN   Btn5D
-#define J_CLAW_CLOSE  Btn5U
-#define J_RAISE_LEFT  Btn7U
-#define J_LOWER_LEFT  Btn7D
-#define J_RAISE_RIGHT Btn8U
-#define J_LOWER_RIGHT Btn8D
+#define J_TOSS_UP     Btn5U
+#define J_TOSS_DOWN   Btn5D
 #define J_AUTON_CONT  Btn7L
 
 // PID Controls
