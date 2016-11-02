@@ -65,9 +65,10 @@ static vexMotorCfg mConfig[] = {
   { M_LIFT_LEFT_B,    kVexMotor393S, kVexMotorNormal,      kVexSensorNone,  0 },
   { M_LIFT_RIGHT_A,   kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_LIFT_RIGHT_B,   kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-  { M_CLAW,           kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT,    kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-  { M_DRIVE_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
+  { M_DRIVE_RIGHT_A,  kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT_B,  kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_LEFT_A,   kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_LEFT_B,   kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
 };
 
 static vexDigiCfg dConfig[] = {
@@ -118,8 +119,10 @@ bool driveMotors(void) {
   ld = VALLEY(forward + turn, 20, 127);
   rd = VALLEY(forward - turn, 20, 127);
 
-  vexMotorSet(M_DRIVE_LEFT,  ld);
-  vexMotorSet(M_DRIVE_RIGHT, rd);
+  vexMotorSet(M_DRIVE_LEFT_A,  ld);
+  vexMotorSet(M_DRIVE_LEFT_B,  ld);
+  vexMotorSet(M_DRIVE_RIGHT_A, rd);
+  vexMotorSet(M_DRIVE_RIGHT_B, rd);
 
   return (ld != 0 || rd != 0);
 }
@@ -277,6 +280,7 @@ msg_t vexAutonomous( void *arg )
 
       //ROUTINE 2
 
+      /*
       if(autonTime > 350 && autonTime < 1650){
         vexMotorSet(M_DRIVE_LEFT, 80);
         vexMotorSet(M_DRIVE_RIGHT, 80);
@@ -310,7 +314,7 @@ msg_t vexAutonomous( void *arg )
         vexMotorSet(M_DRIVE_LEFT, 0);
         vexMotorSet(M_DRIVE_RIGHT, 0);
       }
-
+      */
       //Turn calibration
       /*
       8if(autonTime < 2000){
