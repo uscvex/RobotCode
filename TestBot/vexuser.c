@@ -10,18 +10,18 @@
 
 // Motor mappings
 // Drive
-#define M_DRIVE_RIGHT  kVexMotor_4
-#define M_DRIVE_LEFT   kVexMotor_6
+#define M_DRIVE_RIGHT  kVexMotor_2
+#define M_DRIVE_LEFT   kVexMotor_3
 
 
 // Sensor mappings
-#define P_LIFT_ENC_RIGHT_A   kVexDigital_1
-#define P_LIFT_ENC_RIGHT_B   kVexDigital_2
-#define P_LIFT_ENC_LEFT_A   kVexDigital_3
-#define P_LIFT_ENC_LEFT_B   kVexDigital_4
+#define P_LIFT_ENC_RIGHT_A   kVexDigital_7
+#define P_LIFT_ENC_RIGHT_B   kVexDigital_8
+#define P_LIFT_ENC_LEFT_A   kVexDigital_9
+#define P_LIFT_ENC_LEFT_B   kVexDigital_10
 
-#define S_LIFT_ENC_LEFT   kVexSensorDigital_1
-#define S_LIFT_ENC_RIGHT  kVexSensorDigital_2
+#define S_LIFT_ENC_LEFT   kVexSensorDigital_7
+#define S_LIFT_ENC_RIGHT  kVexSensorDigital_9
 
 
 // Controller mappings
