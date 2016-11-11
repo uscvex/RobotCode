@@ -6,7 +6,7 @@
 #include "robotc_glue.h"
 #include "../Common/common.h"
 #include "../Common/easing.h"
-#include "SmartMotor.h"
+#include "smartmotor.h"
 
 // Motor mappings
 // Drive
@@ -47,7 +47,7 @@ static vexMotorCfg mConfig[] = {
 
 static vexDigiCfg dConfig[] = {
 
-  
+
   { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_1 },
   { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_1 },
   { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
@@ -136,7 +136,7 @@ msg_t vexOperator( void *arg )
     {
       driveMotors();
 
-      
+
 
     //   //Don't hog cpu
       vexSleep(10);
