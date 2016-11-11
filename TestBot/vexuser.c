@@ -6,7 +6,7 @@
 #include "robotc_glue.h"
 #include "../Common/common.h"
 #include "../Common/easing.h"
-#include "SmartMotor.h"
+#include "smartmotor.h"
 
 // Motor mappings
 // Drive
@@ -19,13 +19,22 @@
 #define P_LIFT_ENC_RIGHT_B   kVexDigital_8
 #define P_LIFT_ENC_LEFT_A   kVexDigital_9
 #define P_LIFT_ENC_LEFT_B   kVexDigital_10
+<<<<<<< HEAD
+
+#define S_LIFT_ENC_LEFT   kVexSensorDigital_7
+#define S_LIFT_ENC_RIGHT  kVexSensorDigital_9
+=======
 
 #define S_LIFT_ENC_LEFT   kVexSensorDigital_7
 #define S_LIFT_ENC_RIGHT  kVexSensorDigital_9
 
+>>>>>>> b2394cc52914904e3b4c951623be7886a0563292
+
 
 // Controller mappings
 #define J_START     Btn6U
+#define J_DRIVE       Ch3
+#define J_TURN        Ch1
 
 
 // PID Controls
@@ -38,13 +47,13 @@ EPidController *leftLiftPid;
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-  { M_DRIVE_RIGHT,    kVexMotor393S, kVexMotorReversed,    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
+  { M_DRIVE_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
   { M_DRIVE_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorQuadEncoder,  kVexQuadEncoder_2 }
 };
 
 static vexDigiCfg dConfig[] = {
 
-  
+
   { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_1 },
   { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_1 },
   { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
@@ -64,7 +73,10 @@ void vexUserInit()
 {
     SmartMotorsInit();
     SmartMotorPtcMonitorEnable();
+    SmartMotorPtcMonitorEnable();
     SmartMotorRun();
+
+
     // SmartMotorSetRpmSensor(M_DRIVE_RIGHT, S_LIFT_ENC_RIGHT);
     // SmartMotorSetRpmSensor(M_DRIVE_LEFT, S_LIFT_ENC_LEFT);
 
@@ -75,16 +87,15 @@ void vexUserInit()
 bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
-  int forward = 127;
+  int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127);
   int turn;
 
 
-  int turnChannel = 0;
+  int turnChannel = vexControllerGet(J_TURN) * 0.6;
 
   turn = VALLEY(turnChannel, 20, 127);
   ld = VALLEY(forward + turn, 20, 127);
   rd = VALLEY(forward - turn, 20, 127);
-
   SetMotor(M_DRIVE_LEFT,  ld);
   SetMotor(M_DRIVE_RIGHT, rd);
 
@@ -131,7 +142,7 @@ msg_t vexOperator( void *arg )
     {
       driveMotors();
 
-      
+
 
     //   //Don't hog cpu
       vexSleep(10);
