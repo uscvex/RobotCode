@@ -65,7 +65,7 @@ EPidController *leftLiftPid;
 
 static vexMotorCfg mConfig[] = {
   { M_DRIVE_LEFT,      kVexMotor393S, kVexMotorNormal,      kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_CLAW_A,           kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_CLAW_B,           kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_LIFT_RIGHT_A,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
