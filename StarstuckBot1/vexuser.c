@@ -10,7 +10,6 @@
 // Motor mappings
 
 // Lift
-<<<<<<< HEAD
 #define M_LIFT_RIGHT       kVexMotor_3
 #define M_LIFT_LEFT        kVexMotor_9
 
@@ -23,40 +22,22 @@
 //Followers
 #define M_FOLLOWERS_RIGHT       kVexMotor_7
 #define M_FOLLOWERS_LEFT        kVexMotor_4
-=======
-#define M_LIFT_LEFT_AB   kVexMotor_7
-#define M_LIFT_RIGHT_AB  kVexMotor_4
 
-// Drive
-#define M_DRIVE_RIGHT_AB  kVexMotor_2
-#define M_DRIVE_RIGHT_C   kVexMotor_3
-#define M_DRIVE_LEFT_AB   kVexMotor_9
-#define M_DRIVE_LEFT_C    kVexMotor_8
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
-
-//Claw
-#define M_CLAW_A   kVexMotor_5
-#define M_CLAW_B   kVexMotor_6
 
 // Sensor mappings
-<<<<<<< HEAD
+
 // #define P_LIFT_ENC_RIGHT_A   kVexDigital_1
 // #define P_LIFT_ENC_RIGHT_B   kVexDigital_2
 // #define P_LIFT_ENC_LEFT_A  kVexDigital_3
 // #define P_LIFT_ENC_LEFT_B  kVexDigital_4
-=======
-#define P_LIFT_ENC_LEFT_A   kVexDigital_1
-#define P_LIFT_ENC_LEFT_B   kVexDigital_2
-#define P_LIFT_ENC_RIGHT_A  kVexDigital_3
-#define P_LIFT_ENC_RIGHT_B  kVexDigital_4
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
+
 
 // #define P_DRIVE_ENC_RIGHT_A kVexDigital_5
 // #define P_DRIVE_ENC_RIGHT_B kVexDigital_6
 // #define P_DRIVE_ENC_LEFT_A  kVexDigital_7
 // #define P_DRIVE_ENC_LEFT_B  kVexDigital_8
 
-<<<<<<< HEAD
+
 // #define P_CLAW_A  kVexDigital_9
 // #define P_CLAW_B  kVexDigital_10
 
@@ -65,27 +46,14 @@
 // #define S_DRIVE_ENC_LEFT_B  kVexSensorDigital_5
 // #define S_DRIVE_ENC_RIGHT_B kVexSensorDigital_7
 
-// #define S_ClAW          kVexSensorDigital_9
-=======
-#define P_CLAW_ENC_A        kVexDigital_9
-#define P_CLAW_ENC_B        kVexDigital_10
-
-#define S_LIFT_ENC_LEFT   kVexSensorDigital_1
-#define S_LIFT_ENC_RIGHT  kVexSensorDigital_3
-#define S_DRIVE_ENC_LEFT  kVexSensorDigital_5
-#define S_DRIVE_ENC_RIGHT kVexSensorDigital_7
-
-#define S_CLAW_ENC      kVexSensorDigital_9
-
-#define SIDE_CHOOSER      kVexAnalog_1
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
+// #define S_ClAW          kVexSensorDigital
 
 // Controller mappings
 #define J_LIFT_UP     Btn5U
 #define J_LIFT_DOWN   Btn5D
 #define J_DRIVE       Ch3
 #define J_TURN        Ch1
-<<<<<<< HEAD
+
 
 #define J_FOLLOWERS_UP   Btn8U
 #define J_FOLLOWERS_DOWN   Btn8D
@@ -93,13 +61,7 @@
 // #define J_CLAW_OPEN   Btn6U
 // #define J_CLAW_CLOSE  Btn6D
 
-=======
-#define J_TOSS_UP     Btn5U
-#define J_TOSS_DOWN   Btn5D
-#define J_CLAW_UP     Btn6U
-#define J_CLAW_DOWN   Btn6D
-#define J_AUTON_CONT  Btn7L
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
+
 
 // PID Controls
 // EPidController *leftDrivePid;
@@ -111,7 +73,7 @@
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-<<<<<<< HEAD
+
   { M_FOLLOWERS_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_FOLLOWERS_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
@@ -120,21 +82,10 @@ static vexMotorCfg mConfig[] = {
   { M_DRIVE_LEFT_B,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
-=======
-  { M_LIFT_LEFT_AB,   kVexMotor393T,  kVexMotorNormal,     kVexSensorNone,  0 },
-  { M_LIFT_RIGHT_AB,  kVexMotor393T,  kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT_AB, kVexMotor393R,  kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT_C,  kVexMotor393R,  kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_DRIVE_LEFT_AB,  kVexMotor393R,  kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_DRIVE_LEFT_C,   kVexMotor393R,  kVexMotorNormal,     kVexSensorNone,  0 },
-  { M_CLAW_A,         kVexMotor393T,  kVexMotorReversed,   kVexSensorNone,  0 },
-  { M_CLAW_B,         kVexMotor393T,  kVexMotorNormal,     kVexSensorNone,  0 }
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
 };
 
 static vexDigiCfg dConfig[] = {
 
-<<<<<<< HEAD
   // { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_2 },
   // { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
 
@@ -146,22 +97,6 @@ static vexDigiCfg dConfig[] = {
 
   // { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
   // { P_LIFT_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
-=======
-  { P_CLAW_ENC_A,       kVexSensorQuadEncoder,  kVexConfigQuadEnc1,  kVexQuadEncoder_1 },
-  { P_CLAW_ENC_B,       kVexSensorQuadEncoder,  kVexConfigQuadEnc2,  kVexQuadEncoder_1 },
-
-  { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
-  { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_2 },
-
-  { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder,  kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
-  { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder,  kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
-
-  { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder,  kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
-  { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder,  kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
-
-  { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder,  kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
-  { P_LIFT_ENC_RIGHT_B, kVexSensorQuadEncoder,  kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
 
 };
 
