@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "ch.h"
 #include "hal.h"
-#include "vex.hq"
+#include "vex.h"
 #include "pidlib.h"
 #include "robotc_glue.h"
 #include "../Common/common.h"
@@ -58,9 +58,6 @@
 #define J_FOLLOWERS_UP   Btn8U
 #define J_FOLLOWERS_DOWN   Btn8D
 
-// #define J_CLAW_OPEN   Btn6U
-// #define J_CLAW_CLOSE  Btn6D
-
 
 
 // PID Controls
@@ -111,10 +108,10 @@ void vexUserSetup()
 void vexUserInit()
 {
     // Initialize PID
-    leftDrivePid  =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_LEFT,  false);
-    rightDrivePid =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_RIGHT,  true);
-    rightLiftPid  =  EPidInit(kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_RIGHT, false);
-    leftLiftPid   =  EPidInit (kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_LEFT, false);
+    // leftDrivePid  =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_LEFT,  false);
+    // rightDrivePid =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_RIGHT,  true);
+    // rightLiftPid  =  EPidInit(kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_RIGHT, false);
+    // leftLiftPid   =  EPidInit (kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_LEFT, false);
 }
 
 //-------------Miscellaneous functions----------------------------------------//
@@ -132,22 +129,16 @@ bool driveMotors(void) {
   ld = VALLEY(forward + turn, 20, 127);
   rd = VALLEY(forward - turn, 20, 127);
 
-<<<<<<< HEAD
   vexMotorSet(M_DRIVE_RIGHT_B,  ld);
   vexMotorSet(M_DRIVE_RIGHT_F, rd);
   vexMotorSet(M_DRIVE_LEFT_F,  ld);
   vexMotorSet(M_DRIVE_LEFT_B, rd);
-=======
-  vexMotorSet(M_DRIVE_LEFT_AB,  ld);
-  vexMotorSet(M_DRIVE_LEFT_C,   ld);
-  vexMotorSet(M_DRIVE_RIGHT_AB, rd);
-  vexMotorSet(M_DRIVE_RIGHT_C,  rd);
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
+
 
   return (ld != 0 || rd != 0);
 }
 
-<<<<<<< HEAD
+
 // Raises lift, adjusting motor output to rise smoothly
 // void raiseLift(void){
 
@@ -207,50 +198,50 @@ bool driveMotors(void) {
 //     vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
 // }
 
-void drive_forward(){
+// void drive_forward(){
+// }
   
-=======
-void clearDriveEncoders(void) {
-    vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
-    vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
-}
+
+// void clearDriveEncoders(void) {
+//     vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
+//     vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
+// }
 /*--------------------------Auton Routine Functions---------------------------*/
 
-void Move_Forward (int target) {
-  const int SPEED = 350;
-  int32_t duration = (ABS(target)/SPEED)*1000;
-  EPidEnable(rightDrivePid, duration, target);
-  EPidEnable(leftDrivePid, duration, target);
-}
+// void Move_Forward (int target) {
+//   const int SPEED = 350;
+//   int32_t duration = (ABS(target)/SPEED)*1000;
+//   EPidEnable(rightDrivePid, duration, target);
+//   EPidEnable(leftDrivePid, duration, target);
+// }
 
-void Move_in_Dir (int target, int dir) {
-  const int SPEED = 250;
-  int32_t duration = (ABS(target)/SPEED)*1000;
-  EPidEnable(rightDrivePid, duration, -dir*target);
-  EPidEnable(leftDrivePid, duration, dir*target);
-}
+// void Move_in_Dir (int target, int dir) {
+//   const int SPEED = 250;
+//   int32_t duration = (ABS(target)/SPEED)*1000;
+//   EPidEnable(rightDrivePid, duration, -dir*target);
+//   EPidEnable(leftDrivePid, duration, dir*target);
+// }
 
-void liftClaw(){
-  while(S_CLAW_ENC > -45){
-    SetMotor(M_CLAW_A, 100);
-    SetMotor(M_CLAW_B, 100);
-  }
-  SetMotor(M_CLAW_A, 0);
-  SetMotor(M_CLAW_B, 0);
-}
+// void liftClaw(){
+//   while(S_CLAW_ENC > -45){
+//     SetMotor(M_CLAW_A, 100);
+//     SetMotor(M_CLAW_B, 100);
+//   }
+//   SetMotor(M_CLAW_A, 0);
+//   SetMotor(M_CLAW_B, 0);
+// }
 
-void dropClaw(){
-  while(S_CLAW_ENC ){}
-}
+// void dropClaw(){
+//   while(S_CLAW_ENC ){}
+// }
 
-void dump(){
+// void dump(){
 
-}
+// }
 
-void lowerLift(){
+// void lowerLift(){
 
-}
+// }
 
 //---------------------Autonomous routine-------------------------------------//
 
@@ -274,26 +265,26 @@ msg_t vexAutonomous( void *arg )
       }
       systime_t autonTime = chTimeNow() - init_time;
 
-      if (step == 0 && autonTime > 0 && autonTime < 2400){
-        EPidEnable(rightDrivePid, 1500, 1300);
-        EPidEnable(leftDrivePid, 1500, 1300);
-        step++;
-      }
+      // if (step == 0 && autonTime > 0 && autonTime < 2400){
+      //   EPidEnable(rightDrivePid, 1500, 1300);
+      //   EPidEnable(leftDrivePid, 1500, 1300);
+      //   step++;
+      // }
 
       //Set motor values
-      int16_t motorValL = EPidUpdate(leftDrivePid);
-		  int16_t motorValR = EPidUpdate(rightDrivePid);
+    //   int16_t motorValL = EPidUpdate(leftDrivePid);
+		  // int16_t motorValR = EPidUpdate(rightDrivePid);
 
-      int16_t leftLiftVal = EPidUpdate(leftLiftPid);
-      int16_t rightLiftVal = EPidUpdate(rightLiftPid);
+    //   int16_t leftLiftVal = EPidUpdate(leftLiftPid);
+    //   int16_t rightLiftVal = EPidUpdate(rightLiftPid);
 
-		  vexMotorSet(M_DRIVE_RIGHT_AB, motorValR);
-      vexMotorSet(M_DRIVE_RIGHT_C, motorValR);
-		  vexMotorSet(M_DRIVE_LEFT_AB, motorValL);
-      vexMotorSet(M_DRIVE_LEFT_C, motorValL);
+		  // vexMotorSet(M_DRIVE_RIGHT_AB, motorValR);
+    //   vexMotorSet(M_DRIVE_RIGHT_C, motorValR);
+		  // vexMotorSet(M_DRIVE_LEFT_AB, motorValL);
+    //   vexMotorSet(M_DRIVE_LEFT_C, motorValL);
 
-      vexMotorSet(M_LIFT_LEFT_AB, leftLiftVal);
-      vexMotorSet(M_LIFT_RIGHT_AB, rightLiftVal);
+    //   vexMotorSet(M_LIFT_LEFT_AB, leftLiftVal);
+    //   vexMotorSet(M_LIFT_RIGHT_AB, rightLiftVal);
 
       vexSleep(10);
     }
@@ -311,7 +302,7 @@ msg_t vexOperator( void *arg )
     bool isMoving;
 
     //Clear encoders
-    clearDriveEncoders();
+    // clearDriveEncoders();
 
     while(!chThdShouldTerminate())
     {
@@ -321,27 +312,7 @@ msg_t vexOperator( void *arg )
       if(vexControllerGet(Btn7L)){
         vexAutonomous(NULL);
       }
-      // Controls for lift LIFT
-      if(vexControllerGet(J_LIFT_UP)) {
-        vexMotorSet(M_LIFT_RIGHT_AB, 90);
-        vexMotorSet(M_LIFT_LEFT_AB, 90);
-      }
-<<<<<<< HEAD
-      last_drive_enc_val_left = curr_drive_enc_val_left;
-      last_drive_enc_val_right = curr_drive_enc_val_right;
-      */
 
-      if(vexControllerGet(J_LIFT_UP)){
-        vexMotorSet(M_LIFT_RIGHT, 30);
-        vexMotorSet(M_LIFT_LEFT, 30);
-      }
-      else if(vexControllerGet(J_LIFT_DOWN)){
-        vexMotorSet(M_LIFT_RIGHT, -30);
-        vexMotorSet(M_LIFT_LEFT, -30);
-      } else{
-        vexMotorSet(M_LIFT_RIGHT, 0);
-        vexMotorSet(M_LIFT_LEFT, 0);
-      }
 
 
       if(vexControllerGet(J_FOLLOWERS_UP)){
@@ -354,52 +325,10 @@ msg_t vexOperator( void *arg )
       } else{
         vexMotorSet(M_FOLLOWERS_RIGHT, 0);
         vexMotorSet(M_FOLLOWERS_LEFT, 0);
-=======
-      else if(vexControllerGet(J_LIFT_DOWN) && vexSensorValueGet(S_LIFT_ENC_LEFT) < 0
-              && vexSensorValueGet(S_LIFT_ENC_RIGHT) < 0) {
-        vexMotorSet(M_LIFT_RIGHT_AB, -60);
-        vexMotorSet(M_LIFT_LEFT_AB, -60);
       }
-      else {
-        vexMotorSet(M_LIFT_RIGHT_AB, 0);
-        vexMotorSet(M_LIFT_LEFT_AB, 0);
-      }
-      //Claw controls
-      if(vexControllerGet(J_CLAW_UP)){
-        vexMotorSet(M_CLAW_A, 100);
-        vexMotorSet(M_CLAW_B, 100);
-      } else if (vexControllerGet(J_CLAW_DOWN)) {
-        vexMotorSet(M_CLAW_A, -60);
-        vexMotorSet(M_CLAW_B, -60);
-      } else {
-        vexMotorSet(M_CLAW_A, 0);
-        vexMotorSet(M_CLAW_B, 0);
->>>>>>> 25781027b2b6de857010abc534f41cbb5cce7c8b
-      }
-      // else {
-      //   vexMotorSet(M_LIFT_RIGHT_A, 0);
-      //   vexMotorSet(M_LIFT_RIGHT_B, 0);
-      //   vexMotorSet(M_LIFT_LEFT_A, 0);
-      //   vexMotorSet(M_LIFT_LEFT_B, 0);
-      // }
-
-      // //Controls for claw
-      // if(vexControllerGet(J_CLAW_OPEN)) {
-      //   vexMotorSet(M_CLAW_A, -60);
-      //   vexMotorSet(M_CLAW_B, -60);
-      // }
-
-      // else if(vexControllerGet(J_CLAW_CLOSE)) {
-      //   vexMotorSet(M_CLAW_A, 60);
-      //   vexMotorSet(M_CLAW_B, 60);
-      // }
-      // else {
-      //   vexMotorSet(M_CLAW_A, 0);
-      //   vexMotorSet(M_CLAW_B, 0);
-      // }
-
+      
       if(vexControllerGet(Btn7R)){
-        clearDriveEncoders();
+        // clearDriveEncoders();
       }
       //Don't hog cpu
       vexSleep(10);
