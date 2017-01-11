@@ -8,85 +8,89 @@
 #include "../Common/easing.h"
 
 // Motor mappings
+
 // Lift
-#define M_LIFT_LEFT_A   kVexMotor_6
-#define M_LIFT_LEFT_B   kVexMotor_7
-
-#define M_LIFT_RIGHT_A  kVexMotor_4
-#define M_LIFT_RIGHT_B  kVexMotor_5
-
-#define M_CLAW_A        kVexMotor_3
-#define M_CLAW_B        kVexMotor_8
+#define M_LIFT_RIGHT       kVexMotor_3
+#define M_LIFT_LEFT        kVexMotor_9
 
 // Drive
-#define M_DRIVE_RIGHT    kVexMotor_2
-#define M_DRIVE_LEFT     kVexMotor_9
+#define M_DRIVE_RIGHT_B    kVexMotor_2
+#define M_DRIVE_LEFT_B     kVexMotor_5
+#define M_DRIVE_LEFT_F     kVexMotor_8
+#define M_DRIVE_RIGHT_F    kVexMotor_6
 
+//Followers
+#define M_FOLLOWERS_RIGHT       kVexMotor_7
+#define M_FOLLOWERS_LEFT        kVexMotor_4
 
 
 // Sensor mappings
-#define P_LIFT_ENC_RIGHT_A   kVexDigital_1
-#define P_LIFT_ENC_RIGHT_B   kVexDigital_2
-#define P_LIFT_ENC_LEFT_A  kVexDigital_3
-#define P_LIFT_ENC_LEFT_B  kVexDigital_4
+// #define P_LIFT_ENC_RIGHT_A   kVexDigital_1
+// #define P_LIFT_ENC_RIGHT_B   kVexDigital_2
+// #define P_LIFT_ENC_LEFT_A  kVexDigital_3
+// #define P_LIFT_ENC_LEFT_B  kVexDigital_4
 
-#define P_DRIVE_ENC_RIGHT_A kVexDigital_5
-#define P_DRIVE_ENC_RIGHT_B kVexDigital_6
-#define P_DRIVE_ENC_LEFT_A  kVexDigital_7
-#define P_DRIVE_ENC_LEFT_B  kVexDigital_8
+// #define P_DRIVE_ENC_RIGHT_A kVexDigital_5
+// #define P_DRIVE_ENC_RIGHT_B kVexDigital_6
+// #define P_DRIVE_ENC_LEFT_A  kVexDigital_7
+// #define P_DRIVE_ENC_LEFT_B  kVexDigital_8
 
-#define P_CLAW_A  kVexDigital_9
-#define P_CLAW_B  kVexDigital_10
+// #define P_CLAW_A  kVexDigital_9
+// #define P_CLAW_B  kVexDigital_10
 
-#define S_LIFT_ENC_RIGHT_A  kVexSensorDigital_1
-#define S_LIFT_ENC_LEFT_A   kVexSensorDigital_3
-#define S_DRIVE_ENC_LEFT_B  kVexSensorDigital_5
-#define S_DRIVE_ENC_RIGHT_B kVexSensorDigital_7
+// #define S_LIFT_ENC_RIGHT_A  kVexSensorDigital_1
+// #define S_LIFT_ENC_LEFT_A   kVexSensorDigital_3
+// #define S_DRIVE_ENC_LEFT_B  kVexSensorDigital_5
+// #define S_DRIVE_ENC_RIGHT_B kVexSensorDigital_7
 
-#define S_ClAW          kVexSensorDigital_9
+// #define S_ClAW          kVexSensorDigital_9
 
 // Controller mappings
 #define J_LIFT_UP     Btn5U
 #define J_LIFT_DOWN   Btn5D
 #define J_DRIVE       Ch3
 #define J_TURN        Ch1
-#define J_CLAW_OPEN   Btn6U
-#define J_CLAW_CLOSE  Btn6D
+
+#define J_FOLLOWERS_UP   Btn8U
+#define J_FOLLOWERS_DOWN   Btn8D
+
+// #define J_CLAW_OPEN   Btn6U
+// #define J_CLAW_CLOSE  Btn6D
 
 
 // PID Controls
-EPidController *leftDrivePid;
-EPidController *rightDrivePid;
-EPidController *rightLiftPid;
-EPidController *leftLiftPid;
+// EPidController *leftDrivePid;
+// EPidController *rightDrivePid;
+// EPidController *rightLiftPid;
+// EPidController *leftLiftPid;
 
 
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-  { M_DRIVE_LEFT,      kVexMotor393S, kVexMotorNormal,      kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_CLAW_A,           kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_CLAW_B,           kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-  { M_LIFT_RIGHT_A,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_LIFT_LEFT_A,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-  { M_LIFT_RIGHT_B,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_LIFT_LEFT_B,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
+  { M_FOLLOWERS_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_FOLLOWERS_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_LEFT_B,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
 };
 
 static vexDigiCfg dConfig[] = {
 
-  { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_2 },
-  { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
+  // { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_2 },
+  // { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
 
-  { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
-  { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+  // { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
+  // { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
 
-  { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
-  { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
+  // { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
+  // { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
 
-  { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
-  { P_LIFT_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
+  // { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
+  // { P_LIFT_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
 
 };
 
@@ -122,8 +126,10 @@ bool driveMotors(void) {
   ld = VALLEY(forward + turn, 20, 127);
   rd = VALLEY(forward - turn, 20, 127);
 
-  vexMotorSet(M_DRIVE_LEFT,  ld);
-  vexMotorSet(M_DRIVE_RIGHT, rd);
+  vexMotorSet(M_DRIVE_RIGHT_B,  ld);
+  vexMotorSet(M_DRIVE_RIGHT_F, rd);
+  vexMotorSet(M_DRIVE_LEFT_F,  ld);
+  vexMotorSet(M_DRIVE_LEFT_B, rd);
 
   return (ld != 0 || rd != 0);
 }
@@ -186,6 +192,10 @@ bool driveMotors(void) {
 //     vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
 //     vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
 // }
+
+void drive_forward(){
+  
+}
 /*--------------------------Auton Routine Functions---------------------------*/
 
 //---------------------Autonomous routine-------------------------------------//
@@ -232,6 +242,7 @@ msg_t vexOperator( void *arg )
 
     while(!chThdShouldTerminate())
     {
+      //Remember to Uncomment.
       isMoving = driveMotors();
 
       //Prevent motors from burning out if stuck
@@ -257,38 +268,50 @@ msg_t vexOperator( void *arg )
       */
 
       if(vexControllerGet(J_LIFT_UP)){
-        vexMotorSet(M_LIFT_LEFT_A, 70);
-        vexMotorSet(M_LIFT_LEFT_B, 70);
-        vexMotorSet(M_LIFT_RIGHT_A, 70);
-        vexMotorSet(M_LIFT_RIGHT_B, 70);
+        vexMotorSet(M_LIFT_RIGHT, 30);
+        vexMotorSet(M_LIFT_LEFT, 30);
       }
       else if(vexControllerGet(J_LIFT_DOWN)){
-        vexMotorSet(M_LIFT_RIGHT_A, -70);
-        vexMotorSet(M_LIFT_RIGHT_B, -70);
-        vexMotorSet(M_LIFT_LEFT_A, -70);
-        vexMotorSet(M_LIFT_LEFT_B, -70);
-      }
-      else {
-        vexMotorSet(M_LIFT_RIGHT_A, 0);
-        vexMotorSet(M_LIFT_RIGHT_B, 0);
-        vexMotorSet(M_LIFT_LEFT_A, 0);
-        vexMotorSet(M_LIFT_LEFT_B, 0);
+        vexMotorSet(M_LIFT_RIGHT, -30);
+        vexMotorSet(M_LIFT_LEFT, -30);
+      } else{
+        vexMotorSet(M_LIFT_RIGHT, 0);
+        vexMotorSet(M_LIFT_LEFT, 0);
       }
 
-      //Controls for claw
-      if(vexControllerGet(J_CLAW_OPEN)) {
-        vexMotorSet(M_CLAW_A, -60);
-        vexMotorSet(M_CLAW_B, -60);
-      }
 
-      else if(vexControllerGet(J_CLAW_CLOSE)) {
-        vexMotorSet(M_CLAW_A, 60);
-        vexMotorSet(M_CLAW_B, 60);
+      if(vexControllerGet(J_FOLLOWERS_UP)){
+        vexMotorSet(M_FOLLOWERS_RIGHT, 100);
+        vexMotorSet(M_FOLLOWERS_LEFT, 100);
       }
-      else {
-        vexMotorSet(M_CLAW_A, 0);
-        vexMotorSet(M_CLAW_B, 0);
+      else if(vexControllerGet(J_FOLLOWERS_DOWN)){
+        vexMotorSet(M_FOLLOWERS_RIGHT, -100);
+        vexMotorSet(M_FOLLOWERS_LEFT, -100);
+      } else{
+        vexMotorSet(M_FOLLOWERS_RIGHT, 0);
+        vexMotorSet(M_FOLLOWERS_LEFT, 0);
       }
+      // else {
+      //   vexMotorSet(M_LIFT_RIGHT_A, 0);
+      //   vexMotorSet(M_LIFT_RIGHT_B, 0);
+      //   vexMotorSet(M_LIFT_LEFT_A, 0);
+      //   vexMotorSet(M_LIFT_LEFT_B, 0);
+      // }
+
+      // //Controls for claw
+      // if(vexControllerGet(J_CLAW_OPEN)) {
+      //   vexMotorSet(M_CLAW_A, -60);
+      //   vexMotorSet(M_CLAW_B, -60);
+      // }
+
+      // else if(vexControllerGet(J_CLAW_CLOSE)) {
+      //   vexMotorSet(M_CLAW_A, 60);
+      //   vexMotorSet(M_CLAW_B, 60);
+      // }
+      // else {
+      //   vexMotorSet(M_CLAW_A, 0);
+      //   vexMotorSet(M_CLAW_B, 0);
+      // }
 
       //Don't hog cpu
       vexSleep(10);

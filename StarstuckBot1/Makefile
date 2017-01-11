@@ -67,12 +67,12 @@ endif
 
 # Path to ChibiOS/RT - default assumes making examples
 ifeq ($(CHIBIOS),)
-CHIBIOS = C:\ChibiOS_2.6.2
+CHIBIOS = C:/Projects/ChibiOS_2.6.2
 endif
 
 # Path to ConVEX root - default assumes making examples
 ifeq ($(CONVEX),)
-CONVEX  = C:\TEST\convex\cortex
+CONVEX  = C:/Projects/convex/cortex
 endif
 
 # Imported source files and paths
