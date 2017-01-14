@@ -15,13 +15,13 @@
 
 // Drive
 #define M_DRIVE_RIGHT_B    kVexMotor_2
-#define M_DRIVE_LEFT_B     kVexMotor_5
+#define M_DRIVE_LEFT_B     kVexMotor_4
 #define M_DRIVE_LEFT_F     kVexMotor_8
 #define M_DRIVE_RIGHT_F    kVexMotor_6
 
 //Followers
 #define M_FOLLOWERS_RIGHT       kVexMotor_7
-#define M_FOLLOWERS_LEFT        kVexMotor_4
+#define M_FOLLOWERS_LEFT        kVexMotor_5
 
 
 // Sensor mappings
@@ -46,8 +46,8 @@
 #define J_TURN        Ch1
 
 
-#define J_FOLLOWERS_UP   Btn8U
-#define J_FOLLOWERS_DOWN   Btn8D
+#define J_FOLLOWERS_UP   Btn6U
+#define J_FOLLOWERS_DOWN   Btn6D
 
 #define J_AUTON_START Btn7L
 #define J_AUTON_END   Btn7R
