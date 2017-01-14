@@ -26,16 +26,18 @@
 
 // Sensor mappings
 
+//#define P_SOLENOID_1        kVexDigital_1
+//#define P_SOLENOID_2        kVexDigital_2
 // #define P_LIFT_ENC_RIGHT_A   kVexDigital_1
 // #define P_LIFT_ENC_RIGHT_B   kVexDigital_2
 // #define P_LIFT_ENC_LEFT_A  kVexDigital_3
 // #define P_LIFT_ENC_LEFT_B  kVexDigital_4
 
 
-// #define P_DRIVE_ENC_RIGHT_A kVexDigital_5
-// #define P_DRIVE_ENC_RIGHT_B kVexDigital_6
-// #define P_DRIVE_ENC_LEFT_A  kVexDigital_7
-// #define P_DRIVE_ENC_LEFT_B  kVexDigital_8
+#define P_DRIVE_ENC_RIGHT_A kVexDigital_7
+#define P_DRIVE_ENC_RIGHT_B kVexDigital_8
+#define P_DRIVE_ENC_LEFT_A  kVexDigital_9
+#define P_DRIVE_ENC_LEFT_B  kVexDigital_10
 
 
 // #define P_CLAW_A  kVexDigital_9
@@ -51,6 +53,10 @@
 // Controller mappings
 #define J_LIFT_UP     Btn5U
 #define J_LIFT_DOWN   Btn5D
+
+#define J_SOLENOID_RELEASE   Btn6U
+#define J_SOLENOID_RETRACT  Btn6D
+
 #define J_DRIVE       Ch3
 #define J_TURN        Ch1
 
@@ -61,8 +67,8 @@
 
 
 // PID Controls
-// EPidController *leftDrivePid;
-// EPidController *rightDrivePid;
+EPidController *leftDrivePid;
+EPidController *rightDrivePid;
 // EPidController *rightLiftPid;
 // EPidController *leftLiftPid;
 
@@ -72,22 +78,22 @@
 static vexMotorCfg mConfig[] = {
 
   { M_FOLLOWERS_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_FOLLOWERS_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+  { M_FOLLOWERS_LEFT,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_DRIVE_LEFT_B,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-  { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 }
+  { M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
 };
 
 static vexDigiCfg dConfig[] = {
 
-  // { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_2 },
-  // { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
+  { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_2 },
+  { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_2 },
 
-  // { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
-  // { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+  { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
+  { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
 
   // { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
   // { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
@@ -108,8 +114,8 @@ void vexUserSetup()
 void vexUserInit()
 {
     // Initialize PID
-    // leftDrivePid  =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_LEFT,  false);
-    // rightDrivePid =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_RIGHT,  true);
+    leftDrivePid  =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_LEFT,  false);
+    rightDrivePid =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_RIGHT,  true);
     // rightLiftPid  =  EPidInit(kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_RIGHT, false);
     // leftLiftPid   =  EPidInit (kMinJerk, 0.001, 0, 0.01, S_LIFT_ENC_LEFT, false);
 }
@@ -129,13 +135,26 @@ bool driveMotors(void) {
   ld = VALLEY(forward + turn, 20, 127);
   rd = VALLEY(forward - turn, 20, 127);
 
-  vexMotorSet(M_DRIVE_RIGHT_B,  ld);
-  vexMotorSet(M_DRIVE_RIGHT_F, rd);
+  vexMotorSet(M_DRIVE_LEFT_B,  ld);
+  vexMotorSet(M_DRIVE_RIGHT_B, rd);
   vexMotorSet(M_DRIVE_LEFT_F,  ld);
-  vexMotorSet(M_DRIVE_LEFT_B, rd);
+  vexMotorSet(M_DRIVE_RIGHT_F, rd);
 
 
   return (ld != 0 || rd != 0);
+}
+
+
+
+void Set_Follower_Motors(int val){
+  vexMotorSet(M_FOLLOWERS_RIGHT, val);
+  vexMotorSet(M_FOLLOWERS_LEFT, val);
+}
+
+
+void Set_Lift_Motors(int val){
+  vexMotorSet(M_LIFT_LEFT, val);
+  vexMotorSet(M_LIFT_RIGHT, val);
 }
 
 
@@ -253,7 +272,7 @@ msg_t vexAutonomous( void *arg )
     //Reset encoders
     //clearDriveEncoders();
 
-    systime_t init_time = chTimeNow();
+    // systime_t init_time = chTimeNow();
     int step = 0;
 
     //int startOnLeft = -1 * (vexAdcGet(SIDE_CHOOSER) < 2048) ? 1 : 0;
@@ -263,7 +282,7 @@ msg_t vexAutonomous( void *arg )
       if(vexControllerGet(Btn7U)){
         break;
       }
-      systime_t autonTime = chTimeNow() - init_time;
+      // systime_t autonTime = chTimeNow() - init_time;
 
       // if (step == 0 && autonTime > 0 && autonTime < 2400){
       //   EPidEnable(rightDrivePid, 1500, 1300);
@@ -307,29 +326,43 @@ msg_t vexOperator( void *arg )
     while(!chThdShouldTerminate())
     {
       //Remember to Uncomment.
-      isMoving = driveMotors();
+      driveMotors();
 
-      if(vexControllerGet(Btn7L)){
-        vexAutonomous(NULL);
+      // if(vexControllerGet(Btn7L)){
+      //   vexAutonomous(NULL);
+      // }
+
+
+      if(vexControllerGet(J_LIFT_UP)){
+        Set_Lift_Motors(100);
       }
-
+      else if(vexControllerGet(J_LIFT_DOWN)){
+        Set_Lift_Motors(-100);
+      } else{
+        Set_Lift_Motors(0);      
+      }
 
 
       if(vexControllerGet(J_FOLLOWERS_UP)){
-        vexMotorSet(M_FOLLOWERS_RIGHT, 100);
-        vexMotorSet(M_FOLLOWERS_LEFT, 100);
+        Set_Follower_Motors(100);
       }
       else if(vexControllerGet(J_FOLLOWERS_DOWN)){
-        vexMotorSet(M_FOLLOWERS_RIGHT, -100);
-        vexMotorSet(M_FOLLOWERS_LEFT, -100);
+        Set_Follower_Motors(-100);
       } else{
-        vexMotorSet(M_FOLLOWERS_RIGHT, 0);
-        vexMotorSet(M_FOLLOWERS_LEFT, 0);
+        Set_Follower_Motors(0);      
       }
+
+
+      // if(vexControllerGet(J_SOLENOID_RELEASE)) {
+      //   vexDigitalPinSet(P_SOLENOID_1, 0);
+      //   vexDigitalPinSet(P_SOLENOID_2, 0);
+      // }
+      // else  if(vexControllerGet(J_SOLENOID_RETRACT)) {
+      //   vexDigitalPinSet(P_SOLENOID_1, 1);
+      //   vexDigitalPinSet(P_SOLENOID_2, 1);
+      // }
+
       
-      if(vexControllerGet(Btn7R)){
-        // clearDriveEncoders();
-      }
       //Don't hog cpu
       vexSleep(10);
     }
