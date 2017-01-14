@@ -20,8 +20,8 @@
 #define M_DRIVE_RIGHT_F    kVexMotor_6
 
 //Followers
-#define M_FOLLOWERS_RIGHT       kVexMotor_7
-#define M_FOLLOWERS_LEFT        kVexMotor_5
+#define M_DUMPER_TOP       kVexMotor_7
+#define M_DUMPER_BOTTOM        kVexMotor_5
 
 
 // Sensor mappings
@@ -39,15 +39,13 @@
 #define J_LIFT_UP     Btn5U
 #define J_LIFT_DOWN   Btn5D
 
-#define J_SOLENOID_RELEASE   Btn6U
-#define J_SOLENOID_RETRACT  Btn6D
 
 #define J_DRIVE       Ch3
 #define J_TURN        Ch1
 
 
-#define J_FOLLOWERS_UP   Btn6U
-#define J_FOLLOWERS_DOWN   Btn6D
+#define J_DUMPER_UP   Btn6U
+#define J_DUMPER_DOWN   Btn6D
 
 #define J_AUTON_START Btn7L
 #define J_AUTON_END   Btn7R
@@ -66,8 +64,8 @@ EPidController *rightDrivePid;
 
 static vexMotorCfg mConfig[] = {
 
-  { M_FOLLOWERS_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-  { M_FOLLOWERS_LEFT,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_DUMPER_TOP,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+  { M_DUMPER_BOTTOM,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
   { M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
   { M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
@@ -136,8 +134,8 @@ bool driveMotors(void) {
 
 
 void Set_Follower_Motors(int val){
-  vexMotorSet(M_FOLLOWERS_RIGHT, val);
-  vexMotorSet(M_FOLLOWERS_LEFT, val);
+  vexMotorSet(M_DUMPER_TOP, val);
+  vexMotorSet(M_DUMPER_BOTTOM, val);
 }
 
 
@@ -355,10 +353,10 @@ msg_t vexOperator( void *arg )
       }
 
 
-      if(vexControllerGet(J_FOLLOWERS_UP)){
+      if(vexControllerGet(J_DUMPER_UP)){
         Set_Follower_Motors(100);
       }
-      else if(vexControllerGet(J_FOLLOWERS_DOWN)){
+      else if(vexControllerGet(J_DUMPER_DOWN)){
         Set_Follower_Motors(-100);
       } else{
         Set_Follower_Motors(0);      
