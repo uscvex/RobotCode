@@ -4,3 +4,4 @@
 BigBot/setup.mk
 SmallBot/setup.mk
 SerialTest/setup.mk
+Makefile

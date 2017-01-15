@@ -11,25 +11,12 @@
 // Motor mappings
 // Drive
 #define M_DRIVE_RIGHT  kVexMotor_2
-#define M_DRIVE_LEFT   kVexMotor_3
 
 
 // Sensor mappings
-#define P_LIFT_ENC_RIGHT_A   kVexDigital_7
-#define P_LIFT_ENC_RIGHT_B   kVexDigital_8
+
 #define P_LIFT_ENC_LEFT_A   kVexDigital_9
 #define P_LIFT_ENC_LEFT_B   kVexDigital_10
-<<<<<<< HEAD
-
-#define S_LIFT_ENC_LEFT   kVexSensorDigital_7
-#define S_LIFT_ENC_RIGHT  kVexSensorDigital_9
-=======
-
-#define S_LIFT_ENC_LEFT   kVexSensorDigital_7
-#define S_LIFT_ENC_RIGHT  kVexSensorDigital_9
-
->>>>>>> b2394cc52914904e3b4c951623be7886a0563292
-
 
 // Controller mappings
 #define J_START     Btn6U
@@ -48,16 +35,13 @@ EPidController *leftLiftPid;
 
 static vexMotorCfg mConfig[] = {
   { M_DRIVE_RIGHT,    kVexMotor393S, kVexMotorNormal,    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
-  { M_DRIVE_LEFT,     kVexMotor393S, kVexMotorReversed,    kVexSensorQuadEncoder,  kVexQuadEncoder_2 }
 };
 
 static vexDigiCfg dConfig[] = {
 
-
   { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_1 },
   { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_1 },
-  { P_LIFT_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
-  { P_LIFT_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_2 }
+ 
 
 };
 
@@ -96,7 +80,7 @@ bool driveMotors(void) {
   turn = VALLEY(turnChannel, 20, 127);
   ld = VALLEY(forward + turn, 20, 127);
   rd = VALLEY(forward - turn, 20, 127);
-  SetMotor(M_DRIVE_LEFT,  ld);
+  // SetMotor(M_DRIVE_LEFT,  ld);
   SetMotor(M_DRIVE_RIGHT, rd);
 
   return (ld != 0 || rd != 0);
@@ -141,6 +125,10 @@ msg_t vexOperator( void *arg )
     while(!chThdShouldTerminate())
     {
       driveMotors();
+      vex_printf("Speed: %d, Temp: %d, Curr: %d\n", SmartMotorGetSpeed(M_DRIVE_RIGHT),  
+        SmartMotorGetTemperature(M_DRIVE_RIGHT), _SmartMotorGetCurrent(M_DRIVE_RIGHT, 0));
+       vex_printf("CONTROLLER -  Temp: %d, Curr: %d\n", 
+        SmartMotorGetControllerCurrent(0), SmartMotorGetControllerCurrent(0));
 
 
 
