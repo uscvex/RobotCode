@@ -6,6 +6,7 @@
 #include "robotc_glue.h"
 #include "../Common/common.h"
 #include "../Common/easing.h"
+#include "../Common/linefollower.h"
 
 // Motor mappings
 
@@ -50,6 +51,12 @@
 #define S_LIFT_RIGHT      kVexSensorDigital_3
 #define S_DUMP           kVexSensorDigital_5
 
+
+#define S_LINE_FOLLOWER_L2      1
+#define S_LINE_FOLLOWER_L1      2
+#define S_LINE_FOLLOWER_M       3
+#define S_LINE_FOLLOWER_R1      4
+#define S_LINE_FOLLOWER_R2      5
 
 // Controller mappings
 #define J_LIFT_UP     Btn5U
@@ -120,6 +127,15 @@ void vexUserInit()
     leftDrivePid  =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_LEFT,  false);
     rightDrivePid =  EPidInit(kMinJerk, 0.01, 0, 0.01, S_DRIVE_ENC_RIGHT,  true);
    
+
+    //  lfol = LineFollowerInit(
+    // 5,                   // five sensors
+    // S_LINE_FOLLOWER_L2,  // starting from the leftmost
+    // 30,                 // max speed
+    // lfolThresholds,
+    // lfolDrives
+  // );
+  // lfol->log = false;
 }
 
 //-------------Miscellaneous functions----------------------------------------//
@@ -127,7 +143,7 @@ void vexUserInit()
 bool driveMotors(void) {
   short ld, rd ;
   //Calculate Motor Power
-  int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127);
+  int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127) * 0.8;
   int turn;
 
 
@@ -237,14 +253,14 @@ void turn_deg(double ratio){
         vexSleep(10);
       }
       else{
-        vexMotorSet(M_DRIVE_LEFT_B,  0);
-        vexMotorSet(M_DRIVE_RIGHT_B, 0);
-        vexMotorSet(M_DRIVE_LEFT_F,  0);
-        vexMotorSet(M_DRIVE_RIGHT_F, 0);
+        
         break;
       }
   }
-
+  vexMotorSet(M_DRIVE_LEFT_B,   0);
+  vexMotorSet(M_DRIVE_RIGHT_B, 0);
+  vexMotorSet(M_DRIVE_LEFT_F,  0);
+  vexMotorSet(M_DRIVE_RIGHT_F, 0);
 }
 
 
@@ -412,13 +428,13 @@ void lift_down_2(){
 
 task dumper_retract (){
   systime_t init_time = chTimeNow();
-  systime_t duration = abs(1300);
+  systime_t duration = abs(1200);
   while (!chThdShouldTerminate()){
       if(vexControllerGet(Btn7R)){
         break;
       }
       systime_t autonTime = chTimeNow() - init_time;
-      if (autonTime < duration && vexSensorValueGet(S_DUMP) < 640){
+      if (autonTime < duration && vexSensorValueGet(S_DUMP) < 1000){
         Set_Follower_Motors(-90);
       }
       else{
@@ -426,6 +442,7 @@ task dumper_retract (){
         break;
       }
   }
+   Set_Follower_Motors(0);
 }
 
 task dumper_down (){
@@ -441,7 +458,7 @@ task dumper_down (){
         if (vexSensorValueGet(S_DUMP) >0)
           Set_Follower_Motors(60);
         else{
-          Set_Follower_Motors(0);
+         Set_Follower_Motors(0);
         }
       }
       else{
@@ -490,10 +507,125 @@ task dumper_reset_zero (){
       }
   }
 }
+void stop_slight_lift(){
+   StopTask(dumper_retract);
+  Set_Follower_Motors(-10);
+}
+
+void slight_dumper_lift(){
+  systime_t init_time = chTimeNow();
+  systime_t duration = abs(800);
+  while (!chThdShouldTerminate()){
+      if(vexControllerGet(Btn7R)){
+        break;
+      }
+      systime_t autonTime = chTimeNow() - init_time;
+      if (autonTime < duration && vexSensorValueGet(S_DUMP) < 640){
+        Set_Follower_Motors(-90);
+      }
+      else{
+        Set_Follower_Motors(-10);
+        break;
+      }
+  }
+}
+
+bool isAllLineOn(void) {
+  int i = 0;
+  for(i = 0;i < 5;i++) {
+    if(vexAdcGet(i) >= 300) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+void dumper_to_zero(){
+  systime_t init_time = chTimeNow();
+  systime_t duration = abs(800);
+  while (!chThdShouldTerminate()){
+      if(vexControllerGet(Btn7R)){
+        break;
+      }
+      systime_t autonTime = chTimeNow() - init_time;
+      if (autonTime < duration && vexSensorValueGet(S_DUMP) > 0){
+        Set_Follower_Motors(90);
+      }
+      else{
+        Set_Follower_Motors(0);
+        break;
+      }
+  }
+   Set_Follower_Motors(0);
+}
+void turn_on_line(){
+
+  // drive_forward(-0.3);
+
+  while (!isAllLineOn()){
+    if(vexControllerGet(Btn7R)){
+        break;
+      }
+      vexMotorSet(M_DRIVE_LEFT_B,  -40);
+      vexMotorSet(M_DRIVE_RIGHT_B, -40);
+      vexMotorSet(M_DRIVE_LEFT_F,  -40);
+      vexMotorSet(M_DRIVE_RIGHT_F, -40);
+  }
+  vexMotorSet(M_DRIVE_LEFT_B,  0);
+      vexMotorSet(M_DRIVE_RIGHT_B, 0);
+      vexMotorSet(M_DRIVE_LEFT_F,  0);
+      vexMotorSet(M_DRIVE_RIGHT_F, 0);
+
+}
+
 
 void stop_dumper(){
   StopTask(dumper_retract);
   Set_Follower_Motors(0);
+  vexMotorSet(M_DRIVE_LEFT_B,  -50);
+      vexMotorSet(M_DRIVE_RIGHT_B, -50);
+      vexMotorSet(M_DRIVE_LEFT_F,  -50);
+      vexMotorSet(M_DRIVE_RIGHT_F, -50);
+
+}
+
+void drive_forward_into_cube(){
+  systime_t init_time = chTimeNow();
+
+ 
+  systime_t duration = abs(1100);
+  int32_t target = 1300;
+  systime_t end_time = chTimeNow() + duration;
+  
+  while (!chThdShouldTerminate()){
+      if(vexControllerGet(Btn7R)){
+        vexMotorSet(M_DRIVE_LEFT_B,  0);
+        vexMotorSet(M_DRIVE_RIGHT_B, 0);
+        vexMotorSet(M_DRIVE_LEFT_F,  0);
+        vexMotorSet(M_DRIVE_RIGHT_F, 0);
+        break;
+      }
+
+      systime_t autonTime = chTimeNow() - init_time;
+      if (autonTime < duration){
+        int16_t ld = 127;
+        int16_t rd = 127;
+        vexMotorSet(M_DRIVE_LEFT_B,  ld);
+        vexMotorSet(M_DRIVE_RIGHT_B, rd);
+        vexMotorSet(M_DRIVE_LEFT_F,  ld);
+        vexMotorSet(M_DRIVE_RIGHT_F, rd);
+        vexSleep(10);
+      }
+      else{
+        vexMotorSet(M_DRIVE_LEFT_B,  0);
+        vexMotorSet(M_DRIVE_RIGHT_B, 0);
+        vexMotorSet(M_DRIVE_LEFT_F,  0);
+        vexMotorSet(M_DRIVE_RIGHT_F, 0);
+        break;
+      }
+  }
 
 }
 //---------------------Autonomous routine-------------------------------------//
@@ -503,42 +635,116 @@ msg_t vexAutonomous( void *arg )
     (void)arg;
     vexTaskRegister("auton");
 
-    // while(!chThdShouldTerminate())
-    // {
-      // if(vexControllerGet(Btn7R)){
-      //   break;
-      // }
-      // StartTask(lift_up);
+    
+      // StartTask(dumper_reset_zero);
+      // turn_deg(0.25);
+      // drive_forward(-0.4);
+      // wait(0.7);
+      // drive_forward(3);
+      // slight_dumper_lift();
+      // wait(2);
+      // turn_deg(0.25);
+      // stop_slight_lift();
+      // wait(1);
+      // drive_forward(0.6);
+      // wait(1);
+      // turn_deg(0.4);
+      // wait(1);
+      // StartTask(dumper_retract);
+      // drive_forward(-1);
+
+      // wait(1);
+      // stop_dumper();
+      // StartTask(dumper_down);
+      // drive_forward(1);
+      // turn_deg(-0.25);
+      // drive_forward(1.3);
+      // turn_deg(0.5);
+
+
+
       /**** Second Function Dump***/
-      
-      //StartTask(dumper_reset_zero);
-      drive_forward(-1.23);
-      turn_deg(0.245);
+      // SECOND FUNTION BEGINS.
+
+
+      StartTask(dumper_reset_zero);
+      drive_forward(-0.7);
+      turn_on_line();
+      drive_forward(0.1);
+      // drive_forward(-1.23);
+      wait(0.75);
+      turn_deg(0.265);
+      // turn_until_on_line();
+      // turn_deg(0.30);
       wait(1);
-      drive_forward(1.8);
+      drive_forward_into_cube() ;
       wait(1);
-      turn_deg(-0.57);
-      /** Second Function Dump End**/
-      wait(1);
-      drive_forward(0.35);
-      wait(1);
-      StartTask(dumper_retract);
-      drive_forward(-1.47);
-      stop_dumper();
-// 
-      wait(1);
-      StartTask(dumper_down);
-      drive_forward(1.4);
-      wait(1);
-      StartTask(dumper_retract);
-      drive_forward(-1);
-      StartTask(lift_up);
-      stop_dumper();
-      StartTask(dumper_down);
-      drive_forward(0.5);
-      turn_deg(0.25);
-      drive_forward(1.5);
+      slight_dumper_lift();
+      wait(0.25);
       turn_deg(-0.25);
+      turn_deg(0.02);
+  
+      wait(1);
+      StartTask(dumper_retract);
+      drive_forward(-0.9);
+      wait(1);
+      // StartTask(dumper_down);
+      dumper_to_zero();
+      // drive_forward(-0.);
+      // drive_forward(0.3);
+      StartTask(lift_up);
+      
+      wait(1);
+      drive_forward(1.3);
+
+      wait(1);
+      slight_dumper_lift();
+      wait(1);
+      drive_forward(-1);
+      drive_forward(-0.3);
+      dumper_retract();
+      StartTask(dumper_retract);
+      wait(1);
+      dumper_to_zero();
+      drive_forward(1.1);
+      wait(0.5);
+      slight_dumper_lift();
+      wait(0.5);
+      turn_deg(0.25);
+      
+      wait(1);
+      drive_forward(2.5);
+      
+      turn_deg(-0.4);
+      drive_forward(-0.55);
+      lift_up();
+      wait(0.5);
+      turn_deg(0.1);
+      dumper_to_zero();
+      drive_forward(1.25);
+      wait(0.5);
+      slight_dumper_lift();
+      drive_forward(-1.2);
+      dumper_retract();
+
+
+      // vex_printf("Entering Dumper Retract.");
+
+      // wait(1);
+      // StartTask(dumper_retract);
+      // drive_forward(-1);
+      // StartTask(lift_up);
+      // wait(1);
+      // // stop_dumper();
+      // StartTask(dumper_down);
+      // drive_forward(0.5);
+      // turn_deg(0.25);
+      // drive_forward(1.5);
+      // turn_deg(-0.25);
+      
+
+
+
       // StopTask(dumper_down);
       // StartTask(dumper_retract);
       // drive_forward(1);
