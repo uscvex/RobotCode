@@ -266,10 +266,14 @@ void turn_deg(double ratio){
 
 void wait(double ratio){
   systime_t init_time = chTimeNow();
-  systime_t duration = abs(ratio*1000);  
+  systime_t duration = abs(ratio*1000); 
+   vexMotorSet(M_DRIVE_LEFT_B,   0);
+  vexMotorSet(M_DRIVE_RIGHT_B, 0);
+  vexMotorSet(M_DRIVE_LEFT_F,  0);
+  vexMotorSet(M_DRIVE_RIGHT_F, 0);
+ 
   while (!chThdShouldTerminate()){
       if(vexControllerGet(Btn7R)){
-     
           break;
       }
       
@@ -332,6 +336,55 @@ task lift_up(){
         break;
       }
   }
+
+}
+
+task lift_up_STOP(){
+  systime_t init_time = chTimeNow();
+
+  // StartTask(lift_up_1);
+  systime_t duration = abs(1100);
+  
+ 
+  
+  while (!chThdShouldTerminate()){
+      if(vexControllerGet(Btn7R)){
+        break;
+      }
+
+      systime_t autonTime = chTimeNow() - init_time;
+      if (autonTime < duration){
+        // if (vexSensorValueGet(S_LIFT_LEFT) < 550) {
+          Set_Lift_Motors(100);
+        // } 
+      }
+      else{
+         Set_Lift_Motors(10);
+        break;
+      }
+  }
+
+  init_time = chTimeNow();
+  duration = abs(2900);
+
+   while (!chThdShouldTerminate()){
+      if(vexControllerGet(Btn7R)){
+        break;
+      }
+
+      systime_t autonTime = chTimeNow() - init_time;
+      if (autonTime < duration){
+        // if (vexSensorValueGet(S_LIFT_LEFT) < 550) {
+          Set_Lift_Motors(10);
+        // } 
+      }
+      else{
+         Set_Lift_Motors(-10);
+        break;
+      }
+  }
+
+
 
 }
 
@@ -533,7 +586,7 @@ void slight_dumper_lift(){
 bool isAllLineOn(void) {
   int i = 0;
   for(i = 0;i < 5;i++) {
-    if(vexAdcGet(i) >= 300) {
+    if(vexAdcGet(i) >= 400) {
       return false;
     }
   }
@@ -568,10 +621,11 @@ void turn_on_line(){
     if(vexControllerGet(Btn7R)){
         break;
       }
-      vexMotorSet(M_DRIVE_LEFT_B,  -40);
-      vexMotorSet(M_DRIVE_RIGHT_B, -40);
-      vexMotorSet(M_DRIVE_LEFT_F,  -40);
-      vexMotorSet(M_DRIVE_RIGHT_F, -40);
+      vexMotorSet(M_DRIVE_LEFT_B,  -30);
+      vexMotorSet(M_DRIVE_RIGHT_B, -30);
+      vexMotorSet(M_DRIVE_LEFT_F,  -30);
+      vexMotorSet(M_DRIVE_RIGHT_F, -30);
+      vexSleep(10);
   }
   vexMotorSet(M_DRIVE_LEFT_B,  0);
       vexMotorSet(M_DRIVE_RIGHT_B, 0);
@@ -595,7 +649,7 @@ void drive_forward_into_cube(){
   systime_t init_time = chTimeNow();
 
  
-  systime_t duration = abs(1100);
+  systime_t duration = abs(1300);
   int32_t target = 1300;
   systime_t end_time = chTimeNow() + duration;
   
@@ -634,141 +688,182 @@ msg_t vexAutonomous( void *arg )
 {
     (void)arg;
     vexTaskRegister("auton");
-
-    
-      // StartTask(dumper_reset_zero);
-      // turn_deg(0.25);
-      // drive_forward(-0.4);
-      // wait(0.7);
-      // drive_forward(3);
-      // slight_dumper_lift();
-      // wait(2);
-      // turn_deg(0.25);
-      // stop_slight_lift();
-      // wait(1);
-      // drive_forward(0.6);
-      // wait(1);
-      // turn_deg(0.4);
-      // wait(1);
-      // StartTask(dumper_retract);
-      // drive_forward(-1);
-
-      // wait(1);
-      // stop_dumper();
-      // StartTask(dumper_down);
-      // drive_forward(1);
-      // turn_deg(-0.25);
-      // drive_forward(1.3);
-      // turn_deg(0.5);
-
-
-
-      /**** Second Function Dump***/
-      // SECOND FUNTION BEGINS.
-
+      /*
+      // First Function.
 
       StartTask(dumper_reset_zero);
       drive_forward(-0.7);
       turn_on_line();
       drive_forward(0.1);
-      // drive_forward(-1.23);
       wait(0.75);
-      turn_deg(0.265);
-      // turn_until_on_line();
-      // turn_deg(0.30);
+      turn_deg(0.277);
       wait(1);
       drive_forward_into_cube() ;
       wait(1);
+      drive_forward(2.2);
+
+      // Throwing the Dumper
       slight_dumper_lift();
+      wait(0.25);
+      
       wait(0.25);
       turn_deg(-0.25);
       turn_deg(0.02);
-  
       wait(1);
       StartTask(dumper_retract);
       drive_forward(-0.9);
       wait(1);
-      // StartTask(dumper_down);
-      dumper_to_zero();
-      // drive_forward(-0.);
-      // drive_forward(0.3);
-      StartTask(lift_up);
-      
-      wait(1);
-      drive_forward(1.3);
 
+      // Going for the Middle Stars on the Fence.
+      dumper_to_zero();
+      drive_forward(0.2);
+      StartTask(lift_up);
+      wait(1);
+
+      // Going towards the Middle Stars.
+      drive_forward(1.2);
       wait(1);
       slight_dumper_lift();
       wait(1);
+
+      // Picking up with Middle Stars.
       drive_forward(-1);
       drive_forward(-0.3);
       dumper_retract();
-      StartTask(dumper_retract);
       wait(1);
       dumper_to_zero();
-      drive_forward(1.1);
-      wait(0.5);
+
+      // Any remaining Middle Stars.
+      drive_forward(0.5);
+      // wait(1);
+      // wait(0.5);
+      // slight_dumper_lift();
+      // wait(0.5);
+      // turn_deg(0.23);
+      // wait(1);
+
+      // // Going for the Left Stars on the Top.
+      // drive_forward(1.65);
+      // wait(0.5);
+      // turn_deg(-0.35);
+      // drive_forward(-0.4);
+      // lift_up();
+
+      // // Going for the Corner Star
+      // wait(0.5);
+      // turn_deg(0.1);
+      // dumper_to_zero();
+      // drive_forward(1.25);
+      // wait(0.5);
+      // slight_dumper_lift();
+      
+      // Going for the last row Stars.
+      drive_forward(0.3);
+      turn_deg(-0.25);
+      dumper_to_zero();
+      drive_forward(4.3);
       slight_dumper_lift();
-      wait(0.5);
       turn_deg(0.25);
-      
+      drive_forward(-2);
+
       wait(1);
-      drive_forward(2.5);
-      
-      turn_deg(-0.4);
-      drive_forward(-0.55);
+      turn_deg(-0.1);
+      drive_forward(-0.15);
       lift_up();
+
+
+        */
+        
+      // SECOND FUNTION BEGINS.
+
+      // For the Cube Allignment
+      StartTask(dumper_reset_zero);
+      drive_forward(-0.7);
+      turn_on_line();
+      drive_forward(0.1);
+      wait(0.75);
+      turn_deg(0.277);
+      wait(1);
+      drive_forward_into_cube() ;
+      wait(1);
+
+      // Throwing the Dumper
+      slight_dumper_lift();
+      wait(0.25);
+      turn_deg(-0.27);
+      turn_deg(0.02);
+      wait(1);
+      drive_forward(-0.65);
+      // lift_up_STOP();
+      // lift_down();
       wait(0.5);
-      turn_deg(0.1);
+      StartTask(dumper_retract);
+      drive_forward(-0.55);
+      wait(1);
+
+      // Going for the Middle Stars on the Fence.
       dumper_to_zero();
-      drive_forward(1.25);
+      drive_forward(0.15);
+      StartTask(lift_up);
+      wait(1);
+
+      // Going towards the Middle Stars.
+      drive_forward(1.05);
+      wait(1);
+      slight_dumper_lift();
+      wait(1);
+
+      // Picking up with Middle Stars.
+      drive_forward(-1.25);
+      wait(0.5);
+      dumper_retract();
+      wait(1);
+      dumper_to_zero();
+
+      // Any remaining Middle Stars.
+      drive_forward(0.5);
+      wait(1);
       wait(0.5);
       slight_dumper_lift();
-      drive_forward(-1.2);
-      dumper_retract();
+      wait(0.5);
+      turn_deg(0.23);
+      wait(1);
 
+      // Going for the Left Stars on the Top.
+      drive_forward(1.65);
+      wait(0.5);
+      turn_deg(-0.25);
+      drive_forward(-0.2);
+      lift_up();
 
-      // vex_printf("Entering Dumper Retract.");
-
+      // // Going for the Corner Star
+      wait(0.5);
+      // drive_forward(1.65);
+      // wait(0.5);
+      // turn_deg(-0.35);
       // wait(1);
-      // StartTask(dumper_retract);
-      // drive_forward(-1);
-      // StartTask(lift_up);
-      // wait(1);
-      // // stop_dumper();
-      // StartTask(dumper_down);
-      // drive_forward(0.5);
+      // drive_forward(-0.6);
+      // lift_up();
+      // // turn_deg(0.);
+      // dumper_to_zero();
+      // drive_forward(1.18);
+      // wait(0.5);
+      // slight_dumper_lift();
+      
+      // // Going for the last row Stars.
+      // drive_forward(0.3);
+      // turn_deg(-0.35);
+      // dumper_to_zero();
+      // drive_forward(3);
+      // slight_dumper_lift();
       // turn_deg(0.25);
-      // drive_forward(1.5);
-      // turn_deg(-0.25);
-      
+      // drive_forward(-2);
 
+      // wait(1);
+      // turn_deg(-0.1);
+      // drive_forward(-0.15);
+      // lift_up();
 
-
-      // StopTask(dumper_down);
-      // StartTask(dumper_retract);
-      // drive_forward(1);
-      // turn_deg(0.09);
-      /*StartTask(dumper_reset_zero);
-      turn_deg(0.13);
-      wait(0.2);
-      drive_forward(-0.80);
-      wait(0.2);
-      turn_deg(-0.13);
-      wait(0.2);
-      drive_forward(-0.53);
-      wait(0.2);
-      StartTask(lift_up);
-      wait(5);
-      turn_deg(0.18);
-      StartTask(dumper_reset_zero);
-      drive_forward(1);
-      wait(2); */
-      
-      // StartTask(lift_down);
-      // drive_forward(1.3);
-      // wait(1.5);
-      // dumper_retract();
 
       vexSleep(10);
     // }
@@ -798,21 +893,24 @@ msg_t vexOperator( void *arg )
         vexAutonomous(NULL);
       }
 
+
       //640 ticks
-      
+      // Lift Functions.      
 
       if(vexControllerGet(J_LIFT_UP)){
-        keepLiftinPlace = true;
-        left_lift_val = vexSensorValueGet(S_LIFT_LEFT);
-        right_lift_val = vexSensorValueGet(S_LIFT_RIGHT);
         Set_Lift_Motors(100);
       }
       else if(vexControllerGet(J_LIFT_DOWN)){
-        keepLiftinPlace = false;
         Set_Lift_Motors(-100);
+      } else if (vexControllerGet(Btn8D)){
+        Set_Lift_Motors(10);      
       } else{
-        Set_Lift_Motors(0);      
+        Set_Lift_Motors(0);
       }
+
+      // if ((!vexControllerGet(J_LIFT_UP) && !vexControllerGet(J_LIFT_DOWN)) && vexControllerGet(Btn7D)){
+      //   Set_Lift_Motors(10);
+      // }
 
 
       if(vexControllerGet(J_DUMPER_DOWN) && vexSensorValueGet(S_DUMP) > 0){
@@ -828,10 +926,6 @@ msg_t vexOperator( void *arg )
       }
       else{
         Set_Follower_Motors(0);      
-      }
-
-      if (keepLiftinPlace && vexSensorValueGet(S_LIFT_LEFT) > left_lift_val && vexSensorValueGet(S_LIFT_RIGHT) < right_lift_val){
-        Set_Lift_Motors(100);
       }
 
       

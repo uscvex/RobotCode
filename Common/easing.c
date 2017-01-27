@@ -82,7 +82,7 @@ void EPidEnableWithValue(EPidController *epid, int32_t duration, int32_t target,
     vex_printf("Enabling %d, %d, %d\n", duration, target, sensorValue);
 	epid->pidc->enabled = 1;
 	EasingEnable(epid->easing, duration, sensorValue, sensorValue+target);
-    vex_printf("Easing start=%d, target=%d\n", epid->easing->start, epid->easing->target);
+    // vex_printf("Easing start=%d, target=%d\n", epid->easing->start, epid->easing->target);
 }
 
 void EPidDisable(EPidController *epid) {
@@ -96,7 +96,7 @@ int16_t EPidUpdateWithValue(EPidController *epid, int32_t value) {
     epid->pidc->error = (epid->pidc->target_value) - value;
 	int16_t motorPower = PidControllerUpdate(epid->pidc);
 	if(epid->log) {
-        vex_printf("v = %d t = %d e = %f cmd=%d\n", value, epid->pidc->target_value, epid->pidc->error, epid->pidc->drive_cmd);
+        // vex_printf("v = %d t = %d e = %f cmd=%d\n", value, epid->pidc->target_value, epid->pidc->error, epid->pidc->drive_cmd);
 		/* float distance = epid->easing->target - epid->easing->start; */
 		/* float normTarget = (epid->easing->value - epid->easing->start)/distance; */
 		/* float normError = epid->pidc->error/distance; */
