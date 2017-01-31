@@ -11,18 +11,14 @@
 // Motor mappings
 
 // Lift
-#define M_LIFT_RIGHT       kVexMotor_3
-#define M_LIFT_LEFT        kVexMotor_9
+#define M_CLAW           kVexMotor_2
+#define M_LIFT_LEFT      kVexMotor_3
+#define M_DRIVE_LEFT_B   kVexMotor_4
+#define M_DRIVE_RIGHT_F  kVexMotor_6
+#define M_DRIVE_RIGHT_B  kVexMotor_7
+#define M_LIFT_RIGHT     kVexMotor_8
+#define M_DRIVE_LEFT_F   kVexMotor_9
 
-// Drive
-#define M_DRIVE_RIGHT_B    kVexMotor_2
-#define M_DRIVE_LEFT_B     kVexMotor_4
-#define M_DRIVE_LEFT_F     kVexMotor_8
-#define M_DRIVE_RIGHT_F    kVexMotor_6
-
-//Followers
-#define M_DUMPER_TOP       kVexMotor_7
-#define M_DUMPER_BOTTOM        kVexMotor_5
 
 
 // Sensor mappings
@@ -83,33 +79,31 @@ EPidController *rightDrivePid;
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-    
-    { M_DUMPER_TOP,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-    { M_DUMPER_BOTTOM,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
+    { M_CLAW,               kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
     { M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-    { M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-    { M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
+    { M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
+    { M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
     { M_DRIVE_LEFT_B,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
     { M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-    { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
+    { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 }
 };
 
 static vexDigiCfg dConfig[] = {
     
-    { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_1 },
-    { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_1 },
+    // { P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_1 },
+    // { P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_1 },
     
-    { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
-    { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+    // { P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
+    // { P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
     
-    { P_LIFT_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
-    { P_LIFT_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
+    // { P_LIFT_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
+    // { P_LIFT_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
     
-    { P_LIFT_RIGHT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
-    { P_LIFT_RIGHT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_2 },
+    // { P_LIFT_RIGHT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
+    // { P_LIFT_RIGHT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_2 },
     
-    { P_DUMP_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
-    { P_DUMP_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
+    // { P_DUMP_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
+    // { P_DUMP_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
     
 };
 
@@ -117,7 +111,7 @@ static vexDigiCfg dConfig[] = {
 void vexUserSetup()
 {
     //vexDigitalPinSet(kVexDigital_5, 0);
-    vexMotorConfigure( mConfig,   MOT_CONFIG_SIZE( mConfig ) )  ;
+    vexMotorConfigure  ( mConfig,   MOT_CONFIG_SIZE( mConfig ) )  ;
     vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
 }
 
