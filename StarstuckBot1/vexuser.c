@@ -79,7 +79,7 @@ EPidController *rightDrivePid;
 //------------------Motor Configurations--------------------------------------//
 
 static vexMotorCfg mConfig[] = {
-<<<<<<< HEAD
+
     { M_CLAW,               kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
     { M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
     { M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,  kVexSensorNone,  0 },
@@ -105,51 +105,15 @@ static vexDigiCfg dConfig[] = {
     
     // { P_DUMP_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
     // { P_DUMP_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
-    
-=======
-	
-	{ M_DUMPER_TOP,    kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-	{ M_DUMPER_BOTTOM,     kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-	{ M_LIFT_RIGHT,         kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-	{ M_LIFT_LEFT,          kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-	{ M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 },
-	{ M_DRIVE_LEFT_B,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-	{ M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorNormal,    kVexSensorNone,  0 },
-	{ M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorReversed,    kVexSensorNone,  0 }
-};
-
-static vexDigiCfg dConfig[] = {
-	
-	{ P_DRIVE_ENC_RIGHT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1, kVexQuadEncoder_1 },
-	{ P_DRIVE_ENC_RIGHT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2, kVexQuadEncoder_1 },
-	
-	{ P_DRIVE_ENC_LEFT_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
-	{ P_DRIVE_ENC_LEFT_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
-	
-	{ P_LIFT_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
-	{ P_LIFT_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
-	
-	{ P_LIFT_RIGHT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
-	{ P_LIFT_RIGHT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_2 },
-	
-	{ P_DUMP_A, kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
-	{ P_DUMP_B, kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 }
-	
->>>>>>> a4f72fa65745524a0394d9a27edca674b0c05087
-};
+ };
 
 //-------------------Setup----------------------------------------------------//
 void vexUserSetup()
 {
-<<<<<<< HEAD
     //vexDigitalPinSet(kVexDigital_5, 0);
     vexMotorConfigure  ( mConfig,   MOT_CONFIG_SIZE( mConfig ) )  ;
     vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
-=======
-	//vexDigitalPinSet(kVexDigital_5, 0);
-	vexMotorConfigure( mConfig,   MOT_CONFIG_SIZE( mConfig ) )  ;
-	vexDigitalConfigure( dConfig, DIG_CONFIG_SIZE( dConfig ) );
->>>>>>> a4f72fa65745524a0394d9a27edca674b0c05087
+
 }
 
 void vexUserInit()
