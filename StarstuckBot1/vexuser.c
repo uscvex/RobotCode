@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #include "ch.h"
 #include "hal.h"
 #include "vex.h"
@@ -8,6 +10,7 @@
 #include "../Common/easing.h"
 #include "../Common/linefollower.h"
 #include "smartmotor.h"
+#include "vexspi.h"
 
 // Motor mappings
 
@@ -120,7 +123,7 @@ bool driveMotors(void) {
 	//Calculate Motor Power
 	int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127) * -0.8;
 	int turn;
-	
+
 	
 	int turnChannel = vexControllerGet(J_TURN) * -0.6;
 	
@@ -132,6 +135,8 @@ bool driveMotors(void) {
 	SetMotor(M_DRIVE_RIGHT_B, rd);
 	SetMotor(M_DRIVE_LEFT_F,  ld);
 	SetMotor(M_DRIVE_RIGHT_F, rd);
+
+
 	
 	
 	return (ld != 0 || rd != 0);
@@ -159,13 +164,15 @@ void Set_Lift_Motors(int val){
  */
 void drive_forward(double ratio){
 	systime_t init_time = chTimeNow();
-	
+		vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
+		// int backupLevel = BackupBatteryLevel; 
+	vex_printf("%d    %d   ", vexSpiGetMainBattery(), vexSpiGetBackupBattery());
 	
 	systime_t duration = abs(ratio*700);
 	int32_t target = 1500*ratio;
 	EPidEnable(rightDrivePid,duration, target);
 	EPidEnable(leftDrivePid,duration, target);
-	systime_t end_time = chTimeNow() + duration;
+	// systime_t end_time = chTimeNow() + duration;
 	
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
@@ -194,7 +201,7 @@ void drive_forward(double ratio){
 			break;
 		}
 	}
-	
+	vex_printf("%d\n", vexSensorValueGet(S_DRIVE_ENC_RIGHT));
 }
 
 void turn_deg(double ratio){
@@ -205,7 +212,7 @@ void turn_deg(double ratio){
 	int32_t target = 4200*ratio;
 	EPidEnable(rightDrivePid,duration, -target);
 	EPidEnable(leftDrivePid,duration, target);
-	systime_t end_time = chTimeNow() + duration;
+	// systime_t end_time = chTimeNow() + duration;
 	
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
@@ -262,7 +269,7 @@ void wait(double ratio){
 	}
 }
 
-void claw_close(){
+void claw_close(void){
 	// Do Some shit
 	systime_t init_time = chTimeNow();
 	systime_t duration = abs(700);
@@ -285,7 +292,7 @@ void claw_close(){
 
 
 
-void claw_open(){
+void claw_open(void){
 	systime_t init_time = chTimeNow();
 	systime_t duration = abs(700);
 	while (!chThdShouldTerminate()){
@@ -314,7 +321,7 @@ void drive_at(int to){
 	SetMotor(M_DRIVE_RIGHT_F, to);
 }
 
-void lift_Auton()
+void lift_Auton(void)
 {
 	systime_t t = chTimeNow();
 	vexSensorValueSet(S_LIFT, 0);
@@ -355,8 +362,8 @@ void lift_Auton()
 
 }
 
-void Dump_Open_Claw(){
-	systime_t t = chTimeNow();
+void Dump_Open_Claw(void){
+	// systime_t t = chTimeNow();
 	vexSensorValueSet(S_LIFT, 0);
 	
 	while ((vexSensorValueGet(S_LIFT) < 15000)) 
@@ -383,32 +390,18 @@ void Dump_Open_Claw(){
 
 }
 
-void Dump_Down(){
-	systime_t t = chTimeNow();
+void Dump_Down(void){
+	// systime_t t = chTimeNow();
 	vexSensorValueSet(S_LIFT, 0);
 	
-	while ((vexSensorValueGet(S_LIFT) > 1000)) 
+	while ((vexSensorValueGet(S_LIFT) > 100)) 
 	{
 		if(vexControllerGet(Btn7R)){
 			return;
 		}
 		Set_Lift_Motors(-125);
 	} 
-	claw_open();
-	while(((vexSensorValueGet(S_CLAW))>100))
-	{
-		if(vexControllerGet(Btn7R)){
-			return;
-		}
-		if (((vexSensorValueGet(S_LIFT) > 100))){
-			Set_Lift_Motors(-100);
-		}
-		else{
-			Set_Lift_Motors(00);
-		}
-
-	}
-		
+	Set_Lift_Motors(0);		
 }
 
 //---------------------Autonomous routine-------------------------------------//
@@ -417,185 +410,7 @@ msg_t vexAutonomous( void *arg )
 {
 	(void)arg;
 	vexTaskRegister("auton");
-	/*
-	 // First Function.
-	 
-	 StartTask(dumper_reset_zero);
-	 drive_forward(-0.7);
-	 turn_on_line();
-	 drive_forward(0.1);
-	 wait(0.75);
-	 turn_deg(0.277);
-	 wait(1);
-	 drive_forward_into_cube() ;
-	 wait(1);
-	 drive_forward(2.2);
-	 
-	 // Throwing the Dumper
-	 slight_dumper_lift();
-	 wait(0.25);
-	 
-	 wait(0.25);
-	 turn_deg(-0.25);
-	 turn_deg(0.02);
-	 wait(1);
-	 StartTask(dumper_retract);
-	 drive_forward(-0.9);
-	 wait(1);
-	 
-	 // Going for the Middle Stars on the Fence.
-	 dumper_to_zero();
-	 drive_forward(0.2);
-	 StartTask(lift_up);
-	 wait(1);
-	 
-	 // Going towards the Middle Stars.
-	 drive_forward(1.2);
-	 wait(1);
-	 slight_dumper_lift();
-	 wait(1);
-	 
-	 // Picking up with Middle Stars.
-	 drive_forward(-1);
-	 drive_forward(-0.3);
-	 dumper_retract();
-	 wait(1);
-	 dumper_to_zero();
-	 
-	 // Any remaining Middle Stars.
-	 drive_forward(0.5);
-	 // wait(1);
-	 // wait(0.5);
-	 // slight_dumper_lift();
-	 // wait(0.5);
-	 // turn_deg(0.23);
-	 // wait(1);
-	 
-	 // // Going for the Left Stars on the Top.
-	 // drive_forward(1.65);
-	 // wait(0.5);
-	 // turn_deg(-0.35);
-	 // drive_forward(-0.4);
-	 // lift_up();
-	 
-	 // // Going for the Corner Star
-	 // wait(0.5);
-	 // turn_deg(0.1);
-	 // dumper_to_zero();
-	 // drive_forward(1.25);
-	 // wait(0.5);
-	 // slight_dumper_lift();
-	 
-	 // Going for the last row Stars.
-	 drive_forward(0.3);
-	 turn_deg(-0.25);
-	 dumper_to_zero();
-	 drive_forward(4.3);
-	 slight_dumper_lift();
-	 turn_deg(0.25);
-	 drive_forward(-2);
-	 
-	 wait(1);
-	 turn_deg(-0.1);
-	 drive_forward(-0.15);
-	 lift_up();
-	 
-	 
-	 */
-	/*
-	// SECOND FUNTION BEGINS.
-	
-	// For the Cube Allignment
-	StartTask(dumper_reset_zero);
-	drive_forward(-0.7);
-	turn_on_line();
-	drive_forward(0.1);
-	wait(0.75);
-	turn_deg(0.277);
-	wait(1);
-	drive_forward_into_cube() ;
-	wait(1);
-	
-	// Throwing the Dumper
-	slight_dumper_lift();
-	wait(0.25);
-	turn_deg(-0.27);
-	turn_deg(0.02);
-	wait(1);
-	drive_forward(-0.65);
-	// lift_up_STOP();
-	// lift_down();
-	wait(0.5);
-	StartTask(dumper_retract);
-	drive_forward(-0.55);
-	wait(1);
-	
-	// Going for the Middle Stars on the Fence.
-	dumper_to_zero();
-	drive_forward(0.15);
-	StartTask(lift_up);
-	wait(1);
-	
-	// Going towards the Middle Stars.
-	drive_forward(1.05);
-	wait(1);
-	slight_dumper_lift();
-	wait(1);
-	
-	// Picking up with Middle Stars.
-	drive_forward(-1.25);
-	wait(0.5);
-	dumper_retract();
-	wait(1);
-	dumper_to_zero();
-	
-	// Any remaining Middle Stars.
-	drive_forward(0.5);
-	wait(1);
-	wait(0.5);
-	slight_dumper_lift();
-	wait(0.5);
-	turn_deg(0.23);
-	wait(1);
-	
-	// Going for the Left Stars on the Top.
-	drive_forward(1.65);
-	wait(0.5);
-	turn_deg(-0.25);
-	drive_forward(-0.2);
-	lift_up();
-	
-	// // Going for the Corner Star
-	wait(0.5);*/
-	// drive_forward(1.65);
-	// wait(0.5);
-	// turn_deg(-0.35);
-	// wait(1);
-	// drive_forward(-0.6);
-	// lift_up();
-	// // turn_deg(0.);
-	// dumper_to_zero();
-	// drive_forward(1.18);
-	// wait(0.5);
-	// slight_dumper_lift();
-	
-	// // Going for the last row Stars.
-	// drive_forward(0.3);
-	// turn_deg(-0.35);
-	// dumper_to_zero();
-	// drive_forward(3);
-	// slight_dumper_lift();
-	// turn_deg(0.25);
-	// drive_forward(-2);
-	
-	// wait(1);
-	// turn_deg(-0.1);
-	// drive_forward(-0.15);
-	// lift_up();
-	
-	
-	vexSleep(10);
-	// }
+
 	
 	return (msg_t)0;
 }
@@ -619,28 +434,22 @@ msg_t vexOperator( void *arg )
 	
 	//Clear encoders
 	// clearDriveEncoders();
-	
+	// bool
 	while(!chThdShouldTerminate())
 	{
 		//Remember to Uncomment.
 		driveMotors();
 		
-		bool keepInPlace = false;
+		// /= false;
 		if(vexControllerGet(Btn7L)){
-			// lift_Auton();
-			// drive_forward(-1);
-			// Dump_Open_Claw();
-			// turn_deg(1);
-			claw_open();
+			drive_forward(1);
+
 		}
 
-		if(vexControllerGet(Btn7U)){
-			// lift_Auton();
-			// drive_forward(-1);
-			// Dump_Open_Claw();
-			// turn_deg(1);
-			claw_close();
-		}
+		// if(vexControllerGet(Btn7U)){
+		// 	Dump_Down();
+		// }
+
 		
 		if(vexControllerGet(J_LIFT_UP)){
 			Set_Lift_Motors(100);
