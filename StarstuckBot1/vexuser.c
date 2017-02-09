@@ -162,6 +162,15 @@ void Set_Lift_Motors(int val){
  param:
  @ratio is the ditance you want to move. One block take a second to move
  */
+
+void drive_at(int to){
+	SetMotor(M_DRIVE_LEFT_B,  to);
+	SetMotor(M_DRIVE_RIGHT_B, to);
+	SetMotor(M_DRIVE_LEFT_F,  to);
+	SetMotor(M_DRIVE_RIGHT_F, to);
+}
+
+
 void drive_forward(double ratio){
 	systime_t init_time = chTimeNow();
 		vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
@@ -314,12 +323,7 @@ void claw_open(void){
 
 
 
-void drive_at(int to){
-	SetMotor(M_DRIVE_LEFT_B,  to);
-	SetMotor(M_DRIVE_RIGHT_B, to);
-	SetMotor(M_DRIVE_LEFT_F,  to);
-	SetMotor(M_DRIVE_RIGHT_F, to);
-}
+
 
 void lift_Auton(void)
 {
@@ -362,6 +366,37 @@ void lift_Auton(void)
 
 }
 
+void slight_dumper_lift(){
+ 	systime_t init_time = chTimeNow();
+ 	systime_t duration = abs(500);
+
+	while (!chThdShouldTerminate()){
+     	if(vexControllerGet(Btn7R)){
+         	break;
+     	}
+     	systime_t autonTime = chTimeNow() - init_time;
+     	if (autonTime < duration){
+         	Set_Lift_Motors(90);
+     	}
+     	else{
+         	Set_Lift_Motors(20);
+         	break;
+     	}
+ 	}
+ }
+
+task fight_against_bands(){
+
+	if (vexSensorValueGet(S_CLAW)>3000){
+        	Set_Claw_Motors(80);
+	}
+	else if (vexSensorValueGet(S_CLAW)>2000){
+        	Set_Claw_Motors(-10);
+	}
+
+
+}
+
 void Dump_Open_Claw(void){
 	// systime_t t = chTimeNow();
 	vexSensorValueSet(S_LIFT, 0);
@@ -381,14 +416,20 @@ void Dump_Open_Claw(void){
 		}
 		if (((vexSensorValueGet(S_LIFT) < 18000))){
 			Set_Lift_Motors(100);
+			Set_Claw_Motors(-120);
 		}
 		else{
+
 			Set_Lift_Motors(00);
+			Set_Claw_Motors(0);
+			break;
 		}
-		Set_Claw_Motors(-120);
+		
 	}
 
 }
+
+
 
 void Dump_Down(void){
 	// systime_t t = chTimeNow();
@@ -408,8 +449,43 @@ void Dump_Down(void){
 
 msg_t vexAutonomous( void *arg )
 {
-	(void)arg;
+		(void)arg;
 	vexTaskRegister("auton");
+	StartTask(fight_against_bands);
+	//claw_open();
+    
+   // turn_deg(0.22);
+	//drive_forward(-.7);
+    //claw_open();
+    //drive_forward(-.7);
+//    slight_dumper_lift();
+//    turn_deg(0.25);
+//    StartTask(fight_against_bands);
+//    wait(.5);
+//    drive_forward(.6);
+//    StartTask(fight_against_bands);
+    
+    
+Dump_Open_Claw();
+wait(1);
+Dump_Down();
+//    wait(1);
+//    Dump_Down();
+//    wait(1.2);
+    //claw_close();
+//    drive_forward(-.85);
+    
+    //Dump_Open_Claw();
+	//wait(2.2);
+   // claw_open();
+	//wait(0.5);
+	//turn_deg(0.3);
+	//drive_forward(0.9);
+	//Dump_Open_Claw();
+	//wait(1);
+	//Dump_Down();
+
+
 
 	
 	return (msg_t)0;
