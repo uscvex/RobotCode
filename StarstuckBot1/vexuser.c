@@ -375,10 +375,26 @@ void slight_dumper_lift(){
          	break;
      	}
      	systime_t autonTime = chTimeNow() - init_time;
-     	if (autonTime < duration){
-         	Set_Lift_Motors(90);
+     	if (autonTime < 300){
+     		Set_Claw_Motors(125);
      	}
      	else{
+     		Set_Claw_Motors(15);
+         	// Set_Lift_Motors(20);
+         	break;
+     	}
+ 	}
+
+ 	while (!chThdShouldTerminate()){
+     	if(vexControllerGet(Btn7R)){
+         	break;
+     	}
+     	systime_t autonTime = chTimeNow() - init_time;
+     	if (autonTime < 500){
+     		Set_Lift_Motors(95);
+     	}
+     	else{
+     		// Set_Claw_Motors(15);
          	Set_Lift_Motors(20);
          	break;
      	}
