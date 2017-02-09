@@ -301,7 +301,7 @@ void claw_open(){
 			break;
 		}
 	}
-	Set_Claw_Motors(0);
+	Set_Claw_Motors(-10);
 
 }
 
