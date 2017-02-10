@@ -185,10 +185,7 @@ void drive_forward(double ratio){
 	
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
-			vexMotorSet(M_DRIVE_LEFT_B,  0);
-			vexMotorSet(M_DRIVE_RIGHT_B, 0);
-			vexMotorSet(M_DRIVE_LEFT_F,  0);
-			vexMotorSet(M_DRIVE_RIGHT_F, 0);
+			drive_at(0);
 			break;
 		}
 		
@@ -196,17 +193,14 @@ void drive_forward(double ratio){
 		if (autonTime < duration){
 			int16_t ld = EPidUpdate(leftDrivePid);
 			int16_t rd = EPidUpdate(rightDrivePid);
-			vexMotorSet(M_DRIVE_LEFT_B,  ld);
-			vexMotorSet(M_DRIVE_RIGHT_B, rd);
-			vexMotorSet(M_DRIVE_LEFT_F,  ld);
-			vexMotorSet(M_DRIVE_RIGHT_F, rd);
+			SetMotor(M_DRIVE_LEFT_B,  ld);
+			SetMotor(M_DRIVE_RIGHT_B, rd);
+			SetMotor(M_DRIVE_LEFT_F,  ld);
+			SetMotor(M_DRIVE_RIGHT_F, rd);
 			vexSleep(10);
 		}
 		else{
-			vexMotorSet(M_DRIVE_LEFT_B,  0);
-			vexMotorSet(M_DRIVE_RIGHT_B, 0);
-			vexMotorSet(M_DRIVE_LEFT_F,  0);
-			vexMotorSet(M_DRIVE_RIGHT_F, 0);
+			drive_at(0);
 			break;
 		}
 	}
@@ -366,7 +360,7 @@ void lift_Auton(void)
 
 }
 
-void slight_dumper_lift(){
+void slight_dumper_lift(void){
  	systime_t init_time = chTimeNow();
  	systime_t duration = abs(500);
 
@@ -401,7 +395,29 @@ void slight_dumper_lift(){
  	}
  }
 
-task fight_against_bands(){
+ void dump_to_zero(void){
+ 	systime_t init_time = chTimeNow();
+ 	systime_t duration = abs(500);
+
+	while (!chThdShouldTerminate()){
+     	if(vexControllerGet(Btn7R)){
+         	break;
+     	}
+     	systime_t autonTime = chTimeNow() - init_time;
+     	if (vexSensorValueGet(S_LIFT)>10 && autonTime < duration){
+     		Set_Lift_Motors(-125);
+     	}
+     	else{
+     		Set_Lift_Motors(0);
+         	// Set_Lift_Motors(20);
+         	break;
+     	}
+ 	}
+
+ 	
+ }
+
+task fight_against_bands(void){
 
 	if (vexSensorValueGet(S_CLAW)>3000){
         	Set_Claw_Motors(80);
@@ -425,7 +441,7 @@ void Dump_Open_Claw(void){
 		Set_Lift_Motors(125);
 	} 
 
-	while(((vexSensorValueGet(S_CLAW))>2000))
+	while(((vexSensorValueGet(S_CLAW))>2300))
 	{
 		if(vexControllerGet(Btn7R)){
 			return;
@@ -448,8 +464,7 @@ void Dump_Open_Claw(void){
 
 
 void Dump_Down(void){
-	// systime_t t = chTimeNow();
-	vexSensorValueSet(S_LIFT, 0);
+	// systime_t t = chTimeNow()
 	
 	while ((vexSensorValueGet(S_LIFT) > 100)) 
 	{
@@ -465,26 +480,28 @@ void Dump_Down(void){
 
 msg_t vexAutonomous( void *arg )
 {
-		(void)arg;
+	(void)arg;
 	vexTaskRegister("auton");
 	StartTask(fight_against_bands);
-	//claw_open();
+	claw_open();
     
-   // turn_deg(0.22);
-	//drive_forward(-.7);
-    //claw_open();
-    //drive_forward(-.7);
-//    slight_dumper_lift();
-//    turn_deg(0.25);
-//    StartTask(fight_against_bands);
-//    wait(.5);
-//    drive_forward(.6);
-//    StartTask(fight_against_bands);
+   	turn_deg(0.22);
+	drive_forward(-0.7);
+    claw_open();
+   	drive_forward(-0.7);
+   	slight_dumper_lift();
+   	wait(1);
+   	turn_deg(0.35);
+
+   	wait(0.5);
+   	drive_forward(0.6);
+
+   	dump_to_zero();
+   	wait(1);
     
-    
-Dump_Open_Claw();
-wait(1);
-Dump_Down();
+	Dump_Open_Claw();
+	wait(1);
+	Dump_Down();
 //    wait(1);
 //    Dump_Down();
 //    wait(1.2);
@@ -534,8 +551,8 @@ msg_t vexOperator( void *arg )
 		
 		// /= false;
 		if(vexControllerGet(Btn7L)){
-			drive_forward(1);
-
+			// Dump_Down();
+			vexAutonomous(NULL);
 		}
 
 		// if(vexControllerGet(Btn7U)){
