@@ -483,37 +483,63 @@ msg_t vexAutonomous( void *arg )
 	(void)arg;
 	vexTaskRegister("auton");
 	StartTask(fight_against_bands);
+	
 	claw_open();
+	Dump_Open_Claw();
+	drive_forward(-1.5);
+	
+	
+	return (msg_t)0;
+}
+
+
+
+//solid routine for cube and 3mid *s
+
+
+/*****************
+
+
+claw_open();
     
    	turn_deg(0.22);
 	drive_forward(-0.7);
-    claw_open();
+    	claw_open();
    	drive_forward(-0.7);
    	slight_dumper_lift();
-   	wait(1);
-   	turn_deg(0.35);
+   	wait(.5);
+   	turn_deg(0.38);
 
    	wait(0.5);
    	drive_forward(0.6);
 
    	dump_to_zero();
-   	wait(1);
+   	wait(.5);
     
 	Dump_Open_Claw();
-	wait(1);
+	wait(.5);
 	Dump_Down();
-   wait(1);
-//    Dump_Down();
-//    wait(1.2);
-    claw_close();
-   	drive_forward(-1);
-    claw_open();
-    claw_open();
-    wait(1);
-    drive_forward(1);
-    wait(0.5);
-    Dump_Open_Claw();
-    wait(0.5);
+   	wait(.5);
+//    	Dump_Down();
+//   	wait(1.2);
+    	claw_close();
+   	drive_forward(-1.133);
+    	claw_open();
+   	claw_open();
+    	wait(.5);
+    	drive_forward(.73);
+	wait(.5);
+	drive_forward(-.6);
+	wait(.5);
+	//claw_close();
+	claw_open();
+	wait(.5);
+	slight_dumper_lift();
+	slight_dumper_lift();
+	drive_forward(1.25);
+   	wait(0.5);
+    	Dump_Open_Claw();
+    	wait(0.5);
 	//turn_deg(0.3);
 	//drive_forward(0.9);
 	//Dump_Open_Claw();
@@ -521,9 +547,8 @@ msg_t vexAutonomous( void *arg )
 	Dump_Down();
 
 
-	
-	return (msg_t)0;
-}
+
+********************/
 
 
 //---------------------User control Functions----------------------------------//
