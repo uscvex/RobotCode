@@ -441,7 +441,7 @@ void Dump_Open_Claw(void){
 		Set_Lift_Motors(125);
 	} 
 
-	while(((vexSensorValueGet(S_CLAW))>2300))
+	while(((vexSensorValueGet(S_CLAW))>2000))
 	{
 		if(vexControllerGet(Btn7R)){
 			return;
@@ -502,22 +502,23 @@ msg_t vexAutonomous( void *arg )
 	Dump_Open_Claw();
 	wait(1);
 	Dump_Down();
-//    wait(1);
+   wait(1);
 //    Dump_Down();
 //    wait(1.2);
-    //claw_close();
-//    drive_forward(-.85);
-    
-    //Dump_Open_Claw();
-	//wait(2.2);
-   // claw_open();
-	//wait(0.5);
+    claw_close();
+   	drive_forward(-1);
+    claw_open();
+    claw_open();
+    wait(1);
+    drive_forward(1);
+    wait(0.5);
+    Dump_Open_Claw();
+    wait(0.5);
 	//turn_deg(0.3);
 	//drive_forward(0.9);
 	//Dump_Open_Claw();
 	//wait(1);
-	//Dump_Down();
-
+	Dump_Down();
 
 
 	
