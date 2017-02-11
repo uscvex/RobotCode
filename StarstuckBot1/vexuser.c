@@ -476,6 +476,62 @@ void Dump_Down(void){
 	Set_Lift_Motors(0);		
 }
 
+void Claw_to45(void){
+	systime_t init_time = chTimeNow();
+ 	systime_t duration = abs(1000);
+
+	while (true){
+		if(vexControllerGet(Btn7R)){
+			return;
+		}
+		if ((vexSensorValueGet(S_CLAW) >  2900 ) && ((chTimeNow() - init_time) > duration)){
+			Set_Claw_Motors(-120);
+		} else{
+			Set_Claw_Motors(-10);
+			break;
+		}
+
+	
+		
+	}
+
+}
+void Dump_to45(void){
+	systime_t init_time = chTimeNow();
+ 	systime_t duration = abs(1000);
+
+	while (true){
+		if(vexControllerGet(Btn7R)){
+			return;
+		}
+		bool claw_done = false;
+		if (vexSensorValueGet(S_CLAW) >  2900 ){
+			Set_Claw_Motors(-120);
+		} else{
+			Set_Claw_Motors(-10);
+			claw_done = true;
+		}
+
+		if (vexSensorValueGet(S_LIFT) <  7500 ){
+			Set_Lift_Motors(100);
+		} else{
+			Set_Lift_Motors(10);
+			if (claw_done){
+				break;
+			}
+			// /claw_done = true;
+		}
+
+		if ((chTimeNow() - init_time) > duration){
+			Set_Lift_Motors(10);
+			//Set_Claw_Motors(-10);
+			break;
+		}
+
+		
+	}
+}
+
 //---------------------Autonomous routine-------------------------------------//
 
 msg_t vexAutonomous( void *arg )
@@ -484,10 +540,15 @@ msg_t vexAutonomous( void *arg )
 	vexTaskRegister("auton");
 	StartTask(fight_against_bands);
 	
-	claw_open();
-	Dump_Open_Claw();
+
+	Dump_to45();
+	// claw_open();
+	// Dump_Open_Claw();
 	drive_forward(-1.5);
 	
+	dump_to_zero();
+	claw_open();
+	Claw_to45();
 	
 	return (msg_t)0;
 }
@@ -581,6 +642,7 @@ msg_t vexOperator( void *arg )
 			vexAutonomous(NULL);
 		}
 
+		
 		// if(vexControllerGet(Btn7U)){
 		// 	Dump_Down();
 		// }
