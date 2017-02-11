@@ -484,7 +484,7 @@ void Claw_to45(void){
 		if(vexControllerGet(Btn7R)){
 			return;
 		}
-		if ((vexSensorValueGet(S_CLAW) >  2900 ) && ((chTimeNow() - init_time) > duration)){
+		if ((vexSensorValueGet(S_CLAW) >  2800 ) && ((chTimeNow() - init_time) > duration)){
 			Set_Claw_Motors(-120);
 		} else{
 			Set_Claw_Motors(-10);
