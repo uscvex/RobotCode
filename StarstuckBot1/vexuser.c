@@ -63,9 +63,13 @@
 #define J_CLAW_OPEN  Btn6D
 #define J_CLAW_CLOSE   Btn6U
 
+#define J_Auton_Climb Btn7L
+
 // PID Controls
 EPidController *leftDrivePid;
 EPidController *rightDrivePid;
+
+bool auton_mode;
 
 
 
@@ -219,10 +223,10 @@ void turn_deg(double ratio){
 	
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
-			vexMotorSet(M_DRIVE_LEFT_B,  0);
-			vexMotorSet(M_DRIVE_RIGHT_B, 0);
-			vexMotorSet(M_DRIVE_LEFT_F,  0);
-			vexMotorSet(M_DRIVE_RIGHT_F, 0);
+			SetMotor(M_DRIVE_LEFT_B,  0);
+			SetMotor(M_DRIVE_RIGHT_B, 0);
+			SetMotor(M_DRIVE_LEFT_F,  0);
+			SetMotor(M_DRIVE_RIGHT_F, 0);
 			break;
 		}
 		
@@ -230,10 +234,10 @@ void turn_deg(double ratio){
 		if (autonTime < duration){
 			int16_t ld = EPidUpdate(leftDrivePid);
 			int16_t rd = EPidUpdate(rightDrivePid);
-			vexMotorSet(M_DRIVE_LEFT_B,  ld);
-			vexMotorSet(M_DRIVE_RIGHT_B, rd);
-			vexMotorSet(M_DRIVE_LEFT_F,  ld);
-			vexMotorSet(M_DRIVE_RIGHT_F, rd);
+			SetMotor(M_DRIVE_LEFT_B,  ld);
+			SetMotor(M_DRIVE_RIGHT_B, rd);
+			SetMotor(M_DRIVE_LEFT_F,  ld);
+			SetMotor(M_DRIVE_RIGHT_F, rd);
 			vexSleep(10);
 		}
 		else{
@@ -241,20 +245,20 @@ void turn_deg(double ratio){
 			break;
 		}
 	}
-	vexMotorSet(M_DRIVE_LEFT_B,   0);
-	vexMotorSet(M_DRIVE_RIGHT_B, 0);
-	vexMotorSet(M_DRIVE_LEFT_F,  0);
-	vexMotorSet(M_DRIVE_RIGHT_F, 0);
+	SetMotor(M_DRIVE_LEFT_B,   0);
+	SetMotor(M_DRIVE_RIGHT_B, 0);
+	SetMotor(M_DRIVE_LEFT_F,  0);
+	SetMotor(M_DRIVE_RIGHT_F, 0);
 }
 
 
 void wait(double ratio){
 	systime_t init_time = chTimeNow();
 	systime_t duration = abs(ratio*1000);
-	vexMotorSet(M_DRIVE_LEFT_B,   0);
-	vexMotorSet(M_DRIVE_RIGHT_B, 0);
-	vexMotorSet(M_DRIVE_LEFT_F,  0);
-	vexMotorSet(M_DRIVE_RIGHT_F, 0);
+	SetMotor(M_DRIVE_LEFT_B,   0);
+	SetMotor(M_DRIVE_RIGHT_B, 0);
+	SetMotor(M_DRIVE_LEFT_F,  0);
+	SetMotor(M_DRIVE_RIGHT_F, 0);
 	
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
@@ -297,13 +301,13 @@ void claw_close(void){
 
 void claw_open(void){
 	systime_t init_time = chTimeNow();
-	systime_t duration = abs(700);
+	systime_t duration = abs(745);
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
 			break;
 		}
 		systime_t autonTime = chTimeNow() - init_time;
-		if (autonTime < duration && vexSensorValueGet(S_CLAW) < 3500){
+		if (autonTime < duration && vexSensorValueGet(S_CLAW) < 3850){
 			Set_Claw_Motors(120);
 		}
 		else{
@@ -319,43 +323,46 @@ void claw_open(void){
 
 
 
-void lift_Auton(void)
+bool lift_Auton(void)
 {
 	systime_t t = chTimeNow();
 	vexSensorValueSet(S_LIFT, 0);
 	while ((chTimeNow() - t) < 700){
-		if(vexControllerGet(Btn7R)){
-			return;
+		if(vexControllerGet(Btn7D)){
+			return false;
 		}
 		drive_at(-125);
 		Set_Lift_Motors(-125);
-		if ((vexSensorValueGet(S_CLAW))>500){
-			Set_Claw_Motors(-80);
+		if ((vexSensorValueGet(S_CLAW))>1500){
+			Set_Claw_Motors(-60);
 		}
 		else{
 			Set_Claw_Motors(0);
 		}
 		
 	}
+	Set_Claw_Motors(0);
 	drive_at(0);
 	
-	while ((vexSensorValueGet(S_LIFT) > -25902) && (chTimeNow ()- t)< 7000) 
+	while ((vexSensorValueGet(S_LIFT) > -25902) && (chTimeNow ()- t)< 3000) 
 	{
-		if(vexControllerGet(Btn7R)){
-			return;
+		if(vexControllerGet(Btn7D)){
+			return false;
 		}
 		Set_Lift_Motors(-125);
 	} 
 
-	while(((vexSensorValueGet(S_CLAW))>20) && (chTimeNow ()- t)< 8000)
+	while(((vexSensorValueGet(S_CLAW))>0) && (chTimeNow ()- t)< 6000)
 	{
-		if(vexControllerGet(Btn7R)){
-			return;
+		if(vexControllerGet(Btn7D)){
+			return false;
 		}
 		Set_Lift_Motors(-100);
 		Set_Claw_Motors(-125);
 	}
 
+	Set_Claw_Motors(-100);
+	return true;
 
 
 }
@@ -433,18 +440,24 @@ void Dump_Open_Claw(void){
 	// systime_t t = chTimeNow();
 	vexSensorValueSet(S_LIFT, 0);
 	
-	while ((vexSensorValueGet(S_LIFT) < 15000)) 
+	while ((vexSensorValueGet(S_LIFT) < 12000)) 
 	{
-		if(vexControllerGet(Btn7R)){
+		if(vexControllerGet(J_LIFT_DOWN)){
 			return;
+		}
+		if (!auton_mode){
+			driveMotors();
 		}
 		Set_Lift_Motors(125);
 	} 
 
-	while(((vexSensorValueGet(S_CLAW))>2000))
+	while(((vexSensorValueGet(S_CLAW))>1800))
 	{
-		if(vexControllerGet(Btn7R)){
+		if(vexControllerGet(J_LIFT_DOWN)){
 			return;
+		}
+		if (!auton_mode){
+			driveMotors();
 		}
 		if (((vexSensorValueGet(S_LIFT) < 18000))){
 			Set_Lift_Motors(100);
@@ -458,9 +471,59 @@ void Dump_Open_Claw(void){
 		}
 		
 	}
+	Set_Lift_Motors(-10);
+	Set_Claw_Motors(10);
 
 }
 
+
+
+void Dump_Close_Claw(void){
+	// systime_t t = chTimeNow();
+	//vexSensorValueSet(S_LIFT, 0);
+	
+	while ((vexSensorValueGet(S_LIFT) > 100)) 
+	{
+		if(vexControllerGet(Btn5D)){
+			return;
+		}
+		if (!auton_mode){
+			driveMotors();
+		}
+		Set_Lift_Motors(125);
+		if (((vexSensorValueGet(S_CLAW) > 1700))){
+			Set_Claw_Motors(-120);
+		}
+		else{
+			Set_Claw_Motors(0);
+			break;
+		}
+	} 
+
+	// while(((vexSensorValueGet(S_CLAW))>1800))
+	// {
+	// 	if(vexControllerGet(Btn5D)){
+	// 		return;
+	// 	}
+	// 	if (!auton_mode){
+	// 		driveMotors();
+	// 	}
+	// 	if (((vexSensorValueGet(S_LIFT) < 18000))){
+	// 		Set_Lift_Motors(100);
+	// 		Set_Claw_Motors(-120);
+	// 	}
+	// 	else{
+
+	// 		Set_Lift_Motors(00);
+	// 		Set_Claw_Motors(0);
+	// 		break;
+	// 	}
+		
+	// }
+	Set_Lift_Motors(00);
+	Set_Claw_Motors(0);
+
+}
 
 
 void Dump_Down(void){
@@ -484,8 +547,8 @@ void Claw_to45(void){
 		if(vexControllerGet(Btn7R)){
 			return;
 		}
-		if ((vexSensorValueGet(S_CLAW) >  2800 ) && ((chTimeNow() - init_time) > duration)){
-			Set_Claw_Motors(-120);
+		if ((vexSensorValueGet(S_CLAW) <  2000 ) && ((chTimeNow() - init_time) < duration)){
+			Set_Claw_Motors(120);
 		} else{
 			Set_Claw_Motors(-10);
 			break;
@@ -532,23 +595,84 @@ void Dump_to45(void){
 	}
 }
 
+void climb_mode(void){
+
+}
+
 //---------------------Autonomous routine-------------------------------------//
 
 msg_t vexAutonomous( void *arg )
 {
 	(void)arg;
 	vexTaskRegister("auton");
+	auton_mode = true;
 	StartTask(fight_against_bands);
 	
-
-	Dump_to45();
-	// claw_open();
-	// Dump_Open_Claw();
-	drive_forward(-1.5);
-	
-	dump_to_zero();
 	claw_open();
-	Claw_to45();
+   	turn_deg(0.22);
+	drive_forward(-0.75);
+    claw_open();
+   	drive_forward(-0.65);
+   	slight_dumper_lift();
+   	wait(.5);
+   	turn_deg(0.37);
+
+   	wait(0.5);
+   	drive_forward(0.6);
+
+   	dump_to_zero();
+   	wait(.5);
+    
+	Dump_Open_Claw();
+	wait(.5);
+	Dump_Down();
+   	wait(.5);
+    claw_close();
+   	drive_forward(-1.133);
+   	claw_open();
+   	claw_open();
+   	wait(.5);
+   	drive_forward(.73);
+	wait(.5);
+	drive_forward(-.6);
+	wait(.5);
+	//claw_close();
+	claw_open();
+	wait(.5);
+	slight_dumper_lift();
+	slight_dumper_lift();
+	drive_forward(1.25);
+   	wait(0.5);
+    Dump_Open_Claw();
+   	wait(0.5);
+	//turn_deg(0.3);
+	//drive_forward(0.9);
+	//Dump_Open_Claw();
+	//wait(1);w22
+	Dump_Down();
+	wait(0.5);
+	// drive_forward(-0.2);
+
+	turn_deg(0.3);
+
+	drive_forward(2);
+
+	// wait(1);
+	// turn_deg(0.25);
+	// drive_forward(-1.5);
+	// claw_open();
+	// // turn_deg(0.2);
+	
+	// wait(1);
+	// drive_forward(2);
+	// wait(1);
+
+	// drive_forward(-3);
+	
+
+
+
+
 	
 	return (msg_t)0;
 }
@@ -613,9 +737,33 @@ claw_open();
 
 
 //---------------------User control Functions----------------------------------//
+/**
 
+	Dump_to45();
+	// claw_open();
+	// Dump_Open_Claw();
+	drive_forward(-1.5);
+	
+	dump_to_zero();
+	claw_open();
+	Claw_to45();
+*/
 
-
+	//___________________
+	// drive_forward(1);
+	// drive_forward(-1);
+	// claw_open();
+	// drive_forward(-0.5);
+	// wait(0.5);
+	// claw_open();
+	// slight_dumper_lift();
+	// wait(0.5);
+	// drive_forward(1);
+	// wait(0.5);
+	// Dump_Open_Claw();
+	// Dump_Down();
+	// drive_forward(-1.7);
+	
 
 //---------------------User control settings----------------------------------//
 
@@ -630,17 +778,23 @@ msg_t vexOperator( void *arg )
 	
 	//Clear encoders
 	// clearDriveEncoders();
+	bool x=false;
+	bool y = false;
+
+	bool climb_mode = 0;
 	// bool
 	while(!chThdShouldTerminate())
 	{
 		//Remember to Uncomment.
 		driveMotors();
+		auton_mode = false;
 		
-		// /= false;
-		if(vexControllerGet(Btn7L)){
-			// Dump_Down();
-			vexAutonomous(NULL);
-		}
+		
+
+		// if(vexControllerGet(Btn7U)){
+		// 	// Dump_Down();
+		// 	vexAutonomous(NULL);
+		// }
 
 		
 		// if(vexControllerGet(Btn7U)){
@@ -649,14 +803,15 @@ msg_t vexOperator( void *arg )
 
 		
 		if(vexControllerGet(J_LIFT_UP)){
-			Set_Lift_Motors(100);
+			Set_Lift_Motors(100);			
 		}
 		else if(vexControllerGet(J_LIFT_DOWN)){
-			Set_Lift_Motors(-100);
+			Set_Lift_Motors(-100);			
 		} else{
 			Set_Lift_Motors(0);
 		}
-		
+
+
 		
 		if(vexControllerGet(J_CLAW_CLOSE)){
 			Set_Claw_Motors(100);
@@ -669,9 +824,22 @@ msg_t vexOperator( void *arg )
 		else{
 			Set_Claw_Motors(0);
 		}
+
+		if (vexControllerGet(J_Auton_Climb)){
+				climb_mode = true;
+				
+		}
+
+		if (vexControllerGet(Btn7U)){
+			lift_Auton();
+		}
 		
-		
-	
+		if (vexControllerGet(Btn7D)){
+			climb_mode = false;
+		}
+		// if (vexControllerGet(Btn8L)){
+		// 	climb_mode = true;
+		// }
 		 
 		//Don't hog cpu
 		vexSleep(10);
