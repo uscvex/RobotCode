@@ -414,19 +414,22 @@ msg_t vexAutonomous( void *arg )
 	vexSensorValueSet(S_LIFT, 0);
 	// drive_forward(-0.75);
 
-   	open_claw_init();
-   	wait(1);
+   	// open_claw_init();
+   	Set_Claw_Motors(0);
+   	wait(0.5);
+   	turn_deg(0.24);
+   	wait(0.5);
  	drive_forward(-1.2);
  	Set_Claw_Motors(1);
    	slight_dumper_lift();
-   	wait(.5);
-   	turn_deg(0.2);
    	wait(0.5);
-   	drive_forward(-2);
-   	wait(0.55);
-   	turn_deg(0.35);
+   	turn_deg(0.39);
    	wait(0.5);
-   	drive_forward(0.6);
+   	// drive_forward(-2);
+   	// wait(0.55);
+   	// turn_deg(0.35);
+   	// wait(0.5);
+   	drive_forward(0.7);
 
 	Dump_Open_Claw();
 	wait(.5);
@@ -435,12 +438,15 @@ msg_t vexAutonomous( void *arg )
 
 	// // turn_deg(0.2);
 
-   	drive_forward(-0.6);
-
+   	drive_forward(-1);
+   	wait(0.5);
+   	Set_Claw_Motors(1);
+   	wait(1);
    	// turn_deg(0.25);
 
-   	// drive_forward(-3);
-
+   	drive_forward(1.1);
+   	slight_dumper_lift();
+   	Dump_Open_Claw();
    	// turn_deg(0.2);
  //   	wait(1);
  //   	Set_Claw_Motors(1);
