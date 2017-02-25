@@ -290,12 +290,12 @@ void slight_dumper_lift(void)
          	break;
      	}
      	systime_t autonTime = chTimeNow() - init_time;
-     	if (autonTime < duration){
+     	if (vexSensorValueGet(S_LIFT) < 1000 && autonTime < duration){
      		Set_Lift_Motors(105);
      	}
      	else{
      		// Set_Claw_Motors(15);
-         	Set_Lift_Motors(30);
+         	Set_Lift_Motors(10);
          	break;
      	}
  	}
@@ -368,8 +368,6 @@ msg_t vexAutonomous( void *arg )
 	
 	Set_Claw_Motors(0);
    	wait(1);
-   	//turn_deg(0.24);
-   	wait(0.5);
  	drive_forward(-1.34);
  	Set_Claw_Motors(1);
  	wait(0.5);
@@ -377,7 +375,7 @@ msg_t vexAutonomous( void *arg )
    	wait(0.5);
    	turn_deg(0.36);
    	wait(0.5);
-   	drive_forward(0.7);
+   	drive_forward(0.64);
 	Dump_Open_Claw();
 	wait(.5);
 	dump_to_zero();
@@ -390,19 +388,35 @@ msg_t vexAutonomous( void *arg )
    	Dump_Open_Claw();
    	dump_to_zero();
    	wait(1);
-   	drive_forward(-0.2);
-   	wait(0.5);
-   	slight_dumper_lift();
-   	wait(0.5);
-   	turn_deg(-0.32);
-   	wait(0.5);
-   	drive_forward(-1.9);
-   	wait(0.5);
-   	turn_deg(0.34);
-   	drive_forward(0.6);
+   	drive_forward(-1.1);
+   	Set_Claw_Motors(1);
+   	wait(0.55);
+
+	Set_Claw_Motors(1);
    	wait(1);
+   	drive_forward(1.1);
    	slight_dumper_lift();
    	Dump_Open_Claw();
+   	dump_to_zero();
+
+
+   	wait(1);
+   	drive_forward(-0.2);
+   	// wait(0.5);
+   	// // slight_dumper_lift();
+   	// wait(0.5);
+   	// turn_deg(-0.35);
+   	// wait(0.5);
+   	// drive_forward(-1.9);
+
+   	// wait(0.5);
+   	// turn_deg(0.34);
+   	// drive_forward(0.6);
+   	// wait(1);
+   	// dump_to_zero();
+   	// //slight_dumper_lift();
+   	// wait(1);
+   	// Dump_Open_Claw();
 
 	
 
