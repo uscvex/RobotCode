@@ -14,44 +14,59 @@
 
 // Motor mappings
 
-// Lift
-#define M_LIFT_LEFT   kVexMotor_2
-#define M_LIFT_RIGHT  kVexMotor_8
+//Flipper
+#define M_FLIP   kVexMotor_2
 
-#define M_DRIVE_RIGHT_F  kVexMotor_3
-#define M_DRIVE_RIGHT_B  kVexMotor_4
-#define M_DRIVE_LEFT_B   kVexMotor_7
-#define M_DRIVE_LEFT_F   kVexMotor_8
+//Roller
+#define M_ROLLER kVexMotor_9
+
+//Drive
+#define M_DRIVE_RIGHT_1  kVexMotor_1
+#define M_DRIVE_RIGHT_2  kVexMotor_6
+#define M_DRIVE_LEFT_1   kVexMotor_10
+#define M_DRIVE_LEFT_2   kVexMotor_5
+
+//Mobile goal
+#define M_MOBILE_GOAL_R   kVexMotor_4
+#define M_MOBILE_GOAL_L   kVexMotor_7
 
 // Sensor mappings
-#define P_DRIVE_ENC_RIGHT_A kVexDigital_9
-#define P_DRIVE_ENC_RIGHT_B kVexDigital_10
-#define P_DRIVE_ENC_LEFT_A  kVexDigital_1
-#define P_DRIVE_ENC_LEFT_B  kVexDigital_2
-
-#define P_CLAW 			kVexDigital_5
-
-#define P_LIFT_A   			kVexDigital_3
-#define P_LIFT_B  			kVexDigital_4
+#define P_DRIVE_ENC_RIGHT_A kVexDigital_1
+#define P_DRIVE_ENC_RIGHT_B kVexDigital_2
+#define P_DRIVE_ENC_LEFT_A  kVexDigital_3
+#define P_DRIVE_ENC_LEFT_B  kVexDigital_4
+#define P_LIFT_ENC_RIGHT_A  kVexDigital_5
+#define P_LIFT_ENC_RIGHT_B  kVexDigital_6
+#define P_LIFT_ENC_LEFT_A   kVexDigital_7
+#define P_LIFT_ENC_LEFT_B   kVexDigital_8
+#define P_ENC_TOP_ROLLER_A  kVexDigital_9
+#define P_ENC_TOP_ROLLER_B  kVexDigital_10
 
 #define S_DRIVE_ENC_LEFT  	kVexSensorDigital_1
-#define S_DRIVE_ENC_RIGHT 	kVexSensorDigital_9
-#define S_LIFT       		kVexSensorDigital_3
+#define S_DRIVE_ENC_RIGHT 	kVexSensorDigital_2
+#define S_LIFT_ENC_RIGHT    kVexSensorDigital_3
+#define S_LIFT_ENC_LEFT     kVexSensorDigital_4
+#define S_ROLLER_ENC        kVexSensorDigital_5
 
-
-#define S_LINE_FOLLOWER_L2      1
-#define S_LINE_FOLLOWER_L1      2
-#define S_LINE_FOLLOWER_M       3
-#define S_LINE_FOLLOWER_R1      4
-#define S_LINE_FOLLOWER_R2      5
+#define FLIP_POT            kVexAnalog_1
+#define R_MOBILE_POT        kVexAnalog_2
+#define L_MOBILE_POT        kVexAnalog_3
 
 // Controller mappings
-#define J_LIFT_UP     Btn5U
-#define J_LIFT_DOWN   Btn5D
+#define J_DRIVE_RIGHT Ch2
+#define J_DRIVE_LEFT  Ch3
 
-#define J_DRIVE       Ch3
-#define J_TURN        Ch1
-
+#define J_AUTOSTACK        Btn6U
+#define J_FLIP_LIFT_HOME   Btn6D
+#define J_MOBILE_BASE_DOWN Btn5U
+#define J_MOBILE_BASE_UP   Btn5D
+#define J_CANCEL_AUTOSTACK Btn7U
+#define J_AUTO_PRELOADS    Btn8R //Toggle
+#define J_LIFT_UP          Btn8U
+#define J_LIFT_DOWN        Btn8L
+#define J_FLIP_DOWN        Btn7L
+#define J_FLIP_UP          Btn7R
+#define J_SPIN_ROLL        Btn8D
 
 // PID Controls
 EPidController *leftDrivePid;
@@ -63,13 +78,16 @@ EPidController *rightDrivePid;
 
 static vexMotorCfg mConfig[] = {
 
-    { M_LIFT_RIGHT,       kVexMotor393S, kVexMotorReversed,    	kVexSensorQuadEncoder,  kVexQuadEncoder_2 },
-    { M_LIFT_LEFT,        kVexMotor393S, kVexMotorReversed,  	  kVexSensorQuadEncoder,  kVexQuadEncoder_2 },
+    { M_MOBILE_GOAL_L,       kVexMotor393S, kVexMotorReversed,    	kVexSensorQuadEncoder,  kVexQuadEncoder_2 },
+    { M_MOBILE_GOAL_R,       kVexMotor393S, kVexMotorReversed,  	  kVexSensorQuadEncoder,  kVexQuadEncoder_2 },
 
-    { M_DRIVE_RIGHT_B,      kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
-    { M_DRIVE_LEFT_B,       kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
-    { M_DRIVE_LEFT_F,       kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
-    { M_DRIVE_RIGHT_F,      kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 }
+    { M_DRIVE_RIGHT_1,       kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
+    { M_DRIVE_RIGHT_2,       kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
+    { M_DRIVE_LEFT_1,        kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
+    { M_DRIVE_LEFT_2,        kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
+
+    { M_ROLLER,              kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
+    { M_FLIP,                kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 }
 };
 
 static vexDigiCfg dConfig[] = {
@@ -78,6 +96,15 @@ static vexDigiCfg dConfig[] = {
 
     { P_DRIVE_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
     { P_DRIVE_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+
+    { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+    { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+
+    { P_LIFT_ENC_RIGHT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+    { P_LIFT_ENC_RIGHT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+
+    { P_ENC_TOP_ROLLER_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+    { P_ENC_TOP_ROLLER_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 }
 
  };
 
@@ -104,32 +131,17 @@ void vexUserInit()
 bool driveMotors(void) {
 	short ld, rd ;
 	//Calculate Motor Power
-	int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127) * -0.8;
-	int turn;
+	rd = VALLEY(vexControllerGet(J_DRIVE_RIGHT), 20, 127);
+	ld =  VALLEY(vexControllerGet(J_DRIVE_LEFT), 20, 127);
 
-
-	int turnChannel = vexControllerGet(J_TURN) * -0.6;
-
-	turn = VALLEY(turnChannel, 20, 127);
-	ld = VALLEY(forward + turn, 20, 127);
-	rd = VALLEY(forward - turn, 20, 127);
-
-	//SetMotor(M_DRIVE_LEFT_B,  ld);
-	//SetMotor(M_DRIVE_RIGHT_B, rd);
-	//SetMotor(M_DRIVE_LEFT_F,  ld);
-	//SetMotor(M_DRIVE_RIGHT_F, rd);
+	SetMotor(M_DRIVE_LEFT_1,  ld);
+	SetMotor(M_DRIVE_LEFT_2,  ld);
+	SetMotor(M_DRIVE_RIGHT_1, rd);
+	SetMotor(M_DRIVE_RIGHT_2, rd);
 
 	vex_printf("%f %f\n", rd, ld);
 	return (ld != 0 || rd != 0);
 }
-
-void Set_Lift_Motors(int val){
-	//SetMotor(M_LIFT_LEFT_1, val);
-	//SetMotor(M_LIFT_LEFT_2, val);
-	//SetMotor(M_LIFT_RIGHT_1, val);
-	//SetMotor(M_LIFT_RIGHT_2, val);
-}
-
 
 //---------------------Autonomous Functions ----------------------------------//
 
@@ -152,10 +164,10 @@ void drive_forward(double ratio){
 
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
-			SetMotor(M_DRIVE_LEFT_B,  0);
-			SetMotor(M_DRIVE_RIGHT_B, 0);
-			SetMotor(M_DRIVE_LEFT_F,  0);
-			SetMotor(M_DRIVE_RIGHT_F, 0);
+			SetMotor(M_DRIVE_LEFT_1,  0);
+			SetMotor(M_DRIVE_RIGHT_1, 0);
+			SetMotor(M_DRIVE_LEFT_2,  0);
+			SetMotor(M_DRIVE_RIGHT_2, 0);
 			break;
 		}
 
@@ -163,24 +175,24 @@ void drive_forward(double ratio){
 		if (autonTime < duration){
 			int16_t ld = EPidUpdate(leftDrivePid);
 			int16_t rd = EPidUpdate(rightDrivePid);
-			SetMotor(M_DRIVE_LEFT_B,  ld);
-			SetMotor(M_DRIVE_RIGHT_B, rd);
-			SetMotor(M_DRIVE_LEFT_F,  ld);
-			SetMotor(M_DRIVE_RIGHT_F, rd);
+			SetMotor(M_DRIVE_LEFT_1,  ld);
+			SetMotor(M_DRIVE_RIGHT_1, rd);
+			SetMotor(M_DRIVE_LEFT_2,  ld);
+			SetMotor(M_DRIVE_RIGHT_2, rd);
 			vexSleep(10);
 		}
 		else{
-			SetMotor(M_DRIVE_LEFT_B,  0);
-			SetMotor(M_DRIVE_RIGHT_B, 0);
-			SetMotor(M_DRIVE_LEFT_F,  0);
-			SetMotor(M_DRIVE_RIGHT_F, 0);
+			SetMotor(M_DRIVE_LEFT_1,  0);
+			SetMotor(M_DRIVE_RIGHT_1, 0);
+			SetMotor(M_DRIVE_LEFT_2,  0);
+			SetMotor(M_DRIVE_RIGHT_2, 0);
 			break;
 		}
 	}
-	SetMotor(M_DRIVE_LEFT_B,  0);
-	SetMotor(M_DRIVE_RIGHT_B, 0);
-	SetMotor(M_DRIVE_LEFT_F,  0);
-	SetMotor(M_DRIVE_RIGHT_F, 0);
+	SetMotor(M_DRIVE_LEFT_1,  0);
+	SetMotor(M_DRIVE_RIGHT_2, 0);
+	SetMotor(M_DRIVE_LEFT_1,  0);
+	SetMotor(M_DRIVE_RIGHT_2, 0);
 	//vex_printf("%d\n", vexSensorValueGet(S_DRIVE_ENC_RIGHT));
 }
 
@@ -196,10 +208,10 @@ void turn_deg(double ratio){
 
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
-			SetMotor(M_DRIVE_LEFT_B,  0);
-			SetMotor(M_DRIVE_RIGHT_B, 0);
-			SetMotor(M_DRIVE_LEFT_F,  0);
-			SetMotor(M_DRIVE_RIGHT_F, 0);
+			SetMotor(M_DRIVE_LEFT_1,  0);
+			SetMotor(M_DRIVE_RIGHT_1, 0);
+			SetMotor(M_DRIVE_LEFT_2,  0);
+			SetMotor(M_DRIVE_RIGHT_2, 0);
 
 			break;
 		}
@@ -208,10 +220,10 @@ void turn_deg(double ratio){
 		if (autonTime < duration){
 			int16_t ld = EPidUpdate(leftDrivePid);
 			int16_t rd = EPidUpdate(rightDrivePid);
-			SetMotor(M_DRIVE_LEFT_B,  ld);
-			SetMotor(M_DRIVE_RIGHT_B, rd);
-			SetMotor(M_DRIVE_LEFT_F,  ld);
-			SetMotor(M_DRIVE_RIGHT_F, rd);
+			SetMotor(M_DRIVE_LEFT_1,  ld);
+			SetMotor(M_DRIVE_RIGHT_1, rd);
+			SetMotor(M_DRIVE_LEFT_2,  ld);
+			SetMotor(M_DRIVE_RIGHT_2, rd);
 			vexSleep(10);
 		}
 		else{
@@ -219,20 +231,20 @@ void turn_deg(double ratio){
 			break;
 		}
 	}
-	SetMotor(M_DRIVE_LEFT_B,   0);
-	SetMotor(M_DRIVE_RIGHT_B, 0);
-	SetMotor(M_DRIVE_LEFT_F,  0);
-	SetMotor(M_DRIVE_RIGHT_F, 0);
+	SetMotor(M_DRIVE_LEFT_1,   0);
+	SetMotor(M_DRIVE_RIGHT_1, 0);
+	SetMotor(M_DRIVE_LEFT_2,  0);
+	SetMotor(M_DRIVE_RIGHT_2, 0);
 }
 
 
 void wait(double ratio){
 	systime_t init_time = chTimeNow();
 	systime_t duration = abs(ratio*1000);
-	SetMotor(M_DRIVE_LEFT_B,   0);
-	SetMotor(M_DRIVE_RIGHT_B, 0);
-	SetMotor(M_DRIVE_LEFT_F,  0);
-	SetMotor(M_DRIVE_RIGHT_F, 0);
+	SetMotor(M_DRIVE_LEFT_1,   0);
+	SetMotor(M_DRIVE_RIGHT_1, 0);
+	SetMotor(M_DRIVE_LEFT_2,  0);
+	SetMotor(M_DRIVE_RIGHT_2, 0);
 
 	while (!chThdShouldTerminate()){
 		if(vexControllerGet(Btn7R)){
@@ -268,32 +280,10 @@ msg_t vexOperator( void *arg )
 {
 	(void)arg;
 	vexTaskRegister("operator");
-	bool inPlace = false;
 
 	while(!chThdShouldTerminate())
 	{
 		driveMotors();
-
-		if (vexControllerGet(Btn7L))
-		{
-			vexAutonomous(NULL);
-		}
-
-		if(vexControllerGet(J_LIFT_UP)){
-			vexMotorSet(M_LIFT_LEFT,  127);
-      vexMotorSet(M_LIFT_RIGHT, 127);
-			inPlace = true;
-		}
-		else if(vexControllerGet(J_LIFT_DOWN)){
-      vexMotorSet(M_LIFT_LEFT,  -127);
-      vexMotorSet(M_LIFT_RIGHT, -127);
-			inPlace = false;
-		} else if (inPlace){
-			Set_Lift_Motors(10);
-		} else{
-      vexMotorSet(M_LIFT_LEFT,  0);
-      vexMotorSet(M_LIFT_RIGHT, 0);
-		}
 
 		//Don't hog cpu
 		vexSleep(10);
