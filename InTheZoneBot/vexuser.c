@@ -285,6 +285,16 @@ msg_t vexOperator( void *arg )
 	{
 		driveMotors();
 
+    if(vexControllerGet(J_LIFT_UP)) {
+      vexMotorSet(M_MOBILE_GOAL_R, 127);
+      vexMotorSet(M_MOBILE_GOAL_L, 127);
+    } else if (vexControllerGet(J_LIFT_DOWN)) {
+      vexMotorSet(M_MOBILE_GOAL_R, -127);
+      vexMotorSet(M_MOBILE_GOAL_L, -127);
+    } else {
+      vexMotorSet(M_MOBILE_GOAL_R, 0);
+      vexMotorSet(M_MOBILE_GOAL_L, 0);
+    }
 		//Don't hog cpu
 		vexSleep(10);
 	}
