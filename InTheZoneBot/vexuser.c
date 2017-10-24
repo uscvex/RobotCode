@@ -143,6 +143,10 @@ bool driveMotors(void) {
 	return (ld != 0 || rd != 0);
 }
 
+void autoStack() {
+  
+}
+
 //---------------------Autonomous Functions ----------------------------------//
 
 /**
@@ -281,22 +285,36 @@ msg_t vexOperator( void *arg )
 	(void)arg;
 	vexTaskRegister("operator");
 
+  bool autoStackMode = false;
+
 	while(!chThdShouldTerminate())
 	{
+    if(autoStackMode) {
+
+    }
+
+    else {
+
+      if(vexControllerGet(J_LIFT_UP)) {
+        vexMotorSet(M_MOBILE_GOAL_R, 127);
+        vexMotorSet(M_MOBILE_GOAL_L, 127);
+      } else if (vexControllerGet(J_LIFT_DOWN)) {
+        vexMotorSet(M_MOBILE_GOAL_R, -127);
+        vexMotorSet(M_MOBILE_GOAL_L, -127);
+      } else {
+        vexMotorSet(M_MOBILE_GOAL_R, 0);
+        vexMotorSet(M_MOBILE_GOAL_L, 0);
+      }
+
+      if(vexControllerGet(J_AUTOSTACK)) {
+        autoStackMode = !autoStackMode;
+      }
+
+      //Don't hog cpu
+      vexSleep(10);
+    }
 		driveMotors();
 
-    if(vexControllerGet(J_LIFT_UP)) {
-      vexMotorSet(M_MOBILE_GOAL_R, 127);
-      vexMotorSet(M_MOBILE_GOAL_L, 127);
-    } else if (vexControllerGet(J_LIFT_DOWN)) {
-      vexMotorSet(M_MOBILE_GOAL_R, -127);
-      vexMotorSet(M_MOBILE_GOAL_L, -127);
-    } else {
-      vexMotorSet(M_MOBILE_GOAL_R, 0);
-      vexMotorSet(M_MOBILE_GOAL_L, 0);
-    }
-		//Don't hog cpu
-		vexSleep(10);
 	}
 	return (msg_t)0;
 }
