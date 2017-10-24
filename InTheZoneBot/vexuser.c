@@ -315,10 +315,12 @@ msg_t vexOperator( void *arg )
 
 	  if (vexControllerGet(J_MOBILE_BASE_UP)) {
         vexMotorSet(M_MOBILE_GOAL_R, 127);
-        vexMotorSet(M_MOBILE_GOAL_L, 127);
+        diff = (vexSensorValueGet(L_MOBILE_POT)- vexControllerGet(R_MOBILE_POT));
+        vexMotorSet(M_MOBILE_GOAL_L, 127 + diff*0.3);
       } else if (vexControllerGet(J_MOBILE_BASE_DOWN)) {
         vexMotorSet(M_MOBILE_GOAL_R, -127);
-        vexMotorSet(M_MOBILE_GOAL_L, -127);
+        diff = (vexSensorValueGet(L_MOBILE_POT)- vexControllerGet(R_MOBILE_POT));
+        vexMotorSet(M_MOBILE_GOAL_L, -127 - diff*0.3);
       } else {
         vexMotorSet(M_MOBILE_GOAL_R, 0);
         vexMotorSet(M_MOBILE_GOAL_L	, 0);
