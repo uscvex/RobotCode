@@ -299,21 +299,21 @@ msg_t vexOperator( void *arg )
 
     else {
 
-      driveMotors();
+	  driveMotors();
 
-      if(vexControllerGet(J_AUTOSTACK)) {
-        autoStackMode = !autoStackMode;
-      }
+	  if(vexControllerGet(J_AUTOSTACK)) {
+	    autoStackMode = !autoStackMode;
+	  }
 
-      if (vexControllerGet(J_FLIP_UP)) {
-      	vexMotorSet(M_FLIP, 127);
-      } else if (vexControllerGet(J_FLIP_DOWN)) {
-      	vexMotorSet(M_FLIP, -127);
-      } else {
-      	vexMotorSet(M_FLIP, 0);
-      }
+	  if (vexControllerGet(J_FLIP_UP)) {
+	  	vexMotorSet(M_FLIP, 127);
+	  } else if (vexControllerGet(J_FLIP_DOWN)) {
+	  	vexMotorSet(M_FLIP, -127);
+	  } else {
+	  	vexMotorSet(M_FLIP, 0);
+	  }
 
-      if (vexControllerGet(J_MOBILE_BASE_UP)) {
+	  if (vexControllerGet(J_MOBILE_BASE_UP)) {
         vexMotorSet(M_MOBILE_GOAL_R, 127);
         vexMotorSet(M_MOBILE_GOAL_L, 127);
       } else if (vexControllerGet(J_MOBILE_BASE_DOWN)) {
@@ -321,15 +321,17 @@ msg_t vexOperator( void *arg )
         vexMotorSet(M_MOBILE_GOAL_L, -127);
       } else {
         vexMotorSet(M_MOBILE_GOAL_R, 0);
-        vexMotorSet(M_MOBILE_GOAL_L, 0);
+        vexMotorSet(M_MOBILE_GOAL_L	, 0);
       }
 
       if (vexControllerGet(J_CHAIN_LIFT_UP)) {
-        vexMotorSet(M_CHAIN_LIFT_R, 127);
         vexMotorSet(M_CHAIN_LIFT_L, 127);
-      } else if (vexControllerGet(J_CHAIN_LIFT_DOWN)) {
+     	int diff = vexSensorGet(M_CHAIN_LIFT_L) - vexSensorGet(M_CHAIN_LIFT_R);
+        vexMotorSet(M_CHAIN_LIFT_R, 127 + diff * .3);
+	  } else if (vexControllerGet(J_CHAIN_LIFT_DOWN)) {
         vexMotorSet(M_CHAIN_LIFT_L, -127);
-        vexMotorSet(M_CHAIN_LIFT_R, -127);
+		int diff = vexSensorGet(M_CHAIN_LIFT_L) - vexSensorGet(M_CHAIN_LIFT_R);
+        vexMotorSet(M_CHAIN_LIFT_R, -127 + diff * .3);
       } else {
         vexMotorSet(M_CHAIN_LIFT_L, 0);
         vexMotorSet(M_CHAIN_LIFT_R, 0);
