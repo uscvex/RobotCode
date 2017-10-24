@@ -20,6 +20,10 @@
 //Roller
 #define M_ROLLER kVexMotor_9
 
+//Chain lift
+#define M_CHAIN_LIFT_L kVexMotor_3
+#define M_CHAIN_LIFT_R kVexMotor_8
+
 //Drive
 #define M_DRIVE_RIGHT_1  kVexMotor_1
 #define M_DRIVE_RIGHT_2  kVexMotor_6
@@ -62,8 +66,8 @@
 #define J_MOBILE_BASE_UP   Btn5D
 #define J_CANCEL_AUTOSTACK Btn7U
 #define J_AUTO_PRELOADS    Btn8R //Toggle
-#define J_LIFT_UP          Btn8U
-#define J_LIFT_DOWN        Btn8L
+#define J_CHAIN_LIFT_UP    Btn8U
+#define J_CHAIN_LIFT_DOWN  Btn8L
 #define J_FLIP_DOWN        Btn7L
 #define J_FLIP_UP          Btn7R
 #define J_SPIN_ROLL        Btn8D
@@ -309,15 +313,26 @@ msg_t vexOperator( void *arg )
       	vexMotorSet(M_FLIP, 0);
       }
 
-      if (vexControllerGet(J_LIFT_UP)) {
+      if (vexControllerGet(J_MOBILE_BASE_UP)) {
         vexMotorSet(M_MOBILE_GOAL_R, 127);
         vexMotorSet(M_MOBILE_GOAL_L, 127);
-      } else if (vexControllerGet(J_LIFT_DOWN)) {
+      } else if (vexControllerGet(J_MOBILE_BASE_DOWN)) {
         vexMotorSet(M_MOBILE_GOAL_R, -127);
         vexMotorSet(M_MOBILE_GOAL_L, -127);
       } else {
         vexMotorSet(M_MOBILE_GOAL_R, 0);
         vexMotorSet(M_MOBILE_GOAL_L, 0);
+      }
+
+      if (vexControllerGet(J_CHAIN_LIFT_UP)) {
+        vexMotorSet(M_CHAIN_LIFT_R, 127);
+        vexMotorSet(M_CHAIN_LIFT_L, 127);
+      } else if (vexControllerGet(J_CHAIN_LIFT_DOWN)) {
+        vexMotorSet(M_CHAIN_LIFT_L, -127);
+        vexMotorSet(M_CHAIN_LIFT_R, -127);
+      } else {
+        vexMotorSet(M_CHAIN_LIFT_L, 0);
+        vexMotorSet(M_CHAIN_LIFT_R, 0);
       }
 
       if (vexControllerGet(J_SPIN_ROLL)) {
@@ -328,7 +343,9 @@ msg_t vexOperator( void *arg )
 
   		//Don't hog cpu
   		vexSleep(10);
-	}
-
+	   }
+  }
+  
 	return (msg_t)0;
+
 }
