@@ -52,9 +52,11 @@
 #define S_LIFT_ENC_LEFT     kVexSensorDigital_4
 #define S_ROLLER_ENC        kVexSensorDigital_5
 
-#define FLIP_POT            kVexAnalog_1 //Starts at value 5
+#define FLIP_POT            kVexAnalog_1 //Starts at value 5.
 #define R_MOBILE_POT        kVexAnalog_2 //Starts at value 700
 #define L_MOBILE_POT        kVexAnalog_3 //Starts at value 3200
+
+#define FLIP_HOLD_ANGLE     220
 
 // Controller mappings
 #define J_DRIVE_RIGHT Ch2
@@ -90,6 +92,9 @@ static vexMotorCfg mConfig[] = {
     { M_DRIVE_LEFT_1,        kVexMotor393S, kVexMotorReversed,    	kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
     { M_DRIVE_LEFT_2,        kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
 
+    { M_CHAIN_LIFT_R,        kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_5 },
+    { M_CHAIN_LIFT_L,        kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_4 },
+
     { M_ROLLER,              kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
     { M_FLIP,                kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 }
 };
@@ -101,14 +106,14 @@ static vexDigiCfg dConfig[] = {
     { P_DRIVE_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_3 },
     { P_DRIVE_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
 
-    { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
-    { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+    { P_LIFT_ENC_LEFT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_4 },
+    { P_LIFT_ENC_LEFT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_4 },
 
-    { P_LIFT_ENC_RIGHT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
-    { P_LIFT_ENC_RIGHT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
+    { P_LIFT_ENC_RIGHT_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_5 },
+    { P_LIFT_ENC_RIGHT_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_5 },
 
-    { P_ENC_TOP_ROLLER_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 },
-    { P_ENC_TOP_ROLLER_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_3 }
+    { P_ENC_TOP_ROLLER_A,  kVexSensorQuadEncoder, kVexConfigQuadEnc1,  kVexQuadEncoder_2 },
+    { P_ENC_TOP_ROLLER_B,  kVexSensorQuadEncoder, kVexConfigQuadEnc2,  kVexQuadEncoder_2 }
 
  };
 
