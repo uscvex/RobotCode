@@ -56,7 +56,8 @@
 #define R_MOBILE_POT        kVexAnalog_2 //Starts at value 700
 #define L_MOBILE_POT        kVexAnalog_3 //Starts at value 3200
 
-#define FLIP_HOLD_ANGLE     220
+#define FLIP_HOLD_ANGLE      220
+#define CHAIN_TICKS_PER_CONE 80
 
 // Controller mappings
 #define J_DRIVE_RIGHT Ch2
@@ -308,7 +309,7 @@ msg_t vexOperator( void *arg )
 	  driveMotors();
 
 	  if(vexControllerGet(J_AUTOSTACK)) {
-	    autoStackMode = !autoStackMode;
+	    //autoStackMode = !autoStackMode;
 	  }
 
 	  if (vexControllerGet(J_FLIP_UP)) {
