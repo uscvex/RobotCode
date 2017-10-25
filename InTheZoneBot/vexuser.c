@@ -26,9 +26,9 @@
 
 //Drive
 #define M_DRIVE_RIGHT_1  kVexMotor_1
-#define M_DRIVE_RIGHT_2  kVexMotor_6
+#define M_DRIVE_RIGHT_2  kVexMotor_5
 #define M_DRIVE_LEFT_1   kVexMotor_10
-#define M_DRIVE_LEFT_2   kVexMotor_5
+#define M_DRIVE_LEFT_2   kVexMotor_6
 
 //Mobile goal
 #define M_MOBILE_GOAL_R   kVexMotor_4
@@ -52,9 +52,9 @@
 #define S_LIFT_ENC_LEFT     kVexSensorDigital_4
 #define S_ROLLER_ENC        kVexSensorDigital_5
 
-#define FLIP_POT            kVexAnalog_1
-#define R_MOBILE_POT        kVexAnalog_2
-#define L_MOBILE_POT        kVexAnalog_3
+#define FLIP_POT            kVexAnalog_1 //Starts at value 5
+#define R_MOBILE_POT        kVexAnalog_2 //Starts at value 700
+#define L_MOBILE_POT        kVexAnalog_3 //Starts at value 3200
 
 // Controller mappings
 #define J_DRIVE_RIGHT Ch2
@@ -85,9 +85,9 @@ static vexMotorCfg mConfig[] = {
     { M_MOBILE_GOAL_L,       kVexMotor393S, kVexMotorReversed,    	kVexSensorQuadEncoder,  kVexQuadEncoder_2 },
     { M_MOBILE_GOAL_R,       kVexMotor393S, kVexMotorReversed,  	  kVexSensorQuadEncoder,  kVexQuadEncoder_2 },
 
-    { M_DRIVE_RIGHT_1,       kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
+    { M_DRIVE_RIGHT_1,       kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
     { M_DRIVE_RIGHT_2,       kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
-    { M_DRIVE_LEFT_1,        kVexMotor393S, kVexMotorNormal,    	  kVexSensorQuadEncoder,  kVexQuadEncoder_3 },
+    { M_DRIVE_LEFT_1,        kVexMotor393S, kVexMotorReversed,    	kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
     { M_DRIVE_LEFT_2,        kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
 
     { M_ROLLER,              kVexMotor393S, kVexMotorNormal,  	    kVexSensorQuadEncoder,  kVexQuadEncoder_1 },
@@ -137,13 +137,14 @@ bool driveMotors(void) {
 	//Calculate Motor Power
 	rd = VALLEY(vexControllerGet(J_DRIVE_RIGHT), 20, 127);
 	ld =  VALLEY(vexControllerGet(J_DRIVE_LEFT), 20, 127);
+  //ld = 0;
 
 	SetMotor(M_DRIVE_LEFT_1,  ld);
 	SetMotor(M_DRIVE_LEFT_2,  ld);
 	SetMotor(M_DRIVE_RIGHT_1, rd);
 	SetMotor(M_DRIVE_RIGHT_2, rd);
 
-	vex_printf("%f %f\n", rd, ld);
+	//vex_printf("%f %f\n", rd, ld);
 	return (ld != 0 || rd != 0);
 }
 
@@ -315,12 +316,10 @@ msg_t vexOperator( void *arg )
 
 	  if (vexControllerGet(J_MOBILE_BASE_UP)) {
         vexMotorSet(M_MOBILE_GOAL_R, 127);
-        diff = (vexSensorValueGet(L_MOBILE_POT)- vexControllerGet(R_MOBILE_POT));
-        vexMotorSet(M_MOBILE_GOAL_L, 127 + diff*0.3);
+        vexMotorSet(M_MOBILE_GOAL_L, 127);
       } else if (vexControllerGet(J_MOBILE_BASE_DOWN)) {
         vexMotorSet(M_MOBILE_GOAL_R, -127);
-        diff = (vexSensorValueGet(L_MOBILE_POT)- vexControllerGet(R_MOBILE_POT));
-        vexMotorSet(M_MOBILE_GOAL_L, -127 - diff*0.3);
+        vexMotorSet(M_MOBILE_GOAL_L, -127);
       } else {
         vexMotorSet(M_MOBILE_GOAL_R, 0);
         vexMotorSet(M_MOBILE_GOAL_L	, 0);
@@ -328,12 +327,10 @@ msg_t vexOperator( void *arg )
 
       if (vexControllerGet(J_CHAIN_LIFT_UP)) {
         vexMotorSet(M_CHAIN_LIFT_L, 127);
-     	int diff = vexSensorGet(M_CHAIN_LIFT_L) - vexSensorGet(M_CHAIN_LIFT_R);
-        vexMotorSet(M_CHAIN_LIFT_R, 127 + diff * .3);
+        vexMotorSet(M_CHAIN_LIFT_R, 127);
 	  } else if (vexControllerGet(J_CHAIN_LIFT_DOWN)) {
         vexMotorSet(M_CHAIN_LIFT_L, -127);
-		int diff = vexSensorGet(M_CHAIN_LIFT_L) - vexSensorGet(M_CHAIN_LIFT_R);
-        vexMotorSet(M_CHAIN_LIFT_R, -127 + diff * .3);
+        vexMotorSet(M_CHAIN_LIFT_R, -127);
       } else {
         vexMotorSet(M_CHAIN_LIFT_L, 0);
         vexMotorSet(M_CHAIN_LIFT_R, 0);
@@ -349,7 +346,7 @@ msg_t vexOperator( void *arg )
   		vexSleep(10);
 	   }
   }
-  
+
 	return (msg_t)0;
 
 }
