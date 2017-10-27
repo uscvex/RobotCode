@@ -58,28 +58,33 @@
 
 #define FLIP_HOLD_ANGLE      220
 #define CHAIN_TICKS_PER_CONE 80
+#define FLIPPER_SEEK_RATE    0.6
 
 // Controller mappings
 #define J_DRIVE_RIGHT Ch2
 #define J_DRIVE_LEFT  Ch3
 
-#define J_AUTOSTACK        Btn6U
-#define J_FLIP_LIFT_HOME   Btn6D
-#define J_MOBILE_BASE_DOWN Btn5U
-#define J_MOBILE_BASE_UP   Btn5D
+#define J_AUTOSTACK        Btn5U
+#define J_FLIP_LIFT_HOME   Btn5D
+#define J_MOBILE_BASE_DOWN Btn6D
+#define J_MOBILE_BASE_UP   Btn6U
 #define J_CANCEL_AUTOSTACK Btn7U
-#define J_AUTO_PRELOADS    Btn8R //Toggle
-#define J_CHAIN_LIFT_UP    Btn8U
+#define J_AUTO_PRELOADS    Btn8D //Toggle
+#define J_CHAIN_LIFT_UP    Btn8R
 #define J_CHAIN_LIFT_DOWN  Btn8L
 #define J_FLIP_DOWN        Btn7L
 #define J_FLIP_UP          Btn7R
-#define J_SPIN_ROLL        Btn8D
+#define J_SPIN_ROLL        Btn8U
 
 // PID Controls
 EPidController *leftDrivePid;
 EPidController *rightDrivePid;
 
-// bool auton_mode;
+bool autoStackMode;
+bool justChangedMode;
+short stackCount = 0;
+short stackStep = 1;
+int flipperDesiredPos = -1;
 
 //------------------Motor Configurations--------------------------------------//
 
@@ -154,8 +159,49 @@ bool driveMotors(void) {
 	return (ld != 0 || rd != 0);
 }
 
-void autoStack() {
+void autostack() {
 
+  while(autoStackMode) {
+    vex_printf("flipperDesiredPos: %d\n", flipperDesiredPos);
+    if(vexControllerGet(J_AUTOSTACK)) {
+      if(justChangedMode == false) {
+        stackStep = 1;
+  	    autoStackMode = !autoStackMode;
+        justChangedMode = true;
+      }
+	  } else {
+      justChangedMode = false;
+    }
+
+    //Step 1: Raise flipper to Hold position
+    if(stackStep == 1){
+      flipperDesiredPos = 220;
+      stackStep = 2;
+    }
+    //Step 2: Lift to appropriate height
+    if(stackStep == 2){
+      stackStep = 3;
+    }
+    //Step 3: Engage flipper
+    if(stackStep == 3){
+      stackStep = 4;
+    }
+    //Step 4: Return flipper to Hold positions
+    if(stackStep == 4){
+      stackStep = 5;
+    }
+    //Step 5: Lower chain to floor
+    if(stackStep == 5){
+      stackStep = 6;
+    }
+    //Step 6: Drop flipper
+    if(stackStep == 6){
+      //flipperDesiredPos = 0;
+      stackStep = 1;
+    }
+
+    wait1Msec(25);
+  }
 }
 
 //---------------------Autonomous Functions ----------------------------------//
@@ -165,6 +211,24 @@ void autoStack() {
  param:
  @ratio is the ditance you want to move. One block take a second to move
  */
+
+task slewMotors(void *arg)
+{
+  vexTaskRegister("slewMotors");
+  vex_printf("Starting task slewMotors");
+  int flipperPos;
+  while(1) {
+    if(autoStackMode){
+      if(flipperDesiredPos > 0) {
+        flipperPos = vexSensorValueGet(FLIP_POT);
+        SetMotor(M_FLIP, (flipperDesiredPos - flipperPos)*FLIPPER_SEEK_RATE);
+      }
+    }
+    wait1Msec(20);
+  }
+}
+
+
 void drive_forward(double ratio){
 	systime_t init_time = chTimeNow();
 		// int backupLevel = BackupBatteryLevel;
@@ -296,21 +360,30 @@ msg_t vexOperator( void *arg )
 	(void)arg;
 	vexTaskRegister("operator");
 
-  bool autoStackMode = false;
+  StartTask(slewMotors);
+  autoStackMode = false;
 
 	while(!chThdShouldTerminate())
 	{
-    if(autoStackMode) {
+    //vex_printf("In operator task");
 
+    if(autoStackMode) {
+      autostack();
     }
 
     else {
-
 	  driveMotors();
 
-	  if(vexControllerGet(J_AUTOSTACK)) {
-	    //autoStackMode = !autoStackMode;
-	  }
+    if(vexControllerGet(J_AUTOSTACK)) {
+      if(justChangedMode == false) {
+        stackStep = 1;
+        autoStackMode = !autoStackMode;
+        justChangedMode = true;
+      }
+    } else {
+      justChangedMode = false;
+    }
+
 
 	  if (vexControllerGet(J_FLIP_UP)) {
 	  	vexMotorSet(M_FLIP, 127);
