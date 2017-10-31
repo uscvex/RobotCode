@@ -55,13 +55,17 @@
 #define FLIP_POT            kVexAnalog_1 //Starts at value 5.
 #define R_MOBILE_POT        kVexAnalog_2 //Starts at value 700
 #define L_MOBILE_POT        kVexAnalog_3 //Starts at value 3200
+#define GYRO                kVexAnalog_4
+#define POWER_EXPANDER      kVexAnalog_5
 
-#define FLIP_HOLD_ANGLE      220
+#define FLIP_HOLD_ANGLE      500
 #define CHAIN_TICKS_PER_CONE 80
 #define FLIPPER_SEEK_RATE    7
 #define FLIPPER_CLOSE_ENOUGH 200
 #define FLIPPER_STACK_POS    3500
 #define LIFT_CLOSE_ENOUGH    30
+#define LIFT_SEEK_RATE       1.5
+#define FLIPPER_SAFE_ZONE    100
 
 // Controller mappings
 #define J_DRIVE_RIGHT Ch2
@@ -137,7 +141,13 @@ void vexUserSetup()
 
 void vexUserInit()
 {
+    //bStopTasksBetweenModes = false;
+
 	  SmartMotorsInit();
+    SmartMotorSetPowerExpanderStatusPort(POWER_EXPANDER);
+    SmartMotorsAddPowerExtender(M_DRIVE_RIGHT_2, M_DRIVE_LEFT_2);
+    SmartMotorLinkMotors(M_DRIVE_RIGHT_1, M_DRIVE_RIGHT_2);
+    SmartMotorLinkMotors(M_DRIVE_LEFT_1, M_DRIVE_LEFT_2);
     SmartMotorPtcMonitorEnable();
     SmartMotorRun();
 
@@ -173,9 +183,8 @@ void autostack() {
   while(autoStackMode) {
 
     vex_printf("flipperDesiredPos: %d\n", flipperDesiredPos);
-    if(vexControllerGet(J_AUTOSTACK)) {
+    if(vexControllerGet(J_CANCEL_AUTOSTACK)) {
       if(justChangedMode == false) {
-        stackStep = 1;
   	    autoStackMode = !autoStackMode;
         justChangedMode = true;
       }
@@ -185,6 +194,10 @@ void autostack() {
     if(vexControllerGet(Btn6D)) {
       stackStep = 4;
       flipperDesiredPos = -1;
+    }
+    if(vexControllerGet(Btn8D)) {
+      stackCount--;
+      if(stackCount < 0) stackCount = 0;
     }
 
     //Step 1: Raise flipper to Hold position
@@ -213,18 +226,20 @@ void autostack() {
       }
     }
     //Step 4: Return flipper to Hold positions and lower chain
-    if(stackStep == 4){
-      if((abs(flipperDesiredPos - vexSensorValueGet(FLIP_POT) < FLIPPER_CLOSE_ENOUGH) || flipperDesiredPos==-1)
-         && getTimeDifference(currTime) > 1000) {
-        liftDesiredPos = 0;
+    if(stackStep == 4) {
+      if((abs(flipperDesiredPos - vexSensorValueGet(FLIP_POT) < FLIPPER_CLOSE_ENOUGH) || flipperDesiredPos==-1)) {
+        liftDesiredPos = 1;
         flipperDesiredPos = FLIP_HOLD_ANGLE;
+        stackStep = 5;
       }
     }
 
-    //Step 6: Drop flipper
+    //Step 5: Drop flipper
     if(stackStep == 5){
-      flipperDesiredPos = -1;
-      stackStep = -1;
+      if(abs(vexSensorValueGet(S_LIFT_ENC_LEFT)) < FLIPPER_SAFE_ZONE) {
+        flipperDesiredPos = -1;
+        stackStep = -1;
+      }
     }
 
     wait1Msec(25);
@@ -244,11 +259,22 @@ task slewMotors(void *arg)
   vexTaskRegister("slewMotors");
   vex_printf("Starting task slewMotors");
   int flipperPos;
+  int liftPos;
   while(1) {
     if(autoStackMode){
       if(flipperDesiredPos > 0) {
         flipperPos = vexSensorValueGet(FLIP_POT);
         SetMotor(M_FLIP, (flipperDesiredPos - flipperPos)/FLIPPER_SEEK_RATE);
+      } else {
+        SetMotor(M_FLIP, 0);
+      }
+      if(liftDesiredPos> 0) {
+        liftPos = vexSensorValueGet(S_LIFT_ENC_LEFT);
+        SetMotor(M_CHAIN_LIFT_L, (liftDesiredPos - liftPos)/LIFT_SEEK_RATE);
+        SetMotor(M_CHAIN_LIFT_R, (liftDesiredPos - liftPos)/  LIFT_SEEK_RATE);
+      } else {
+        SetMotor(M_CHAIN_LIFT_R, 0);
+        SetMotor(M_CHAIN_LIFT_L, 0);
       }
     }
     wait1Msec(20);
@@ -395,6 +421,7 @@ msg_t vexOperator( void *arg )
     //vex_printf("In operator task");
 
     if(autoStackMode) {
+      stackStep = 1;
       autostack();
     }
 
