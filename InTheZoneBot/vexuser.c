@@ -66,19 +66,21 @@
 #define DIRECTION_FALLING  1
 #define DIRECTION_BOTTOM   2
 
-#define LIFT_START_HEIGHT    250
-#define CONE_PICKUP_HEIGHT   100
+#define LIFT_START_HEIGHT    0
+#define CONE_PICKUP_HEIGHT   280
+#define JIGGLE_CONE_UP       60
+#define BASE_CONE_HEIGHT     715
+#define BASE_DROP_HEIGHT     370
+#define CHAIN_TICKS_PER_CONE 80
+
 #define SWEEP_IN_POS         2500
 #define SWEEP_OUT_POS        0
 #define SWEEP_PRELOAD_POS    1250
-#define JIGGLE_CONE_UP       100
-#define LIFT_JIGGLE_RANGE    60
-#define BASE_DROP_HEIGHT     500
-#define CHAIN_TICKS_PER_CONE 80
 
-#define LIFT_CLOSE_ENOUGH    20
+#define LIFT_CLOSE_ENOUGH    30
+#define JIGGLE_CLOSE_ENOUGH  20
 #define SWEEP_CLOSE_ENOUGH   30
-#define LIFT_SEEK_RATE       3
+#define LIFT_SEEK_RATE       1.5
 #define SWEEP_SEEK_RATE      3
 
 
@@ -90,7 +92,7 @@ EPidController *rightDrivePid;
 bool autoStackMode;
 bool justChangedMode;
 short stackCount = 0;
-short stackStep = 1;
+short stackStep = -1;
 int sweepDesiredPos = -1;
 int liftDesiredPos = -1;
 systime_t currTime;
@@ -194,7 +196,7 @@ void autostack() {
 
   //Drop crane and pick up cone
   if(stackStep == 1) {
-    liftDesiredPos = CONE_PICKUP_HEIGHT;
+    liftDesiredPos = LIFT_START_HEIGHT;
     stackStep = 2;
   }
   //jiggle to hold cone tight
@@ -207,9 +209,9 @@ void autostack() {
       }
   }
   if(stackStep == 2) {
-    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_JIGGLE_RANGE)
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < JIGGLE_CLOSE_ENOUGH)
       && getTimeDifference(currTime) > 200) || getTimeDifference(currTime > 400)) {
-        liftDesiredPos = CONE_PICKUP_HEIGHT;
+        liftDesiredPos = LIFT_START_HEIGHT;
         currTime = chTimeNow();
         stackStep = 4;
       }
@@ -217,9 +219,9 @@ void autostack() {
 
   //Raise cone to appropriate height
   if(stackStep == 4) {
-    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_JIGGLE_RANGE)
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < JIGGLE_CLOSE_ENOUGH)
       && getTimeDifference(currTime) > 200) || getTimeDifference(currTime > 400)) {
-        liftDesiredPos = BASE_DROP_HEIGHT + stackCount*CHAIN_TICKS_PER_CONE;
+        liftDesiredPos = BASE_CONE_HEIGHT + stackCount*CHAIN_TICKS_PER_CONE;
         currTime = chTimeNow();
         stackStep = 5;
       }
@@ -239,7 +241,7 @@ void autostack() {
   if(stackStep == 6) {
     if((abs(sweepDesiredPos - vexSensorValueGet(SWEEP_POT) < SWEEP_CLOSE_ENOUGH)
       && getTimeDifference(currTime) > 500) || getTimeDifference(currTime > 1200)) {
-        liftDesiredPos -= CHAIN_TICKS_PER_CONE;
+        liftDesiredPos = BASE_DROP_HEIGHT + stackCount*CHAIN_TICKS_PER_CONE;
         currTime = chTimeNow();
         stackStep = 7;
       }
