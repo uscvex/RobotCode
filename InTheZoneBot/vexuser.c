@@ -14,7 +14,7 @@
 
 // Motor mappings
 
-//Swing
+//Sweep
 #define M_SWEEP      kVexMotor_2
 
 //Chain lift
@@ -46,7 +46,7 @@
 #define S_CHAIN_LIFT_ENC    kVexSensorDigital_7
 #define S_DOWN_LIMIT_SWITCH kVexSensorDigital_8
 
-#define SWING_POT           kVexAnalog_1
+#define SWEEP_POT           kVexAnalog_1
 #define POWER_EXPANDER      kVexAnalog_2
 
 // Controller mappings
@@ -66,6 +66,22 @@
 #define DIRECTION_FALLING  1
 #define DIRECTION_BOTTOM   2
 
+#define LIFT_START_HEIGHT    250
+#define CONE_PICKUP_HEIGHT   100
+#define SWEEP_IN_POS         2500
+#define SWEEP_OUT_POS        0
+#define SWEEP_PRELOAD_POS    1250
+#define JIGGLE_CONE_UP       100
+#define LIFT_JIGGLE_RANGE    60
+#define BASE_DROP_HEIGHT     500
+#define CHAIN_TICKS_PER_CONE 80
+
+#define LIFT_CLOSE_ENOUGH    20
+#define SWEEP_CLOSE_ENOUGH   30
+#define LIFT_SEEK_RATE       3
+#define SWEEP_SEEK_RATE      3
+
+
 
 // PID Controls
 EPidController *leftDrivePid;
@@ -75,7 +91,7 @@ bool autoStackMode;
 bool justChangedMode;
 short stackCount = 0;
 short stackStep = 1;
-int flipperDesiredPos = -1;
+int sweepDesiredPos = -1;
 int liftDesiredPos = -1;
 systime_t currTime;
 
@@ -163,6 +179,92 @@ int getTimeDifference(systime_t startTime) {
   return (int) chTimeNow() - startTime;
 }
 void autostack() {
+
+  currTime = chTimeNow();
+  while(autoStackMode) {
+    if(vexControllerGet(J_MODE_TOGGLE)) {
+      if(justChangedMode == false) {
+        autoStackMode = !autoStackMode;
+        justChangedMode = true;
+      }
+    } else {
+      justChangedMode = false;
+    }
+  }
+
+  //Drop crane and pick up cone
+  if(stackStep == 1) {
+    liftDesiredPos = CONE_PICKUP_HEIGHT;
+    stackStep = 2;
+  }
+  //jiggle to hold cone tight
+  if(stackStep == 2) {
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_CLOSE_ENOUGH)
+      && getTimeDifference(currTime) > 300) || getTimeDifference(currTime > 800)) {
+        liftDesiredPos = JIGGLE_CONE_UP
+        currTime = chTimeNow();
+        stackStep = 3;
+      }
+  }
+  if(stackStep == 2) {
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_JIGGLE_RANGE)
+      && getTimeDifference(currTime) > 200) || getTimeDifference(currTime > 400)) {
+        liftDesiredPos = CONE_PICKUP_HEIGHT
+        currTime = chTimeNow();
+        stackStep = 4;
+      }
+  }
+
+  //Raise cone to appropriate height
+  if(stackStep == 4) {
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_JIGGLE_RANGE)
+      && getTimeDifference(currTime) > 200) || getTimeDifference(currTime > 400)) {
+        liftDesiredPos = BASE_DROP_HEIGHT + stackCount*CHAIN_TICKS_PER_CONE;
+        currTime = chTimeNow();
+        stackStep = 5;
+      }
+  }
+
+  //Spin around
+  if(stackStep == 5) {
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_CLOSE_ENOUGH)
+      && getTimeDifference(currTime) > 500) || getTimeDifference(currTime > 1200)) {
+        sweepDesiredPos = SWEEP_IN_POS;
+        currTime = chTimeNow();
+        stackStep = 6;
+      }
+  }
+
+  //Drop cone
+  if(stackStep == 6) {
+    if((abs(sweepDesiredPos - vexSensorValueGet(SWEEP_POT) < SWEEP_CLOSE_ENOUGH)
+      && getTimeDifference(currTime) > 500) || getTimeDifference(currTime > 1200)) {
+        liftDesiredPos -= CHAIN_TICKS_PER_CONE;
+        currTime = chTimeNow();
+        stackStep = 7;
+      }
+  }
+
+  //Sweep out
+  if(stackStep == 6) {
+    if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_CLOSE_ENOUGH)
+      && getTimeDifference(currTime) > 500) || getTimeDifference(currTime > 1000)) {
+        sweepDesiredPos = SWEEP_OUT_POS;
+        currTime = chTimeNow();
+        stackStep = 7;
+      }
+  }
+
+  //Drop to start height
+  if(stackStep == 7) {
+    if((abs(sweepDesiredPos - vexSensorValueGet(SWEEP_POT) < SWEEP_CLOSE_ENOUGH)
+      && getTimeDifference(currTime) > 200) || getTimeDifference(currTime > 500)) {
+        liftDesiredPos = LIFT_START_HEIGHT;
+        currTime = chTimeNow();
+        stackStep = -1;
+      }
+  }
+
   /*
   currTime = chTimeNow();
   while(autoStackMode) {
