@@ -201,7 +201,7 @@ void autostack() {
   if(stackStep == 2) {
     if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_CLOSE_ENOUGH)
       && getTimeDifference(currTime) > 300) || getTimeDifference(currTime > 800)) {
-        liftDesiredPos = JIGGLE_CONE_UP
+        liftDesiredPos = JIGGLE_CONE_UP;
         currTime = chTimeNow();
         stackStep = 3;
       }
@@ -209,7 +209,7 @@ void autostack() {
   if(stackStep == 2) {
     if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC) < LIFT_JIGGLE_RANGE)
       && getTimeDifference(currTime) > 200) || getTimeDifference(currTime > 400)) {
-        liftDesiredPos = CONE_PICKUP_HEIGHT
+        liftDesiredPos = CONE_PICKUP_HEIGHT;
         currTime = chTimeNow();
         stackStep = 4;
       }
@@ -349,14 +349,14 @@ task slewMotors(void *arg)
   int sweepPos;
   while(1) {
     if(autoStackMode){
-      if(flipperDesiredPos > 0) {
-        flipperPos = vexSensorValueGet(FLIP_POT);
-        SetMotor(M_FLIP, (flipperDesiredPos - flipperPos)/FLIPPER_SEEK_RATE);
+      if(sweepDesiredPos > 0) {
+        sweepPos = vexSensorValueGet(SWEEP_POT);
+        SetMotor(M_SWEEP, (sweepDesiredPos - sweepPos)/SWEEP_SEEK_RATE);
       } else {
-        SetMotor(M_FLIP, 0);
+        SetMotor(M_SWEEP, 0);
       }
       if(liftDesiredPos> 0) {
-        liftPos = vexSensorValueGet(S_LIFT_ENC_LEFT);
+        liftPos = vexSensorValueGet(S_CHAIN_LIFT_ENC);
         SetMotor(M_CHAIN_LIFT, (liftDesiredPos - liftPos)/  LIFT_SEEK_RATE);
       } else {
         SetMotor(M_CHAIN_LIFT, 0);
