@@ -72,22 +72,25 @@
 #define DIRECTION_BOTTOM   2
 
 #define LIFT_START_HEIGHT    1
-#define CONE_PICKUP_HEIGHT   320
+#define CONE_PICKUP_HEIGHT   250
 #define JIGGLE_CONE_LEFT     300
 #define BASE_CONE_HEIGHT     730
 #define BASE_DROP_HEIGHT     330
 #define CHAIN_TICKS_PER_CONE 70
 
-#define SWEEP_IN_POS         415
+#define SWEEP_IN_POS         420
 #define SWEEP_OUT_POS        1
 
 #define SWEEP_PRELOAD_POS    205
 
 #define LIFT_CLOSE_ENOUGH    30
 #define JIGGLE_CLOSE_ENOUGH  20
-#define SWEEP_CLOSE_ENOUGH   20
+#define SWEEP_CLOSE_ENOUGH   10
 #define LIFT_SEEK_RATE       1.5
-#define SWEEP_SEEK_RATE      5
+#define SWEEP_SEEK_RATE      5.5
+
+#define TICKS_PER_TILE      15075
+#define TICKS_PER_90DEG     4725
 
 
 
@@ -172,11 +175,9 @@ bool driveMotors(void) {
     short ld, rd;
     short topLimitSwitch = 1;
     //Calculate Motor Power
-    if(vexSensorValueGet(S_UP_LIMIT_SWITCH) == 0) {
-      topLimitSwitch = -1;
-    }
-    int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127)*reversed*topLimitSwitch;
-    float turn  =  (-0.6)*VALLEY(vexControllerGet(J_TURN), 20, 127);
+
+    int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127);
+    float turn  =  (-0.4)*VALLEY(vexControllerGet(J_TURN), 20, 127);
 
     ld = VALLEY(forward + (int)turn, 25, 127);
     rd = VALLEY(forward - (int)turn, 25, 127);
@@ -194,7 +195,12 @@ int getTimeDifference(systime_t startTime) {
     return (int) chTimeNow() - startTime;
 }
 
-
+void stack_auton() {
+  stackStep = 1;
+  while(stackStep >= 0) {
+    autostack();
+  }
+}
 
 void autostack() {
 
@@ -315,6 +321,9 @@ task slewMotors(void *arg)
 
 
 void drive_forward(double ratio){
+    vex_printf("entering drive forward function");
+    vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
+    vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
     systime_t init_time = chTimeNow();
 
     systime_t duration = abs(ratio*700);
@@ -356,15 +365,19 @@ void drive_forward(double ratio){
     SetMotor(M_DRIVE_RIGHT_B, 0);
     SetMotor(M_DRIVE_LEFT_F,  0);
     SetMotor(M_DRIVE_RIGHT_B, 0);
+    vex_printf("exiting drive forward");
     ////vex_printf("%d\n", vexSensorValueGet(S_DRIVE_ENC_RIGHT));
 }
 
 void turn_deg(double ratio){
+    vex_printf("entering turn function");
     systime_t init_time = chTimeNow();
 
+    vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
+    vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
 
-    systime_t duration = abs(ratio*1700);
-    int32_t target = 4200*ratio;
+    systime_t duration = abs(ratio*17);
+    int32_t target = 10*ratio;
     EPidEnable(rightDrivePid,duration, -target);
     EPidEnable(leftDrivePid,duration, target);
     // systime_t end_time = chTimeNow() + duration;
@@ -391,7 +404,10 @@ void turn_deg(double ratio){
             vexSleep(10);
         }
         else{
-
+            SetMotor(M_DRIVE_LEFT_F,   0);
+            SetMotor(M_DRIVE_RIGHT_F, 0);
+            SetMotor(M_DRIVE_LEFT_B,  0);
+            SetMotor(M_DRIVE_RIGHT_B, 0);
             break;
         }
     }
@@ -399,6 +415,7 @@ void turn_deg(double ratio){
     SetMotor(M_DRIVE_RIGHT_F, 0);
     SetMotor(M_DRIVE_LEFT_B,  0);
     SetMotor(M_DRIVE_RIGHT_B, 0);
+    vex_printf("ending turn");
 }
 
 
@@ -444,7 +461,7 @@ void deployChain(void) {
 
 void extendMobileBase(void) {
   systime_t init_time = chTimeNow();
-  systime_t duration = abs(2000);
+  systime_t duration = abs(3000);
   while(!chThdShouldTerminate()) {
     systime_t currTime = chTimeNow() - init_time;
     if(vexSensorValueGet(S_DOWN_LIMIT_SWITCH) != 0 && currTime < duration) {
@@ -457,6 +474,35 @@ void extendMobileBase(void) {
     }
   }
 }
+void retractMobileBase(void) {
+  systime_t init_time = chTimeNow();
+  systime_t duration = abs(3000);
+  while(!chThdShouldTerminate()) {
+    systime_t currTime = chTimeNow() - init_time;
+    if(vexSensorValueGet(S_UP_LIMIT_SWITCH) != 0 && currTime < duration) {
+      vexMotorSet(M_MOBILE_GOAL_R, 127);
+      vexMotorSet(M_MOBILE_GOAL_L, 127);
+    } else {
+        vexMotorSet(M_MOBILE_GOAL_R, 0);
+        vexMotorSet(M_MOBILE_GOAL_L, 0);
+        break;
+    }
+  }
+}
+
+void dropCone(void){
+  systime_t init_time = chTimeNow();
+  systime_t duration = abs(500);
+  while(!chThdShouldTerminate()) {
+    systime_t currTime = chTimeNow() - init_time;
+    if(currTime < duration && vexSensorValueGet(S_UP_LIMIT_SWITCH) == 0) {
+      vexMotorSet(M_CHAIN_LIFT, -127);
+    } else {
+      vexMotorSet(M_CHAIN_LIFT, 0);
+        break;
+    }
+  }
+}
 
 //---------------------Autonomous routine-------------------------------------//
 
@@ -465,10 +511,28 @@ msg_t vexAutonomous( void *arg )
     (void)arg;
     vexTaskRegister("auton");
 
-    deployChain();
+    ///*
     extendMobileBase();
     //Pick up mobile goal
-    drive_forward(2.5);
+    drive_forward(1.2);
+    wait(1);
+    retractMobileBase();
+    wait(1);
+    dropCone();
+
+    //Return to base
+    drive_forward(-1.2);
+    wait(1);
+    turn_deg(33);
+    wait(1);
+    drive_forward(0.5);
+    //Drop base
+    extendMobileBase();
+    drive_forward(-0.2);
+    //*/
+    //turn_deg(32);
+
+
     return (msg_t)0;
 }
 
@@ -503,6 +567,11 @@ msg_t vexOperator( void *arg )
 
         autostack();
         driveMotors();
+
+        if(vexControllerGet(J_MISC)){
+          vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
+          vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
+        }
 
         if(vexControllerGet(J_RETURN_SWEEP)) {
           if (stackStep <= 0){
