@@ -79,7 +79,7 @@
 #define SWEEP_IN_POS         40
 #define SWEEP_START_POS      450
 #define SWEEP_OUT_POS        490
-#define BREAK_FREE           9001
+#define BREAK_FREE           9000
 
 #define LIFT_CLOSE_ENOUGH    5
 #define SWEEP_CLOSE_ENOUGH   5
@@ -200,20 +200,25 @@ int getTimeDifference(systime_t startTime) {
 void autostack() {
 
     {
+      if (stackStep == 1) {
+        sweepDesiredPos == BREAK_FREE;
+        currTime = chTimeNow();
+        stackStep++;
+      }
       //Assuming sweep starting in
-        if(stackStep == 1) {
-            //vex_printf("Completing step 3\n");
-            //vex_printf("Starting step 4\n");
-            vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
-            vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
-            liftDesiredPos = LIFT_MIN_HEIGHT;
-            sweepDesiredPos = SWEEP_OUT_POS;
-            currTime = chTimeNow();
-            stackStep++;
+        if(stackStep == 2) {
+            if(getTimeDifference(currTime) > 300){
+              //vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
+              //vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
+              liftDesiredPos = LIFT_MIN_HEIGHT;
+              sweepDesiredPos = SWEEP_OUT_POS;
+              currTime = chTimeNow();
+              stackStep++;
+            }
         }
 
         //Raise up
-        if(stackStep == 2) {
+        if(stackStep == 3) {
             //vex_printf("Completing step 4\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
@@ -225,7 +230,7 @@ void autostack() {
         }
 
         //Sweep in
-        if(stackStep == 3) {
+        if(stackStep == 4) {
             //vex_printf("Completing step 5\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 900) || getTimeDifference(currTime) > 1200) {
@@ -237,31 +242,31 @@ void autostack() {
         }
 
         //Drop cone
-        if(stackStep == 4) {
+        if(stackStep == 5) {
             //vex_printf("Completing step 6\n");
             if((abs(sweepDesiredPos - vexSensorValueGet(S_SWEEP_ENC)) < SWEEP_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 1100) || getTimeDifference(currTime) > 1300) {
                 //vex_printf("Starting step 7\n");
                 currTime = chTimeNow();
-                stackStep = 5;
+                stackStep++;
                 liftDesiredPos = LIFT_MIN_HEIGHT;
             }
         }
 
 
         //Sweep out
-        if(stackStep == 5) {
+        if(stackStep == 6) {
             //vex_printf("Completing step 7\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
                 //vex_printf("Starting step 8\n");
                 sweepDesiredPos = BREAK_FREE ;
                 currTime = chTimeNow();
-                stackStep = 6;
+                stackStep++;
             }
         }
         //Exit
-        if(stackStep == 6) {
+        if(stackStep == 7) {
             //vex_printf("Completing step 7\n");
             if(getTimeDifference(currTime) > 450) {liftDesiredPos = LIFT_MAX_HEIGHT;}
             if((abs(sweepDesiredPos - vexSensorValueGet(S_SWEEP_ENC)) < SWEEP_CLOSE_ENOUGH
@@ -480,6 +485,22 @@ void deployChain(void) {
   }
 }
 
+void raiseCone() {
+  systime_t init_time = chTimeNow();
+  systime_t duration = abs(1000);
+  while(!chThdShouldTerminate()) {
+    systime_t currTime = chTimeNow() - init_time;
+    if(currTime < duration || vexSensorValueGet(S_CHAIN_LIFT_ENC)==LIFT_START_HEIGHT) {
+      SetMotor(M_CHAIN_LIFT, 127);
+      SetMotor(M_CHAIN_LIFT, 127);
+    } else {
+        SetMotor(M_CHAIN_LIFT, 0);
+        SetMotor(M_CHAIN_LIFT, 0);
+        break;
+    }
+  }
+}
+
 void extendMobileBase(void) {
   systime_t init_time = chTimeNow();
   systime_t duration = abs(3000);
@@ -640,6 +661,9 @@ msg_t vexAutonomous( void *arg )
     //wait(1);
     //turn_deg(-90);
     ///*
+    vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_MIN_HEIGHT);
+    vexSensorValueSet(S_SWEEP_ENC, SWEEP_IN_POS);
+    raiseCone();
     extendMobileBase();
     //Pick up mobile goal
     drive_forward(2);
