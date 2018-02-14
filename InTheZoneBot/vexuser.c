@@ -72,11 +72,9 @@
 #define DIRECTION_FALLING  1
 #define DIRECTION_BOTTOM   2
 
-#define LIFT_MIN_HEIGHT      1
-#define LIFT_MAX_HEIGHT      600
-#define LIFT_START_HEIGHT    510
-#define BASE_DROP_HEIGHT     360
-#define CHAIN_TICKS_PER_CONE 70
+#define LIFT_MIN_HEIGHT      485
+#define LIFT_MAX_HEIGHT      5
+#define LIFT_START_HEIGHT    55
 
 #define SWEEP_IN_POS         1
 #define SWEEP_START_POS      40
@@ -133,7 +131,7 @@ static vexMotorCfg mConfig[] = {
 
     { M_CHAIN_LIFT,          kVexMotor393S, kVexMotorReversed,          kVexSensorQuadEncoder,  kVexQuadEncoder_5 },
 
-    { M_SWEEP,               kVexMotor393S, kVexMotorReversed,        kVexSensorQuadEncoder,  kVexQuadEncoder_5 }
+    { M_SWEEP,               kVexMotor393S, kVexMotorReversed,        kVexSensorQuadEncoder,  kVexQuadEncoder_4 }
 };
 
 static vexDigiCfg dConfig[] = {
@@ -329,7 +327,7 @@ task slewMotors(void *arg) {
         }
         if(liftDesiredPos> 0) {
             liftPos = vexSensorValueGet(S_CHAIN_LIFT_ENC);
-            SetMotor(M_CHAIN_LIFT, (liftDesiredPos - liftPos)/LIFT_SEEK_RATE);
+            SetMotor(M_CHAIN_LIFT, (-1)*(liftDesiredPos - liftPos)/LIFT_SEEK_RATE);
         } else {
             SetMotor(M_CHAIN_LIFT, 0);
         }
@@ -538,7 +536,7 @@ void raiseCone() {
   systime_t duration = abs(500);
   while(!chThdShouldTerminate()) {
     systime_t currTime = chTimeNow() - init_time;
-    if(currTime < duration || vexSensorValueGet(S_CHAIN_LIFT_ENC)==LIFT_START_HEIGHT) {
+    if(currTime < duration || vexSensorValueGet(S_CHAIN_LIFT_ENC)==LIFT_MAX_HEIGHT) {
       SetMotor(M_CHAIN_LIFT, 127);
       SetMotor(M_CHAIN_LIFT, 127);
     } else {
@@ -831,12 +829,12 @@ msg_t vexOperator( void *arg )
         }
 
         if (vexControllerGet(J_SWEEP_IN)) {
-            vexMotorSet(M_SWEEP, 69);
+            vexMotorSet(M_SWEEP, 55);
             stackStep = -1;                                         // abort stack if manual movement of sweep
             sweepDesiredPos = -1;
             liftDesiredPos = -1;
         } else if (vexControllerGet(J_SWEEP_OUT)) {
-            vexMotorSet(M_SWEEP, -69);
+            vexMotorSet(M_SWEEP, -127);
             stackStep = -1;                                         // abort stack if manual movement of sweep
             sweepDesiredPos = -1;
             liftDesiredPos = -1;
