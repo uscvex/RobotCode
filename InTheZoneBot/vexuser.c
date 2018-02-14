@@ -54,6 +54,8 @@
 // Controller mappings
 #define J_DRIVE Ch3
 #define J_TURN  Ch1
+#define J_TANK_RIGHT Ch2
+#define J_TANK_LEFT  Ch3
 
 #define J_MOBILE_BASE_UP   Btn6U
 #define J_MOBILE_BASE_DOWN Btn6D
@@ -71,13 +73,13 @@
 #define DIRECTION_BOTTOM   2
 
 #define LIFT_MIN_HEIGHT      1
-#define LIFT_MAX_HEIGHT      480
-#define LIFT_START_HEIGHT    460
+#define LIFT_MAX_HEIGHT      600
+#define LIFT_START_HEIGHT    510
 #define BASE_DROP_HEIGHT     360
 #define CHAIN_TICKS_PER_CONE 70
 
-#define SWEEP_IN_POS         40
-#define SWEEP_START_POS      450
+#define SWEEP_IN_POS         1
+#define SWEEP_START_POS      40
 #define SWEEP_OUT_POS        490
 #define BREAK_FREE           9000
 
@@ -109,6 +111,13 @@ int sweepDesiredPos = -1;
 int liftDesiredPos = -1;
 int reversed = 1;
 systime_t currTime;
+
+//first column = actual value,second = target
+//M_DRIVE_LEFT_F
+//M_DRIVE_LEFT_B
+//M_DRIVE_RIGHT_F
+//M_DRIVE_RIGHT_B
+int driveValues[4][2] = {0};
 
 //------------------Motor Configurations--------------------------------------//
 
@@ -178,16 +187,33 @@ bool driveMotors(void) {
     short topLimitSwitch = 1;
     //Calculate Motor Power
 
+    //Regular drive
+    ///*
     int forward = VALLEY(vexControllerGet(J_DRIVE), 20, 127);
-    float turn  =  (-0.4)*VALLEY(vexControllerGet(J_TURN), 20, 127);
+    float turn  =  (-0.5)*VALLEY(vexControllerGet(J_TURN), 20, 127);
 
     ld = VALLEY(forward + (int)turn, 25, 127);
     rd = VALLEY(forward - (int)turn, 25, 127);
+    //*/
 
+    //Tank drive
+    /*
+    rd = VALLEY(vexControllerGet(J_TANK_LEFT),20,127);
+    ld = VALLEY(vexControllerGet(J_TANK_RIGHT),20,127);
+    //*/
+
+    /*
     SetMotor(M_DRIVE_LEFT_F,  ld);
     SetMotor(M_DRIVE_LEFT_B,  ld);
     SetMotor(M_DRIVE_RIGHT_F, rd);
     SetMotor(M_DRIVE_RIGHT_B, rd);
+    //*/
+    ///*
+    driveValues[0][1] = ld;
+    driveValues[1][1] = ld;
+    driveValues[2][1] = rd;
+    driveValues[3][1] = rd;
+    //*/
 
     ////vex_printf("%f %f\n", rd, ld);
     return (ld != 0 || rd != 0);
@@ -201,13 +227,14 @@ void autostack() {
 
     {
       if (stackStep == 1) {
-        sweepDesiredPos == BREAK_FREE;
+        sweepDesiredPos = BREAK_FREE;
         currTime = chTimeNow();
         stackStep++;
       }
       //Assuming sweep starting in
         if(stackStep == 2) {
-            if(getTimeDifference(currTime) > 300){
+            if((abs(sweepDesiredPos - vexSensorValueGet(S_SWEEP_ENC)) < SWEEP_CLOSE_ENOUGH
+                && getTimeDifference(currTime) > 450) || getTimeDifference(currTime) > 700){
               //vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
               //vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
               liftDesiredPos = LIFT_MIN_HEIGHT;
@@ -308,6 +335,27 @@ task slewMotors(void *arg) {
         }
         wait1Msec(20);
     }
+}
+
+task slewDriveTask(void *arg) {
+    int rate = 10;
+    while(true) {
+      driveValues[0][0] = driveValues[0][0]-((driveValues[0][0]-driveValues[0][1])/rate);
+      driveValues[1][0] = driveValues[1][0]-((driveValues[1][0]-driveValues[1][1])/rate);
+      driveValues[2][0] =  driveValues[2][0]-((driveValues[2][0]-driveValues[2][1])/rate);
+      driveValues[3][0] =  driveValues[3][0]-((driveValues[3][0]-driveValues[3][1])/rate);
+
+      SetMotor(M_DRIVE_LEFT_F, driveValues[0][0]);
+      SetMotor(M_DRIVE_LEFT_B, driveValues[1][0]);
+      SetMotor(M_DRIVE_RIGHT_F, driveValues[2][0]);
+      SetMotor(M_DRIVE_RIGHT_B, driveValues[3][0]);
+
+      wait1Msec(20);
+    }
+}
+
+void slewDriveMotor(int index, float rate) {
+
 }
 
 
@@ -487,7 +535,7 @@ void deployChain(void) {
 
 void raiseCone() {
   systime_t init_time = chTimeNow();
-  systime_t duration = abs(1000);
+  systime_t duration = abs(500);
   while(!chThdShouldTerminate()) {
     systime_t currTime = chTimeNow() - init_time;
     if(currTime < duration || vexSensorValueGet(S_CHAIN_LIFT_ENC)==LIFT_START_HEIGHT) {
@@ -661,9 +709,9 @@ msg_t vexAutonomous( void *arg )
     //wait(1);
     //turn_deg(-90);
     ///*
-    vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_MIN_HEIGHT);
-    vexSensorValueSet(S_SWEEP_ENC, SWEEP_IN_POS);
+    vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
     raiseCone();
+    vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
     extendMobileBase();
     //Pick up mobile goal
     drive_forward(2);
@@ -681,6 +729,9 @@ msg_t vexAutonomous( void *arg )
       drive_forward(1.2);
       dropOffGoal();
       backAwayFromGoal();
+
+      //Second goal
+      /*
       wait(1);
       alignAgainstBar();
       wait(0.5);
@@ -689,6 +740,7 @@ msg_t vexAutonomous( void *arg )
       drive_forward(0.75);
       wait(0.5);
       turn_deg(-20);
+      //*/
     }
 
     //autostack 2 cones
@@ -722,6 +774,7 @@ msg_t vexOperator( void *arg )
     vexTaskRegister("operator");
 
     StartTask(slewMotors);
+    StartTask(slewDriveTask);
     //autoStackMode = false;                                            // variable never used
 
     while(!chThdShouldTerminate())
