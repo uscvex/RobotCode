@@ -78,6 +78,7 @@
 
 #define SWEEP_IN_POS         1
 #define SWEEP_START_POS      40
+#define SWEEP_HALFWAY        240
 #define SWEEP_OUT_POS        490
 #define BREAK_FREE           9000
 
