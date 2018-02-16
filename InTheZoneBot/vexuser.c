@@ -67,6 +67,7 @@
 #define J_MISC             Btn7L
 #define J_REVERSE_DRIVE    Btn8U
 #define J_TEST_AUTON       Btn7D
+#define J_SETTOZERO        Btn8D
 
 #define DIRECTION_UP       0
 #define DIRECTION_FALLING  1
@@ -243,8 +244,22 @@ void autostack() {
             }
         }
 
-        //Raise up
+        //Raise up and half sweep in
         if(stackStep == 3) {
+            //vex_printf("Completing step 4\n");
+            if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH 
+                && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
+                //vex_printf("Starting step 5\n");
+                liftDesiredPos = LIFT_MAX_HEIGHT;
+                currTime = chTimeNow();
+                stackStep++;
+                stackStep++;
+            }
+        }
+
+
+        // Raise up fully
+        if(stackStep == 4) {
             //vex_printf("Completing step 4\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
@@ -255,20 +270,22 @@ void autostack() {
             }
         }
 
+
         //Sweep in
-        if(stackStep == 4) {
+        if(stackStep == 5) {
             //vex_printf("Completing step 5\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 900) || getTimeDifference(currTime) > 1200) {
                 //vex_printf("Starting step 6\n");
                 sweepDesiredPos = SWEEP_IN_POS;
+                
                 currTime = chTimeNow();
                 stackStep++;
             }
         }
 
         //Drop cone
-        if(stackStep == 5) {
+        if(stackStep == 6) {
             //vex_printf("Completing step 6\n");
             if((abs(sweepDesiredPos - vexSensorValueGet(S_SWEEP_ENC)) < SWEEP_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 1100) || getTimeDifference(currTime) > 1300) {
@@ -281,7 +298,7 @@ void autostack() {
 
 
         //Sweep out
-        if(stackStep == 6) {
+        if(stackStep == 7) {
             //vex_printf("Completing step 7\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
@@ -292,7 +309,7 @@ void autostack() {
             }
         }
         //Exit
-        if(stackStep == 7) {
+        if(stackStep == 8) {
             //vex_printf("Completing step 7\n");
             if(getTimeDifference(currTime) > 450) {liftDesiredPos = LIFT_MAX_HEIGHT;}
             if((abs(sweepDesiredPos - vexSensorValueGet(S_SWEEP_ENC)) < SWEEP_CLOSE_ENOUGH
@@ -696,6 +713,12 @@ void sweepOut(){
   }
 }
 
+void temp_toSetZero(){
+   vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
+    raiseCone();
+    vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
+}
+
 //---------------------Autonomous routine-------------------------------------//
 
 msg_t vexAutonomous( void *arg )
@@ -793,6 +816,10 @@ msg_t vexOperator( void *arg )
             justChangedMode = false;
         }
 
+
+        if (vexControllerGet(J_SETTOZERO)) {
+          temp_toSetZero();
+        }
         autostack();
         driveMotors();
 
