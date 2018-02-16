@@ -72,12 +72,12 @@
 #define DIRECTION_FALLING  1
 #define DIRECTION_BOTTOM   2
 
-#define LIFT_MIN_HEIGHT      485
+#define LIFT_MIN_HEIGHT      550
 #define LIFT_MAX_HEIGHT      5
-#define LIFT_START_HEIGHT    55
+#define LIFT_START_HEIGHT    130
 
-#define LIFT_MOBILE_BASE_HEIGHT 240
-#define CONE_HEIGHT          79
+#define LIFT_MOBILE_BASE_HEIGHT 310
+#define CONE_HEIGHT          100
 
 #define SWEEP_IN_POS         1
 #define SWEEP_START_POS      90
@@ -88,7 +88,7 @@
 #define LIFT_CLOSE_ENOUGH    5
 #define SWEEP_CLOSE_ENOUGH   5
 #define LIFT_SEEK_RATE       1.0
-#define SWEEP_SEEK_RATE      4.2
+#define SWEEP_SEEK_RATE      4.0
 #define DRIVE_SEEK_RATE      55
 #define DRIVE_TURN_SEEK_RATE 65
 
@@ -252,7 +252,9 @@ void autostack() {
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
                 && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
                 //vex_printf("Starting step 5\n");
-                liftDesiredPos = LIFT_MOBILE_BASE_HEIGHT - (stackCount*CONE_HEIGHT);
+                int pos = LIFT_MOBILE_BASE_HEIGHT - (stackCount*CONE_HEIGHT);
+                pos = pos <= 0 ? LIFT_MAX_HEIGHT : pos;
+                liftDesiredPos = pos;
                 sweepDesiredPos = SWEEP_HALFWAY;
                 currTime = chTimeNow();
                 stackStep++;
@@ -275,7 +277,7 @@ void autostack() {
         if(stackStep == 5) {
             //vex_printf("Completing step 6\n");
             if((abs(sweepDesiredPos - vexSensorValueGet(S_SWEEP_ENC)) < SWEEP_CLOSE_ENOUGH
-                && getTimeDifference(currTime) > 1100) || getTimeDifference(currTime) > 1300) {
+                && getTimeDifference(currTime) > 600) || getTimeDifference(currTime) > 1300) {
                 //vex_printf("Starting step 7\n");
                 currTime = chTimeNow();
                 stackStep++;
@@ -289,7 +291,7 @@ void autostack() {
         if(stackStep == 6) {
             //vex_printf("Completing step 7\n");
             if((abs(liftDesiredPos - vexSensorValueGet(S_CHAIN_LIFT_ENC)) < LIFT_CLOSE_ENOUGH
-                && getTimeDifference(currTime) > 850) || getTimeDifference(currTime) > 1000) {
+                && getTimeDifference(currTime) > 650) || getTimeDifference(currTime) > 1000) {
                 //vex_printf("Starting step 8\n");
                 sweepDesiredPos = BREAK_FREE ;
                 currTime = chTimeNow();
@@ -806,6 +808,7 @@ msg_t vexOperator( void *arg )
           vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
           vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
           vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
+          stackCount = 0;
         }
 
         if (vexControllerGet(J_MOBILE_BASE_UP)) {
