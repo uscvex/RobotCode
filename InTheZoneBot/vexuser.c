@@ -106,7 +106,6 @@ EPidController *rightDrivePid;
 
 bool justChangedMode;
 bool justReversed = false;
-bool returning;
 short stackCount = 0;
 short stackStep = -1;
 int sweepDesiredPos = -1;
@@ -344,7 +343,7 @@ task slewMotors(void *arg) {
 }
 
 task slewDriveTask(void *arg) {
-    int rate = 10;
+    int rate = 5;
     while(true) {
       driveValues[0][0] = driveValues[0][0]-((driveValues[0][0]-driveValues[0][1])/rate);
       driveValues[1][0] = driveValues[1][0]-((driveValues[1][0]-driveValues[1][1])/rate);
@@ -833,7 +832,7 @@ msg_t vexOperator( void *arg )
             liftDesiredPos = -1;
             sweepDesiredPos = -1;
         } else {
-            if (stackStep <= 0 && !returning){
+            if (stackStep <= 0){
               SetMotor(M_CHAIN_LIFT, 0);
               //liftDesiredPos = vexSensorValueGet(S_CHAIN_LIFT_ENC);
             }                                       // don't override w/o button press if stacking
@@ -850,7 +849,7 @@ msg_t vexOperator( void *arg )
             sweepDesiredPos = -1;
             liftDesiredPos = -1;
         } else {
-            if (stackStep <= 0 && !returning)                                     // don't override w/o button press if stacking
+            if (stackStep <= 0 &&)                                     // don't override w/o button press if stacking
               vexMotorSet(M_SWEEP, 0);
         }
 
