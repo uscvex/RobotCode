@@ -49,9 +49,14 @@
 #define S_DOWN_LIMIT_SWITCH   kVexSensorDigital_10
 #define S_SWEEP_ENC           kVexSensorDigital_8
 #define S_MOBILE_BASE_POT     kVexSensorAnalog_1
+#define S_RIGHT_WHITE         kVexSensorAnalog_3
+#define S_LEFT_WHITE          kVexSensorAnalog_4
 
 #define POWER_EXPANDER        kVexAnalog_2
 #define MOBILE_BASE_POT       kVexAnalog_1
+#define GYRO                  kVexAnalog_5
+#define RIGHT_LINE_FOLLOWER   kVexAnalog_3
+#define LEFT_LINE_FOLLOWER    kVexAnalog_4
 
 // Controller mappings
 #define J_DRIVE Ch3
@@ -92,15 +97,18 @@
 #define LIFT_SEEK_RATE       1.0
 #define SWEEP_SEEK_RATE      4.0
 #define DRIVE_SEEK_RATE      55
-#define DRIVE_TURN_SEEK_RATE 30
+#define DRIVE_TURN_SEEK_RATE 40
 
 #define TICKS_PER_TILE      10725
 #define TICKS_PER_90DEG     4725
 #define TICKS_PER_DEG       25
+#define TICKS_PER_INCH      583
 
 #define MOBILE_BASE_TOP     3430
 #define MOBILE_BASE_FLING   2550
 #define MOBILE_BASE_BOTTOM  1459
+
+#include "driveTask.h"
 
 // PID Controls
 EPidController *leftDrivePid;
@@ -114,6 +122,7 @@ int sweepDesiredPos = -1;
 int liftDesiredPos = -1;
 int reversed = 1;
 systime_t currTime;
+double degree_turned;
 
 //first column = actual value,second = target
 //M_DRIVE_LEFT_F
@@ -363,18 +372,18 @@ task slewDriveTask(void *arg) {
 
 task trackPosition(void *arg) {
 
-  int left_drive_pos = vexSensorValueGet(S_DRIVE_ENC_LEFT);
-  int right_drive_pos = vexSensorValueGet(S_DRIVE_ENC_RIGHT);
-  vex_printf("Left pos: %d, Right pos: %d\n", left_drive_pos, right_drive_pos);
-
-}
-
-task auton_drive(void *arg) {
-
-  int left_drive_pos, right_drive_pos;
-  while(1) {
-    if(left_drive_pos )
+  systime_t now = chTimeNow();
+  while(1){
+    degree_turned = (vexSensorValueGet(S_DRIVE_ENC_LEFT) - (-1)*vexSensorValueGet(S_DRIVE_ENC_RIGHT))/TICKS_PER_INCH;
+    degree_turned = (degree_turned * (5.729));
+    if(getTimeDifference(now) >= 500) {
+      now = chTimeNow();
+      vex_printf("Current angle: %f\n",degree_turned);
+    }
   }
+
+
+
 }
 
 void drive_forward(double tiles){
@@ -470,10 +479,8 @@ void turn_deg(double degrees){
 
     if(target > 0){
       if(auton_time >= duration || leftDrivePos >= target || rightDrivePos <= -target) {
-        SetMotor(M_DRIVE_LEFT_F,   0);
-        SetMotor(M_DRIVE_RIGHT_F, 0);
-        SetMotor(M_DRIVE_LEFT_B,  0);
-        SetMotor(M_DRIVE_RIGHT_B, 0);
+        backpulse(false);
+
         break;
       } else {
         SetMotor(M_DRIVE_LEFT_F, ld);
@@ -484,10 +491,7 @@ void turn_deg(double degrees){
     }
     if(target < 0) {
       if(auton_time >= duration ||leftDrivePos <= target || rightDrivePos >= -target){
-        SetMotor(M_DRIVE_LEFT_F,  0);
-        SetMotor(M_DRIVE_RIGHT_F, 0);
-        SetMotor(M_DRIVE_LEFT_B,  0);
-        SetMotor(M_DRIVE_RIGHT_B, 0);
+        backpulse(true);
         break;
       } else {
           SetMotor(M_DRIVE_LEFT_F, ld);
@@ -721,13 +725,12 @@ msg_t vexAutonomous( void *arg )
 {
     (void)arg;
     vexTaskRegister("auton");
-
+    initAll();
 
     //drive_forward(1);
     //wait(1);
     //turn_deg(-90);
-    ///*
-    StartTask(trackPosition);
+    /*
     vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
     vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
     extendMobileBase();
@@ -737,13 +740,14 @@ msg_t vexAutonomous( void *arg )
     retractMobileBase();
     //Drop preload
     dropCone();
+    */
 
     //Turn slightly
-    drive_forward(-0.75);
-    wait(0.3);
+    //drive_forward(-0.75);
+    //wait(0.3);
     turn_deg(90);
     wait(0.2);
-    drive_forward(-0.3);
+    //drive_forward(-0.3);
 
     /*
     //Return to drive load platform
@@ -797,13 +801,15 @@ msg_t vexOperator( void *arg )
     (void)arg;
     vexTaskRegister("operator");
 
-    StartTask(trackPosition);
+    //StartTask(trackPosition);
     StartTask(slewMotors);
     StartTask(slewDriveTask);
+    initAll();
     //autoStackMode = false;                                            // variable never used
 
     while(!chThdShouldTerminate())
     {
+        driveTime = USER;
         ////vex_printf("In operator task");
         if(vexControllerGet(J_MODE_TOGGLE)) {
             if(justChangedMode == false && stackStep > 0) {
@@ -820,7 +826,7 @@ msg_t vexOperator( void *arg )
         }
 
         autostack();
-        driveMotors();
+        //driveMotors();
 
         if(vexControllerGet(J_MISC)){
           vexSensorValueSet(S_DRIVE_ENC_LEFT, 0);
