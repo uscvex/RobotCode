@@ -51,10 +51,11 @@
 #define S_MOBILE_BASE_POT     kVexSensorAnalog_1
 #define S_RIGHT_WHITE         kVexSensorAnalog_3
 #define S_LEFT_WHITE          kVexSensorAnalog_4
+#define S_GYRO                kVexSensorAnalog_5
 
 #define POWER_EXPANDER        kVexAnalog_2
 #define MOBILE_BASE_POT       kVexAnalog_1
-#define GYRO                  kVexAnalog_5
+#define GYRO                  kVexAnalog_6
 #define RIGHT_LINE_FOLLOWER   kVexAnalog_3
 #define LEFT_LINE_FOLLOWER    kVexAnalog_4
 
@@ -74,6 +75,7 @@
 #define J_MISC             Btn7L
 #define J_REVERSE_DRIVE    Btn8U
 #define J_TEST_AUTON       Btn7D
+#define J_TEST_FUNCTION   Btn7R
 
 #define DIRECTION_UP       0
 #define DIRECTION_FALLING  1
@@ -374,11 +376,9 @@ task trackPosition(void *arg) {
 
   systime_t now = chTimeNow();
   while(1){
-    degree_turned = (vexSensorValueGet(S_DRIVE_ENC_LEFT) - (-1)*vexSensorValueGet(S_DRIVE_ENC_RIGHT))/TICKS_PER_INCH;
-    degree_turned = (degree_turned * (5.729));
     if(getTimeDifference(now) >= 500) {
       now = chTimeNow();
-      vex_printf("Current angle: %f\n",degree_turned);
+      vex_printf("Current angle: %d\n", vexAdcGet(GYRO));
     }
   }
 
@@ -803,7 +803,7 @@ msg_t vexOperator( void *arg )
 
     //StartTask(trackPosition);
     StartTask(slewMotors);
-    StartTask(slewDriveTask);
+    //StartTask(slewDriveTask);
     initAll();
     //autoStackMode = false;                                            // variable never used
 
@@ -833,6 +833,7 @@ msg_t vexOperator( void *arg )
           vexSensorValueSet(S_DRIVE_ENC_RIGHT, 0);
           vexSensorValueSet(S_CHAIN_LIFT_ENC, LIFT_START_HEIGHT);
           vexSensorValueSet(S_SWEEP_ENC, SWEEP_START_POS);
+          vexSensorValueSet(S_GYRO, 0);
           stackCount = 0;
         }
 
@@ -892,7 +893,13 @@ msg_t vexOperator( void *arg )
           vexAutonomous(NULL);
         }
 
-
+        if(vexControllerGet(J_TEST_FUNCTION)) {
+          //driveNoTimeout(100, false, 0, 2);
+          //driveDistance(127, false, 0, RWHITE, 2, 3);
+          driveTimeout(40, false, 0, RWHITE, 5);
+          wait(0.1);
+          driveTimeout(-30, true, 0, RWHITE, 5);
+        }
         //Don't hog cpu
         vexSleep(10);
     }
