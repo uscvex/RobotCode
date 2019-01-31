@@ -1,7 +1,7 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "BallBot_Simple",
+        "project_name": "BallBot",
         "target": "v5",
         "templates": {
             "kernel": {

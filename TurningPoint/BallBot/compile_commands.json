@@ -28,7 +28,7 @@
             "bin/opcontrol.cpp.o",
             "src/opcontrol.cpp"
         ],
-        "directory": "/Users/Sam2.0/Desktop/VexCode/BallBot_Simple",
+        "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/BallBot",
         "file": "src/opcontrol.cpp"
     },
     {
@@ -60,7 +60,7 @@
             "bin/autonomous.cpp.o",
             "src/autonomous.cpp"
         ],
-        "directory": "/Users/Sam2.0/Desktop/VexCode/BallBot_Simple",
+        "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/BallBot",
         "file": "src/autonomous.cpp"
     },
     {
@@ -92,7 +92,7 @@
             "bin/initialize.cpp.o",
             "src/initialize.cpp"
         ],
-        "directory": "/Users/Sam2.0/Desktop/VexCode/BallBot_Simple",
+        "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/BallBot",
         "file": "src/initialize.cpp"
     }
 ]
