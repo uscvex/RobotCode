@@ -33,16 +33,16 @@ using namespace pros;
 #define BTN_CHOOSE_AUTON DIGITAL_X
 
 // Arm
-#define BTN_WRIST_UP DIGITAL_RIGHT
-#define BTN_WRIST_DOWN DIGITAL_LEFT
-#define BTN_ARM_UP DIGITAL_R1
-#define BTN_ARM_DOWN DIGITAL_R2
+#define BTN_ARM_UP DIGITAL_X
+#define BTN_ARM_DOWN DIGITAL_B
 #define BTN_FLIPPER_LEFT DIGITAL_Y
 #define BTN_FLIPPER_RIGHT DIGITAL_A
-#define BTN_FLIP DIGITAL_L1
-#define BTN_WRIST DIGITAL_L2
-#define BTN_ARM_HIGH DIGITAL_B
-#define BTN_ARM_LOW DIGITAL_X
+#define BTN_FLIP DIGITAL_R1
+#define BTN_ARM_HIGH DIGITAL_L1
+#define BTN_ARM_LOW DIGITAL_L2
+#define BTN_ARM_LIFT DIGITAL_R2
+
+#define ARM_LIFT_DIST 35*5
 
 #define HIGH_STACK_START 1
 #define KNOCK_HIGH_START 500
@@ -108,7 +108,7 @@ Vision camera(16);
 // Drive tuning variables
 // Drive
 double deadZone = 10;
-double ticksPerTile = 640;
+double ticksPerTile = 1400;
 double minForward = 40;
 double driveLerp = 0.1;
 // Turn
@@ -118,10 +118,10 @@ double pulseTime = 5;
 double minSpeed = 25;
 double maxTurn = 127;
 double turnRate = 150;
-double ticksPerDegree = 90;
+double ticksPerDegree = 10;
 // Tracking
-double trackingTicksPerTile = ticksPerTile;
-double trackingTicksPerDegree = ticksPerDegree;
+double trackingTicksPerTile = 670;
+double trackingTicksPerDegree = 0.35;
 
 // Drive control variables
 // Drive
@@ -189,6 +189,7 @@ int runTillBall = 0;            // 0 = nothing, 1 = run till 1 ball in, 2 = run 
 double armSeek = -1;
 double wristSeek = -1;
 double flipperSeek = -1;
+double liftingAmount = 0;
 
 double armPos = 0;
 double flipperPos = 0;
@@ -253,13 +254,13 @@ void initAll() {        // called when robot activates & start of auton
     if (!hasInitialised) {
         // First time / manual init...
         // eg. calibrate gyro
-        controller.print(0,0,"Calibrating");
+        //controller.print(0,0,"Calibrating");
         sensor_gyro = ADIGyro(1, GYRO_PORT);
         arm_1.tare_position();
         arm_2.tare_position();
         wrist.tare_position();
         flip.tare_position();
-        pros::delay(3000);
+        //pros::delay(3000);//////////////////////////////
         pros::Task armTask (run_arm);
         pros::Task driveTask (run_drive);
         pros::Task gyroTask (run_gyro);
@@ -384,17 +385,17 @@ void run_gyro(void* params)
 //
 
 double getLeftEnc() {
-    return ( drive_left_1.get_position()
-            + drive_left_2.get_position()
-            + drive_left_3.get_position() )
-            + drive_left_4.get_position()/ 3;
+    return ( drive_left_1.get_position());
+//            + drive_left_2.get_position()
+//            + drive_left_3.get_position() )
+//            + drive_left_4.get_position()/ 4;
 }
 
 double getRightEnc() {
-    return ( drive_right_1.get_position()
-            + drive_right_2.get_position()
-            + drive_right_3.get_position()
-            + drive_right_4.get_position() ) / 3;
+    return ( drive_right_1.get_position());
+//            + drive_right_2.get_position()
+//            + drive_right_3.get_position()
+//            + drive_right_4.get_position() ) / 4;
 }
 
 
@@ -492,22 +493,29 @@ void trackPosition() {
     double leftEnc = getLeftEnc();      // get encoder values from motors
     double rightEnc = getRightEnc();
     double leftDiff = leftEnc - lastLeftEnc;   // Find encoder changes
-    double rightDiff = rightEnc- lastRightEnc;
+    double rightDiff = rightEnc - lastRightEnc;
     
     double angleChange = (rightDiff - leftDiff)/2;  // Find angle change
     angleChange *= trackingTicksPerDegree;
     
     double distChange = (leftDiff + rightDiff)/2;   // Find lin. dist change
-    distChange *= trackingTicksPerTile;
+    distChange /= trackingTicksPerTile;
     
     trackingDirection += angleChange;   // Find cumulative direction
     
-    if (trackWithGyro) {        // If we are using gyro, then ignore encoder direction stuff
-        trackingDirection = gyroDirection / 10;
+    if (trackingDirection < 0) {
+        trackingDirection += 360;
+    }
+    if (trackingDirection >= 360) {
+        trackingDirection -= 360;
     }
     
+//    if (trackWithGyro) {        // If we are using gyro, then ignore encoder direction stuff
+//        trackingDirection = gyroDirection / 10;
+//    }
+    
     xPosition += distChange * cos(trackingDirection * M_PI / 180);  // find cumulative xPos
-    yPosition += distChange * sin(trackingDirection * M_PI / 180);  // find cumulative yPoS
+    yPosition -= distChange * sin(trackingDirection * M_PI / 180);  // find cumulative yPoS
     
     lastLeftEnc = leftEnc;  // remember last values for next comparison
     lastRightEnc = rightEnc;
@@ -552,14 +560,16 @@ void run_drive(void* params) {
     
     while (true) {
         
-        //trackPosition();        // keep track of where we are on the field        // CHANGE
+        trackPosition();        // keep track of where we are on the field        // CHANGE
         
         if (usingGyro) {
             direction = gyroDirection / 10;  // gyroDirection is updated by gyro code, direction is used by drive code
+            direction = 0;  // ayyy lmao
         }
         else {
             // maybe using compass/encoders?
             // direction = compassDirection
+            direction = trackingDirection;
         }
         
         // This is where the fun begins
@@ -635,6 +645,9 @@ void run_drive(void* params) {
                 angle = (recordedDistRight - recordedDistLeft)/2;
                 angle -= (currentDistRight - currentDistLeft)/2;
                 angle /= ticksPerDegree;
+                
+                angle = targetDistance - (currentDistRight - currentDistLeft)/2;
+                
             }
             
             if (angle < 0) angle += 360;
@@ -880,238 +893,172 @@ void run_arm(void* params) {
         armPos = (arm_1.get_position() + arm_2.get_position()) / 2;
         
         // If we want to stack something, follow the steps
-        switch (stackStep) {
-                // High Stacking
-            case HIGH_STACK_START:
-                if (!controller.get_digital(BTN_ARM_HIGH)) {
-                    stackStep++;
-                }
-                break;
-            case HIGH_STACK_START + 1:
-                armSeek = ARM_POS_HIGH;
-                wristSeek = WRIST_VERTICAL_POS;
-                if (armPos > ARM_POS_HIGH - 50) {
-                    stackStep++;
-                }
-                break;
-            case HIGH_STACK_START + 2:
-                wristSeek = WRIST_BACKWARD_DROP_POS;
-                if (wristPos < WRIST_BACKWARD_DROP_POS + 15 + ( armPos * 3 / 5 )) {
-                    stackStep++;
-                    timeLastStep = millis();
-                }
-                break;
-            case HIGH_STACK_START + 3:
-                if (timeLastStep + 250 < millis()) {
-                    stackStep++;
-                }
-                break;
-            case HIGH_STACK_START + 4:
-                armSeek = 1;
-                if (armPos < ARM_POS_HIGH / 2) {
-                    stackStep++;
-                }
-                break;
-            case HIGH_STACK_START + 5:
-                armSeek = -1;
-                wristSeek = WRIST_VERTICAL_POS;
-                stackStep = -1;
-                break;
-                
-                // High Knock Off
-            case KNOCK_HIGH_START:
-                armSeek = ARM_POS_HIGH;
-                wristSeek = WRIST_BACKWARD_DROP_POS - 100;
-                if (armPos > ARM_POS_HIGH) {
-                    stackStep++;
-                }
-                break;
-            case KNOCK_HIGH_START + 1:
-                wristSeek = WRIST_VERTICAL_POS;
-                if (wristPos > WRIST_VERTICAL_POS - 20) {
-                    stackStep = HIGH_STACK_START + 3;
-                    timeLastStep = millis();
-                }
-                break;
-                
-                // Low Stacking
-            case LOW_STACK_START:
-                if (!controller.get_digital(BTN_ARM_LOW)) {
-                    stackStep++;
-                }
-                break;
-            case LOW_STACK_START + 1:
-                armSeek = ARM_POS_LOW;
-                wristSeek = WRIST_VERTICAL_POS;
-                if (armPos > ARM_POS_LOW - 50) {
-                    stackStep++;
-                }
-                break;
-            case LOW_STACK_START + 2:
-                if (controller.get_digital(BTN_ARM_LOW)) {
-                    stackStep++;
-                }
-                break;
-            case LOW_STACK_START + 3:
-                slowSeek = true;
-                wristSeek = WRIST_FORWARD_DROP_POS;
-                if (wristPos > WRIST_FORWARD_DROP_POS - 15 + ( armPos * 3 / 5 )) {
-                    stackStep++;
-                }
-                break;
-            case LOW_STACK_START + 4:
-                if (controller.get_digital(BTN_WRIST)) {
-                    stackStep = LOW_STACK_START + 1;
-                }
-                if (controller.get_digital(BTN_ARM_LOW)) {
-                    stackStep++;
-                }
-                break;
-            case LOW_STACK_START + 5:
-                armSeek = 1;
-                if (armPos < ARM_POS_HIGH / 2) {
-                    stackStep++;
-                }
-                break;
-            case LOW_STACK_START + 6:
-                armSeek = -1;
-                wristSeek = WRIST_VERTICAL_POS;
-                stackStep = -1;
-                break;
-                
-            default:
-                stackStep = -1;
-                break;
-        }
+//        switch (stackStep) {
+//                // High Stacking
+//            case HIGH_STACK_START:
+//                if (!controller.get_digital(BTN_ARM_HIGH)) {
+//                    stackStep++;
+//                }
+//                break;
+//            case HIGH_STACK_START + 1:
+//                armSeek = ARM_POS_HIGH;
+//                wristSeek = WRIST_VERTICAL_POS;
+//                if (armPos > ARM_POS_HIGH - 50) {
+//                    stackStep++;
+//                }
+//                break;
+//            case HIGH_STACK_START + 2:
+//                wristSeek = WRIST_BACKWARD_DROP_POS;
+//                if (wristPos < WRIST_BACKWARD_DROP_POS + 15 + ( armPos * 3 / 5 )) {
+//                    stackStep++;
+//                    timeLastStep = millis();
+//                }
+//                break;
+//            case HIGH_STACK_START + 3:
+//                if (timeLastStep + 250 < millis()) {
+//                    stackStep++;
+//                }
+//                break;
+//            case HIGH_STACK_START + 4:
+//                armSeek = 1;
+//                if (armPos < ARM_POS_HIGH / 2) {
+//                    stackStep++;
+//                }
+//                break;
+//            case HIGH_STACK_START + 5:
+//                armSeek = -1;
+//                wristSeek = WRIST_VERTICAL_POS;
+//                stackStep = -1;
+//                break;
+//
+//                // High Knock Off
+//            case KNOCK_HIGH_START:
+//                armSeek = ARM_POS_HIGH;
+//                wristSeek = WRIST_BACKWARD_DROP_POS - 100;
+//                if (armPos > ARM_POS_HIGH) {
+//                    stackStep++;
+//                }
+//                break;
+//            case KNOCK_HIGH_START + 1:
+//                wristSeek = WRIST_VERTICAL_POS;
+//                if (wristPos > WRIST_VERTICAL_POS - 20) {
+//                    stackStep = HIGH_STACK_START + 3;
+//                    timeLastStep = millis();
+//                }
+//                break;
+//
+//                // Low Stacking
+//            case LOW_STACK_START:
+//                if (!controller.get_digital(BTN_ARM_LOW)) {
+//                    stackStep++;
+//                }
+//                break;
+//            case LOW_STACK_START + 1:
+//                armSeek = ARM_POS_LOW;
+//                wristSeek = WRIST_VERTICAL_POS;
+//                if (armPos > ARM_POS_LOW - 50) {
+//                    stackStep++;
+//                }
+//                break;
+//            case LOW_STACK_START + 2:
+//                if (controller.get_digital(BTN_ARM_LOW)) {
+//                    stackStep++;
+//                }
+//                break;
+//            case LOW_STACK_START + 3:
+//                slowSeek = true;
+//                wristSeek = WRIST_FORWARD_DROP_POS;
+//                if (wristPos > WRIST_FORWARD_DROP_POS - 15 + ( armPos * 3 / 5 )) {
+//                    stackStep++;
+//                }
+//                break;
+//            case LOW_STACK_START + 4:
+//                if (controller.get_digital(BTN_WRIST)) {
+//                    stackStep = LOW_STACK_START + 1;
+//                }
+//                if (controller.get_digital(BTN_ARM_LOW)) {
+//                    stackStep++;
+//                }
+//                break;
+//            case LOW_STACK_START + 5:
+//                armSeek = 1;
+//                if (armPos < ARM_POS_HIGH / 2) {
+//                    stackStep++;
+//                }
+//                break;
+//            case LOW_STACK_START + 6:
+//                armSeek = -1;
+//                wristSeek = WRIST_VERTICAL_POS;
+//                stackStep = -1;
+//                break;
+//
+//            default:
+//                stackStep = -1;
+//                break;
+//        }
         
         // Read button toggle between flywheel & arm control
-        if (controller.get_digital(BTN_TOGGLE)) {
-            if (!justToggledMode) {
-                controller.rumble(".");
-                if (controlMode == FLYWHEEL) {
-                    controlMode = ARM;
-                }
-                else if (controlMode == ARM) {
-                    controlMode = FLYWHEEL;
-                }
-                
-            }
-            justToggledMode = true;
-        }
-        else {
-            justToggledMode = false;
-        }
-        
-        
-        
-        // Check controller inputs
-        if (controlMode == ARM) {
-            
-            if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
-                stackStep = -1;
-                if (!justFlipped) {
-                    if (flipperPos > (FLIP_POS1 + FLIP_POS2)/2) {
-                        flipperSeek = FLIP_POS1;
-                    }
-                    else {
-                        flipperSeek = FLIP_POS2;
-                    }
-                }
-                justFlipped = true;
-            }
-            else {
-                justFlipped = false;
-            }
-            
-            
-            // Manual Overrides
-            if (controller.get_digital(BTN_ARM_DOWN)) {
-                armSpeed = -100;
-                armSeek = -1;
-                stackStep = -1;
-            }
-            if (controller.get_digital(BTN_ARM_UP)) {
-                armSpeed = 100;
-                armSeek = -1;
-                stackStep = -1;
-            }
-            if (controller.get_digital(BTN_WRIST_DOWN)) {
-                wristSpeed = -100;
-                wristSeek = -1;
-                stackStep = -1;
-            }
-            if (controller.get_digital(BTN_WRIST_UP)) {
-                wristSpeed = 100;
-                wristSeek = -1;
-                stackStep = -1;
-            }
-            if (controller.get_digital(BTN_FLIPPER_LEFT)) {
-                flipperSpeed = -25;
-                flipperSeek = -1;
-                stackStep = -1;
-            }
-            if (controller.get_digital(BTN_FLIPPER_RIGHT)) {
-                flipperSpeed = 25;
-                flipperSeek = -1;
-                stackStep = -1;
-            }
-            
-            if (controller.get_digital(BTN_WRIST)) {
-                if (!justWristToggled) {
-                    if (wristSeek != WRIST_VERTICAL_POS) {
-                        wristSeek = WRIST_VERTICAL_POS;
-                        slowSeek = false;
-                    }
-                    else {
-                        slowSeek = true;
-                        if (armSeek == ARM_POS_LOW) {
-                            wristSeek = WRIST_FORWARD_DROP_POS;
-                        }
-                        else if (armSeek == ARM_POS_HIGH) {
-                            wristSeek = WRIST_BACKWARD_DROP_POS;
-                        }
-                        else {
-                            slowSeek = false;
-                            wristSeek = WRIST_FORWARD_POS;
-                        }
-                    }
-                }
-                justWristToggled = true;
-            }
-            else {
-                justWristToggled = false;
-            }
-            if (controller.get_digital(BTN_ARM_HIGH)) {
-                if (stackStep == -1 || stackStep > LOW_STACK_START) {
-                    stackStep = HIGH_STACK_START;
+    
+        if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
+            stackStep = -1;
+            if (!justFlipped) {
+                if (flipperPos > (FLIP_POS1 + FLIP_POS2)/2) {
+                    flipperSeek = FLIP_POS1;
                 }
                 else {
-                    if (stackStep > HIGH_STACK_START)
-                        stackStep = KNOCK_HIGH_START;
+                    flipperSeek = FLIP_POS2;
                 }
-                /*slowSeek = false;
-                 if (!justArmToggled) {
-                 if (armSeek == ARM_POS_HIGH) armSeek = ARM_POS_DOWN;
-                 else armSeek = ARM_POS_HIGH;
-                 }
-                 justArmToggled = true;*/
             }
-            if (controller.get_digital(BTN_ARM_LOW)) {
-                if (stackStep == -1 || stackStep < LOW_STACK_START) {
-                    stackStep = LOW_STACK_START;
-                }
-                /*slowSeek = false;
-                 if (!justArmToggled) {
-                 if (armSeek == ARM_POS_LOW) armSeek = ARM_POS_DOWN;
-                 else armSeek = ARM_POS_LOW;
-                 }
-                 justArmToggled = true;*/
-            }
-            /*else {
-             justArmToggled = false;
-             }*/
-            
+            justFlipped = true;
         }
+        else {
+            justFlipped = false;
+        }
+        
+        
+        // Manual Overrides
+        if (controller.get_digital(BTN_ARM_DOWN)) {
+            armSpeed = -127;
+            armSeek = -1;
+            stackStep = -1;
+        }
+        if (controller.get_digital(BTN_ARM_UP)) {
+            armSpeed = 127;
+            armSeek = -1;
+            stackStep = -1;
+        }
+        if (controller.get_digital(BTN_FLIPPER_LEFT)) {
+            flipperSpeed = -25;
+            flipperSeek = -1;
+            stackStep = -1;
+        }
+        if (controller.get_digital(BTN_FLIPPER_RIGHT)) {
+            flipperSpeed = 25;
+            flipperSeek = -1;
+            stackStep = -1;
+        }
+        if (controller.get_digital(BTN_ARM_HIGH)) {
+            armSeek = ARM_POS_LOW;
+        }
+        if (controller.get_digital(BTN_ARM_LOW)) {
+            armSeek = 1;
+        }
+        
+        if (controller.get_digital(BTN_ARM_LIFT)) {
+            if (!justArmToggled) {
+                if (liftingAmount == 0) {
+                    liftingAmount = ARM_LIFT_DIST;
+                }
+                else {
+                    liftingAmount = 0;
+                }
+            }
+            justArmToggled = true;
+        }
+        else {
+            justArmToggled = false;
+        }
+        
         if (controller.get_digital(BTN_ABORT)) {                // Stop all auton functions!
             wristSeek = -1;
             armSeek = -1;
@@ -1119,10 +1066,15 @@ void run_arm(void* params) {
             stackStep = -1;
         }
         
+        if (armSeek == ARM_POS_LOW && liftingAmount == ARM_LIFT_DIST)
+            liftingAmount = ARM_LIFT_DIST/2;
+        if (armSeek == 1 && liftingAmount == ARM_LIFT_DIST/2)
+            liftingAmount = ARM_LIFT_DIST;
+        
         
         // If we need to seek, then tell the arm, wrist, and flipper (lerp code)
         if (armSeek > 0) {
-            armSpeed = (armSeek - armPos) / armSeekRate;
+            armSpeed = ((armSeek+liftingAmount) - armPos) / armSeekRate;
             if (armSpeed > 100) armSpeed = 100;
             if (armSpeed < -100) armSpeed = -100;
             if (armSpeed < 0) armSpeed /= 1;        // slower on the way down
@@ -1179,7 +1131,7 @@ void run_auton() {
     // First entry is always starting direction,
     setGyro((*autonCommand) * 10);
     //drive.setDirection(*autonCommand);
-    direction = *autonCommand;
+    trackingDirection = *autonCommand;
     
     double lidarDist = 0;
     nextCommand = true;
@@ -1227,9 +1179,9 @@ void run_auton() {
                     break;
                 case DRIVE:
                     ds = processEntry();
-                    dd = processEntry();
+                    dd = 0;//processEntry();
                     if (dd == CDIR) {
-                        dd = gyroDirection / 10;
+                        dd = trackingDirection;
                     }
                     dt = processEntry();
                     if (dt < 0) {
@@ -1595,6 +1547,8 @@ void opcontrol() {
     
     // Start task
    
+    autoTimeOut = 0;
+    autoMode = DRIVEMODE_USER;
     
     bool justToggledAuto = false;
     
@@ -1606,6 +1560,7 @@ void opcontrol() {
         std::cout << "Sensor: " << sensor_gyro.get_value() << " Gyro: " << gyroDirection << " Direction: " << direction << std::endl;
         //std::cout << " Arm Pos: " << armPos << " Wrist Pos: " << wristPos << " Flip Pos: " << flipperPos << " Stack Step " << stackStep << std::endl;
         std::cout << "Last Auton Took: " << lastAutonTime << " Seconds" << std::endl;
+        std::cout << "X: " << xPosition << ", Y: " << yPosition << ", D: " << trackingDirection << std::endl;
         int  count_B = 0;
         int  count_R = 0;
         int  count_G = 0;
@@ -1633,7 +1588,7 @@ void opcontrol() {
         
         pros::lcd::print(2, "Direction: %f", direction);
         pros::lcd::print(3, "Arm: %.0f Wrist: %.0f Flipper: %.0f", armPos, wristPos, flipperPos);
-        pros::lcd::print(4, "Stack Step: %f", stackStep);
+        pros::lcd::print(4, "(%.3f, %.3f,  %.3f))", xPosition, yPosition, trackingDirection);
         
         if ( controller.get_digital(BTN_ABORT) && controller.get_digital(BTN_CHOOSE_AUTON) ) {
             if (!justToggledAuto) {
