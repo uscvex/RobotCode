@@ -25,11 +25,11 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/opcontrol.cpp.o",
-            "src/opcontrol.cpp"
+            "bin/autonomous.cpp.o",
+            "src/autonomous.cpp"
         ],
-        "directory": "/Users/Sam2.0/Desktop/VexCode/BallBot_Simple",
-        "file": "src/opcontrol.cpp"
+        "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/BallBot",
+        "file": "src/autonomous.cpp"
     },
     {
         "arguments": [
@@ -57,11 +57,11 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/autonomous.cpp.o",
-            "src/autonomous.cpp"
+            "bin/opcontrol.cpp.o",
+            "src/opcontrol.cpp"
         ],
-        "directory": "/Users/Sam2.0/Desktop/VexCode/BallBot_Simple",
-        "file": "src/autonomous.cpp"
+        "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/BallBot",
+        "file": "src/opcontrol.cpp"
     },
     {
         "arguments": [
@@ -92,7 +92,7 @@
             "bin/initialize.cpp.o",
             "src/initialize.cpp"
         ],
-        "directory": "/Users/Sam2.0/Desktop/VexCode/BallBot_Simple",
+        "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/BallBot",
         "file": "src/initialize.cpp"
     }
 ]

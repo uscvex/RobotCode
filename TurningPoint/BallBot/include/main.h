@@ -109,6 +109,7 @@ double getRelativeAngle(int, int);
 void run_flywheel(void*);
 void run_arm(void*);
 void run_auton();
+void run_screen(void* params);
     
 #ifdef __cplusplus
 }

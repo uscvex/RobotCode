@@ -151,10 +151,10 @@ double pulseTime = 5;
 double minSpeed = 25;
 double maxTurn = 127;
 double turnRate = 150;
-double ticksPerDegree = 90;
+double ticksPerDegree = 10;
 // Tracking
-double trackingTicksPerTile = ticksPerTile;
-double trackingTicksPerDegree = ticksPerDegree;
+double trackingTicksPerTile = 640;
+double trackingTicksPerDegree = 10;
 
 // Drive control variables
 // Drive
@@ -292,17 +292,18 @@ void initAll() {        // called when robot activates & start of auton
         arm_2.tare_position();
         wrist.tare_position();
         flip.tare_position();
-        pros::delay(3000);
+        pros::delay(4000);
         pros::Task flywheelTask (run_flywheel);
         pros::Task armTask (run_arm);
         pros::Task driveTask (run_drive);
         pros::Task gyroTask (run_gyro);
+        pros::Task screenTask (run_screen);
+        controller.print(0,0,"            ");
     }
     hasInitialised = true;
     // Every time init...
     // eg. tare arm position
     camera.set_zero_point(pros::E_VISION_ZERO_CENTER);
-    controller.print(0,0,"                          ");
 }
 
 
@@ -530,7 +531,7 @@ void trackPosition() {
     angleChange *= trackingTicksPerDegree;
     
     double distChange = (leftDiff + rightDiff)/2;   // Find lin. dist change
-    distChange *= trackingTicksPerTile;
+    distChange /= trackingTicksPerTile;
     
     trackingDirection += angleChange;   // Find cumulative direction
     
@@ -539,7 +540,7 @@ void trackPosition() {
     }
     
     xPosition += distChange * cos(trackingDirection * M_PI / 180);  // find cumulative xPos
-    yPosition += distChange * sin(trackingDirection * M_PI / 180);  // find cumulative yPoS
+    yPosition -= distChange * sin(trackingDirection * M_PI / 180);  // find cumulative yPoS
     
     lastLeftEnc = leftEnc;  // remember last values for next comparison
     lastRightEnc = rightEnc;
@@ -584,7 +585,7 @@ void run_drive(void* params) {
     
     while (true) {
         
-        //trackPosition();        // keep track of where we are on the field        // CHANGE
+        trackPosition();        // keep track of where we are on the field        // CHANGE
         
         if (usingGyro) {
             direction = gyroDirection / 10;  // gyroDirection is updated by gyro code, direction is used by drive code
@@ -902,9 +903,6 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     return -closestDist/VISION_SEEK_RATE;
     
 }
-
-
-
 
 void run_flywheel(void* params) {
     // Declare any local variables
@@ -1900,6 +1898,19 @@ void run_auton() {
 }
 
 
+void run_screen(void* params) {
+    while (true) {
+        if (autonSelect == 0)
+            controller.print(0,0, "RED   ");
+        else if (autonSelect == 1)
+            controller.print(0,0, "BLUE  ");
+        else if (autonSelect == 2)
+            controller.print(0,0, "SKILLS");
+
+        delay(200);
+    }
+}
+
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -1920,6 +1931,8 @@ void opcontrol() {
    
     
     bool justToggledAuto = false;
+    int startTime = millis();
+    int vibDone = 0;
     
     while (true) {
         
@@ -1927,6 +1940,7 @@ void opcontrol() {
         
         std::cout << "Sensor: " << sensor_gyro.get_value() << " Gyro: " << gyroDirection << " Direction: " << direction << std::endl;
         //std::cout << " Arm Pos: " << armPos << " Wrist Pos: " << wristPos << " Flip Pos: " << flipperPos << " Stack Step " << stackStep << std::endl;
+        std::cout << "X: " << xPosition << ", Y: " << yPosition << ", D: " << trackingDirection << std::endl;
         std::cout << "Last Auton Took: " << lastAutonTime << " Seconds" << std::endl;
         int  count_B = 0;
         int  count_R = 0;
@@ -1956,6 +1970,7 @@ void opcontrol() {
         pros::lcd::print(2, "Direction: %f", direction);
         pros::lcd::print(3, "Arm: %.0f Wrist: %.0f Flipper: %.0f", armPos, wristPos, flipperPos);
         pros::lcd::print(4, "Stack Step: %f", stackStep);
+        pros::lcd::print(5, "(%.3f, %.3f,  %.3f))", xPosition, yPosition, trackingDirection);
         
         if ( controller.get_digital(BTN_ABORT) && controller.get_digital(BTN_CHOOSE_AUTON) ) {
             if (!justToggledAuto) {
