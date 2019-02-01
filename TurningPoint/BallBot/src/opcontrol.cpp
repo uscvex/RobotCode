@@ -284,10 +284,6 @@ void setWristPos(double pos) {
 
 void initAll() {        // called when robot activates & start of auton
     if (!hasInitialised) {
-        pros::Task flywheelTask (run_flywheel);
-        pros::Task armTask (run_arm);
-        pros::Task driveTask (run_drive);
-        pros::Task gyroTask (run_gyro);
         // First time / manual init...
         // eg. calibrate gyro
         controller.print(0,0,"Calibrating");
@@ -297,6 +293,10 @@ void initAll() {        // called when robot activates & start of auton
         wrist.tare_position();
         flip.tare_position();
         pros::delay(3000);
+        pros::Task flywheelTask (run_flywheel);
+        pros::Task armTask (run_arm);
+        pros::Task driveTask (run_drive);
+        pros::Task gyroTask (run_gyro);
     }
     hasInitialised = true;
     // Every time init...

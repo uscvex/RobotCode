@@ -108,13 +108,19 @@ double blueAuton[] = {
 
 double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     
-    135,                                // START FACING 315
+    180,                                  // START FACING 135
+    
+    DRIVE,50,0,DISTANCE,0.1,0.125,         // DRIVE WITHIN EXPANSION ZONE
     
     WRISTSEEK,-1000,                    // DEPLOY FLIPPER
-    PAUSE,0.5,
+    PAUSE,1.5,
     FLIP,
     WRISTSEEK,WRIST_FORWARD_POS,
     PAUSE,0.5,                          // DEPLOY DONE
+    
+    DRIVE,-70,0,DISTANCE,0.6,1,          // DRIVE TO LINE UP FOR CAP
+    TURN,135,1,                         // AIM AT CAP
+    TURN,135,2,                         // AIM AT CAP
     
     
     DRIVE,-70,135,DISTANCE,0.75,2,      // DRIVE TO CAP 1
@@ -126,7 +132,7 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     DRIVE,70,180,BLACK_B,2,             // DRIVE UNTIL OFF START TILE
     DRIVE,-90,180,DISTANCE,0.075,1,      // DRIVE TO LINE UP
     TURN,90,2,                          // TURN TO LINE UP
-    DRIVE,70,90,DISTANCE,0.25,1,         // DRIVE TO WALL
+    DRIVE,100,90,DISTANCE,0.4,0.5,      // DRIVE TO WALL
     
     STACK_HIGH,                         // STACK CAP 1
     PAUSE,STACKED,10,                   // WAIT TILL STACKED
@@ -140,29 +146,31 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     
     PAUSE,GOTBALLS,5,                   // WAIT UNTIL BALL ARRIVED
     
+    DRIVE,-127,180,DISTANCE,1,2,      // DRIVE AWAY FORM OTHER BOT
     
-    TURN,245,0.5,                       // TURN READY TO DRIVE
-    DRIVE,-127,245,DISTANCE,0.6,2,      // DRIVE AWAY FROM OTHER BOT
+    TURN,90,0.5,                        // TURN READY TO DRIVE - 245
+    TURN,65,2,                         // TURN READY TO DRIVE - 245
+    DRIVE,127,65,DISTANCE,0.3,2,         // DRIVE AWAY FROM OTHER BOT
     
     TURN,0,2,                           // TURN TOWARDS FLAGS
     TURN_AIM,BLUE_FLAG,LEFT,2,          // AIM AT LEFT-MOST BLUE FLAG
-    DRIVE,127,CDIR,DISTANCE,1,2,     // DRIVE TO TOP FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.1,2,        // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
-    PAUSE,0.25,                         // SHORT PAUSE
+    PAUSE,0.5,                         // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
     DRIVE,127,CDIR,DISTANCE,1,2,        // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
-    PAUSE,0.25,                         // SHORT PAUSE
+    PAUSE,0.5,                         // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
     STOP_COAST,                         // TURN FLYWHEEL FULLY OFF
     
     INTAKE_OFF,                         // TURN INTAKE OFF
     
-    DRIVE,127,0,0.5,                    // DRIVE TO TOGGLE BOTTOM FLAG
+    DRIVE,70,0,1,                    // DRIVE TO TOGGLE BOTTOM FLAG
     PAUSE,0.25,                         // SHORT PAUSE
     
     TURN,0,1,                           // TURN STRAIGHT
@@ -175,6 +183,7 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO LINE UP
     
     TURN,270,2,                         // TURN FOR NEXT MOVE
+    TURN,265,2,                         // TURN FOR NEXT MOVE
     DRIVE,127,270,DISTANCE,1.75,2,      // DRIVE TO GET BALL FROM UNDER CAP
     
     DRIVE,-127,270,DISTANCE,0.5,2,        // DRIVE AWAY FROM CAP
