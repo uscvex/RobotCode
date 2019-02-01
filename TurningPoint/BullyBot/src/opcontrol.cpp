@@ -135,7 +135,7 @@ bool drivingToPos = false;
 double autoTimeOut = 0;
 double targetDistance = 0;
 double autoSpeed = 0;
-bool usingGyro = true;
+bool usingGyro = false;
 double currentDist = 0;
 double recordedTime = 0;
 double recordedDistLeft = 0;
@@ -564,12 +564,12 @@ void run_drive(void* params) {
         
         if (usingGyro) {
             direction = gyroDirection / 10;  // gyroDirection is updated by gyro code, direction is used by drive code
-            direction = 0;  // ayyy lmao
+            direction = trackingDirection;
         }
         else {
             // maybe using compass/encoders?
             // direction = compassDirection
-            direction = trackingDirection;
+            direction = 0;  // ayyy lmao
         }
         
         // This is where the fun begins
@@ -1179,7 +1179,10 @@ void run_auton() {
                     break;
                 case DRIVE:
                     ds = processEntry();
-                    dd = 0;//processEntry();
+                    if (usingGyro)
+                        dd = processEntry();
+                    else
+                        dd = 0;
                     if (dd == CDIR) {
                         dd = trackingDirection;
                     }
