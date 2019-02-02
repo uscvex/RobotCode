@@ -547,7 +547,13 @@ void trackPosition() {
 void turnToPoint(double x, double y, double t = -1) {
     double dx = x - xPosition;
     double dy = y - yPosition;
-    double dir = atan(dy/dx);
+    if (dx == 0) dx = 0.0000000001;
+    double dir = atan(abs(dy/dx)) * 180 / M_PI;
+    if (dx > 0 && dy > 0) dir = 360 - dir;
+    if (dx < 0 && dy > 0) dir += 180;
+    if (dx < 0 && dy < 0) dir += 90;
+    if (dx > 0 && dy < 0) dir = dir;
+//    std::cout << "Turn dir = " << dir << std::endl;
     turnTo(dir);
 }
 void driveTo(double s, double x, double y, double t = 10) {
@@ -556,7 +562,8 @@ void driveTo(double s, double x, double y, double t = 10) {
     targetS = s;
     double dx = x - xPosition;
     double dy = y - yPosition;
-    double dir = atan(dy/dx);
+    double dir = atan(abs(dy/dx)) * 180 / M_PI;
+    if (dy < 0) dir = 360 - dir;
     double dist = hypot(x,y);
     driveDist(s, dir, dist, t);
     drivingToPos = true;
@@ -1579,6 +1586,14 @@ void run_auton() {
                         driveTime(ds,dd,dt);
                         std::cout << "Drive Time" << std::endl;
                     }
+                    break;
+                case DRIVE_TO:
+                    driveTo(processEntry(), processEntry(),processEntry(), processEntry());
+                    std::cout << "Drive To" << std::endl;
+                    break;
+                case TURN_TO:
+                    turnToPoint(processEntry(),processEntry(),processEntry());
+                        std::cout << "Turn To Point" << std::endl;
                     break;
                 case TURN:
                     turnTo(processEntry(), processEntry());

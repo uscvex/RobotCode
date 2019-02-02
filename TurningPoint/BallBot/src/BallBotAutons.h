@@ -41,6 +41,8 @@ int autonSelect = 0;                    // Routine to start on
 #define STOP_FIRE -22                   // Cancel Fire
 #define START_COAST -23                 // Start flywheel coast
 #define STOP_COAST -24                  // Stop flywheel coast
+#define DRIVE_TO -25                    // Drive to point, (s,x,y,t)
+#define TURN_TO -26                        // Turn to face point
 
 
                                         // Conditionals
@@ -103,6 +105,7 @@ double defaultAuton[] = {
 // Arrays for routines
 double blueAuton[] = {
     0,
+    
     END
 };
 
@@ -119,7 +122,7 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     FLIP,
     WRISTSEEK,WRIST_FORWARD_POS,
     PAUSE,0.5,                          // DEPLOY DONE
-    PAUSE,GOTBALLS,5,                   //
+    PAUSE,GOTBALLS,5,
     
     DRIVE,-70,0,DISTANCE,0.6,1,         // DRIVE TO LINE UP FOR CAP
     TURN,135,1,                         // AIM AT CAP
@@ -144,16 +147,6 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     
     DRIVE,-127,90,DISTANCE,0.5,2,       // DRIVE AWAY FROM WALL
 
-//    TURN,0,2,                           // TURN TO INTAKE BALL
-//    INTAKE_ON,                          // TURN INTAKE ON
-//    DRIVE,127,180,DISTANCE,0.5,2,       // DRIVE WITHIN RANGE OF OTHER BOT
-//
-//    PAUSE,GOTBALLS,5,                   // WAIT UNTIL BALL ARRIVED
-//
-//    DRIVE,-127,180,DISTANCE,1,2,      // DRIVE AWAY FORM OTHER BOT
-//
-//    TURN,90,0.5,                        // TURN READY TO DRIVE - 245
-    
     TURN,45,2,                          // TURN READY TO DRIVE - 245
     DRIVE,127,45,DISTANCE,0.3,2,        // DRIVE TO LINE UP
     
@@ -230,7 +223,61 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
 
 
 double skills[] = {
-    0,
+    270,
+    
+    WRISTSEEK,-1000,                    // DEPLOY FLIPPER
+    PAUSE,1.5,
+    FLIP,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    PAUSE,0.5,                          // DEPLOY DONE
+    
+    INTAKE_ON,                          // ACTIVATE INTAKE
+    
+    DRIVE,127,270,DISTANCE,2,2,         // DRIVE TO GET BALL & FLIP CAP
+    PAUSE,0.25,
+    DRIVE,-127,270,WHITE_E,2,           // DRIVE BACK TO TILE
+    
+    TURN,0,2,                           // TURN TO FACE FLAGS
+    
+    DRIVE,127,0,BLACK_B,2,
+    DRIVE,127,0,WHITE_E,2,
+    
+    TURN_AIM,BLUE_FLAG,LEFT,2,          // AIM AT LEFT-MOST BLUE FLAG
+    DRIVE,127,CDIR,DISTANCE,0.6,2,      // DRIVE TO TOP FLAG DIST
+    FIRE_AIM,TOP,                       // SHOOT TOP FLAG
+    PAUSE,FIRED,5,                      // WAIT TILL SHOT
+    PAUSE,0.5,
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO MIDDLE FLAG DIST
+    FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
+    PAUSE,FIRED,5,                      // WAIT TILL SHOT
+    PAUSE,0.5,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    STOP_COAST,                         // TURN FLYWHEEL FULLY OFF
+    
+    INTAKE_OFF,                         // TURN INTAKE OFF
+    
+    DRIVE,70,0,1,                       // DRIVE TO TOGGLE BOTTOM FLAG
+    PAUSE,0.25,                         // SHORT PAUSE
+    
+    TURN,30,1,                          // TURN STRAIGHT
+    TURN,0,1,                           // TURN STRAIGHT
+    
+    INTAKE_ON,                          // TURN INTAKE ON
+    
+    DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE AWAY A LITTLE
+    
+    DRIVE,-127,0,WHITE_L,4,             // DRIVE TO START TILE
+    DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO LINE UP
+    
+    TURN,270,2,                         // TURN FOR NEXT MOVE
+    TURN,265,2,                         // TURN FOR NEXT MOVE
+    DRIVE,127,270,DISTANCE,2,2,         // DRIVE TO GET BALL FROM UNDER CAP
+    
+    DRIVE,-127,270,DISTANCE,0.65,2,     // DRIVE AWAY FROM CAP
+    
     END
 };
 
