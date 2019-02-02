@@ -15,7 +15,7 @@ Save files and type
 
 List of files you changed should come up
 
-For each file you changes
+For each file you change
 > git add filename
 
 Once youve got all of them
@@ -38,4 +38,4 @@ Pros Commands:
 
 > prosv5 make all --> compiles everything
 
->prosv5 upload --> uploads to controller
+>prosv5 upload --> uploads to robot
