@@ -10,21 +10,19 @@
 // De-score high stacked cap
 // Parking high & low
 // Auto intake 2 balls
-// Shoot flags high & low - room for improvement - flywheel needs tuning
-// Auto aim works, need cases for low flag toggled but not top
-//      Maybe check size of object & discard?
+// Shoot flags high & low
+// Auto aim works
+// Auton fairly consistant
+//  -- 6 flags + 1 high cap + 1 low cap
+//  -- Total points 13
+//  -- Swing of 19
 //
 //
 // To Do:
 // Test everything
-// Make flipper more consistant height?
-// Tune flywheel
-// Calculate flywheel speed table
-// Write vision sensor code
 // Write LiDAR code
-// Create new auton mode
+// Tune auton mode
 // Create skills routine
-// Code to handle more than two balls in intake
 //
 //
 
