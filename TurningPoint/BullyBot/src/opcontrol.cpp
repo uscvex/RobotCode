@@ -37,10 +37,10 @@ using namespace pros;
 #define BTN_ARM_DOWN DIGITAL_B
 #define BTN_FLIPPER_LEFT DIGITAL_Y
 #define BTN_FLIPPER_RIGHT DIGITAL_A
-#define BTN_FLIP DIGITAL_R1
-#define BTN_ARM_HIGH DIGITAL_L1
-#define BTN_ARM_LOW DIGITAL_L2
-#define BTN_ARM_LIFT DIGITAL_R2
+#define BTN_FLIP DIGITAL_L1
+#define BTN_ARM_HIGH DIGITAL_R1
+#define BTN_ARM_LOW DIGITAL_R2
+#define BTN_ARM_LIFT DIGITAL_L2
 
 #define ARM_LIFT_DIST 35*5
 
@@ -740,8 +740,8 @@ void run_drive(void* params) {
         if (autoMode == DRIVEMODE_USER) {
             
             // Arcade controls
-            leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
-            rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
+            leftSpeed = controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
+            rightSpeed = controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
             
             if (abs(leftSpeed) < deadZone) leftSpeed = 0;
             if (abs(rightSpeed) < deadZone) rightSpeed = 0;
