@@ -894,8 +894,8 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     }
     if (location == RIGHT) {
         closestDist = -10000;
-        for (int i = 0; i > allThings.size(); i++) {
-            if (allThings[i].x_middle_coord < closestDist) {
+        for (int i = 0; i < allThings.size(); i++) {
+            if (allThings[i].x_middle_coord > closestDist) {
                 closestDist = allThings[i].x_middle_coord;
             }
         }
@@ -1488,12 +1488,6 @@ void run_arm(void* params) {
 void run_auton() {
     
     initAll();
-    
-    // Start task
-//    pros::Task flywheelTask (run_flywheel);
-//    pros::Task armTask (run_arm);
-//    pros::Task driveTask (run_drive);
-//    pros::Task gyroTask (run_gyro);
     
     int driveMode = 0;
     double pauseTime = 0;

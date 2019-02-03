@@ -3,7 +3,7 @@
 #define __BALLBOTAUTONS__
 
 #define NUMBER_AUTONS 3                 // Number of programmed routines
-int autonSelect = 0;                    // Routine to start on
+int autonSelect = 1;                    // Routine to start on
 
                                         // #defines for auton drive modes
 #define DRIVEMODE_USER 0                // User mode
@@ -103,19 +103,13 @@ double defaultAuton[] = {
 };
 
 // Arrays for routines
-double blueAuton[] = {
-    0,
+double blueAuton[] = {                  // BLUE SIDE, WE WANT 19 PT SWING
     
-    END
-};
-
-double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
-    
-    180,                                  // START FACING 135
+    180,                                // START FACING 180
     
     INTAKE_ON,
     
-    DRIVE,50,0,DISTANCE,0.1,0.125,         // DRIVE WITHIN EXPANSION ZONE
+    DRIVE,50,180,DISTANCE,0.1,0.125,    // DRIVE WITHIN EXPANSION ZONE
     
     WRISTSEEK,-1000,                    // DEPLOY FLIPPER
     PAUSE,1.5,
@@ -124,7 +118,123 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     PAUSE,0.5,                          // DEPLOY DONE
     PAUSE,GOTBALLS,5,
     
-    DRIVE,-70,0,DISTANCE,0.6,1,         // DRIVE TO LINE UP FOR CAP
+    DRIVE,-70,180,DISTANCE,0.7,1,       // DRIVE TO LINE UP FOR CAP
+    TURN,225,1,                         // AIM AT CAP
+    TURN,225,2,                         // AIM AT CAP
+    
+    
+    DRIVE,-50,225,DISTANCE,0.75,2,      // DRIVE TO CAP 1
+    WRISTSEEK,WRIST_VERTICAL_POS,       // PICK IT UP
+    PAUSE,0.5,                          // TIME TO PICK UP
+    
+    TURN,225,1,                         // TURN FOR NEXT DRIVE
+    DRIVE,70,225,WHITE_L,2,             // DRIVE TILL RIGHT SENSOR IS OVER START TILE
+    TURN,180,2,                         // TURN FOR NEXT DRIVE
+    DRIVE,70,180,BLACK_B,2,             // DRIVE UNTIL OFF START TILE
+    DRIVE,-50,180,DISTANCE,0.0375,1,    // DRIVE TO LINE UP
+    DRIVE,50,180,DISTANCE,0.0125,1,       // DRIVE TO LINE UP
+    TURN,270,2,                         // TURN TO LINE UP
+    DRIVE,100,270,DISTANCE,0.5,0.7,     // DRIVE TO WALL
+    
+    STACK_HIGH,                         // STACK CAP 1
+    PAUSE,STACKED,10,                   // WAIT TILL STACKED
+    
+    START_COAST,                        // START FLYWHEEL SPIN-UP
+    
+    DRIVE,-127,270,DISTANCE,0.5,2,      // DRIVE AWAY FROM WALL
+    
+    TURN,315,2,                         // TURN READY TO DRIVE - 245
+    DRIVE,127,315,DISTANCE,0.6,2,       // DRIVE TO LINE UP
+    
+    TURN,0,2,                           // TURN TOWARDS FLAGS
+    TURN_AIM,RED_FLAG,RIGHT,2,          // AIM AT RIGHT-MOST BLUE FLAG
+    DRIVE,127,CDIR,DISTANCE,0.6,2,      // DRIVE TO TOP FLAG DIST
+    FIRE_AIM,TOP,                       // SHOOT TOP FLAG
+    PAUSE,FIRED,5,                      // WAIT TILL SHOT
+    PAUSE,0.5,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO MIDDLE FLAG DIST
+    FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
+    PAUSE,FIRED,5,                      // WAIT TILL SHOT
+    PAUSE,0.5,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    STOP_COAST,                         // TURN FLYWHEEL FULLY OFF
+    
+    INTAKE_OFF,                         // TURN INTAKE OFF
+    
+    DRIVE,70,340,1,                     // DRIVE TO TOGGLE BOTTOM FLAG
+    PAUSE,0.25,                         // SHORT PAUSE
+    
+    TURN,330,1,                         // TURN STRAIGHT
+    TURN,0,1,                           // TURN STRAIGHT
+    
+    INTAKE_ON,                          // TURN INTAKE ON
+    
+    DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE AWAY A LITTLE
+    
+    TURN,0,1,                           // TURN STRAIGHT
+    
+    DRIVE,-127,0,WHITE_R,4,             // DRIVE TO START TILE
+    DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO LINE UP
+    
+    TURN,90,2,                          // TURN FOR NEXT MOVE
+    TURN,85,2,                          // TURN FOR NEXT MOVE
+    DRIVE,127,90,DISTANCE,1.75,2,       // DRIVE TO GET BALL FROM UNDER CAP
+    
+    DRIVE,-127,90,DISTANCE,0.65,2,      // DRIVE AWAY FROM CAP
+    
+    TURN,15,2,                          // TURN TOWARDS CENTER FLAGS
+    TURN_AIM,RED_FLAG,CENTER,2,         // AIM AT CENTER-MOST BLUE FLAG
+    DRIVE,127,CDIR,DISTANCE,0.75,2,     // DRIVE TO TOP FLAG DIST
+    
+    START_COAST,                        // START FLYWHEEL SPINUP
+    
+    PAUSE,UNTIL,35,                     // WAIT TILL LAST 10 SECONDS
+    
+    IF, GOTBALL,                        // ONLY SHOOT IF GOT A BALL
+        FIRE_AIM,TOP,                   // SHOOT TOP FLAG
+        PAUSE,FIRED,5,                  // WAIT TILL SHOT
+        PAUSE,0.25,                     // SHORT PAUSE
+    ENDIF,
+    
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    DRIVE,127,CDIR,DISTANCE,0.75,2,     // DRIVE TO MIDDLE FLAG DIST
+    
+    FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
+    PAUSE,FIRED,5,                      // WAIT TILL SHOT
+    PAUSE,0.25,                         // SHORT PAUSE
+    
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    INTAKE_OFF,                         // TURN INTAKE OFF
+    
+    TURN_REL,345,0.5,                    // TURN TO FACE 0
+    DRIVE,127,0,0.5,                    // DRIVE TO TOGGLE BOTTOM FLAG
+    PAUSE,UNTIL,44,                     // WAIT UNTIL LAST SECOND
+    DRIVE,-127,90,1,                   // DRIVE AWAY FROM FLAGS
+    
+    END                                 // END OF ROUTINE
+};
+
+double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
+    
+    180,                                // START FACING 180
+    
+    INTAKE_ON,
+    
+    DRIVE,50,180,DISTANCE,0.1,0.125,      // DRIVE WITHIN EXPANSION ZONE
+    
+    WRISTSEEK,-1000,                    // DEPLOY FLIPPER
+    PAUSE,1.5,
+    FLIP,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    PAUSE,0.5,                          // DEPLOY DONE
+    PAUSE,GOTBALLS,5,
+    
+    DRIVE,-70,180,DISTANCE,0.6,1,         // DRIVE TO LINE UP FOR CAP
     TURN,135,1,                         // AIM AT CAP
     TURN,135,2,                         // AIM AT CAP
     
@@ -152,16 +262,16 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     
     TURN,0,2,                           // TURN TOWARDS FLAGS
     TURN_AIM,BLUE_FLAG,LEFT,2,          // AIM AT LEFT-MOST BLUE FLAG
-    DRIVE,127,CDIR,DISTANCE,0.6,2,        // DRIVE TO TOP FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.6,2,      // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
-    PAUSE,0.5,                         // SHORT PAUSE
+    PAUSE,0.5,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,0.7,2,        // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
-    PAUSE,0.5,                         // SHORT PAUSE
+    PAUSE,0.5,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
     STOP_COAST,                         // TURN FLYWHEEL FULLY OFF
@@ -171,7 +281,7 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     DRIVE,70,0,1,                       // DRIVE TO TOGGLE BOTTOM FLAG
     PAUSE,0.25,                         // SHORT PAUSE
     
-    TURN,30,1,                           // TURN STRAIGHT
+    TURN,30,1,                          // TURN STRAIGHT
     TURN,0,1,                           // TURN STRAIGHT
     
     INTAKE_ON,                          // TURN INTAKE ON
@@ -191,9 +301,9 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT CENTER-MOST BLUE FLAG
     DRIVE,127,CDIR,DISTANCE,0.75,2,     // DRIVE TO TOP FLAG DIST
     
-    PAUSE,UNTIL,35,                     // WAIT TILL LAST 10 SECONDS
-    
     START_COAST,                        // START FLYWHEEL SPINUP
+    
+    PAUSE,UNTIL,35,                     // WAIT TILL LAST 10 SECONDS
     
     IF, GOTBALL,                        // ONLY SHOOT IF GOT A BALL
         FIRE_AIM,TOP,                   // SHOOT TOP FLAG
