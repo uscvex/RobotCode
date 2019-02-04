@@ -3,7 +3,7 @@
 #define __BALLBOTAUTONS__
 
 #define NUMBER_AUTONS 3                 // Number of programmed routines
-int autonSelect = 1;                    // Routine to start on
+int autonSelect = 2;                    // Routine to start on
 
                                         // #defines for auton drive modes
 #define DRIVEMODE_USER 0                // User mode
@@ -42,7 +42,8 @@ int autonSelect = 1;                    // Routine to start on
 #define START_COAST -23                 // Start flywheel coast
 #define STOP_COAST -24                  // Stop flywheel coast
 #define DRIVE_TO -25                    // Drive to point, (s,x,y,t)
-#define TURN_TO -26                        // Turn to face point
+#define TURN_TO -26                     // Turn to face point
+#define INTAKE_FLIP -27                 // Run outer intake backwards to flip cap
 
 
                                         // Conditionals
@@ -341,25 +342,42 @@ double skills[] = {
     WRISTSEEK,WRIST_FORWARD_POS,
     PAUSE,0.5,                          // DEPLOY DONE
     
-    INTAKE_ON,                          // ACTIVATE INTAKE
+    INTAKE_FLIP,                        // ACTIVATE INTAKE
     
-    DRIVE,127,270,DISTANCE,2,2,         // DRIVE TO GET BALL & FLIP CAP
-    PAUSE,0.25,
-    DRIVE,-127,270,WHITE_E,2,           // DRIVE BACK TO TILE
+    DRIVE,127,270,DISTANCE,1.75,2,      // DRIVE TO GET BALL & FLIP CAP
+    INTAKE_ON,
+    PAUSE,0.5,
+    
+    WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN
+    
+    DRIVE,-127,270,DISTANCE,0.5,2,      // DRIVE AWAY A LITTLE
+    TURN,20,2,                          // TURN TO FACE CAP
+    
+    DRIVE,-60,20,DISTANCE,0.5,2,        // DRIVE TO CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // FLIP CAP
+    
+    PAUSE,0.5,
+    
+    TURN,80,2,                          // AIM AT START TILE
+    
+    DRIVE,127,90,WHITE_E,2,             // DRIVE BACK TO TILE
     
     TURN,0,2,                           // TURN TO FACE FLAGS
     
-    DRIVE,127,0,BLACK_B,2,
-    DRIVE,127,0,WHITE_E,2,
+    START_COAST,                        // START FLYWHEEL SPINUP
+    
+    DRIVE,127,10,BLACK_B,2,
+    
+    DRIVE,127,20,WHITE_E,2,
     
     TURN_AIM,BLUE_FLAG,LEFT,2,          // AIM AT LEFT-MOST BLUE FLAG
-    DRIVE,127,CDIR,DISTANCE,0.6,2,      // DRIVE TO TOP FLAG DIST
+    DRIVE,100,CDIR,DISTANCE,0.7,2,      // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.5,
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.8,2,      // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.5,                          // SHORT PAUSE
@@ -369,10 +387,9 @@ double skills[] = {
     
     INTAKE_OFF,                         // TURN INTAKE OFF
     
-    DRIVE,70,0,1,                       // DRIVE TO TOGGLE BOTTOM FLAG
+    DRIVE,70,0,0.5,                     // DRIVE TO TOGGLE BOTTOM FLAG
     PAUSE,0.25,                         // SHORT PAUSE
     
-    TURN,30,1,                          // TURN STRAIGHT
     TURN,0,1,                           // TURN STRAIGHT
     
     INTAKE_ON,                          // TURN INTAKE ON
@@ -380,13 +397,116 @@ double skills[] = {
     DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE AWAY A LITTLE
     
     DRIVE,-127,0,WHITE_L,4,             // DRIVE TO START TILE
-    DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO LINE UP
+    DRIVE,-127,0,DISTANCE,0.3,1,        // DRIVE TO LINE UP
     
     TURN,270,2,                         // TURN FOR NEXT MOVE
     TURN,265,2,                         // TURN FOR NEXT MOVE
-    DRIVE,127,270,DISTANCE,2,2,         // DRIVE TO GET BALL FROM UNDER CAP
     
-    DRIVE,-127,270,DISTANCE,0.65,2,     // DRIVE AWAY FROM CAP
+    INTAKE_FLIP,                        // ACTIVATE INTAKE
+    
+    DRIVE,127,270,DISTANCE,2,2,         // DRIVE TO GET BALL & FLIP CAP
+    INTAKE_ON,
+    PAUSE,0.5,
+    
+    WRISTSEEK,WRIST_FORWARD_POS,        // GET WRIST READY FOR FLIP
+    
+    DRIVE,-127,270,DISTANCE,0.45,2,     // DRIVE AWAY FROM CAP
+    
+    TURN,225,2,                         // TURN FOR CAP FLIP
+    
+    DRIVE,-100,225,DISTANCE,0.7,2,      // DRIVE TO CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // FLIP CAP
+    PAUSE,0.25,                         // SHORT PAUSE
+    
+    TURN,270,2,                         // TURN FOR NEXT MOVE
+    
+    START_COAST,                        // START FLYWHEEL SPINUP
+    
+    DRIVE,127,270,DISTANCE,0.5,2,       // DRIVE TO LINE UP
+    
+    TURN,0,2,                           // TURN TO AIM
+    
+    TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT CENTRE-MOST BLUE FLAG
+    
+    IF, GOTBALLS,
+    DRIVE,-90,CDIR,DISTANCE,0.2,1,
+        FIRE_AIM,TOP,                    // SHOOT MIDDLE FLAG
+        PAUSE,FIRED,2,                      // WAIT TILL SHOT
+        PAUSE,0.5,                          // SHORT PAUSE
+        STOP_FIRE,                          // STOP FLYWHEEL
+    DRIVE,90,CDIR,DISTANCE,0.2,1,
+    ENDIF,
+    
+    TURN_AIM,BLUE_FLAG,CENTER,1,        // AIM AT CENTRE-MOST BLUE FLAG
+    
+    DRIVE,127,CDIR,DISTANCE,0.9,2,      // DRIVE TO MIDDLE FLAG DIST
+    FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
+    PAUSE,FIRED,2,                      // WAIT TILL SHOT
+    PAUSE,0.5,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    STOP_COAST,                         // TURN FLYWHEEL FULLY OFF
+    
+    INTAKE_OFF,                         // TURN INTAKE OFF
+    
+    DRIVE,70,0,0.5,                     // DRIVE TO TOGGLE BOTTOM FLAG
+    PAUSE,0.25,                         // SHORT PAUSE
+    
+    TURN,0,1,                           // TURN STRAIGHT
+    
+    INTAKE_ON,                          // TURN INTAKE ON
+    
+    DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE AWAY A LITTLE
+    
+    WRISTSEEK,WRIST_FORWARD_POS,
+    TURN,0,0.5,                         // TURN STRAIGHTEN UP
+    DRIVE,-127,0,DISTANCE,0.35,1,       // DRIVE BACK MORE
+    TURN,90,2,                          // TURN TO FACE CAP
+    
+    DRIVE,-127,90,DISTANCE,1.25,2,      // DRIVE TO CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // FLIP CAP
+    PAUSE,0.5,
+    DRIVE,-127,90,DISTANCE,1.15,1,      // DRIVE AWAY FROM CAP
+    
+    TURN,180,2,
+    
+    DRIVE,-100,180,DISTANCE,1,2,        // TOGGLE FLAG
+    DRIVE,127,180,DISTANCE,1.75,2,         // DRIVE AWAY
+    
+    INTAKE_FLIP,                        // START INTAKE OUT
+    
+    TURN,90,2,                         // AIM FOR NEXT CAP
+    DRIVE,125,90,DISTANCE,1.65,2,       // DRIVE TO FLIP CAP
+    PAUSE,0.5,
+    
+    TURN,90,2,                          // TURN READY FOR MOVE
+    DRIVE,-127,90,WHITE_L,2,            // DRIVE TO TILE
+    
+    TURN,0,2,
+    DRIVE,-127,0,BLACK_B,2,             // DRIVE TILL OFF TILE
+    DRIVE,-127,0,0.25,
+    DRIVE,-127,0,WHITE_E,2,             // DRIVE TILL ON NEXT TILE
+    DRIVE,-127,0,0.25,
+    DRIVE,-127,0,BLACK_B,2,             // DRIVE TILL OFF TILE
+    DRIVE,-100,0,DISTANCE,0.25,2,       // DRIVE TO LINE UP
+    
+    TURN,270,2,                         // TURN READY FOR CAP
+    WRISTSEEK,WRIST_FORWARD_POS,        // GET FLIPPER READY
+    DRIVE,-127,270,DISTANCE,1.5,2,      // DRIVE TO NEXT CAP
+    
+    WRISTSEEK,WRIST_VERTICAL_POS,       // FLIP CAP
+    PAUSE,0.5,
+    
+    DRIVE,127,270,DISTANCE,1.5,2,         // DRIVE AWAY FROM CAP
+    
+    TURN,180,2,                         // TURN READY FOR DRIVE
+    
+    DRIVE,-127,180,DISTANCE,0.25,1,     // DRIVE ONTO TILE
+    DRIVE,-127,180,BLACK_B,2,           // DRIVE OFF TILE
+    DRIVE,-80,180,DISTANCE,0.5,2,       // DRIVE TO LINE UP FOR PARK
+    TURN,90,2,                          // TURN TO LINE UP
+    WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN TO HELP
+    DRIVE,127,90,DISTANCE,3.5,2,        // PARK
     
     END
 };

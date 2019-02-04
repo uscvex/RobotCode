@@ -245,6 +245,7 @@ double flywheelRunSpeed = 0;
 double flyWheelDefaultSpeed = 100;    // set speed for fixed-dist fireing
 bool coast = false;
 double defaultFlywheelDistance = 1;
+bool flipCapWIntake = false;
 
 double flyWheelSpeeds[12][3] = {                 // CALIBRATE & add more
     // Dist, Low Flag Speed, High Flag Speed
@@ -1060,6 +1061,7 @@ void run_flywheel(void* params) {
                     fireBall = false;
                     justAskedForFire = true;
                     flywheelRunSpeed = -1;
+                    flipCapWIntake = false;
                 }
             }
             else if (controller.get_digital(BTN_FIRE_HIGH)) { // auto fire high
@@ -1073,6 +1075,7 @@ void run_flywheel(void* params) {
                     fireBall = false;
                     justAskedForFire = true;
                     flywheelRunSpeed = -1;
+                    flipCapWIntake = false;
                 }
             }
             else if (controller.get_digital(BTN_FIRE_BOTH)) { // auto fire both
@@ -1086,6 +1089,7 @@ void run_flywheel(void* params) {
                     fireBall = false;
                     justAskedForFire = true;
                     flywheelRunSpeed = -1;
+                    flipCapWIntake = false;
                 }
             }
             else {
@@ -1101,14 +1105,17 @@ void run_flywheel(void* params) {
                 intakeSpeedOuter = 127;
                 runTillBall = 0;
                 forceIntake = false;
+                flipCapWIntake = false;
             }
             if (controller.get_digital(BTN_INTAKE_OUT)) { // manual run intake out
                 intakeSpeedInner = -127;
                 intakeSpeedOuter = -127;
                 runTillBall = 0;
                 forceIntake = false;
+                flipCapWIntake = false;
             }
             if (controller.get_digital(BTN_TOGGLE_INTAKE)) { // toggle auto ball intake
+                flipCapWIntake = false;
                 if (!justToggledAutoBall) {
                     if (runTillBall) runTillBall = 0; else runTillBall = 2;
                 }
@@ -1133,6 +1140,7 @@ void run_flywheel(void* params) {
             forceIntake = false;
             fireBall = false;
             flywheelRunSpeed = -1;
+            flipCapWIntake = false;
         }
         
         if (runTillBall) {
@@ -1143,6 +1151,10 @@ void run_flywheel(void* params) {
             else if (!getOuterSensor() && (runTillBall == 2)) {   // 1 ball is in, but not 2
                 intakeSpeedOuter = 127;
             }
+        }
+        
+        if (flipCapWIntake) {
+            intakeSpeedOuter = -127;
         }
         
         
@@ -1636,11 +1648,13 @@ void run_auton() {
                     break;
                 case INTAKE_ON:
                     runTillBall = 2;
+                    flipCapWIntake = false;
                     std::cout << "Intake On" << std::endl;
                     nextCommand = true;
                     break;
                 case INTAKE_OFF:
                     runTillBall = 0;
+                    flipCapWIntake = false;
                     std::cout << "Intake Off" << std::endl;
                     nextCommand = true;
                     break;
@@ -1712,6 +1726,10 @@ void run_auton() {
                     break;
                 case START_COAST:
                     coast = true;
+                    nextCommand = true;
+                    break;
+                case INTAKE_FLIP:
+                    flipCapWIntake = true;
                     nextCommand = true;
                     break;
                     
@@ -1978,6 +1996,7 @@ void opcontrol() {
         pros::lcd::print(3, "Arm: %.0f Wrist: %.0f Flipper: %.0f", armPos, wristPos, flipperPos);
         pros::lcd::print(4, "Stack Step: %f", stackStep);
         pros::lcd::print(5, "(%.3f, %.3f,  %.3f))", xPosition, yPosition, trackingDirection);
+        pros::lcd::print(1, "Auton Time: %f", lastAutonTime);
         
         if ( controller.get_digital(BTN_ABORT) && controller.get_digital(BTN_CHOOSE_AUTON) ) {
             if (!justToggledAuto) {
