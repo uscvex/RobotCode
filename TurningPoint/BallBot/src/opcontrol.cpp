@@ -132,6 +132,7 @@ ADIDigitalIn upper_IR (2);
 ADIDigitalIn lower_IR (3);
 ADIDigitalIn left_IR (4);
 ADIDigitalIn right_IR (5);
+ADIUltrasonic sonar (7,8);
 
 Vision camera(16);
 
@@ -173,6 +174,8 @@ double recordedDistLeft = 0;
 double recordedDistRight = 0;
 double lastRightEnc = 0;
 double lastLeftEnc = 0;
+bool usingSonarDist = false;
+double cmPerTile = 61;
 // Turn
 double targetDirection = 0;
 double turnMode = 0;
@@ -459,6 +462,7 @@ void driveDist(double s, double dir, double dist, double t = 10) {
     recordedTime = pros::millis();
     recordedDistLeft = getLeftEnc();
     recordedDistRight = getRightEnc();
+    usingSonarDist = false;
     
     if (s > 0) {
         targetDistance = (dist * ticksPerTile) + (recordedDistRight + recordedDistLeft)/2;
@@ -466,6 +470,19 @@ void driveDist(double s, double dir, double dist, double t = 10) {
     else {
         targetDistance = (-dist * ticksPerTile) + (recordedDistRight + recordedDistLeft)/2;
     }
+}
+
+void driveDistSonar(double s, double dir, double dist, double t = 10) {
+    // speed, direction, distance, timeout
+    autoSpeed = s;
+    targetDirection = dir;
+    autoMode = DRIVEMODE_SONAR;
+    autoTimeOut = t*1000;
+    recordedTime = pros::millis();
+    recordedDistLeft = getLeftEnc();
+    recordedDistRight = getRightEnc();
+    
+    targetDistance = dist * cmPerTile;
 }
 
 void driveCustom(double s, double d, double t = 10) {
@@ -654,6 +671,29 @@ void run_drive(void* params) {
                 }
                 else {
                     if (currentDist < targetDistance) autonComplete = true;
+                }
+            }
+            
+            if (autoMode == DRIVEMODE_SONAR) {
+                currentDist = sonar.get_value();    // current dist is form sonar, not encoders
+                double slowDown = abs((targetDistance - currentDist) / (0.35 * cmPerTile));
+                
+                if (slowDown > 1) slowDown = 1;
+                
+                forward *= slowDown;
+                
+                if (autoSpeed > 0 && forward < minForward) forward = minForward;
+                if (autoSpeed < 0 && forward > -minForward) forward = -minForward;
+                
+                if (forward > 127) forward = 127;   // Cap max and min speed
+                if (forward < -127) forward = -127;
+                
+                // Terminate contition for distance
+                if (autoSpeed > 0) {
+                    if (currentDist < targetDistance) autonComplete = true;
+                }
+                else {
+                    if (currentDist > targetDistance) autonComplete = true;
                 }
             }
             
@@ -1569,6 +1609,11 @@ void run_auton() {
                             driveMode = dt;
                             driveDist(ds,dd,processEntry(),processEntry());
                             std::cout << "Drive Distance" << std::endl;
+                        }
+                        if (dt == SONAR) {
+                            driveMode = dt;
+                            driveDistSonar(ds,dd,processEntry(),processEntry());
+                            std::cout << "Drive Sonar" << std::endl;
                         }
                         else if (dt == LIDAR) {
                             driveMode = dt;

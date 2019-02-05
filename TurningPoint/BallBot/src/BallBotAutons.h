@@ -10,6 +10,7 @@ int autonSelect = 2;                    // Routine to start on
 #define DRIVEMODE_TIME -1               // Drive for time
 #define DRIVEMODE_DIST -2               // Drive for distance
 #define DRIVEMODE_CUSTOM -3             // Drive custom
+#define DRIVEMODE_SONAR -4              // Drive for sonar dist
 #define DRIVEMODE_TURN 1                // Turn
 #define TURNMODE_GYRO 1                 // Do turns with gyro
 #define TURNMODE_ENCODER 2              // Do turns with encoders
@@ -63,6 +64,7 @@ int autonSelect = 2;                    // Routine to start on
 #define CDIR -563                       // Turn Parameter for drive facing current direction
 #define DISTANCE -1                     // Drive condition for distance based on encoders
 #define LIDAR -2                        // Drive condition for distance based on lidar
+#define SONAR -3                        // Drive condition for distance based on sonar
 
                                         // Drive conditions for white lines
 #define WHITE_E -3                      // Either white
