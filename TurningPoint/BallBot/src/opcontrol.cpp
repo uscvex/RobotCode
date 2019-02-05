@@ -175,7 +175,7 @@ double recordedDistRight = 0;
 double lastRightEnc = 0;
 double lastLeftEnc = 0;
 bool usingSonarDist = false;
-double cmPerTile = 61;
+double cmPerTile = 610;
 // Turn
 double targetDirection = 0;
 double turnMode = 0;
@@ -481,7 +481,7 @@ void driveDistSonar(double s, double dir, double dist, double t = 10) {
     recordedTime = pros::millis();
     recordedDistLeft = getLeftEnc();
     recordedDistRight = getRightEnc();
-    
+    usingSonarDist = true;
     targetDistance = dist * cmPerTile;
 }
 
@@ -677,17 +677,17 @@ void run_drive(void* params) {
             if (autoMode == DRIVEMODE_SONAR) {
                 currentDist = sonar.get_value();    // current dist is form sonar, not encoders
                 double slowDown = abs((targetDistance - currentDist) / (0.35 * cmPerTile));
-                
+
                 if (slowDown > 1) slowDown = 1;
-                
+
                 forward *= slowDown;
-                
+
                 if (autoSpeed > 0 && forward < minForward) forward = minForward;
                 if (autoSpeed < 0 && forward > -minForward) forward = -minForward;
-                
+
                 if (forward > 127) forward = 127;   // Cap max and min speed
                 if (forward < -127) forward = -127;
-                
+
                 // Terminate contition for distance
                 if (autoSpeed > 0) {
                     if (currentDist < targetDistance) autonComplete = true;
@@ -1610,7 +1610,7 @@ void run_auton() {
                             driveDist(ds,dd,processEntry(),processEntry());
                             std::cout << "Drive Distance" << std::endl;
                         }
-                        if (dt == SONAR) {
+                        else if (dt == SONAR) {
                             driveMode = dt;
                             driveDistSonar(ds,dd,processEntry(),processEntry());
                             std::cout << "Drive Sonar" << std::endl;
@@ -2040,8 +2040,9 @@ void opcontrol() {
         pros::lcd::print(2, "Direction: %f", direction);
         pros::lcd::print(3, "Arm: %.0f Wrist: %.0f Flipper: %.0f", armPos, wristPos, flipperPos);
         pros::lcd::print(4, "Stack Step: %f", stackStep);
-        pros::lcd::print(5, "(%.3f, %.3f,  %.3f))", xPosition, yPosition, trackingDirection);
+        pros::lcd::print(5, "(%.3f, %.3f,  %.3f)", xPosition, yPosition, trackingDirection);
         pros::lcd::print(1, "Auton Time: %f", lastAutonTime);
+        pros::lcd::print(6, "Sonar Dist: %i", sonar.get_value());
         
         if ( controller.get_digital(BTN_ABORT) && controller.get_digital(BTN_CHOOSE_AUTON) ) {
             if (!justToggledAuto) {
