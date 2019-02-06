@@ -17,12 +17,14 @@
 //  -- Total points 13
 //  -- Swing of 19
 //
+// Skills 22-24 pts
+//
 //
 // To Do:
 // Test everything
-// Write LiDAR code
+// Write LiDAR code?
 // Tune auton mode
-// Create skills routine
+// Tune skills routine
 //
 //
 

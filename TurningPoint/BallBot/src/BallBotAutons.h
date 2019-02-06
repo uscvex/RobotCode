@@ -357,14 +357,14 @@ double skills[] = {
     
     PAUSE,0.25,
     
-    /*WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
+    WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
     
     TURN,50,2,                          // TURN FOR NEXT CAP
     
     DRIVE,-90,50,DISTANCE,0.9,2,        // DRIVE TO CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // FLIP CAP
     PAUSE,0.5,
-    DRIVE,90,50,DISTANCE,0.5,2,*/
+    DRIVE,127,50,DISTANCE,0.5,2,
     
     TURN,90,2,                          // AIM AT START TILE
     
@@ -401,9 +401,9 @@ double skills[] = {
     //INTAKE_OFF,                         // TURN INTAKE OFF
     
     DRIVE,127,0,0.3,                    // DRIVE TO TOGGLE BOTTOM FLAG
-    PAUSE,0.25,                         // SHORT PAUSE
+    //PAUSE,0.25,                         // SHORT PAUSE
     
-    TURN,0,1,                           // TURN STRAIGHT
+    TURN,0,0.5,                           // TURN STRAIGHT
     
     INTAKE_ON,                          // TURN INTAKE ON
     
@@ -452,7 +452,7 @@ double skills[] = {
     
     TURN_AIM,BLUE_FLAG,CENTER,1,        // AIM AT CENTRE-MOST BLUE FLAG
     
-    DRIVE,127,CDIR,SONAR,1,2,           // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,SONAR,0.8,2,           // DRIVE TO MIDDLE FLAG DIST
     IF, GOTBALL,
         FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
         PAUSE,0.5,                          // SHORT PAUSE
@@ -465,7 +465,7 @@ double skills[] = {
     INTAKE_OFF,                         // TURN INTAKE OFF
     
     DRIVE,127,0,0.5,                       // DRIVE TO TOGGLE BOTTOM FLAG
-    PAUSE,0.25,                             // SHORT PAUSE
+    //PAUSE,0.25,                             // SHORT PAUSE
     
     TURN,0,1,                           // TURN STRAIGHT
     
@@ -473,7 +473,9 @@ double skills[] = {
     DRIVE,-127,0,0.25,
     TURN,0,1,                           // TURN STRAIGHT
     
-    DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE AWAY A FROM FLAG
+    //DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE AWAY FROM FLAG
+    DRIVE,-127,0,SONAR,1.2,2,           // DRIVE AWAY FROM FLAG
+    
     
     WRISTSEEK,WRIST_FORWARD_POS,
     TURN,83,2,                          // TURN TO FACE CAP
@@ -486,6 +488,7 @@ double skills[] = {
     DRIVE,127,90,DISTANCE,0.5,1,        // DRIVE AWAY FROM CAP
     
     TURN,180,2,                         // TURN READY FOR NEXT MOVE
+    WRISTSEEK,WRIST_VERTICAL_POS,
     DRIVE,127,180,DISTANCE,0.9,2,       // DRIVE TO LINE UP FOR CAP
     
     TURN,90,2,                          // AIM FOR CAP
@@ -527,18 +530,21 @@ double skills[] = {
     INTAKE_OFF,                         // TURN INTAKE OFF
     
     DRIVE,127,0,0.5,                    // DRIVE TO TOGGLE BOTTOM FLAG
-    PAUSE,0.25,                         // SHORT PAUSE
+    //PAUSE,0.25,                         // SHORT PAUSE
     
     TURN,0,1,                           // TURN STRAIGHT
     
+    INTAKE_ON,
+    
     DRIVE,-127,0,0.5,                   // DRIVE AWAY A LITTLE
-    DRIVE,-127,0,DISTANCE,1.2,2,
+    DRIVE,-127,0,DISTANCE,1.5,2,
     TURN,270,2,
-    DRIVE,127,270,WHITE_R,2,
+    DRIVE,127,270,WHITE_E,2,
+    DRIVE,-90,270,0.1,
     TURN,180,2,
     DRIVE,127,180,BLACK_L,2,
     DRIVE,-90,180,0.1,
-    TURN,85,2,
+    TURN,80,2,
     
     DRIVE,127,90,DISTANCE,0.5,1,       // PARK
     DRIVE,127,90,DISTANCE,3,4,
