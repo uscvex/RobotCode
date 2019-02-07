@@ -2,8 +2,68 @@
 #ifndef __BALLBOTAUTONS__
 #define __BALLBOTAUTONS__
 
-#define NUMBER_AUTONS 3                 // Number of programmed routines
-int autonSelect = 0;                    // Routine to start on
+
+/*
+ Most things you could need to change are in the top part of this file,
+ Auton Routines are at the bottom...
+ 
+ To Swap Auton Routines Once Downloaded: Press button UP (^) and button X - ROBOT WILL DISPLAY MODE ON SCREEN
+ To change default auton, change autonSelect (below)
+ */
+int autonSelect = 0;                    // Default routine to start on (0 = RED, 1 = BLUE)
+
+/*
+ Below are values you can change to change how robot behaves
+ Turning section controls the speed/accuracy of turn, slower generally means more accurate
+ Driving section controls the speed/accuracy of drive, slower generally means more accurate
+ */
+
+
+// AUTON TUNING PARAMETERS (Should be about right, but may still need tuning - especially turn)
+// Turning
+double ticksPerDegree = 6.85;   // increase if turning too short, decrease if too far (6.85)
+double turnAccepted = 0.5;      // decrease if turn is too inaccurate (0.5)
+double turnRate = 150;          // increase if turning too fast, decrease if turning too slow (150)
+double minSpeed = 25;           // increase if turn 'gets stuck' (25)
+double maxTurn = 127;           // decrease if turning too fast (127)
+// Driving
+double ticksPerTile = 1400;     // increase if driving too short (1400)
+double driveRate = 0.35;        // increase if driving distances too fast (overshooting), decrease if too slow (0.35)
+double minForward = 40;         // increase if drive 'gets stuck', decrease if drive too innacurate (40)
+
+
+// #defines for arm positions (User and Auton) - CAN CHANGE THESE
+#define FLIP_POS1 1                     // DEFAULT POS FOR FLIPPER (1)
+#define FLIP_POS2 180                   // FLIPPED POS FOR FLIPPER (180)
+#define ARM_POS_DOWN 1                  // HEIGHT TO MOVE ARM DOWN TO (1)
+#define ARM_POS_UP (85*5)               // HEIGHT TO RAISE ARM TO DESCORE (85 DEGREES, 1:5 GEAR RATIO) (85*5)
+#define ARM_LIFT_DIST 35*5              // HEIGHT TO MOVE ARM TO LIFT A LITTLE / STACK (35 DEGREES, 1:5 GEAR RATIO) (35*5)
+// WHEN STACKING, ARMSEEK SHOULD BE (ARM_POS_UP+ARM_LIFT_DIST), THEN MOVE DOWN TO ARM_POS_UP TO STACK
+
+
+// Controller Mapping (User)
+// #defines for buttons -- CHANGE IF YOU LIKE
+#define BTN_ABORT DIGITAL_UP        // BUTTON TO CANCEL AUTO ARMSEEK/FLIP
+#define BTN_CHOOSE_AUTON DIGITAL_X  // BUTTON TO CHANGE AUTON MODE (must also push BTN_ABORT)
+#define BTN_ARM_UP DIGITAL_X        // MANUAL ARM UP
+#define BTN_ARM_DOWN DIGITAL_B      // MANUAL ARM DOWN
+#define BTN_FLIPPER_LEFT DIGITAL_Y  // MANUAL SPIN FLIPPER
+#define BTN_FLIPPER_RIGHT DIGITAL_A // MANUAL SPIN FLIPPER
+#define BTN_FLIP DIGITAL_L1         // AUTO FLIP
+#define BTN_ARM_HIGH DIGITAL_R1     // AUTO MOVE ARM HIGH
+#define BTN_ARM_LOW DIGITAL_R2      // AUTO MOVE ARM DOWN (TO FLOOR)
+#define BTN_ARM_LIFT DIGITAL_L2     // TOGGLE MOVE ARM UP A LITTLE (ADDS/SUBTRACTS ARM_LIFT_DIST FROM SEEK)
+
+
+
+
+
+// PLEASE DON'T CHANGE THIS SECTION
+// Lots of #defines for auton modes, only really work on other bot though
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define NUMBER_AUTONS 2                 // Number of programmed routines
 
                                         // #defines for auton drive modes
 #define DRIVEMODE_USER 0                // User mode
@@ -79,46 +139,75 @@ int autonSelect = 0;                    // Routine to start on
 #define AFTER -6
 #define BEFORE -7
 
-                                        // #defines for arm positions
-#define FLIP_POS1 1                     // 1:1 Ratio, 0°
-#define FLIP_POS2 180                   // 1:1 Ratio, 180°
-#define WRIST_BACK_POS (200*3)          // 1:3 Ratio, 200°
-#define WRIST_BACKWARD_DROP_POS (-70*3) // 1:3 Ratio, -70°
-#define WRIST_FORWARD_POS (80*3)        // 1:3 Ratio, 80°
-#define WRIST_FORWARD_DROP_POS (67*3)   // 1:3 Ratio, 65°
-#define WRIST_VERTICAL_POS 1            // 1:3 Ratio, 0°
-#define ARM_POS_HIGH (120*5)            // 1:5 Ratio, 120°
-#define ARM_POS_LOW (85*5)              // 1:5 Ratio, 90°
-#define ARM_POS_DOWN 1                  // 1:5 Ratio, 0°
-
 #define TOP 2                           // Top Flag
 #define MIDDLE 1                        // Middle Flag
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// AUTON ROUTINE SECTION -- CHANGE THESE
+
+/*
+ Commands to build auton routine with (use only these):
+ 
+ PAUSE,[TIME],                                  // WAITS FOR TIME IN SECONDS BEFORE DOING NEXT COMMAND
+ DRIVE,[SPEED],[TIME],                          // DRIVES FOR TIME IN SECONDS, AT SPEED [-127,127]
+ DRIVE,[SPEED],DISTANCE,[DISTANCE],[MAX TIME],  // DRIVES AT SPEED [-127,127], FOR DISTANCE IN TILES, OR UNTIL MAX TIME IN SECONDS, WHICHEVER COMES FIRST -- ROBOT WILL SLOW DOWN AS IT NEARS DESIRED POSITION
+ TURN_ENC,[ANGLE],[MAX TIME],                   // TURNS USING ENCODERS FOR AN ANGLE IN DECREES [-180, 180] (POS = COUNTER CLOCKWISE)
+ ARMSEEK,[POSITION],                            // STARTS MOVING ARM TO A POSITION
+ FLIPSEEK,[POSITION],                           // MOVES FLIPPER TO POSITION IN DEGREES
+ FLIP,                                          // MOVES FLIPPER 180 DEGREES
+ END,                                           // FINISHES ROUTINE -- ALWAYS END ARRAY WITH THIS
+ */
+
+/*
+ IF YOU ADD TWO IR SENSORS, PLUG THE LEFT ONE INTO PORT 4(D), AND THE RIGHT INTO PORT 5(E)
+ YOU MUST ATTATCH THE SENSORS FAIRLY HIGH OFF THE GROUND, YOU CAN USE PRINT-BOT AS EXAMPLE
+ YOU MUST TUNE THE SENSORS BY TURNING THE TINY SCREW ON THEM UNTIL THE LIGHT IS OFF WHEN OVER GREY, AND ON WHEN OVER WHITE
+ 
+ THEN YOU CAN USE:
+ DRIVE,[SPEED],WHITE_,[MAX TIME],
+ DRIVE,[SPEED],BLACK_,[MAX TIME],
+ WHERE BLACK_ IS BLACK_L, BLACK_R, BLACK_E, OR BLACK_B (LEFT, RIGHT, EITHER, BOTH)
+ AND WHITE_ IS WHITE_L, WHITE_R, WHITE_E, OR WHITE_B (LEFT, RIGHT, EITHER, BOTH)
+ 
+ IF YOU ONLY ADD ONE SENSOR, YOU CAN ONLY USE WHITE_E AND BLACK_B
+ DRIVE,[SPEED],WHITE_E,[MAX TIME],
+ DRIVE,[SPEED],BLACK_B,[MAX TIME],
+ BUT YOU CAN PLUG THE SENSOR INTO EITHER PORT 4(D) OR 5(E)
+ */
+
+// Arrays for Red & Blue routines -- CHANGE THESE
+double blueAuton[] = {                      // BLUE SIDE
+    
+    END                                     // END OF ROUTINE
+};
+
+double redAuton[] = {                       // RED SIDE
+    
+    DRIVE,-127,DISTANCE,0.5,2,              // DRIVE BACK TO FLING BALL
+    DRIVE,100,DISTANCE,1.5,2,               // DRIVE FORWARD TO LINE UP FOR CAP
+    TURN_ENC,90,2,                          // TURN TO FACE CAP
+    DRIVE,-90,2,                            // DRIVE BACK TO ALIGN ON WALL
+    DRIVE,100,DISTANCE,2,2,                 // DRIVE FORWARD TO CAP
+    ARMSEEK,(ARM_POS_UP+ARM_LIFT_DIST),     // LIFT UP CAP
+    PAUSE,0.5,                              // PAUSE A LITTLE TO LET ARM PICK UP CAP
+    DRIVE,-100,DISTANCE,1,2,                // DRIVE BACK A LITTLE
+    
+    // DRIVE,100,WHITE_E,2,                    // DRIVE FORWARDS UNTIL EITHER SENSOR SEES WHITE
+    
+    END                                     // END OF ROUTINE
+};
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Don't need to change this
 double defaultAuton[] = {
-    0,
-    END
-};
-
-// Arrays for routines
-double blueAuton[] = {
-    0,
-    END
-};
-
-double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
-    0,
-    
-    TURN_ENC,90,2,
-    
-    //DRIVE,100,DISTANCE,1,1,
-    
-    END                                 // END OF ROUTINE
-};
-
-
-double skills[] = {
-    0,
+    // Do nothing
     END
 };
 

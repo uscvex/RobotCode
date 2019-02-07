@@ -22,33 +22,20 @@ using namespace pros;
 #define FLYWHEEL 1
 #define ARM 2
 
-
+#define WRIST_BACK_POS (200*3)          // 1:3 Ratio, 200°
+#define WRIST_BACKWARD_DROP_POS (-70*3) // 1:3 Ratio, -70°
+#define WRIST_FORWARD_POS (80*3)        // 1:3 Ratio, 80°
+#define WRIST_FORWARD_DROP_POS (67*3)   // 1:3 Ratio, 65°
+#define WRIST_VERTICAL_POS 1            // 1:3 Ratio, 0°
 
 ///////////////////////////////////////////////////////////////////////////
 // Controller Mapping
 // #defines for controller buttons      // CONTROLLER BUTTON
 
-#define BTN_TOGGLE DIGITAL_DOWN
-#define BTN_ABORT DIGITAL_UP
-#define BTN_CHOOSE_AUTON DIGITAL_X
-
-// Arm
-#define BTN_ARM_UP DIGITAL_X
-#define BTN_ARM_DOWN DIGITAL_B
-#define BTN_FLIPPER_LEFT DIGITAL_Y
-#define BTN_FLIPPER_RIGHT DIGITAL_A
-#define BTN_FLIP DIGITAL_L1
-#define BTN_ARM_HIGH DIGITAL_R1
-#define BTN_ARM_LOW DIGITAL_R2
-#define BTN_ARM_LIFT DIGITAL_L2
-
-#define ARM_LIFT_DIST 35*5
-
 #define HIGH_STACK_START 1
 #define KNOCK_HIGH_START 500
 #define LOW_STACK_START 1000
 
-// #defines For Tuning
 
 // Arm - higher value is more gentle seek
 #define armSeekRate 0.25
@@ -104,24 +91,29 @@ ADIDigitalIn right_IR (5);
 
 Vision camera(16);
 
+void tareDrive() {
+    drive_right_1.tare_position();
+    drive_right_2.tare_position();
+    drive_right_3.tare_position();
+    drive_right_4.tare_position();
+    drive_left_1.tare_position();
+    drive_left_2.tare_position();
+    drive_left_3.tare_position();
+    drive_left_4.tare_position();
+}
+
 ///////////////////////////////////////////////////////////////
 // Drive tuning variables
 // Drive
 double deadZone = 10;
-double ticksPerTile = 1400;
-double minForward = 40;
-double driveLerp = 0.1;
 // Turn
-double turnAccepted = 1;
 double pulsePause = 10;
 double pulseTime = 5;
-double minSpeed = 25;
-double maxTurn = 127;
-double turnRate = 150;
-double ticksPerDegree = 10;
+
+
 // Tracking
 double trackingTicksPerTile = 670;
-double trackingTicksPerDegree = 0.35;
+double trackingTicksPerDegree = 0.15;
 
 // Drive control variables
 // Drive
@@ -134,6 +126,7 @@ double leftRunSpeed = 0;
 bool drivingToPos = false;
 double autoTimeOut = 0;
 double targetDistance = 0;
+double targetDistanceTurn = 0;
 double autoSpeed = 0;
 bool usingGyro = false;
 double currentDist = 0;
@@ -377,6 +370,8 @@ void run_gyro(void* params)
         if (gyro2.truedir-gyro1.truedir>1800) gyro2.truedir-=3600;    //big difference so fix wrap
         gyroDirection=(gyro2.truedir+gyro1.truedir)/2;        //average them
         if (gyroDirection<0) gyroDirection+=3600;        //unwrap negative case
+        if (!usingGyro)
+            gyroDirection = 0;
         pros::delay(20);
     }
 }
@@ -406,6 +401,7 @@ void driveStop() {
     autoTime = 0;
     autoMode = DRIVEMODE_USER;
     autoSpeed = 0;
+    targetDistanceTurn = 0;
     speedOverride = false;
     drivingToPos = false;
 }
@@ -413,6 +409,7 @@ void driveStop() {
 void driveTime(double s, double d, double t) {
     // speed, direction, distance, time
     autoSpeed = s;
+    targetDistanceTurn = 0;
     autoMode = DRIVEMODE_TIME;
     autoTimeOut = t*1000;
     targetDirection = d;
@@ -421,6 +418,7 @@ void driveTime(double s, double d, double t) {
 
 void driveDist(double s, double dir, double dist, double t = 10) {
     // speed, direction, distance, timeout
+    tareDrive();
     autoSpeed = s;
     targetDirection = dir;
     autoMode = DRIVEMODE_DIST;
@@ -428,6 +426,7 @@ void driveDist(double s, double dir, double dist, double t = 10) {
     recordedTime = pros::millis();
     recordedDistLeft = getLeftEnc();
     recordedDistRight = getRightEnc();
+    targetDistanceTurn = 0;
     
     if (s > 0) {
         targetDistance = (dist * ticksPerTile) + (recordedDistRight + recordedDistLeft)/2;
@@ -440,6 +439,7 @@ void driveDist(double s, double dir, double dist, double t = 10) {
 void driveCustom(double s, double d, double t = 10) {
     // speed, direction, timeout
     recordedTime = pros::millis();
+    targetDistanceTurn = 0;
     autoSpeed = s;
     autoMode = DRIVEMODE_CUSTOM;
     autoTimeOut = t*1000;
@@ -466,6 +466,7 @@ void turnRelative(double a, double t = -1) {
 
 void turnRelativeEncoder(double a, double t = -1) {
     // angle, timeout
+    tareDrive();
     recordedTime = pros::millis();
     targetDirection = direction + a;
     autoTimeOut = t*1000;
@@ -473,7 +474,7 @@ void turnRelativeEncoder(double a, double t = -1) {
     turnMode = TURNMODE_ENCODER;
     recordedDistLeft = getLeftEnc();
     recordedDistRight = getRightEnc();
-    targetDistance = (a * ticksPerDegree) + (recordedDistRight - recordedDistLeft)/2;
+    targetDistanceTurn = (a * ticksPerDegree) + (recordedDistRight - recordedDistLeft)/2;
 }
 
 
@@ -571,7 +572,7 @@ void run_drive(void* params) {
             // direction = compassDirection
             direction = 0;  // ayyy lmao
         }
-        
+        direction = 0;  // ayyy lmao
         // This is where the fun begins
         
         double forward = 0;
@@ -607,7 +608,7 @@ void run_drive(void* params) {
             }
             
             if (autoMode == DRIVEMODE_DIST) {   // If auto move should end with a distance
-                double slowDown = abs((targetDistance - currentDist) / (0.35 * ticksPerTile));
+                double slowDown = abs((targetDistance - currentDist) / (driveRate * ticksPerTile));
                 
                 if (slowDown > 1) slowDown = 1;
                 
@@ -646,7 +647,7 @@ void run_drive(void* params) {
                 angle -= (currentDistRight - currentDistLeft)/2;
                 angle /= ticksPerDegree;
                 
-                angle = targetDistance - (currentDistRight - currentDistLeft)/2;
+                angle = targetDistanceTurn - (currentDistRight - currentDistLeft)/2;
                 
             }
             
@@ -954,9 +955,9 @@ void run_arm(void* params) {
 //                }
 //                break;
 //            case LOW_STACK_START + 1:
-//                armSeek = ARM_POS_LOW;
+//                armSeek = ARM_POS_UP;
 //                wristSeek = WRIST_VERTICAL_POS;
-//                if (armPos > ARM_POS_LOW - 50) {
+//                if (armPos > ARM_POS_UP - 50) {
 //                    stackStep++;
 //                }
 //                break;
@@ -1038,7 +1039,7 @@ void run_arm(void* params) {
             stackStep = -1;
         }
         if (controller.get_digital(BTN_ARM_HIGH)) {
-            armSeek = ARM_POS_LOW;
+            armSeek = ARM_POS_UP;
         }
         if (controller.get_digital(BTN_ARM_LOW)) {
             armSeek = 1;
@@ -1066,7 +1067,7 @@ void run_arm(void* params) {
             stackStep = -1;
         }
         
-        if (armSeek == ARM_POS_LOW && liftingAmount == ARM_LIFT_DIST)
+        if (armSeek == ARM_POS_UP && liftingAmount == ARM_LIFT_DIST)
             liftingAmount = ARM_LIFT_DIST/2;
         if (armSeek == 1 && liftingAmount == ARM_LIFT_DIST/2)
             liftingAmount = ARM_LIFT_DIST;
@@ -1126,12 +1127,11 @@ void run_auton() {
     // Set pointer to chosen auton routine
     if (autonSelect == 0) autonCommand = &redAuton[0];
     if (autonSelect == 1) autonCommand = &blueAuton[0];
-    if (autonSelect == 2) autonCommand = &skills[0];
     
     // First entry is always starting direction,
-    setGyro((*autonCommand) * 10);
+    setGyro(0);
     //drive.setDirection(*autonCommand);
-    trackingDirection = *autonCommand;
+    trackingDirection = 0;
     
     double lidarDist = 0;
     nextCommand = true;
@@ -1186,6 +1186,7 @@ void run_auton() {
                     if (dd == CDIR) {
                         dd = trackingDirection;
                     }
+                    dd = 0;
                     dt = processEntry();
                     if (dt < 0) {
                         if (dt == DISTANCE) {
