@@ -6,6 +6,12 @@
  Most things you could need to change are in the top part of this file,
  Auton Routines are at the bottom...
  
+ Make command is slightly different, must do:
+ prosv5 make all
+ 
+ To download without overriding 'trial' code:
+ prosv5 u --slot 2
+ 
  To Swap Auton Routines Once Downloaded: Press button UP (^) and button X - ROBOT WILL DISPLAY MODE ON SCREEN
  To change default auton, change autonSelect (below)
  */
