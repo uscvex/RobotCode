@@ -650,7 +650,7 @@ void run_drive(void* params) {
             
             if (autoMode == DRIVEMODE_TURN)  {  // if we are only turning, make translational speed 0
                 // controller values will be 0 in auton, but we still want translation while aiming
-                forward = (controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_Y))/2;
+                forward = (controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_Y));
                 autoSpeed = 0;
             }
             
@@ -960,6 +960,7 @@ void run_flywheel(void* params) {
     bool toggledCoast = false;
     bool fireBall = false;
     bool justAskedForFire = false;
+    bool doSet = false;
     
     while (true) {
         
@@ -1042,7 +1043,9 @@ void run_flywheel(void* params) {
                 targetSpeed = flywheelRunSpeed;
             
             // Read vision sensor & ask drive to turn appropriately
-            if (abs(relativeAngle) > 0) turnRelative(relativeAngle,autoFireTimeout);
+            if (autoMode != DRIVEMODE_SONAR)
+                if (abs(relativeAngle) > 0)
+                    turnRelative(relativeAngle,autoFireTimeout);
             
             
             // Check current speed of flywheel & if aimed
@@ -1072,6 +1075,7 @@ void run_flywheel(void* params) {
                     targetFlag = 1;
                     fireBall = false;
                     flywheelRunSpeed = -1;
+                    driveDistSonar(127, direction, 1, 2);
                 }
                 else {
                     autoFireState = -1;
@@ -1092,6 +1096,8 @@ void run_flywheel(void* params) {
         // If manual intake buttons pressed, override intake speeds
         if (controlMode == FLYWHEEL) {
             if (controller.get_digital(BTN_FIRE_LOW)) { // auto fire low
+                wristSeek = WRIST_VERTICAL_POS;
+                doSet = false;
                 if (!justAskedForFire) {
                     if (autoFireState <= 0)
                         autoFireState = 2;
@@ -1107,6 +1113,8 @@ void run_flywheel(void* params) {
                 }
             }
             else if (controller.get_digital(BTN_FIRE_HIGH)) { // auto fire high
+                wristSeek = WRIST_VERTICAL_POS;
+                doSet = false;
                 if (!justAskedForFire) {
                     if (autoFireState <= 0)
                         autoFireState = 2;
@@ -1121,11 +1129,10 @@ void run_flywheel(void* params) {
                 }
             }
             else if (controller.get_digital(BTN_FIRE_BOTH)) { // auto fire both
+                doSet = true;
                 if (!justAskedForFire) {
-                    if (autoFireState <= 0)
-                        autoFireState = 2;
-                    else
-                        autoFireState = 1;
+                    //driveDistSonar(127, direction, 1.5, 2);
+                    autoFireState = 1;
                     targetFlag = 3;
                     autoFireTimeout = -1;
                     fireBall = false;
@@ -2005,6 +2012,11 @@ void opcontrol() {
     bool justToggledAuto = false;
     int startTime = millis();
     int vibDone = 0;
+    
+    
+   if (autonSelect == 2)    // Auto-deploy at start of drive skills
+       wristSeek = WRIST_VERTICAL_POS;
+    
     
     while (true) {
         
