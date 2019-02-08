@@ -77,7 +77,7 @@ Motor drive_right_4(8, SPEED, 1, DEGREES);
 
 // Arm Motors
 Motor arm_1(13, TORQUE, 1, DEGREES);
-Motor arm_2(16, TORQUE, 0, DEGREES);
+Motor arm_2(10, TORQUE, 0, DEGREES);
 // Flipper
 Motor wrist(17, SPEED, 1, DEGREES);
 Motor flip(4, SPEED, 0, DEGREES);
@@ -893,112 +893,6 @@ void run_arm(void* params) {
         wristPos = -wrist.get_position();
         armPos = (arm_1.get_position() + arm_2.get_position()) / 2;
         
-        // If we want to stack something, follow the steps
-//        switch (stackStep) {
-//                // High Stacking
-//            case HIGH_STACK_START:
-//                if (!controller.get_digital(BTN_ARM_HIGH)) {
-//                    stackStep++;
-//                }
-//                break;
-//            case HIGH_STACK_START + 1:
-//                armSeek = ARM_POS_HIGH;
-//                wristSeek = WRIST_VERTICAL_POS;
-//                if (armPos > ARM_POS_HIGH - 50) {
-//                    stackStep++;
-//                }
-//                break;
-//            case HIGH_STACK_START + 2:
-//                wristSeek = WRIST_BACKWARD_DROP_POS;
-//                if (wristPos < WRIST_BACKWARD_DROP_POS + 15 + ( armPos * 3 / 5 )) {
-//                    stackStep++;
-//                    timeLastStep = millis();
-//                }
-//                break;
-//            case HIGH_STACK_START + 3:
-//                if (timeLastStep + 250 < millis()) {
-//                    stackStep++;
-//                }
-//                break;
-//            case HIGH_STACK_START + 4:
-//                armSeek = 1;
-//                if (armPos < ARM_POS_HIGH / 2) {
-//                    stackStep++;
-//                }
-//                break;
-//            case HIGH_STACK_START + 5:
-//                armSeek = -1;
-//                wristSeek = WRIST_VERTICAL_POS;
-//                stackStep = -1;
-//                break;
-//
-//                // High Knock Off
-//            case KNOCK_HIGH_START:
-//                armSeek = ARM_POS_HIGH;
-//                wristSeek = WRIST_BACKWARD_DROP_POS - 100;
-//                if (armPos > ARM_POS_HIGH) {
-//                    stackStep++;
-//                }
-//                break;
-//            case KNOCK_HIGH_START + 1:
-//                wristSeek = WRIST_VERTICAL_POS;
-//                if (wristPos > WRIST_VERTICAL_POS - 20) {
-//                    stackStep = HIGH_STACK_START + 3;
-//                    timeLastStep = millis();
-//                }
-//                break;
-//
-//                // Low Stacking
-//            case LOW_STACK_START:
-//                if (!controller.get_digital(BTN_ARM_LOW)) {
-//                    stackStep++;
-//                }
-//                break;
-//            case LOW_STACK_START + 1:
-//                armSeek = ARM_POS_UP;
-//                wristSeek = WRIST_VERTICAL_POS;
-//                if (armPos > ARM_POS_UP - 50) {
-//                    stackStep++;
-//                }
-//                break;
-//            case LOW_STACK_START + 2:
-//                if (controller.get_digital(BTN_ARM_LOW)) {
-//                    stackStep++;
-//                }
-//                break;
-//            case LOW_STACK_START + 3:
-//                slowSeek = true;
-//                wristSeek = WRIST_FORWARD_DROP_POS;
-//                if (wristPos > WRIST_FORWARD_DROP_POS - 15 + ( armPos * 3 / 5 )) {
-//                    stackStep++;
-//                }
-//                break;
-//            case LOW_STACK_START + 4:
-//                if (controller.get_digital(BTN_WRIST)) {
-//                    stackStep = LOW_STACK_START + 1;
-//                }
-//                if (controller.get_digital(BTN_ARM_LOW)) {
-//                    stackStep++;
-//                }
-//                break;
-//            case LOW_STACK_START + 5:
-//                armSeek = 1;
-//                if (armPos < ARM_POS_HIGH / 2) {
-//                    stackStep++;
-//                }
-//                break;
-//            case LOW_STACK_START + 6:
-//                armSeek = -1;
-//                wristSeek = WRIST_VERTICAL_POS;
-//                stackStep = -1;
-//                break;
-//
-//            default:
-//                stackStep = -1;
-//                break;
-//        }
-        
-        // Read button toggle between flywheel & arm control
     
         if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
             stackStep = -1;
@@ -1116,12 +1010,6 @@ void run_auton() {
     
     initAll();
     
-    // Start task
-//    pros::Task flywheelTask (run_flywheel);
-//    pros::Task armTask (run_arm);
-//    pros::Task driveTask (run_drive);
-//    pros::Task gyroTask (run_gyro);
-    
     int driveMode = 0;
     double pauseTime = 0;
     // Set pointer to chosen auton routine
@@ -1218,7 +1106,8 @@ void run_auton() {
                     }
                     break;
                 case TURN:
-                    turnTo(processEntry(), processEntry());
+                    turnRelativeEncoder(processEntry(),processEntry());
+                    //turnTo(processEntry(), processEntry());
                     std::cout << "Turn" << std::endl;
                     break;
                 case TURN_REL:

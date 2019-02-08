@@ -26,11 +26,11 @@ int autonSelect = 0;                    // Default routine to start on (0 = RED,
 
 // AUTON TUNING PARAMETERS (Should be about right, but may still need tuning - especially turn)
 // Turning
-double ticksPerDegree = 6.85;   // increase if turning too short, decrease if too far (6.85)
-double turnAccepted = 0.5;      // decrease if turn is too inaccurate (0.5)
+double ticksPerDegree = 6.85;//4.75;   // increase if turning too short, decrease if too far (6.85)
+double turnAccepted = 0;      // decrease if turn is too inaccurate (0.5)
 double turnRate = 150;          // increase if turning too fast, decrease if turning too slow (150)
 double minSpeed = 25;           // increase if turn 'gets stuck' (25)
-double maxTurn = 127;           // decrease if turning too fast (127)
+double maxTurn = 90;           // decrease if turning too fast (127)
 // Driving
 double ticksPerTile = 1400;     // increase if driving too short (1400)
 double driveRate = 0.35;        // increase if driving distances too fast (overshooting), decrease if too slow (0.35)
@@ -159,7 +159,7 @@ double minForward = 40;         // increase if drive 'gets stuck', decrease if d
  PAUSE,[TIME],                                  // WAITS FOR TIME IN SECONDS BEFORE DOING NEXT COMMAND
  DRIVE,[SPEED],[TIME],                          // DRIVES FOR TIME IN SECONDS, AT SPEED [-127,127]
  DRIVE,[SPEED],DISTANCE,[DISTANCE],[MAX TIME],  // DRIVES AT SPEED [-127,127], FOR DISTANCE IN TILES, OR UNTIL MAX TIME IN SECONDS, WHICHEVER COMES FIRST -- ROBOT WILL SLOW DOWN AS IT NEARS DESIRED POSITION
- TURN_ENC,[ANGLE],[MAX TIME],                   // TURNS USING ENCODERS FOR AN ANGLE IN DECREES [-180, 180] (POS = COUNTER CLOCKWISE)
+ TURN,[ANGLE],[MAX TIME],                       // TURNS USING ENCODERS FOR AN ANGLE IN DECREES [-180, 180] (POS = COUNTER CLOCKWISE)
  ARMSEEK,[POSITION],                            // STARTS MOVING ARM TO A POSITION
  FLIPSEEK,[POSITION],                           // MOVES FLIPPER TO POSITION IN DEGREES
  FLIP,                                          // MOVES FLIPPER 180 DEGREES
@@ -189,20 +189,34 @@ double minForward = 40;         // increase if drive 'gets stuck', decrease if d
 
 // Arrays for Red & Blue routines -- CHANGE THESE
 double blueAuton[] = {                      // BLUE SIDE
-    
-    END                                     // END OF ROUTINE
-};
-
-double redAuton[] = {                       // RED SIDE
+    0,
     
     DRIVE,-127,DISTANCE,0.5,2,              // DRIVE BACK TO FLING BALL
     DRIVE,100,DISTANCE,1.5,2,               // DRIVE FORWARD TO LINE UP FOR CAP
-    TURN_ENC,90,2,                          // TURN TO FACE CAP
+    TURN,-90,2,                          // TURN TO FACE CAP
     DRIVE,-90,2,                            // DRIVE BACK TO ALIGN ON WALL
     DRIVE,100,DISTANCE,2,2,                 // DRIVE FORWARD TO CAP
     ARMSEEK,(ARM_POS_UP+ARM_LIFT_DIST),     // LIFT UP CAP
     PAUSE,0.5,                              // PAUSE A LITTLE TO LET ARM PICK UP CAP
     DRIVE,-100,DISTANCE,1,2,                // DRIVE BACK A LITTLE
+    
+    // DRIVE,100,WHITE_E,2,                    // DRIVE FORWARDS UNTIL EITHER SENSOR SEES WHITE
+    
+    END                                     // END OF ROUTINE
+};
+
+double redAuton[] = {                       // RED SIDE
+    0,
+    
+    DRIVE,-127,0.1,                         // DRIVE BACK TO FLING BALL
+    DRIVE,100,DISTANCE,1,2,                 // DRIVE FORWARD TO LINE UP FOR CAP
+    TURN,90,2,                              // TURN TO FACE CAP
+    DRIVE,-90,1,                            // DRIVE BACK TO ALIGN ON WALL
+    TURN,-5,1,
+    DRIVE,90,DISTANCE,1.2,2,                // DRIVE FORWARD TO CAP
+    ARMSEEK,(ARM_POS_UP+ARM_LIFT_DIST),     // LIFT UP CAP
+    PAUSE,0.5,                              // PAUSE A LITTLE TO LET ARM PICK UP CAP
+    DRIVE,-90,DISTANCE,1,2,                 // DRIVE BACK A LITTLE
     
     // DRIVE,100,WHITE_E,2,                    // DRIVE FORWARDS UNTIL EITHER SENSOR SEES WHITE
     
