@@ -28,6 +28,9 @@
 //
 //
 
+// Un-comment to skip calibration for timed skills run
+// #define PRACTICE_SKILLS
+
 
 #include "main.h"
 
@@ -134,6 +137,7 @@ ADIDigitalIn upper_IR (2);
 ADIDigitalIn lower_IR (3);
 ADIDigitalIn left_IR (4);
 ADIDigitalIn right_IR (5);
+ADIDigitalOut ballLight(6);
 ADIUltrasonic sonar (7,8);
 
 Vision camera(16);
@@ -296,7 +300,9 @@ void initAll() {        // called when robot activates & start of auton
         arm_2.tare_position();
         wrist.tare_position();
         flip.tare_position();
+#ifndef PRACTICE_SKILLS
         pros::delay(4000);
+#endif
         pros::Task flywheelTask (run_flywheel);
         pros::Task armTask (run_arm);
         pros::Task driveTask (run_drive);
@@ -961,6 +967,7 @@ void run_flywheel(void* params) {
     bool fireBall = false;
     bool justAskedForFire = false;
     bool doSet = false;
+    int lastBlinkTime = millis();
     
     while (true) {
         
@@ -1089,6 +1096,34 @@ void run_flywheel(void* params) {
             
         }   // end of auto-fire
         
+        // Code to blink light if got balls
+        if (getInnerSensor() && getOuterSensor()) {
+            if (millis() > abs(lastBlinkTime) + 125) {
+                if (lastBlinkTime > 0) {
+                    lastBlinkTime = -millis();
+                    ballLight.set_value(1);
+                }
+                else {
+                    lastBlinkTime = millis();
+                    ballLight.set_value(0);
+                }
+            }
+        }
+        else if (getInnerSensor() || getOuterSensor()) {
+            if (millis() > abs(lastBlinkTime) + 500) {
+                if (lastBlinkTime > 0) {
+                    lastBlinkTime = -millis();
+                    ballLight.set_value(1);
+                }
+                else {
+                    lastBlinkTime = millis();
+                    ballLight.set_value(0);
+                }
+            }
+        }
+        else {
+            ballLight.set_value(1);
+        }
         
         
         // Check controller buttons...
@@ -1377,6 +1412,10 @@ void run_arm(void* params) {
                 controller.rumble(".");
                 if (controlMode == FLYWHEEL) {
                     controlMode = ARM;
+                    if (autonSelect == 2) {
+                        flipperSeek = FLIP_POS2;
+                        wristSeek = WRIST_FORWARD_POS;
+                    }
                 }
                 else if (controlMode == ARM) {
                     controlMode = FLYWHEEL;
@@ -2008,14 +2047,18 @@ void opcontrol() {
     
     // Start task
    
-    
+    int lastBlinkTime = millis();
     bool justToggledAuto = false;
     int startTime = millis();
     int vibDone = 0;
     
+    camera.set_wifi_mode(1);
     
-   if (autonSelect == 2)    // Auto-deploy at start of drive skills
+    if (autonSelect == 2) {    // Auto-deploy at start of drive skills
        wristSeek = WRIST_VERTICAL_POS;
+        runTillBall = 2;
+        coast = true;
+    }
     
     
     while (true) {
@@ -2031,7 +2074,21 @@ void opcontrol() {
         int  count_G = 0;
         int noObjs = camera.get_object_count();
         std::cout << "N: " << noObjs << std::endl;
-        if (noObjs > 20) noObjs = 20;
+        
+        if (noObjs > 1000) {
+            if (millis() > abs(lastBlinkTime) + 62) {
+                if (lastBlinkTime > 0) {
+                    lastBlinkTime = -millis();
+                    ballLight.set_value(1);
+                }
+                else {
+                    lastBlinkTime = millis();
+                    ballLight.set_value(0);
+                }
+            }
+        }
+        
+        if (noObjs > 27) noObjs = 27;
         for (int i = 0; i < noObjs; i++) {
             vision_object_s_t thisThing = camera.get_by_size(i);
             if (thisThing.signature == BLUE_FLAG)

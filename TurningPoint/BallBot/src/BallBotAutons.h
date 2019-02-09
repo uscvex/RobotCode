@@ -3,7 +3,7 @@
 #define __BALLBOTAUTONS__
 
 #define NUMBER_AUTONS 3                 // Number of programmed routines
-int autonSelect = 2;                    // Routine to start on
+int autonSelect = 0;                    // Routine to start on
 
                                         // #defines for auton drive modes
 #define DRIVEMODE_USER 0                // User mode
