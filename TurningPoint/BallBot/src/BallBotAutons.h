@@ -2,7 +2,7 @@
 #ifndef __BALLBOTAUTONS__
 #define __BALLBOTAUTONS__
 
-#define NUMBER_AUTONS 3                 // Number of programmed routines
+#define NUMBER_AUTONS 5                 // Number of programmed routines
 int autonSelect = 0;                    // Routine to start on
 
                                         // #defines for auton drive modes
@@ -106,7 +106,7 @@ double defaultAuton[] = {
 };
 
 // Arrays for routines
-double blueAuton[] = {                  // BLUE SIDE, WE WANT 19 PT SWING
+double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     
     180,                                // START FACING 180
     
@@ -135,8 +135,13 @@ double blueAuton[] = {                  // BLUE SIDE, WE WANT 19 PT SWING
     TURN,180,2,                         // TURN FOR NEXT DRIVE
     DRIVE,70,180,BLACK_L,2,             // DRIVE UNTIL OFF START TILE
     DRIVE,-50,180,DISTANCE,0.0375,1,    // DRIVE TO LINE UP
-    DRIVE,50,180,DISTANCE,0.0125,1,       // DRIVE TO LINE UP
+    DRIVE,50,180,DISTANCE,0.0125,1,     // DRIVE TO LINE UP
     TURN,270,2,                         // TURN TO LINE UP
+    
+    DRIVE,-127,27090,0.1,               // DRIVE AWAY FROM POLE
+    TURN,270,2,                         // TURN TO LINE UP
+    DRIVE,127,270,0.1,                  // DRIVE BACK TO WALL
+    
     DRIVE,100,270,DISTANCE,0.5,0.7,     // DRIVE TO WALL
     
     STACK_HIGH,                         // STACK CAP 1
@@ -222,7 +227,7 @@ double blueAuton[] = {                  // BLUE SIDE, WE WANT 19 PT SWING
     END                                 // END OF ROUTINE
 };
 
-double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
+double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     
     180,                                // START FACING 180
     
@@ -252,11 +257,9 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     DRIVE,-90,180,DISTANCE,0.075,1,     // DRIVE TO LINE UP
     TURN,90,2,                          // TURN TO LINE UP
     
-    //// TEST THIS!!
-    DRIVE,-127,90,0.1,                   // DRIVE AWAY FROM POLE
+    DRIVE,-127,90,0.1,                  // DRIVE AWAY FROM POLE
     TURN,90,2,                          // TURN TO LINE UP
-    DRIVE,127,90,0.1,                  // DRIVE BACK TO WALL
-    //// TEST THIS!!
+    DRIVE,127,90,0.1,                   // DRIVE BACK TO WALL
     
     DRIVE,100,90,DISTANCE,0.4,0.5,      // DRIVE TO WALL
     
@@ -341,6 +344,17 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     END                                 // END OF ROUTINE
 };
 
+double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
+    0,                                  // START FACING 0 DEGREES
+    
+    END                                 // END OF ROUTINE
+};
+
+double blueBackAuton[] = {              // BACK BLUE SIDE, WE WANT 10PT SWING
+    0,                                  // START FACING 0 DEGREES
+    
+    END                                 // END OF ROUTINE
+};
 
 double skills[] = {
     270,
@@ -391,7 +405,7 @@ double skills[] = {
     DRIVE,90,0,WHITE_L,2,
                                                                         // 1st Flag Set
     TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT LEFT-MOST BLUE FLAG
-    DRIVE,90,CDIR,DISTANCE,0.8,2,         // DRIVE TO TOP FLAG DIST
+    DRIVE,90,CDIR,DISTANCE,0.8,2,       // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG
     PAUSE,FIRED,2,                      // WAIT TILL SHOT
     PAUSE,0.5,
@@ -405,12 +419,9 @@ double skills[] = {
     
     STOP_COAST,                         // TURN FLYWHEEL FULLY OFF
     
-    //INTAKE_OFF,                         // TURN INTAKE OFF
-    
     DRIVE,127,0,0.3,                    // DRIVE TO TOGGLE BOTTOM FLAG
-    //PAUSE,0.25,                         // SHORT PAUSE
     
-    TURN,0,0.5,                           // TURN STRAIGHT
+    TURN,0,0.5,                         // TURN STRAIGHT
     
     INTAKE_ON,                          // TURN INTAKE ON
     
@@ -471,8 +482,8 @@ double skills[] = {
     
     INTAKE_OFF,                         // TURN INTAKE OFF
     
-    DRIVE,127,0,0.5,                       // DRIVE TO TOGGLE BOTTOM FLAG
-    //PAUSE,0.25,                             // SHORT PAUSE
+    DRIVE,127,0,0.5,                    // DRIVE TO TOGGLE BOTTOM FLAG
+    //PAUSE,0.25,                         // SHORT PAUSE
     
     TURN,0,1,                           // TURN STRAIGHT
     
@@ -510,8 +521,8 @@ double skills[] = {
     
     DRIVE,-127,90,DISTANCE,1.25,2,      // DRIVE TO LINE UP FOR SHOT
     
-    TURN,350,2,                           // TURN TO FACE FLAGS
-    TURN_AIM,BLUE_FLAG,LEFT,2,         // AIM AT RIGHT-MOST BLUE FLAG
+    TURN,350,2,                         // TURN TO FACE FLAGS
+    TURN_AIM,BLUE_FLAG,LEFT,2,          // AIM AT RIGHT-MOST BLUE FLAG
                                                                         // 3RD FLAG SET
     IF, GOTBALLS,
         DRIVE,-90,CDIR,SONAR,1.5,1,
@@ -522,9 +533,9 @@ double skills[] = {
         STOP_FIRE,                          // STOP FLYWHEEL
     ENDIF,
     
-    TURN_AIM,BLUE_FLAG,CENTER,1,            // AIM AT CENTRE-MOST BLUE FLAG
+    TURN_AIM,BLUE_FLAG,CENTER,1,        // AIM AT CENTRE-MOST BLUE FLAG
     DRIVE,127,CDIR,0.25,
-    DRIVE,127,CDIR,SONAR,1,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,SONAR,1,2,           // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
     PAUSE,FIRED,2,                      // WAIT TILL SHOT
     PAUSE,0.5,                          // SHORT PAUSE

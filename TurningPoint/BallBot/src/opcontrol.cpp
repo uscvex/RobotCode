@@ -46,8 +46,6 @@ using namespace pros;
 #define FLYWHEEL 1
 #define ARM 2
 
-
-
 ///////////////////////////////////////////////////////////////////////////
 // Controller Mapping
 // #defines for controller buttons      // CONTROLLER BUTTON
@@ -105,6 +103,12 @@ using namespace pros;
 #define VISION_SEEK_RATE 3              // How fast to turn to aim, bigger = slower
 
 #include "BallBotAutons.h"
+
+#define REDAUTON 0
+#define BLUEAUTON 1
+#define SKILLSAUTON 2
+#define REDBACKAUTON 3
+#define BLUEBACKAUTON 4
 
 Controller controller(E_CONTROLLER_MASTER);     // Controller object
 
@@ -202,6 +206,8 @@ extern double defaultAuton[];
 extern double redAuton[];
 extern double blueAuton[];
 extern double skills[];
+extern double redBackAuton[];
+extern double blueBackAuton[];
 
 
 double gyroDirection = 0;
@@ -813,14 +819,27 @@ void run_drive(void* params) {
         // User controls
         if (autoMode == DRIVEMODE_USER) {
             
-            // Tank controls
-            if (controlMode == FLYWHEEL) {
-                leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
-                rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
+            if (autonSelect == REDAUTON || autonSelect == BLUEAUTON || autonSelect == SKILLSAUTON) {
+                // Tank Controls For Sam
+                if (controlMode == FLYWHEEL) {
+                    leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
+                    rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
+                }
+                else {
+                    rightSpeed = -controller.get_analog(ANALOG_LEFT_Y);
+                    leftSpeed = -controller.get_analog(ANALOG_RIGHT_Y);
+                }
             }
             else {
-                rightSpeed = -controller.get_analog(ANALOG_LEFT_Y);
-                leftSpeed = -controller.get_analog(ANALOG_RIGHT_Y);
+                // Arcade Controls For Trash People
+                if (controlMode == FLYWHEEL) {
+                    leftSpeed = controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
+                    rightSpeed = controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
+                }
+                else {
+                    leftSpeed = -controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
+                    rightSpeed = -controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
+                }
             }
             
             if (abs(leftSpeed) < deadZone) leftSpeed = 0;
@@ -882,7 +901,7 @@ double getDistance() {
 double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     
     int lookingFor = BLUE_FLAG;     // default to red-team
-    if (autonSelect == 1)
+    if (autonSelect == BLUEAUTON || autonSelect == BLUEBACKAUTON)
         lookingFor = RED_FLAG;      // but change to blue if needed
     
     if (target != DEFAULT)
@@ -892,7 +911,7 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     
     int noObjs = camera.get_object_count();                     // Find number of objects visable
     
-    if (noObjs > 27)      // Camera error, so don't aim
+    if (noObjs > 100)      // Camera error, so don't aim
         return 0;
     
     for (int i = 0; i < noObjs; i++) {                          // Go through them all
@@ -1412,7 +1431,7 @@ void run_arm(void* params) {
                 controller.rumble(".");
                 if (controlMode == FLYWHEEL) {
                     controlMode = ARM;
-                    if (autonSelect == 2) {
+                    if (autonSelect == SKILLSAUTON) {
                         flipperSeek = FLIP_POS2;
                         wristSeek = WRIST_FORWARD_POS;
                     }
@@ -1592,9 +1611,11 @@ void run_auton() {
     int driveMode = 0;
     double pauseTime = 0;
     // Set pointer to chosen auton routine
-    if (autonSelect == 0) autonCommand = &redAuton[0];
-    if (autonSelect == 1) autonCommand = &blueAuton[0];
-    if (autonSelect == 2) autonCommand = &skills[0];
+    if (autonSelect == REDAUTON) autonCommand = &redAuton[0];
+    if (autonSelect == BLUEAUTON) autonCommand = &blueAuton[0];
+    if (autonSelect == SKILLSAUTON) autonCommand = &skills[0];
+    if (autonSelect == REDBACKAUTON) autonCommand = &redBackAuton[0];
+    if (autonSelect == BLUEBACKAUTON) autonCommand = &blueBackAuton[0];
     
     // First entry is always starting direction,
     setGyro((*autonCommand) * 10);
@@ -2018,12 +2039,16 @@ void run_auton() {
 
 void run_screen(void* params) {
     while (true) {
-        if (autonSelect == 0)
-            controller.print(0,0, "RED   ");
-        else if (autonSelect == 1)
-            controller.print(0,0, "BLUE  ");
-        else if (autonSelect == 2)
-            controller.print(0,0, "SKILLS");
+        if (autonSelect == REDAUTON)
+            controller.print(0,0, "RED FRONT ");
+        else if (autonSelect == BLUEAUTON)
+            controller.print(0,0, "BLUE FRONT");
+        else if (autonSelect == SKILLSAUTON)
+            controller.print(0,0, "SKILLS    ");
+        else if (autonSelect == REDBACKAUTON)
+            controller.print(0,0, "RED BACK  ");
+        else if (autonSelect == BLUEBACKAUTON)
+            controller.print(0,0, "BLUE BACK ");
 
         delay(200);
     }
@@ -2054,8 +2079,8 @@ void opcontrol() {
     
     camera.set_wifi_mode(1);
     
-    if (autonSelect == 2) {    // Auto-deploy at start of drive skills
-       wristSeek = WRIST_VERTICAL_POS;
+    if (autonSelect == SKILLSAUTON) {    // Auto-deploy at start of drive skills
+        wristSeek = WRIST_VERTICAL_POS;
         runTillBall = 2;
         coast = true;
     }
@@ -2101,12 +2126,16 @@ void opcontrol() {
         if (count_B > 0 || count_R > 0 || count_G > 0)
             std::cout << "B: " << count_B << " R: " << count_R << " G: " << count_G << std::endl;
         
-        if (autonSelect == 0)
-            pros::lcd::print(0, "RED RED RED RED RED RED RED RED RED RED RED RED RED RED RED RED");
-        else if (autonSelect == 1)
-            pros::lcd::print(0, "BLUE BLUE BLUE BLUE BLUE BLUE BLUE BLUE BLUE BLUE BLUE BLUE BLUE");
-        else if (autonSelect == 2)
+        if (autonSelect == REDAUTON)
+            pros::lcd::print(0, "FRONT RED FRONT RED FRONT RED FRONT RED FRONT RED FRONT RED FRONT RED");
+        else if (autonSelect == BLUEAUTON)
+            pros::lcd::print(0, "FRONT BLUE FRONT BLUE FRONT BLUE FRONT BLUE FRONT BLUE FRONT BLUE");
+        else if (autonSelect == SKILLSAUTON)
             pros::lcd::print(0, "SKILLS SKILLS SKILLS SKILLS SKILLS SKILLS SKILLS SKILLS SKILLS");
+        else if (autonSelect == REDBACKAUTON)
+            pros::lcd::print(0, "BACK RED BACK RED BACK RED BACK RED BACK RED BACK RED BACK RED");
+        else if (autonSelect == BLUEBACKAUTON)
+            pros::lcd::print(0, "BACK BLUE BACK BLUE BACK BLUE BACK BLUE BACK BLUE BACK BLUE BACK BLUE");
         
         pros::lcd::print(2, "Direction: %f", direction);
         pros::lcd::print(3, "Arm: %.0f Wrist: %.0f Flipper: %.0f", armPos, wristPos, flipperPos);
