@@ -4,6 +4,7 @@
 
 #define NUMBER_AUTONS 5                 // Number of programmed routines
 int autonSelect = 0;                    // Routine to start on
+// Selecting one of the back autons will switch controls to arcade
 
                                         // #defines for auton drive modes
 #define DRIVEMODE_USER 0                // User mode
