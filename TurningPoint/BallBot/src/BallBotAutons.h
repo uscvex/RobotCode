@@ -133,7 +133,7 @@ double blueAuton[] = {                  // BLUE SIDE, WE WANT 19 PT SWING
     TURN,225,1,                         // TURN FOR NEXT DRIVE
     DRIVE,70,225,WHITE_L,2,             // DRIVE TILL RIGHT SENSOR IS OVER START TILE
     TURN,180,2,                         // TURN FOR NEXT DRIVE
-    DRIVE,70,180,BLACK_B,2,             // DRIVE UNTIL OFF START TILE
+    DRIVE,70,180,BLACK_L,2,             // DRIVE UNTIL OFF START TILE
     DRIVE,-50,180,DISTANCE,0.0375,1,    // DRIVE TO LINE UP
     DRIVE,50,180,DISTANCE,0.0125,1,       // DRIVE TO LINE UP
     TURN,270,2,                         // TURN TO LINE UP
@@ -248,9 +248,16 @@ double redAuton[] = {                   // RED SIDE, WE WANT 19 PT SWING
     
     DRIVE,70,135,WHITE_R,2,             // DRIVE TILL RIGHT SENSOR IS OVER START TILE
     TURN,180,2,                         // TURN FOR NEXT DRIVE
-    DRIVE,70,180,BLACK_B,2,             // DRIVE UNTIL OFF START TILE
-    DRIVE,-90,180,DISTANCE,0.075,1,      // DRIVE TO LINE UP
+    DRIVE,70,180,BLACK_R,2,             // DRIVE UNTIL OFF START TILE
+    DRIVE,-90,180,DISTANCE,0.075,1,     // DRIVE TO LINE UP
     TURN,90,2,                          // TURN TO LINE UP
+    
+    //// TEST THIS!!
+    DRIVE,-127,90,0.1,                   // DRIVE AWAY FROM POLE
+    TURN,90,2,                          // TURN TO LINE UP
+    DRIVE,127,90,0.1,                  // DRIVE BACK TO WALL
+    //// TEST THIS!!
+    
     DRIVE,100,90,DISTANCE,0.4,0.5,      // DRIVE TO WALL
     
     STACK_HIGH,                         // STACK CAP 1
