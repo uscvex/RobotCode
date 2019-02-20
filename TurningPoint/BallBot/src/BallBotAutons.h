@@ -91,6 +91,7 @@ int autonSelect = 0;                    // Routine to start on
 #define WRIST_BACK_POS (200*3)          // 1:3 Ratio, 200°
 #define WRIST_BACKWARD_DROP_POS (-70*3) // 1:3 Ratio, -70°
 #define WRIST_FORWARD_POS (80*3)        // 1:3 Ratio, 80°
+#define WRIST_FORWARD_EXTRA (10*3)      // 1:3 Ratio, 30°
 #define WRIST_FORWARD_DROP_POS (67*3)   // 1:3 Ratio, 65°
 #define WRIST_VERTICAL_POS 1            // 1:3 Ratio, 0°
 #define ARM_POS_HIGH (125*5)            // 1:5 Ratio, 120°
@@ -354,7 +355,7 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     PAUSE,0.125,                        // SHORT PAUSE
     WRISTSEEK,WRIST_VERTICAL_POS,       // PUT FLIPPER UP
     
-    DRIVE,-127,0,DISTANCE,0.75,2,       // DRIVE BACK SOME TO LINE UP FOR CAP
+    DRIVE,-127,0,DISTANCE,0.9,2,        // DRIVE BACK SOME TO LINE UP FOR CAP
     TURN,270,2,                         // TURN TO FACE CAP
     
     DRIVE,127,270,BLACK_B,1,            // DRIVE TILL OFF TILE
@@ -363,28 +364,34 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     DRIVE,70,270,DISTANCE,0.25,2,       // DRIVE SLOW TO GET BALL
     
     PAUSE,0.25,                         // SHORT PAUSE
-    DRIVE,-127,270,DISTANCE,1,1,        // DRIVE AWAY A LITTLE
+    DRIVE,-90,270,DISTANCE,0.6,1,        // DRIVE AWAY A LITTLE
     
-    TURN,90,2,                          // TURN TO FACE CAP
+    TURN,82,2,                          // TURN TO FACE CAP
     WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN
     
     PAUSE,0.5,                          // SHORT PAUSE
-    DRIVE,-70,90,DISTANCE,0.5,2,        // DRIVE TO GET CAP
+    DRIVE,-40,82,DISTANCE,0.6,2,        // DRIVE TO GET CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // PICK UP CAP
     PAUSE,0.5,                          // SHORT PAUSE
     
     TURN,135,2,                         // TURN TO FACE POLE
-    DRIVE,127,135,DISTANCE,0.8,2,       // DRIVE TO LINE UP FOR POLE
+    DRIVE,127,135,DISTANCE,0.6,2,       // DRIVE TO LINE UP FOR POLE
     TURN,90,2,                          // TURN TO LINE UP
-    DRIVE,127,90,DISTANCE,1,2,          // DRIVE TO POLE
+    DRIVE,127,90,DISTANCE,1.9,2,       // DRIVE TO POLE
     
     DRIVE,-127,90,DISTANCE,0.25,1,      // DRIVE AWAY A LITTLE
     ARMSEEK,ARM_POS_LOW,                // RAISE ARM
-    TURN,270,2,                         // TURN READY TO STACK
+    FLIPSEEK,FLIP_POS1,
+    PAUSE,1,
+    TURN,135,1,                         // TURN READY TO STACK
+    TURN,180,1,                         // TURN READY TO STACK
+    TURN,225,1,                         // TURN READY TO STACK
+    TURN,265,2,                         // TURN READY TO STACK
+    PAUSE,1,
     
-    DRIVE,-70,270,DISTANCE,0.1,1,       // DRIVE TO CORRECT DISTANCE
+    //DRIVE,-70,270,DISTANCE,0.1,1,       // DRIVE TO CORRECT DISTANCE
     WRISTSEEK,WRIST_FORWARD_POS,        // PLACE CAP
-    PAUSE,0.25,                         // SHORT PAUSE
+    PAUSE,0.75,                         // SHORT PAUSE
     
     DRIVE,70,270,DISTANCE,0.5,1,        // DRIVE AWAY FROM POLE
     ARMSEEK,ARM_POS_DOWN,                // PUT ARM DOWN

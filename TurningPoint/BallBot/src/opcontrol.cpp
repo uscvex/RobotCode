@@ -135,14 +135,14 @@ Motor arm_2(18, TORQUE, 1, DEGREES);
 Motor wrist(17, SPEED, 1, DEGREES);
 Motor flip(20, SPEED, 0, DEGREES);
 // Gyro Sensor
-ADIGyro sensor_gyro(1, GYRO_PORT);
+ADIGyro sensor_gyro(1, GYRO_PORT);  // A
 // Inner Intake Button
-ADIDigitalIn upper_IR (2);
-ADIDigitalIn lower_IR (3);
-ADIDigitalIn left_IR (4);
-ADIDigitalIn right_IR (5);
-ADIDigitalOut ballLight(6);
-ADIUltrasonic sonar (7,8);
+ADIDigitalIn upper_IR (2);  // B
+ADIDigitalIn lower_IR (3);  // C
+ADIDigitalIn left_IR (4);   // D
+ADIDigitalIn right_IR (5);  // E
+ADIDigitalOut ballLight(6); // F
+ADIUltrasonic sonar (7,8);  // G,H
 
 Vision camera(16);
 
@@ -1354,9 +1354,17 @@ void run_arm(void* params) {
                 }
                 break;
             case HIGH_STACK_START + 5:
-                armSeek = -1;
                 wristSeek = WRIST_VERTICAL_POS;
-                stackStep = -1;
+                if (armPos < armSeek) {
+                    stackStep++;
+                    timeLastStep = millis();
+                }
+                break;
+            case HIGH_STACK_START + 6:
+                if (timeLastStep + 250 < millis()) {
+                    armSeek = -1;
+                    stackStep = -1;
+                }
                 break;
                 
                 // High Knock Off
@@ -1410,14 +1418,17 @@ void run_arm(void* params) {
                 break;
             case LOW_STACK_START + 5:
                 armSeek = 1;
-                if (armPos < ARM_POS_HIGH / 2) {
+                wristSeek = WRIST_VERTICAL_POS;
+                if (armPos < armSeek) {
                     stackStep++;
+                    timeLastStep = millis();
                 }
                 break;
             case LOW_STACK_START + 6:
-                armSeek = -1;
-                wristSeek = WRIST_VERTICAL_POS;
-                stackStep = -1;
+                if (millis() > timeLastStep + 250) {
+                    armSeek = -1;
+                    stackStep = -1;
+                }
                 break;
                 
             default:
@@ -1518,6 +1529,8 @@ void run_arm(void* params) {
                         else {
                             slowSeek = false;
                             wristSeek = WRIST_FORWARD_POS;
+                            if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON)
+                                wristSeek += WRIST_FORWARD_EXTRA;
                         }
                     }
                 }
