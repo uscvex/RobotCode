@@ -987,6 +987,7 @@ void run_flywheel(void* params) {
     bool justAskedForFire = false;
     bool doSet = false;
     int lastBlinkTime = millis();
+    double lastIntakeSpeed = 0;
     
     while (true) {
         
@@ -1284,6 +1285,10 @@ void run_flywheel(void* params) {
         // flywheelSpeed = 0;
         ///////////////////////////////
         
+        if (lastIntakeSpeed > 0 && intakeSpeedInner == 0) {
+            intakeSpeedInner = -127;
+        }
+        
         // Set motors on flywheel
         flywheel_1.move_voltage(flywheelSpeed * 12000 / 127);
         flywheel_2.move_voltage(flywheelSpeed * 12000 / 127);
@@ -1295,10 +1300,15 @@ void run_flywheel(void* params) {
         // Remember ball info for fireing
         ballWasIn = ballIsIn;
         
+        lastIntakeSpeed = intakeSpeedInner;
         
         pros::delay(20);   // don't hog cpu
     }
 }
+
+
+
+
 
 void run_arm(void* params) {
     bool justFlipped = false;
@@ -2090,8 +2100,6 @@ void opcontrol() {
     int startTime = millis();
     int vibDone = 0;
     
-    camera.set_wifi_mode(1);
-    
     if (autonSelect == SKILLSAUTON) {    // Auto-deploy at start of drive skills
         wristSeek = WRIST_VERTICAL_POS;
         runTillBall = 2;
@@ -2100,8 +2108,6 @@ void opcontrol() {
     
     
     while (true) {
-        
-        camera.set_led(COLOR_WHITE);
         
         std::cout << "Sensor: " << sensor_gyro.get_value() << " Gyro: " << gyroDirection << " Direction: " << direction << std::endl;
         //std::cout << " Arm Pos: " << armPos << " Wrist Pos: " << wristPos << " Flip Pos: " << flipperPos << " Stack Step " << stackStep << std::endl;
