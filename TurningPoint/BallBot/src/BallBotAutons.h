@@ -91,7 +91,7 @@ int autonSelect = 0;                    // Routine to start on
 #define WRIST_BACK_POS (200*3)          // 1:3 Ratio, 200°
 #define WRIST_BACKWARD_DROP_POS (-70*3) // 1:3 Ratio, -70°
 #define WRIST_FORWARD_POS (80*3)        // 1:3 Ratio, 80°
-#define WRIST_FORWARD_EXTRA (10*3)      // 1:3 Ratio, 30°
+#define WRIST_FORWARD_EXTRA (0*3)       // 1:3 Ratio, 30°
 #define WRIST_FORWARD_DROP_POS (67*3)   // 1:3 Ratio, 65°
 #define WRIST_VERTICAL_POS 1            // 1:3 Ratio, 0°
 #define ARM_POS_HIGH (125*5)            // 1:5 Ratio, 120°
@@ -349,6 +349,85 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
 double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     0,                                  // START FACING 0 DEGREES
     
+    INTAKE_FLIP,
+    FLIP,
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    DRIVE,70,0,DISTANCE,0.3,1,          // DRIVE TO DELIVER BALL
+    PAUSE,0.25,
+    DRIVE,-70,0,DISTANCE,0.7,2,
+    PAUSE,0.25,
+    
+    TURN,265,2,                          // TURN TO FACE CAP
+    INTAKE_ON,
+    WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
+    DRIVE,100,265,DISTANCE,1.75,2,       // DRIVE TO GET BALL
+    PAUSE,0.25,
+    DRIVE,-100,265,DISTANCE,0.75,1,
+    
+    TURN,0,0.5,                         // TURN TO GET CAP
+    TURN,83,2,
+    TURN,83,2,
+    
+    DRIVE,-50,80,DISTANCE,0.75,3,      // DRIVE TO GET CAP
+    
+    WRISTSEEK,WRIST_VERTICAL_POS,       // PICK UP CAP
+    PAUSE,0.5,
+    
+    TURN,300,2,                          // DRIVE TO LINE UP WITH POLE
+    DRIVE,-100,300,DISTANCE,1,2,
+    TURN,260,2,
+    ARMSEEK,ARM_POS_LOW,                // RAISE ARM
+    PAUSE,1,
+    DRIVE,-70,260,DISTANCE,1.4,4,        // DRIVE TO POLE
+    DRIVE,40,260,0.2,
+    PAUSE,2,
+    WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP #1
+    PAUSE,0.5,
+    
+    DRIVE,70,270,DISTANCE,0.5,2,
+    
+    WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
+    ARMSEEK,1,
+    
+    TURN,180,2,
+    
+    DRIVE,100,180,0.75,                 // LINE UP WITH WALL
+    PAUSE,0.25,
+    SET_GYRO,180,
+    PAUSE,0.25,
+    
+    DRIVE,-100,180,DISTANCE,0.2,1,      // DRIVE TO LINE UP WITH CAP
+    TURN,95,2,
+    DRIVE,-60,95,DISTANCE,1.1,3,       // DRIVE TO CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // PICK UP CAP
+    
+    PAUSE,0.5,
+    DRIVE,60,95,DISTANCE,0.3,1,        // DRIVE LINE UP
+    TURN,0,2,                         // DRIVE TO LINE UP WITH POLE
+    DRIVE,100,0,DISTANCE,0.5,2,
+    TURN,0,2,
+    ARMSEEK,ARM_POS_LOW,                // RAISE ARM
+    PAUSE,1,
+    FLIP,
+    PAUSE,0.5,
+    DRIVE,-100,0,DISTANCE,0.75,2,       // DRIVE TO POLE
+    DRIVE,40,0,0.2,
+    PAUSE,1,
+    WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP #2
+    PAUSE,0.5,
+    
+    START_COAST,
+    
+    DRIVE,70,0,DISTANCE,0.5,2,
+    
+    WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
+    ARMSEEK,1,
+    
+    TURN,320,2,
+    
+    FIRE,LEFT,550,                      // SHOOT BALL AT OPPONENT FLAG
+    PAUSE,FIRED,5,
+    
     END                                 // END OF ROUTINE
 };
 
@@ -381,14 +460,14 @@ double blueBackAuton[] = {              // BACK BLUE SIDE, WE WANT 10PT SWING
     
     TURN,45,2,                          // DRIVE TO LINE UP WITH POLE
     DRIVE,-100,45,DISTANCE,0.8,2,
-    TURN,85,2,
+    TURN,80,2,
     ARMSEEK,ARM_POS_LOW,                // RAISE ARM
-    PAUSE,1.5,
-    DRIVE,-70,90,DISTANCE,1.2,4,        // DRIVE TO POLE
-    DRIVE,70,90,0.2,
-    PAUSE,0.5,
-    WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP
     PAUSE,1,
+    DRIVE,-70,80,DISTANCE,1.4,4,        // DRIVE TO POLE
+    DRIVE,40,80,0.2,
+    PAUSE,2,
+    WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP #1
+    PAUSE,0.5,
     
     DRIVE,70,90,DISTANCE,0.5,2,
     
@@ -404,34 +483,35 @@ double blueBackAuton[] = {              // BACK BLUE SIDE, WE WANT 10PT SWING
     
     DRIVE,-100,180,DISTANCE,0.2,1,      // DRIVE TO LINE UP WITH CAP
     TURN,265,2,
-    DRIVE,-60,265,DISTANCE,0.5,3,       // DRIVE TO CAP
+    DRIVE,-60,265,DISTANCE,1.1,3,       // DRIVE TO CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // PICK UP CAP
     
     PAUSE,0.5,
-    TURN,345,2,                         // DRIVE TO LINE UP WITH POLE
-    DRIVE,100,345,DISTANCE,0.5,2,
-    TURN,350,2,
+    DRIVE,60,265,DISTANCE,0.3,1,        // DRIVE LINE UP
+    TURN,0,2,                         // DRIVE TO LINE UP WITH POLE
+    DRIVE,100,0,DISTANCE,0.5,2,
+    TURN,0,2,
     ARMSEEK,ARM_POS_LOW,                // RAISE ARM
     PAUSE,1,
     FLIP,
     PAUSE,0.5,
     DRIVE,-100,0,DISTANCE,0.75,2,       // DRIVE TO POLE
-    DRIVE,70,0,0.1,
-    PAUSE,0.5,
-    WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP
+    DRIVE,40,0,0.2,
     PAUSE,1,
+    WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP #2
+    PAUSE,0.5,
+    
+    START_COAST,
     
     DRIVE,70,0,DISTANCE,0.5,2,
     
     WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
     ARMSEEK,1,
     
-    PAUSE,1,
-    
-    TURN,45,2,
+    TURN,40,2,
     
     FIRE,LEFT,550,                      // SHOOT BALL AT OPPONENT FLAG
-    
+    PAUSE,FIRED,5,
     
     END                                 // END OF ROUTINE
 };
