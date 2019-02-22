@@ -1064,6 +1064,9 @@ void run_flywheel(void* params) {
                         targetSpeed = speedDiff*distDiff + flyWheelSpeeds[index-1][2];
                     }
                 }
+                if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON) {
+                    targetSpeed += 75;
+                }
             }
             
             if (flywheelRunSpeed != -1)

@@ -362,11 +362,11 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
     DRIVE,100,265,DISTANCE,1.75,2,       // DRIVE TO GET BALL
     PAUSE,0.25,
-    DRIVE,-100,265,DISTANCE,0.75,1,
+    DRIVE,-100,260,DISTANCE,0.75,1,
     
     TURN,0,0.5,                         // TURN TO GET CAP
-    TURN,83,2,
-    TURN,83,2,
+    TURN,80,2,
+    TURN,80,2,
     
     DRIVE,-50,80,DISTANCE,0.75,3,      // DRIVE TO GET CAP
     
@@ -374,12 +374,12 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     PAUSE,0.5,
     
     TURN,300,2,                          // DRIVE TO LINE UP WITH POLE
-    DRIVE,-100,300,DISTANCE,1,2,
-    TURN,260,2,
+    DRIVE,-100,300,DISTANCE,0.6,2,
+    TURN,250,2,
     ARMSEEK,ARM_POS_LOW,                // RAISE ARM
     PAUSE,1,
-    DRIVE,-70,260,DISTANCE,1.4,4,        // DRIVE TO POLE
-    DRIVE,40,260,0.2,
+    DRIVE,-70,250,DISTANCE,1.85,4,        // DRIVE TO POLE
+    DRIVE,40,250,0.2,
     PAUSE,2,
     WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP #1
     PAUSE,0.5,
@@ -389,29 +389,29 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
     ARMSEEK,1,
     
-    TURN,180,2,
+    TURN,155,2,
     
-    DRIVE,100,180,0.75,                 // LINE UP WITH WALL
+    DRIVE,100,155,0.75,                 // LINE UP WITH WALL
     PAUSE,0.25,
     SET_GYRO,180,
     PAUSE,0.25,
     
     DRIVE,-100,180,DISTANCE,0.2,1,      // DRIVE TO LINE UP WITH CAP
-    TURN,95,2,
-    DRIVE,-60,95,DISTANCE,1.1,3,       // DRIVE TO CAP
+    TURN,80,2,
+    DRIVE,-60,80,DISTANCE,1.1,3,       // DRIVE TO CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // PICK UP CAP
     
     PAUSE,0.5,
-    DRIVE,60,95,DISTANCE,0.3,1,        // DRIVE LINE UP
+    DRIVE,60,80,DISTANCE,0.3,1,        // DRIVE LINE UP
     TURN,0,2,                         // DRIVE TO LINE UP WITH POLE
     DRIVE,100,0,DISTANCE,0.5,2,
-    TURN,0,2,
+    TURN,340,2,
     ARMSEEK,ARM_POS_LOW,                // RAISE ARM
     PAUSE,1,
     FLIP,
     PAUSE,0.5,
-    DRIVE,-100,0,DISTANCE,0.75,2,       // DRIVE TO POLE
-    DRIVE,40,0,0.2,
+    DRIVE,-100,340,DISTANCE,0.75,2,       // DRIVE TO POLE
+    DRIVE,40,340,0.2,
     PAUSE,1,
     WRISTSEEK,WRIST_FORWARD_DROP_POS,   // DROP CAP #2
     PAUSE,0.5,
@@ -423,9 +423,9 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     WRISTSEEK,(WRIST_FORWARD_POS+WRIST_FORWARD_EXTRA),
     ARMSEEK,1,
     
-    TURN,320,2,
+    TURN,310,2,
     
-    FIRE,LEFT,550,                      // SHOOT BALL AT OPPONENT FLAG
+    FIRE,LEFT,540,                      // SHOOT BALL AT OPPONENT FLAG
     PAUSE,FIRED,5,
     
     END                                 // END OF ROUTINE
