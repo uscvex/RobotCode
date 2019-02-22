@@ -1,7 +1,7 @@
 
 #ifndef __BALLBOTAUTONS__
 #define __BALLBOTAUTONS__
-
+#include "main.h"
 #define NUMBER_AUTONS 5                 // Number of programmed routines
 int autonSelect = 0;                    // Routine to start on
 // Selecting one of the back autons will switch controls to arcade
@@ -15,7 +15,6 @@ int autonSelect = 0;                    // Routine to start on
 #define DRIVEMODE_TURN 1                // Turn
 #define TURNMODE_GYRO 1                 // Do turns with gyro
 #define TURNMODE_ENCODER 2              // Do turns with encoders
-
 
                                         // #defines for commands & conditions
 #define END 0                           // End of auton routine
