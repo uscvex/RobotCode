@@ -120,7 +120,7 @@ using namespace pros;
 
 
 
-#define NUMBER_AUTONS 1                 // Number of programmed routines
+#define NUMBER_AUTONS 3                 // Number of programmed routines
 int autonSelect = 0;                    // Routine to start on
 // Selecting one of the back autons will switch controls to arcade
 
@@ -212,6 +212,43 @@ double defaultAuton[] = {
     0,
     END
 };
+
+
+// Arrays for routines
+double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
+    0,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    FLIPSEEK,FLIP_POS1,
+    FIRE,
+    DRIVE,100,0,DISTANCE,0.55,1,        // DRIVE TO PING BALL
+    DRIVE,-100,0,DISTANCE,0.55,1,
+    TURN,270,2,
+    DRIVE,-127,270,DISTANCE,1.5,2,       // DRIVE TO KNOCK CAP
+    DRIVE,-127,270,DISTANCE,0.5,2,      // DRIVE MORE
+    DRIVE,127,270,DISTANCE,1,2,         // DRIVE BACK
+    TURN,312,2,
+    DRIVE,-60,312,DISTANCE,1,3,
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    PAUSE,1,
+    DRIVE,60,312,DISTANCE,0.3,1,         // DRIVE TO GET CAP
+    FLIP,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    TURN,30,2,
+    FIRE,
+    PAUSE,FIRED,5,
+    TURN,0,2,
+    DRIVE,100,0,DISTANCE,1,2,
+    DRIVE,127,0,1.25,
+    
+    END                                 // END OF ROUTINE
+};
+
+double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
+    0,
+    
+    END                                 // END OF ROUTINE
+};
+
 
 double skills[] = {
     0,
@@ -1297,6 +1334,8 @@ void run_auton() {
     double pauseTime = 0;
     // Set pointer to chosen auton routine
     if (autonSelect == SKILLSAUTON) autonCommand = &skills[0];
+    if (autonSelect == REDAUTON) autonCommand = &redAuton[0];
+    if (autonSelect == BLUEAUTON) autonCommand = &blueAuton[0];
     
     // First entry is always starting direction,
     setGyro((*autonCommand) * 10);
