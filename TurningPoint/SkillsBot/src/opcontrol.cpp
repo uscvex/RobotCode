@@ -121,7 +121,7 @@ using namespace pros;
 
 
 #define NUMBER_AUTONS 3                 // Number of programmed routines
-int autonSelect = 0;                    // Routine to start on
+int autonSelect = 1;                    // Routine to start on
 // Selecting one of the back autons will switch controls to arcade
 
 // #defines for auton drive modes
@@ -217,9 +217,9 @@ double defaultAuton[] = {
 // Arrays for routines
 double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     0,
+    
     WRISTSEEK,WRIST_FORWARD_POS,
     FLIPSEEK,FLIP_POS1,
-    FIRE,
     DRIVE,100,0,DISTANCE,0.55,1,        // DRIVE TO PING BALL
     DRIVE,-100,0,DISTANCE,0.55,1,
     TURN,270,2,
@@ -228,23 +228,53 @@ double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     DRIVE,127,270,DISTANCE,1,2,         // DRIVE BACK
     TURN,312,2,
     DRIVE,-60,312,DISTANCE,1,3,
+    FIRE,
+    PAUSE,3,
     WRISTSEEK,WRIST_VERTICAL_POS,
     PAUSE,1,
     DRIVE,60,312,DISTANCE,0.3,1,         // DRIVE TO GET CAP
     FLIP,
     WRISTSEEK,WRIST_FORWARD_POS,
     TURN,30,2,
+    PAUSE,UNTIL,35,
     FIRE,
     PAUSE,FIRED,5,
-    TURN,0,2,
+    TURN,350,2,
     DRIVE,100,0,DISTANCE,1,2,
-    DRIVE,127,0,1.25,
+    PAUSE,1,
+    DRIVE,127,0,DISTANCE,1.5,2,
     
     END                                 // END OF ROUTINE
 };
 
 double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     0,
+    
+    WRISTSEEK,WRIST_FORWARD_POS,
+    FLIPSEEK,FLIP_POS1,
+    DRIVE,100,0,DISTANCE,0.55,1,        // DRIVE TO PING BALL
+    DRIVE,-100,0,DISTANCE,0.55,1,
+    TURN,90,2,
+    DRIVE,-127,90,DISTANCE,1.5,2,       // DRIVE TO KNOCK CAP
+    DRIVE,-127,90,DISTANCE,0.5,2,      // DRIVE MORE
+    DRIVE,127,90,DISTANCE,1,2,         // DRIVE BACK
+    TURN,40,2,
+    DRIVE,-60,40,DISTANCE,1,3,
+    FIRE,
+    PAUSE,3,
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    PAUSE,1,
+    DRIVE,60,40,DISTANCE,0.3,1,         // DRIVE TO GET CAP
+    FLIP,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    TURN,320,2,
+    PAUSE,UNTIL,35,
+    FIRE,
+    PAUSE,FIRED,5,
+    TURN,350,2,
+    DRIVE,100,355,DISTANCE,0.85,2,
+    PAUSE,1,
+    DRIVE,60,0,DISTANCE,2,2,
     
     END                                 // END OF ROUTINE
 };
@@ -987,12 +1017,12 @@ void run_drive(void* params) {
             else {
                 // Arcade Controls For Trash People
                 if (controlMode == FLYWHEEL) {
-                    leftSpeed = controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
-                    rightSpeed = controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
-                }
-                else {
                     leftSpeed = -controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
                     rightSpeed = -controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
+                }
+                else {
+                    leftSpeed = controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
+                    rightSpeed = controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
                 }
             }
             

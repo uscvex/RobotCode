@@ -121,11 +121,11 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/opcontrol.cpp.o",
-            "src/opcontrol.cpp"
+            "bin/initialize.cpp.o",
+            "src/initialize.cpp"
         ],
         "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/SkillsBot",
-        "file": "src/opcontrol.cpp"
+        "file": "src/initialize.cpp"
     },
     {
         "arguments": [
@@ -185,10 +185,10 @@
             "-fdiagnostics-color",
             "--std=gnu++17",
             "-o",
-            "bin/initialize.cpp.o",
-            "src/initialize.cpp"
+            "bin/opcontrol.cpp.o",
+            "src/opcontrol.cpp"
         ],
         "directory": "/Users/Sam2.0/Desktop/RobotCode/TurningPoint/SkillsBot",
-        "file": "src/initialize.cpp"
+        "file": "src/opcontrol.cpp"
     }
 ]
