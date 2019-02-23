@@ -258,9 +258,9 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     DRIVE,-90,180,DISTANCE,0.075,1,     // DRIVE TO LINE UP
     TURN,90,2,                          // TURN TO LINE UP
     
-    DRIVE,-127,90,0.1,                  // DRIVE AWAY FROM POLE
+    DRIVE,-90,90,0.1,                  // DRIVE AWAY FROM POLE
     TURN,90,2,                          // TURN TO LINE UP
-    DRIVE,127,90,0.1,                   // DRIVE BACK TO WALL
+    DRIVE,90,90,0.1,                   // DRIVE BACK TO WALL
     
     DRIVE,100,90,DISTANCE,0.4,0.5,      // DRIVE TO WALL
     
