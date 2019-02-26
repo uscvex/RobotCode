@@ -13,15 +13,19 @@
 // Shoot flags high & low
 // Auto aim works
 // Auton fairly consistant
+// Bot 1
 //  -- 6 flags + 1 high cap + 1 low cap
 //  -- Total points 13
 //  -- Swing of 19
+// Bot 2
+// -- 2 high caps
+// -- Maybe 1 opponent high flag
 //
-// Skills 22-24 pts
+// Prog. Skills 22-24 pts
 //
 //
 // To Do:
-// Test everything
+// Test everything more
 // Write LiDAR code?
 // Tune auton mode
 // Tune skills routine
@@ -102,7 +106,7 @@ using namespace pros;
 #define FLYWHEEL_AIM_RANGE 5            // fire ball when within x degrees of flag
 #define VISION_SEEK_RATE 3              // How fast to turn to aim, bigger = slower
 
-#include "BallBotAutons.h"
+#include "BallBotAutons.h"              // File with autonomous routine steps
 
 #define REDAUTON 0
 #define BLUEAUTON 1
@@ -146,6 +150,8 @@ ADIUltrasonic sonar (7,8);  // G,H
 
 Vision camera(16);
 
+
+// 1 Metric F. Ton of globals
 ///////////////////////////////////////////////////////////////
 // Drive tuning variables
 // Drive
@@ -601,6 +607,8 @@ void driveTo(double s, double x, double y, double t = 10) {
     drivingToPos = true;
 }
 
+
+
 //////////////////////////////////////////////////////////////////////////////////
 // Drive task
 // Interprets user input & auton commands and sends to drive motors
@@ -876,6 +884,7 @@ void run_drive(void* params) {
 
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Flywheel
 // Read flywheel motors to get its speed
@@ -893,8 +902,6 @@ bool getOuterSensor() {
 double getDistance() {
     return defaultFlywheelDistance;
 }
-
-
 
 
 // Read vision sensor to get angle needed to turn
@@ -977,6 +984,10 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     
 }
 
+
+//////////////////////////////
+// Flywheel Task
+//
 void run_flywheel(void* params) {
     // Declare any local variables
     bool ballIsIn = false;
@@ -1148,12 +1159,16 @@ void run_flywheel(void* params) {
             ballLight.set_value(1);
         }
         
+        // Button to switch modes quickly in skills
+        if (controller.get_digital(BTN_FIRE_LOW) && autonSelect == SKILLSAUTON) {
+            controlMode = FLYWHEEL;
+        }
         
         // Check controller buttons...
         // Set flags for preset flywheel speeds & auto-aim-fire
         // If manual intake buttons pressed, override intake speeds
         if (controlMode == FLYWHEEL) {
-            if (controller.get_digital(BTN_FIRE_LOW)) { // auto fire low
+            if (controller.get_digital(BTN_FIRE_LOW) && autonSelect != SKILLSAUTON) { // auto fire low
                 wristSeek = WRIST_VERTICAL_POS;
                 doSet = false;
                 if (!justAskedForFire) {
@@ -1311,8 +1326,9 @@ void run_flywheel(void* params) {
 
 
 
-
-
+///////////////////////////////
+// Arm Task
+//
 void run_arm(void* params) {
     bool justFlipped = false;
     bool justShifted = false;
@@ -1472,6 +1488,10 @@ void run_arm(void* params) {
         }
         
         
+        // Button to change modes quickly in skills
+        if (controller.get_digital(BTN_ARM_LOW) && autonSelect == SKILLSAUTON) {
+            controlMode = ARM;
+        }
         
         // Check controller inputs
         if (controlMode == ARM) {
@@ -1567,7 +1587,7 @@ void run_arm(void* params) {
                  }
                  justArmToggled = true;*/
             }
-            if (controller.get_digital(BTN_ARM_LOW)) {
+            if (controller.get_digital(BTN_ARM_LOW) && autonSelect != SKILLSAUTON) {
                 if (stackStep == -1 || stackStep < LOW_STACK_START) {
                     stackStep = LOW_STACK_START;
                 }
