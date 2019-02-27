@@ -286,7 +286,71 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
 
 
 double skills[] = {
-    0,
+    90,
+    
+    FIRE_AIM,
+    
+    PAUSE,FIRED,5,
+    DRIVE,1,90,0.1,
+    PAUSE,0.1,
+    
+    END,
+    
+    DRAW_BACK,
+    
+    DRIVE,-127,90,BLACK,1,              // DRIVE TO KNOCK CAP
+    DRIVE,-127,90,DISTANCE,1.5,2,
+    DRIVE,127,90,DISTANCE,0.2,1,
+    
+    TURN,0,2,                           // TURN TO PICK UP
+    
+    WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN
+    PAUSE,0.5,
+    
+    DRIVE,-40,0,DISTANCE,0.5,2,         // DRIVE TO GET CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP
+    PAUSE,1.5,
+    FLIP,                               // FLIP CAP
+    PAUSE,0.5,
+    WRISTSEEK,WRIST_FORWARD_POS,        // PUT CAP DOWN
+    PAUSE,0.5,
+    DRIVE,127,0,DISTANCE,0.5,2,         // DRIVE AWAY
+    
+    FLIP,
+    TURN,45,2,
+    DRIVE,-127,45,DISTANCE,1.25,2,      // DRIVE TO OTHER CAP
+    
+    FLIP,                               // FLIP OTHER CAP
+    PAUSE,0.5,
+    TURN,90,0.5,
+    TURN,45,1,
+    DRIVE,127,45,DISTANCE,1,2,          // DRIVE AWAY
+    TURN,90,2,
+    
+    DRIVE,127,90,DISTANCE,2,2,          // DRIVE BACK TO TILE
+    
+    DRIVE,-127,90,SONAR,0.3,1,          // DRIVE AWAY FROM WALL
+    
+    FLIP,                               // REVERT FLIPPER
+    WRISTSEEK,WRIST_FORWARD_POS/2,
+    
+    TURN,350,2,                         // TURN TO FACE CAPS
+    
+    DRIVE,127,350,WHITE,2,
+    DRIVE,127,350,BLACK,2,
+    DRIVE,127,355,WHITE,2,
+    DRIVE,70,355,BLACK,2,
+    DRIVE,-60,355,0.1,
+    DRIVE,-60,355,DISTANCE,0.1,1,
+    
+    PAUSE,1,
+    
+    TURN_AIM,BLUE_FLAG,LEFT,2,         // AIM AT LEFT-MOST BLUE FLAG
+    FIRE_AIM,
+    PAUSE,FIRED,2,
+    PAUSE,0.5,
+    
+    DRIVE,127,0,DISTANCE,2,2,
     
     END                                 // END OF ROUTINE
 };
@@ -996,7 +1060,7 @@ void run_drive(void* params) {
             
         }
         // Auto-move is complete, so stop moving
-        if (autonComplete && autoFireState == -1) {
+        if (autonComplete && (fireState >= 3  || !aimFire)) {
             autonComplete = false;
             autoMode = DRIVEMODE_USER;
             forward = 0;
@@ -1162,9 +1226,13 @@ void run_catapult(void* params) {
         
         switch (fireState) {
             case 1:
-                std::cout << "FIRE STATE 1\n";
+                //std::cout << "FIRE STATE 1\n";
                 catSpeed = 127;
                 catSeek = -1;
+                if (aimFire) {
+                    relativeAngle = getRelativeAngle();
+                    turnRelative(relativeAngle,-1);
+                }
                 if (cat_Limit.get_value()) {
                     fireState++;
                     cat_1.tare_position();
@@ -1172,27 +1240,34 @@ void run_catapult(void* params) {
                 }
                 break;
             case 2:
-                std::cout << "FIRE STATE 2\n";
+                //std::cout << "FIRE STATE 2\n";
                 catSpeed = 127;
                 catSeek = -1;
+                if (aimFire) {
+                    relativeAngle = getRelativeAngle();
+                    turnRelative(relativeAngle,-1);
+                }
                 if (!cat_Limit.get_value()) {
                     fireState++;
+                    driveStop();
+                    aimFire = false;
+                    nextCommand = true;
                 }
                 break;
             case 3:
-                std::cout << "FIRE STATE 3\n";
+                //std::cout << "FIRE STATE 3\n";
                 catSeek = CAT_HOLD_POS;
                 if (cat_Limit.get_value()) {
                     fireState++;
                 }
                 break;
             case 5:
-                std::cout << "FIRE STATE 4\n";
+                //std::cout << "FIRE STATE 5\n";
                 catSeek = 0;
                 break;
                 
             case 10:
-                std::cout << "FIRE STATE 10\n";
+                //std::cout << "FIRE STATE 10\n";
                 catSpeed = 60;
                 catSeek = -1;
                 if (cat_Limit.get_value()) {
@@ -1203,16 +1278,16 @@ void run_catapult(void* params) {
                 }
                 break;
             case 11:
-                std::cout << "FIRE STATE 11\n";
+                //std::cout << "FIRE STATE 11\n";
                 catSeek = 0;
                 break;
                 
             case 20:
-                std::cout << "FIRE STATE 20\n";
+                //std::cout << "FIRE STATE 20\n";
                 relativeAngle = getRelativeAngle();
                 turnRelative(relativeAngle,-1);
-//                if (relativeAngle < 2)
-//                    fireState = 1;
+                if (abs(relativeAngle) < 1)
+                    fireState = 1;
                 break;
             default:
                 break;
@@ -1522,16 +1597,13 @@ void run_auton() {
                     break;
                 case FIRE_AIM:
                     fireState = 20;
-                    targetFlag = processEntry();
                     aimFire = true;
                     std::cout << "Fire Aim" << std::endl;
-                    nextCommand = true;
                     break;
                 case FIRE:
                     fireState = 1;
                     aimFire = false;
                     std::cout << "Fire" << std::endl;
-                    nextCommand = true;
                     break;
                 case DRAW_BACK:
                     fireState = 10;
