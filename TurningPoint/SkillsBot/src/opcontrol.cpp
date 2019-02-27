@@ -105,6 +105,10 @@ using namespace pros;
 #include "BallBotAutons.h"
 
 
+#define SKILLSAUTON 0
+#define BLUEAUTON 1
+#define REDAUTON 2
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +125,7 @@ using namespace pros;
 
 
 #define NUMBER_AUTONS 3                 // Number of programmed routines
-int autonSelect = 1;                    // Routine to start on
+int autonSelect = SKILLSAUTON;                    // Routine to start on
 // Selecting one of the back autons will switch controls to arcade
 
 // #defines for auton drive modes
@@ -164,6 +168,7 @@ int autonSelect = 1;                    // Routine to start on
 #define DRIVE_TO -25                    // Drive to point, (s,x,y,t)
 #define TURN_TO -26                     // Turn to face point
 #define INTAKE_FLIP -27                 // Run outer intake backwards to flip cap
+#define DRAW_BACK -28                   // Draw back catapult
 
 
 // Conditionals
@@ -200,8 +205,8 @@ int autonSelect = 1;                    // Routine to start on
 // #defines for arm positions
 #define FLIP_POS1 1                     // 1:1 Ratio, 0°
 #define FLIP_POS2 180                   // 1:1 Ratio, 180°
-#define WRIST_FORWARD_POS (110)        // 1:1 Ratio, 80°
-#define WRIST_VERTICAL_POS 15            // 1:3 Ratio, 0°
+#define WRIST_FORWARD_POS (130)        // 1:1 Ratio, 80°
+#define WRIST_VERTICAL_POS -30            // 1:3 Ratio, 0°
 #define CAT_HOLD_POS (175*5)            // 1:5 Ratio, 180°
 
 #define TOP 2                           // Top Flag
@@ -302,11 +307,6 @@ double skills[] = {
 
 
 
-
-#define SKILLSAUTON 0
-#define BLUEAUTON 1
-#define REDAUTON 2
-
 Controller controller(E_CONTROLLER_MASTER);     // Controller object
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,7 +337,8 @@ ADIDigitalIn IR_Sensor (3);   // C
 
 ADIUltrasonic sonar (7,8);  // G,H
 
-Vision camera(16);
+Vision camera(19);
+Vision capCamera(20);
 
 ///////////////////////////////////////////////////////////////
 // Drive tuning variables
@@ -1157,6 +1158,7 @@ void run_catapult(void* params) {
         catSpeed = 0;
         
         catPos = (cat_1.get_position() + cat_1.get_position())/2;
+        double relativeAngle;
         
         switch (fireState) {
             case 1:
@@ -1188,6 +1190,30 @@ void run_catapult(void* params) {
                 std::cout << "FIRE STATE 4\n";
                 catSeek = 0;
                 break;
+                
+            case 10:
+                std::cout << "FIRE STATE 10\n";
+                catSpeed = 60;
+                catSeek = -1;
+                if (cat_Limit.get_value()) {
+                    fireState++;
+                    cat_1.tare_position();
+                    cat_2.tare_position();
+                    pros::delay(20);   // don't hog cpu
+                }
+                break;
+            case 11:
+                std::cout << "FIRE STATE 11\n";
+                catSeek = 0;
+                break;
+                
+            case 20:
+                std::cout << "FIRE STATE 20\n";
+                relativeAngle = getRelativeAngle();
+                turnRelative(relativeAngle,-1);
+//                if (relativeAngle < 2)
+//                    fireState = 1;
+                break;
             default:
                 break;
         }
@@ -1212,15 +1238,17 @@ void run_catapult(void* params) {
             fireState = 1;
         }
         if (controller.get_digital(BTN_FIRE_AIM)) {
-            aimFire = false;
-            fireState = 1;
+            aimFire = true;
+            fireState = 20;
         }
         
         if (controller.get_digital(BTN_ABORT)) {     // cancel auto functions
             fireState = -1;
             catSeek = -1;
         }
-        
+        if (controller.get_digital(BTN_TOGGLE)) {
+            fireState = 10;
+        }
         
         
         
@@ -1255,7 +1283,7 @@ void run_arm(void* params) {
         
         flipperPos = flip.get_position();       // Find current positions
         wristPos = -wrist.get_position();
-        
+        armPos = 0;
         
         // Check controller inputs
         
@@ -1333,10 +1361,13 @@ void run_arm(void* params) {
             if (slowSeek) wSR = wristSeekSlow;
             
             if (wristSeek == WRIST_FORWARD_POS) {
-                wSR = 8;
+                if (flipperSeek == FLIP_POS2)
+                    wSR = 8/3;
+                else
+                    wSR = 0.25;
             }
             
-            wristSpeed = -(actualWristSeek - wristPos) / (wristSeekRate * wSR);
+            wristSpeed = -(actualWristSeek - wristPos) / (wristSeekRate * wSR * 3);
             if (wristSpeed > 100) wristSpeed = 100;
             if (wristSpeed < -100) wristSpeed = -100;
         }
@@ -1490,7 +1521,7 @@ void run_auton() {
                     nextCommand = true;
                     break;
                 case FIRE_AIM:
-                    fireState = 1;
+                    fireState = 20;
                     targetFlag = processEntry();
                     aimFire = true;
                     std::cout << "Fire Aim" << std::endl;
@@ -1500,6 +1531,12 @@ void run_auton() {
                     fireState = 1;
                     aimFire = false;
                     std::cout << "Fire" << std::endl;
+                    nextCommand = true;
+                    break;
+                case DRAW_BACK:
+                    fireState = 10;
+                    aimFire = false;
+                    std::cout << "Draw Back" << std::endl;
                     nextCommand = true;
                     break;
                 case STOP_FIRE:
