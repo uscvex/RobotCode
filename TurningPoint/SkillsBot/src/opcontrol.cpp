@@ -288,27 +288,21 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
 double skills[] = {
     90,
     
-    FIRE_AIM,
-    
-    PAUSE,FIRED,5,
-    DRIVE,1,90,0.1,
-    PAUSE,0.1,
-    
-    END,
-    
     DRAW_BACK,
     
     DRIVE,-127,90,BLACK,1,              // DRIVE TO KNOCK CAP
     DRIVE,-127,90,DISTANCE,1.5,2,
-    DRIVE,127,90,DISTANCE,0.2,1,
+    DRIVE,127,90,DISTANCE,0.1,1,
     
     TURN,0,2,                           // TURN TO PICK UP
     
+    FLIPSEEK,FLIP_POS1,
     WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN
     PAUSE,0.5,
     
-    DRIVE,-40,0,DISTANCE,0.5,2,         // DRIVE TO GET CAP
+    DRIVE,-40,0,DISTANCE,0.6,2,         // DRIVE TO GET CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP
+    DRIVE,40,0,DISTANCE,0.1,2,         // DRIVE TO GET CAP
     PAUSE,1.5,
     FLIP,                               // FLIP CAP
     PAUSE,0.5,
@@ -320,11 +314,14 @@ double skills[] = {
     TURN,45,2,
     DRIVE,-127,45,DISTANCE,1.25,2,      // DRIVE TO OTHER CAP
     
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    PAUSE,0.25,
     FLIP,                               // FLIP OTHER CAP
-    PAUSE,0.5,
-    TURN,90,0.5,
+    WRISTSEEK,WRIST_FORWARD_POS,
+//    TURN,90,0.5,
     TURN,45,1,
     DRIVE,127,45,DISTANCE,1,2,          // DRIVE AWAY
+    WRISTSEEK,WRIST_FORWARD_POS,
     TURN,90,2,
     
     DRIVE,127,90,DISTANCE,2,2,          // DRIVE BACK TO TILE
@@ -334,23 +331,42 @@ double skills[] = {
     FLIP,                               // REVERT FLIPPER
     WRISTSEEK,WRIST_FORWARD_POS/2,
     
-    TURN,350,2,                         // TURN TO FACE CAPS
+    TURN,6,2,                         // TURN TO FACE CAPS
     
-    DRIVE,127,350,WHITE,2,
-    DRIVE,127,350,BLACK,2,
-    DRIVE,127,355,WHITE,2,
-    DRIVE,70,355,BLACK,2,
-    DRIVE,-60,355,0.1,
-    DRIVE,-60,355,DISTANCE,0.1,1,
+    DRIVE,127,6,WHITE,2,
+    DRIVE,127,6,BLACK,2,
+    DRIVE,127,6,WHITE,2,
+    DRIVE,70,6,BLACK,2,
+    DRIVE,-60,6,0.1,
+    DRIVE,-60,6,DISTANCE,0.1,1,
     
-    PAUSE,1,
+    TURN,0,2,
+    
+//    WRISTSEEK,WRIST_FORWARD_POS,
+//    PAUSE,1,
+//    WRISTSEEK,WRIST_VERTICAL_POS-50,
     
     TURN_AIM,BLUE_FLAG,LEFT,2,         // AIM AT LEFT-MOST BLUE FLAG
     FIRE_AIM,
     PAUSE,FIRED,2,
     PAUSE,0.5,
     
+    TURN,2,2,
     DRIVE,127,0,DISTANCE,2,2,
+    PAUSE,0.25,
+    DRIVE,-127,0,DISTANCE,2.25,2,
+    DRIVE,127,0,DISTANCE,0.05,2,
+    
+    WRISTSEEK,WRIST_FORWARD_POS,
+    TURN,125,2,
+    
+    DRIVE,-40,125,DISTANCE,1.5,2,
+    WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP
+    PAUSE,1.5,
+    FLIP,
+    PAUSE,0.5,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    TURN,0,2,
     
     END                                 // END OF ROUTINE
 };
