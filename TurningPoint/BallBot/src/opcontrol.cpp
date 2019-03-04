@@ -326,6 +326,7 @@ void initAll() {        // called when robot activates & start of auton
     // Every time init...
     // eg. tare arm position
     camera.set_zero_point(pros::E_VISION_ZERO_CENTER);
+    camera.set_exposure(83);
 }
 
 
@@ -1162,6 +1163,7 @@ void run_flywheel(void* params) {
         // Button to switch modes quickly in skills
         if (controller.get_digital(BTN_FIRE_LOW) && autonSelect == SKILLSAUTON) {
             controlMode = FLYWHEEL;
+            runTillBall = 2;
         }
         
         // Check controller buttons...
@@ -1285,7 +1287,10 @@ void run_flywheel(void* params) {
         double flywheelSpeed = 0;
         flywheelCurrSpeed = ( flywheel_1.get_actual_velocity() + flywheel_2.get_actual_velocity() ) / 2;
         
+        if (autonSelect == SKILLSAUTON)
+            targetSpeed = 450;
         
+
         if (targetSpeed > 0) {
             if (flywheelCurrSpeed > targetSpeed) {  // Too fast
                 flywheelSpeed = flywheelSlowSpeed;  // So run slow
@@ -1295,7 +1300,7 @@ void run_flywheel(void* params) {
             }
         }
         
-        if (targetSpeed == flyWheelDefaultSpeed) {
+        if (targetSpeed == flyWheelDefaultSpeed && autonSelect != SKILLSAUTON) {
             flywheelSpeed = flyWheelDefaultSpeed;
         }
         
@@ -1489,7 +1494,7 @@ void run_arm(void* params) {
         
         
         // Button to change modes quickly in skills
-        if (controller.get_digital(BTN_ARM_LOW) && autonSelect == SKILLSAUTON) {
+        if (controller.get_digital(BTN_INTAKE_OUT) && autonSelect == SKILLSAUTON) {
             controlMode = ARM;
         }
         

@@ -139,7 +139,7 @@ double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     DRIVE,50,180,DISTANCE,0.0125,1,     // DRIVE TO LINE UP
     TURN,270,2,                         // TURN TO LINE UP
     
-    DRIVE,-127,27090,0.1,               // DRIVE AWAY FROM POLE
+    DRIVE,-127,270,0.1,                 // DRIVE AWAY FROM POLE
     TURN,270,2,                         // TURN TO LINE UP
     DRIVE,127,270,0.1,                  // DRIVE BACK TO WALL
     
@@ -156,6 +156,11 @@ double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     DRIVE,127,315,DISTANCE,0.6,2,       // DRIVE TO LINE UP
     
     TURN,0,2,                           // TURN TOWARDS FLAGS
+    
+    // TEST!
+    DRIVE,100,0,DISTANCE,0.25,1,
+    // TEST!
+    
     TURN_AIM,RED_FLAG,RIGHT,2,          // AIM AT RIGHT-MOST BLUE FLAG
     DRIVE,127,CDIR,DISTANCE,0.6,2,      // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG
@@ -163,7 +168,7 @@ double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     PAUSE,0.5,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.55,2,      // DRIVE TO MIDDLE FLAG DIST        0.7
     FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.5,                          // SHORT PAUSE
@@ -275,6 +280,11 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     DRIVE,127,45,DISTANCE,0.3,2,        // DRIVE TO LINE UP
     
     TURN,0,2,                           // TURN TOWARDS FLAGS
+    
+    // TEST!
+    DRIVE,100,0,DISTANCE,0.125,1,
+    // TEST!
+    
     TURN_AIM,BLUE_FLAG,LEFT,2,          // AIM AT LEFT-MOST BLUE FLAG
     DRIVE,127,CDIR,DISTANCE,0.6,2,      // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG
@@ -282,7 +292,7 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     PAUSE,0.5,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.65,2,      // DRIVE TO MIDDLE FLAG DIST        0.7
     FIRE_AIM,MIDDLE,                    // SHOOT MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.5,                          // SHORT PAUSE
