@@ -1,11 +1,14 @@
 #include <LIDARLite.h>
 #include <Wire.h>
+#include <JY901.h>
 
 #define RATE 15
 
 #define NO_CODES 2
 
 LIDARLite lidar1;
+
+
 
 void setup() {
   pinMode(PD2,OUTPUT);  // Serial
@@ -45,9 +48,11 @@ void loop() {
   digitalWrite(PD2,HIGH);
 
   Serial.print('D');  // Send info
-  Serial.print(lidar1.distance());
+  //Serial.print(lidar1.distance());
   Serial.print('I');
   Serial.print(IR);
+  Serial.print('A');
+  Serial.print((float)JY901.stcAngle.Angle[2]/32768*180);
   Serial.print('E');
 
   Serial.flush();
@@ -74,4 +79,20 @@ void loop() {
 
   delay(20);
   
+}
+
+
+
+/*
+  SerialEvent occurs whenever a new data comes in the
+ hardware serial RX.  This routine is run between each
+ time loop() runs, so using delay inside loop can delay
+ response.  Multiple bytes of data may be available.
+ */
+void serialEvent() 
+{
+  while (Serial.available()) 
+  {
+    JY901.CopeSerialData(Serial.read()); //Call JY901 data cope function
+  }
 }

@@ -29,7 +29,7 @@
 //
 
 // Un-comment to skip calibration for timed skills run
-// #define PRACTICE_SKILLS
+#define PRACTICE_SKILLS
 
 
 #include "main.h"
@@ -334,7 +334,7 @@ double skills[] = {
     FLIP,                               // REVERT FLIPPER
     WRISTSEEK,WRIST_FORWARD_POS/2,
     
-    TURN,3,2,                           // TURN TO FACE CAPS
+    TURN,0,2,                           // TURN TO FACE CAPS
     
     DRIVE,127,3,WHITE,2,
     DRIVE,127,3,BLACK,2,
@@ -369,69 +369,69 @@ double skills[] = {
     WRISTSEEK,WRIST_FORWARD_POS,
     TURN,125,2,
     
+    
     DRIVE,-40,125,DISTANCE,1.75,2,
     PAUSE,0.25,
     WRISTSEEK,WRIST_VERTICAL_POS,           // LIFT CAP
     DRIVE,40,125,DISTANCE,0.1,2,
     PAUSE,1.5,
+    DRIVE,127,125,DISTANCE,0.5,2,
+    DRIVE,-127,125,DISTANCE,0.5,2,
+    FLIP,
+    PAUSE,0.5,
+    TURN,305,1,
+    
+    WRISTSEEK,WRIST_FORWARD_POS,
+    
+    TURN_AIM,BLUE_FLAG,LEFT,2,         // AIM AT LEFT-MOST BLUE FLAG
+    FIRE_AIM,
+    PAUSE,FIRED,2,                          // MIDDLE SET
+    PAUSE,0.5,
+    
+    DRIVE,127,CDIR,DISTANCE,2.25,2,      // DRIVE TO HIT BOTTOM FLAG
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    FLIP,
+    DRIVE,-100,CDIR,DISTANCE,0.1,2,
+    TURN,0,2,
+    DRIVE,-127,0,DISTANCE,2,0.1,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    TURN,0,2,
+    DRIVE,-127,0,DISTANCE,2,2,
+
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    DRIVE,127,0,DISTANCE,0.75,2,
+    TURN,90,2,
+    WRISTSEEK,WRIST_FORWARD_POS,
+    DRIVE,-127,90,WHITE,2,
+    DRIVE,-127,90,DISTANCE,0.5,2,
+    DRIVE,-40,90,DISTANCE,1,2,
+    
+    PAUSE,0.25,
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    PAUSE,1.5,
+    DRIVE,127,90,DISTANCE,0.5,2,
+    DRIVE,-127,90,DISTANCE,0.5,2,
     FLIP,
     PAUSE,0.5,
     WRISTSEEK,WRIST_FORWARD_POS,
-    TURN,180,2,
     
-    DRIVE,100,180,DISTANCE,0.8,2,
-    FLIP,
-    WRISTSEEK,WRIST_FORWARD_POS*0.75,
-    TURN,90,2,
-    DRIVE,-127,90,DISTANCE,1.35,2,
+    TURN,350,2,
     
-    TURN,0,2,
-    
-    DRIVE,127,0,DISTANCE,0.1,2,
-    TURN,0,2,
-    TURN,350,1,
     WRISTSEEK,WRIST_VERTICAL_POS-50,
     TURN_AIM,BLUE_FLAG,LEFT,2,         // AIM AT LEFT-MOST BLUE FLAG
     WRISTSEEK,WRIST_FORWARD_POS/2,
     PAUSE,0.25,
     FIRE_AIM,
-    PAUSE,FIRED,2,                          // MIDDLE SET
-    PAUSE,0.5,
-    
-    //TURN,350,2,
-    DRIVE,127,CDIR,DISTANCE,1.5,2,
-    TURN,0,2,
-    DRIVE,-100,0,DISTANCE,2,2,
-    
-    DRIVE,127,0,DISTANCE,0.5,2,
-    TURN,90,2,
-    
-    
-    WRISTSEEK,WRIST_FORWARD_POS,
-    DRIVE,-127,90,DISTANCE,1,2,
-    DRIVE,-40,90,DISTANCE,1,3,
-    WRISTSEEK,WRIST_VERTICAL_POS,
-    DRIVE,-40,90,DISTANCE,1,2,
-    PAUSE,1,
-    FLIP,
-    WRISTSEEK,WRIST_FORWARD_POS,
-    
-    DRIVE,100,90,DISTANCE,1,2,
-    TURN,0,2,
-    WRISTSEEK,WRIST_VERTICAL_POS,
-    DRIVE,127,0,DISTANCE,1.5,2,
-    
-    TURN,0,2,
-    DRIVE,-100,0,DISTANCE,2,2,
-    
-    TURN,345,1,
-    WRISTSEEK,WRIST_VERTICAL_POS-50,
-    TURN_AIM,BLUE_FLAG,CENTER,2,         // AIM AT CENTER-MOST BLUE FLAG
-    WRISTSEEK,WRIST_FORWARD_POS/2,
-    PAUSE,0.25,
-    FIRE_AIM,
     PAUSE,FIRED,2,                          // LAST SET
     PAUSE,0.5,
+    
+    DRIVE,127,CDIR,DISTANCE,2,2,
+    
+    TURN,0,2,
+    DRIVE,-127,0,0.1,
+    TURN,0,2,
+    DRIVE,-127,0,DISTANCE,1,2,
+    
     
     
     END                                 // END OF ROUTINE
@@ -1158,8 +1158,8 @@ void run_drive(void* params) {
             
             if (autonSelect == SKILLSAUTON) {
                 // Tank Controls For Sam
-                leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
-                rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
+                rightSpeed = -controller.get_analog(ANALOG_LEFT_Y);
+                leftSpeed = -controller.get_analog(ANALOG_RIGHT_Y);
             }
             else {
                 // Arcade Controls For Trash People
@@ -1334,6 +1334,7 @@ void run_catapult(void* params) {
                     driveStop();
                     aimFire = false;
                     nextCommand = true;
+                    fireState = 10;
                 }
                 break;
             case 3:
@@ -1954,9 +1955,10 @@ void opcontrol() {
     int vibDone = 0;
     
     if (autonSelect == SKILLSAUTON) {    // Auto-deploy at start of drive skills
-        wristSeek = WRIST_VERTICAL_POS;
+        wristSeek = WRIST_FORWARD_POS/2;
         runTillBall = 2;
         coast = true;
+        fireState = 10;
     }
     
     
