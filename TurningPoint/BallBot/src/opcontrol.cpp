@@ -263,7 +263,7 @@ double lastAutonTime = 0;
 #define flywheelFastSpeed 127
 
 double flywheelRunSpeed = 0;
-double flyWheelDefaultSpeed = 100;    // set speed for fixed-dist fireing
+double flyWheelDefaultSpeed = 450;    // set speed for fixed-dist fireing
 bool coast = false;
 double defaultFlywheelDistance = 1;
 bool flipCapWIntake = false;
@@ -1287,8 +1287,8 @@ void run_flywheel(void* params) {
         double flywheelSpeed = 0;
         flywheelCurrSpeed = ( flywheel_1.get_actual_velocity() + flywheel_2.get_actual_velocity() ) / 2;
         
-        if (autonSelect == SKILLSAUTON)
-            targetSpeed = 450;
+//        if (autonSelect == SKILLSAUTON)
+//            targetSpeed = 450;
         
 
         if (targetSpeed > 0) {
@@ -1300,9 +1300,9 @@ void run_flywheel(void* params) {
             }
         }
         
-        if (targetSpeed == flyWheelDefaultSpeed && autonSelect != SKILLSAUTON) {
-            flywheelSpeed = flyWheelDefaultSpeed;
-        }
+//        if (targetSpeed == flyWheelDefaultSpeed && autonSelect != SKILLSAUTON) {
+//            flywheelSpeed = flyWheelDefaultSpeed;
+//        }
         
         ///////////////////////////////
         // flywheelSpeed = 0;
