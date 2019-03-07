@@ -96,6 +96,8 @@ int autonSelect = 0;                    // Routine to start on
 #define ARM_POS_HIGH (125*5)            // 1:5 Ratio, 120°
 #define ARM_POS_LOW (90*5)              // 1:5 Ratio, 90°
 #define ARM_POS_DOWN 1                  // 1:5 Ratio, 0°
+#define ARM_SKILLS_POS 180*5
+#define ARM_HOLD_POS 25*5
 
 #define TOP 2                           // Top Flag
 #define MIDDLE 1                        // Middle Flag

@@ -21,7 +21,7 @@
 // -- 2 high caps
 // -- Maybe 1 opponent high flag
 //
-// Prog. Skills 22-24 pts
+// Prog. Skills 20-24 pts
 //
 //
 // To Do:
@@ -61,8 +61,8 @@ using namespace pros;
 // Flywheel
 #define BTN_FIRE_HIGH DIGITAL_L1
 #define BTN_FIRE_LOW DIGITAL_L2
-#define BTN_INTAKE_IN DIGITAL_R1
-#define BTN_INTAKE_OUT DIGITAL_R2
+#define BTN_INTAKE_IN DIGITAL_RIGHT
+#define BTN_INTAKE_OUT DIGITAL_LEFT
 #define BTN_FIRE_BOTH DIGITAL_B
 #define BTN_TOGGLE_COAST DIGITAL_A
 #define BTN_TOGGLE_INTAKE DIGITAL_Y
@@ -1159,12 +1159,7 @@ void run_flywheel(void* params) {
         else {
             ballLight.set_value(1);
         }
-        
-        // Button to switch modes quickly in skills
-        if (controller.get_digital(BTN_FIRE_LOW) && autonSelect == SKILLSAUTON) {
-            controlMode = FLYWHEEL;
-            runTillBall = 2;
-        }
+
         
         // Check controller buttons...
         // Set flags for preset flywheel speeds & auto-aim-fire
@@ -1493,17 +1488,24 @@ void run_arm(void* params) {
         }
         
         
-        // Button to change modes quickly in skills
-        if (controller.get_digital(BTN_INTAKE_OUT) && autonSelect == SKILLSAUTON) {
-            controlMode = ARM;
-        }
+      
         
-        // Check controller inputs
-        if (controlMode == ARM) {
+        // Flip in either mode
             
-            if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
-                stackStep = -1;
-                if (!justFlipped) {
+        if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
+            if (!justFlipped) {
+                if (autonSelect == SKILLSAUTON) {
+                    if (armSeek == ARM_SKILLS_POS) {
+                        armSeek = ARM_HOLD_POS;
+                        runTillBall = 2;
+                    }
+                    else {
+                        armSeek = ARM_SKILLS_POS;
+                        runTillBall = 2;
+                    }
+                }
+                else {
+                    //stackStep = -1;
                     if (flipperPos > (FLIP_POS1 + FLIP_POS2)/2) {
                         flipperSeek = FLIP_POS1;
                     }
@@ -1511,12 +1513,56 @@ void run_arm(void* params) {
                         flipperSeek = FLIP_POS2;
                     }
                 }
-                justFlipped = true;
             }
-            else {
-                justFlipped = false;
+            justFlipped = true;
+        }
+        else {
+            justFlipped = false;
+        }
+        
+        // Wrist in either mode
+        if (controller.get_digital(BTN_WRIST)) {
+            if (!justWristToggled) {
+                if (autonSelect == SKILLSAUTON) {
+                    if (armSeek == 1) {
+                        armSeek = ARM_HOLD_POS;
+                        runTillBall = 2;
+                    }
+                    else {
+                        armSeek = 1;
+                        runTillBall = 0;
+                    }
+                }
+                else {
+                    if (wristSeek != WRIST_VERTICAL_POS) {
+                        wristSeek = WRIST_VERTICAL_POS;
+                        slowSeek = false;
+                    }
+                    else {
+                        slowSeek = true;
+                        if (armSeek == ARM_POS_LOW) {
+                            wristSeek = WRIST_FORWARD_DROP_POS;
+                        }
+                        else if (armSeek == ARM_POS_HIGH) {
+                            wristSeek = WRIST_BACKWARD_DROP_POS;
+                        }
+                        else {
+                            slowSeek = false;
+                            wristSeek = WRIST_FORWARD_POS;
+                            if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON)
+                                wristSeek += WRIST_FORWARD_EXTRA;
+                        }
+                    }
+                }
             }
-            
+            justWristToggled = true;
+        }
+        else {
+            justWristToggled = false;
+        }
+        
+        // Check controller inputs
+        if (controlMode == ARM) {
             
             // Manual Overrides
             if (controller.get_digital(BTN_ARM_DOWN)) {
@@ -1550,33 +1596,6 @@ void run_arm(void* params) {
                 stackStep = -1;
             }
             
-            if (controller.get_digital(BTN_WRIST)) {
-                if (!justWristToggled) {
-                    if (wristSeek != WRIST_VERTICAL_POS) {
-                        wristSeek = WRIST_VERTICAL_POS;
-                        slowSeek = false;
-                    }
-                    else {
-                        slowSeek = true;
-                        if (armSeek == ARM_POS_LOW) {
-                            wristSeek = WRIST_FORWARD_DROP_POS;
-                        }
-                        else if (armSeek == ARM_POS_HIGH) {
-                            wristSeek = WRIST_BACKWARD_DROP_POS;
-                        }
-                        else {
-                            slowSeek = false;
-                            wristSeek = WRIST_FORWARD_POS;
-                            if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON)
-                                wristSeek += WRIST_FORWARD_EXTRA;
-                        }
-                    }
-                }
-                justWristToggled = true;
-            }
-            else {
-                justWristToggled = false;
-            }
             if (controller.get_digital(BTN_ARM_HIGH)) {
                 if (stackStep == -1 || stackStep > LOW_STACK_START) {
                     stackStep = HIGH_STACK_START;
