@@ -28,8 +28,10 @@ void serialRead(void* params) {
     // Let VEX OS configure port
     pros::delay(10);
     
-    // Serial message from arduino looks like this:
-    // D[LIDAR Distance]I[IR Sensor Data]A[Gyro Angle]E
+    // Serial message format:
+    // D[LIDAR DIST]I[IR DATA]A[GYRO ANGLE]E
+    // Example Message:
+    // D50.2I128A12.32E
     
     while (true) {
         
