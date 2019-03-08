@@ -1,77 +1,98 @@
 #include "main.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <stdio.h>
 
-using namespace pros;
+// Include sstream for serial parsing
+#include <sstream>
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
+
+// Prototypes for hidden vex functions to bypass PROS bug
+extern "C" int32_t vexGenericSerialReceive( uint32_t index, uint8_t *buffer, int32_t length );
+extern "C" void vexGenericSerialEnable(  uint32_t index, uint32_t nu );
+extern "C" void vexGenericSerialBaudrate(  uint32_t index, uint32_t rate );
+
+// Port to use for serial data
+#define SERIALPORT 21
+// Variable to put the gyro value into
+double gyroValue = 0;
+
+
+// Currently reads serial data & parses for gyro value
+// Can be expanded to look for lidar distance, etc.
+void serialRead(void* params) {
+    
+    // Start serial on desired port
+    vexGenericSerialEnable( SERIALPORT - 1, 0 );
+    
+    // Set BAUD rate
+    vexGenericSerialBaudrate( SERIALPORT - 1, 115200 );
+    
+    // Let VEX OS configure port
+    pros::delay(10);
+    
+    // Serial message from arduino looks like this:
+    // D[LIDAR Distance]I[IR Sensor Data]A[Gyro Angle]E
+    
+    while (true) {
+        
+        // Buffer to store serial data
+        uint8_t buffer[256];
+        int len = 256;
+        
+        // Get serial data
+        int32_t nRead = vexGenericSerialReceive(SERIALPORT - 1, buffer, len);
+        
+        // Now parse the data
+        if (nRead >= 9) {
+            
+            // Stream to put the characters in
+            std::stringstream myStream("");
+            bool recordAngle = false;
+            
+            // Go through characters
+            for (int i = 0; i < nRead; i++) {
+                // Get current char
+                char thisDigit = (char)buffer[i];
+                
+                // If its special, then don't record the value
+                if (thisDigit == 'D' || thisDigit == 'I' || thisDigit == 'A')
+                    recordAngle = false;
+                
+                // Finished recieving angle, so put into variable
+                if (thisDigit == 'E') {
+                    recordAngle = false;
+                    myStream >> gyroValue;
+                }
+                
+                // If we want the digits, put them into stream
+                if (recordAngle)
+                    myStream << (char)buffer[i];
+                
+                // If the digit is 'A', then the following data is the angle
+                if (thisDigit == 'A')
+                    recordAngle = true;
+                
+            }
+            
+        }
+    
+        // Delay to let serial data arrive
+        pros::delay(20);
+        
+    }
+    
+}
+
+
 void opcontrol() {
-	
-    std::fstream dataPort;
+ 
+    // Start serial task
+    pros::Task gyroTask (serialRead);
     
-    
-    
-    
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+    while (true) {
         
-//        std::fstream myFile;
-//        myFile.open("/dev/21");
-//        if (myFile.is_open()) {
-//            pros::lcd::print(2,"Open");
-//        }
-//        else {
-//            pros::lcd::print(2,"Closed");
-//        }
-//
-//        std::string thisLine;
-//        myFile >> thisLine;
-//
-//        pros::lcd::print(1,"%s",thisLine);
-//        pros::lcd::print(3,"%d",myFile.gcount());
-//
-//
-//        myFile.close(); // always close files when you're done with them
-
-        c::registry_bind_port(21,c::v5_device_e_t(129));
-        FILE* usd_file_read = fopen("/dev/21", "r");
-        
-        bool readable = c::fdctl(0,16,0);
-        
-        c::fdctl(0,10,0);
-        
-        char buf[256]; // This just needs to be larger than the contents of the file
-        
-        int char1 = fgetc(usd_file_read);
-        
-        for (int i = 0; i < 256; i++)
-            buf[i] = 'a';
-        
-        fread(buf, 1, 256, usd_file_read); // passing 1 because a `char` is 1 byte, and 50 b/c it's the length of buf
-        printf("%s\n", buf); // print the string read from the file
-        lcd::print(1,"%s",buf);
-        lcd::print(2,"%d",readable);
-        lcd::print(3,"%d",char1);
-        // Should print "Example text" to the terminal
-        fclose(usd_file_read); // always close files when you're done with them
+        // Print value to screen
+        pros::lcd::print(4,"%f", gyroValue);
         
 		pros::delay(20);
 	}
-    std::cout << "Stopped\n";
+    
 }
