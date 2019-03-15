@@ -1,4 +1,11 @@
 
+//#define LIDAR
+
+#ifdef LIDAR
+#include <LIDARLite.h>
+#include <Wire.h>
+LIDARLite lidar1;
+#endif
 
 String xStr = "";
 String yStr = "";
@@ -21,32 +28,47 @@ void sendData(char* msg) {
 
 void sensorStart() {
  
-  digitalWrite(2,HIGH);
-  delay(150);
   digitalWrite(2,LOW);
-  delay(200);
+  delay(150);
   digitalWrite(2,HIGH);
+  delay(1000);
+  digitalWrite(2,LOW);
 
   sendData(":165\n"); // Gyro calibrate
   sendData(":96\n");    // Tare
   
-  delay(3000);
+  delay(2000);
+  
+  digitalWrite(2,HIGH);
+  delay(500);
 }
 
 
 void setup() {
   Serial.begin(115200); // Start serial
+  
+#ifdef LIDAR
+  lidar1.begin(0);
+  lidar1.configure(0);
+#endif
+  
   pinMode(2,OUTPUT);
-  pinMode(3,INPUT);
+  pinMode(3,INPUT_PULLUP);
   digitalWrite(2,HIGH);
   Serial.setTimeout(10);
-  sensorStart();
+  sendData(":96\n");    // Tare
 }
 
 int count = 0;
 
 void loop() {
 
+#ifdef LIDAR
+  float lidarDist = lidar1.distance();
+  Serial.print('D');  // Send info
+  Serial.print(lidarDist);
+  Serial.print('I');
+#endif
 
   if (!digitalRead(3)) {
     count++;
@@ -78,7 +100,8 @@ void loop() {
 //    Serial.println(yVal);
 //    Serial.print("Z "); 
 //    Serial.println(zVal);
-      digitalWrite(PD4,HIGH);
+    digitalWrite(PD4,HIGH);
+
       Serial.print('A');
       Serial.print(yVal);
       Serial.print('E');
