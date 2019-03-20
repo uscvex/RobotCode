@@ -1,5 +1,5 @@
 
-//#define LIDAR
+#define LIDAR
 
 #ifdef LIDAR
 #include <LIDARLite.h>
@@ -7,9 +7,9 @@
 LIDARLite lidar1;
 #endif
 
-String xStr = "";
-String yStr = "";
-String zStr = "";
+String xStr = "0";
+String yStr = "0";
+String zStr = "0";
 
 float xVal = 0;
 float yVal = 0;
@@ -34,7 +34,7 @@ void sensorStart() {
   delay(1000);
   digitalWrite(2,LOW);
 
-  sendData(":165\n"); // Gyro calibrate
+  //sendData(":165\n"); // Gyro calibrate
   sendData(":96\n");    // Tare
   
   delay(2000);
@@ -53,6 +53,7 @@ void setup() {
 #endif
   
   pinMode(2,OUTPUT);
+  pinMode(4,OUTPUT);
   pinMode(3,INPUT_PULLUP);
   digitalWrite(2,HIGH);
   Serial.setTimeout(10);
@@ -63,16 +64,9 @@ int count = 0;
 
 void loop() {
 
-#ifdef LIDAR
-  float lidarDist = lidar1.distance();
-  Serial.print('D');  // Send info
-  Serial.print(lidarDist);
-  Serial.print('I');
-#endif
-
   if (!digitalRead(3)) {
     count++;
-    if (count > 15) {
+    if (count > 25) {
       sensorStart();
       count = 0;
     }
@@ -84,12 +78,12 @@ void loop() {
   sendData(":1\n");
   digitalWrite(2,HIGH);
   
-  delay(20);
+  delay(10);
   
   if (Serial.available() > 20) {
     xStr = Serial.readStringUntil(',');
     yStr = Serial.readStringUntil(',');
-    zStr = Serial.readStringUntil(',');
+    zStr = Serial.readStringUntil('\n');
     xVal = xStr.toFloat()*180/M_PI;
     yVal = yStr.toFloat()*180/M_PI;
     zVal = zStr.toFloat()*180/M_PI;
@@ -100,12 +94,21 @@ void loop() {
 //    Serial.println(yVal);
 //    Serial.print("Z "); 
 //    Serial.println(zVal);
-    digitalWrite(PD4,HIGH);
 
+      digitalWrite(PD4,HIGH);
+          
+      #ifdef LIDAR
+        float lidarDist = lidar1.distance();
+        digitalWrite(PD4,HIGH);
+        Serial.print('D');  // Send info
+        Serial.print(lidarDist);
+        Serial.print('I');
+      #endif
       Serial.print('A');
       Serial.print(yVal);
       Serial.print('E');
       Serial.flush();
+      
       digitalWrite(PD4,LOW);
   }
 

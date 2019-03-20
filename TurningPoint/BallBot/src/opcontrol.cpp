@@ -434,7 +434,7 @@ void serialRead(void* params) {
         }
         
         // Delay to let serial data arrive
-        pros::delay(20);
+        pros::delay(10);
         
     }
     
@@ -475,7 +475,7 @@ void checkGyro(gyros *gyro)
     
     
 #ifdef USE_SERIAL_GYRO
-    currentGyro = gyroValue;        // Read hardware gyro value from serial
+    currentGyro = gyroValue*10;        // Read hardware gyro value from serial
 #else
     currentGyro = sensor_gyro.get_value();    // Read hardware gyro value from analog
 #endif

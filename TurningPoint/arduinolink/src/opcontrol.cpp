@@ -33,6 +33,9 @@ void serialRead(void* params) {
     // Example Message:
     // D50.2I128A12.32E
     
+    double lastTime = pros::millis();
+    double total = 0;
+    
     while (true) {
         
         // Buffer to store serial data
@@ -42,8 +45,10 @@ void serialRead(void* params) {
         // Get serial data
         int32_t nRead = vexGenericSerialReceive(SERIALPORT - 1, buffer, len);
         
+        pros::lcd::print(3,"%f", nRead);
+        
         // Now parse the data
-        if (nRead >= 9) {
+        if (nRead >= 6) {
             
             // Stream to put the characters in
             std::stringstream myStream("");
@@ -62,6 +67,9 @@ void serialRead(void* params) {
                 if (thisDigit == 'E') {
                     recordAngle = false;
                     myStream >> gyroValue;
+                    total = (1000/(pros::millis()-lastTime));
+                    pros::lcd::print(5,"%f", total);
+                    lastTime = pros::millis();
                 }
                 
                 // If we want the digits, put them into stream
@@ -77,7 +85,7 @@ void serialRead(void* params) {
         }
     
         // Delay to let serial data arrive
-        pros::delay(20);
+        pros::delay(10);
         
     }
     
@@ -92,7 +100,7 @@ void opcontrol() {
     while (true) {
         
         // Print value to screen
-        pros::lcd::print(4,"%f", gyroValue);
+        pros::lcd::print(4,"%.2f", gyroValue);
         
 		pros::delay(20);
 	}

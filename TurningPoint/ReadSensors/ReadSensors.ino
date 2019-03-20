@@ -52,7 +52,7 @@ void loop() {
   Serial.print('I');
   Serial.print(IR);
   Serial.print('A');
-  Serial.print((float)JY901.stcAngle.Angle[2]/32768*180);
+  Serial.print("100");//(float)JY901.stcAngle.Angle[2]/32768*180);
   Serial.print('E');
 
   Serial.flush();
@@ -63,19 +63,19 @@ void loop() {
     flip = 0;
     lit = !lit;
   }
-  digitalWrite(PD3, lit);
-
-  if (!digitalRead(PD4)) {  // Button to do something?
-    delay(5);
-    while (!digitalRead(PD4)) {
-      digitalWrite(PD3, HIGH);
-      delay(5);
-    }
-    // Do something
-    /*Serial.println("");
-    Serial.print('I');
-    Serial.println(IR);*/
-  }
+  digitalWrite(2, lit);
+//
+//  if (!digitalRead(PD4)) {  // Button to do something?
+//    delay(5);
+//    while (!digitalRead(PD4)) {
+//      digitalWrite(PD3, HIGH);
+//      delay(5);
+//    }
+//    // Do something
+//    /*Serial.println("");
+//    Serial.print('I');
+//    Serial.println(IR);*/
+//  }
 
   delay(20);
   
