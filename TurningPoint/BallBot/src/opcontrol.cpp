@@ -324,7 +324,7 @@ void initAll() {        // called when robot activates & start of auton
         arm_2.tare_position();
         wrist.tare_position();
         flip.tare_position();
-#ifndef PRACTICE_SKILLS
+#ifndef USE_SERIAL_GYRO
         pros::delay(4000);
 #endif
         pros::Task flywheelTask (run_flywheel);
@@ -367,7 +367,7 @@ extern "C" void vexGenericSerialEnable(  uint32_t index, uint32_t nu );
 extern "C" void vexGenericSerialBaudrate(  uint32_t index, uint32_t rate );
 
 // Port to use for serial data
-#define SERIALPORT 11           // Port 11
+#define SERIALPORT 15           // Port 15
 // Variable to put the gyro value into
 double gyroValue = 0;
 

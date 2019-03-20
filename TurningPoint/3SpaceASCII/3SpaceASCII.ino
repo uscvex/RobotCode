@@ -105,7 +105,7 @@ void loop() {
         Serial.print('I');
       #endif
       Serial.print('A');
-      Serial.print(yVal);
+      Serial.print(xVal);
       Serial.print('E');
       Serial.flush();
       
