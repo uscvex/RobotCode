@@ -72,6 +72,7 @@ using namespace pros;
 #define BTN_FIRE_BOTH DIGITAL_B
 #define BTN_TOGGLE_COAST DIGITAL_A
 #define BTN_TOGGLE_INTAKE DIGITAL_Y
+#define BTN_TOGGLE_SCRAPER DIGITAL_X
 
 // Arm
 #define BTN_WRIST_UP DIGITAL_RIGHT
@@ -96,6 +97,7 @@ using namespace pros;
 #define wristSeekRate 0.25
 #define wristSeekSlow 8
 #define flipperSeekRate 1
+#define scraperSeekRate 1
 
 // Gyro Stuff
 #ifdef USE_SERIAL_GYRO
@@ -150,6 +152,10 @@ Motor arm_2(18, TORQUE, 1, DEGREES);
 // Flipper
 Motor wrist(17, SPEED, 1, DEGREES);
 Motor flip(20, SPEED, 0, DEGREES);
+
+// Skills Scraper
+Motor scraper(11,TORQUE,0,DEGREES);
+
 // Gyro Sensor
 ADIGyro sensor_gyro(1, GYRO_PORT);  // A
 // Inner Intake Button
@@ -253,10 +259,12 @@ int runTillBall = 0;            // 0 = nothing, 1 = run till 1 ball in, 2 = run 
 double armSeek = -1;
 double wristSeek = -1;
 double flipperSeek = -1;
+double scraperSeek = -1;
 
 double armPos = 0;
 double flipperPos = 0;
 double wristPos = 0;
+double scraperPos = 0;
 
 double armOffset = 0;
 double flipperOffset = 0;
@@ -1112,8 +1120,12 @@ void run_flywheel(void* params) {
     bool doSet = false;
     int lastBlinkTime = millis();
     double lastIntakeSpeed = 0;
+    bool justToggledScraper = false;
     
     while (true) {
+        
+        double scraperSpeed = 0;
+        scraperPos = scraper.get_position();
         
         // Set intake motor speeds to 0
         if (!forceIntake) {
@@ -1277,6 +1289,22 @@ void run_flywheel(void* params) {
         // Set flags for preset flywheel speeds & auto-aim-fire
         // If manual intake buttons pressed, override intake speeds
         if (controlMode == FLYWHEEL) {
+            
+            // Toggle button for scraper
+            if (controller.get_digital(BTN_TOGGLE_SCRAPER)) {
+                if (!justToggledScraper) {
+                    if (scraperSeek == SCRAPER_UP_POS)
+                        scraperSeek = SCRAPER_DOWN_POS;
+                    else
+                        scraperSeek = SCRAPER_UP_POS;
+                }
+                justToggledScraper = true;
+            }
+            else {
+                justToggledScraper = false;
+            }
+            
+            
             if (controller.get_digital(BTN_FIRE_LOW) && autonSelect != SKILLSAUTON) { // auto fire low
                 wristSeek = WRIST_VERTICAL_POS;
                 doSet = false;
@@ -1415,6 +1443,13 @@ void run_flywheel(void* params) {
         // flywheelSpeed = 0;
         ///////////////////////////////
         
+        if (scraperSeek >= 0) {
+            scraperSpeed = (scraperSeek - scraperPos) / scraperSeekRate;
+            if (scraperSpeed > 127) scraperSpeed = 127;
+            if (scraperSpeed < -127) scraperSpeed = -127;
+        }
+        
+        
         if (lastIntakeSpeed > 0 && intakeSpeedInner == 0) {
             intakeSpeedInner = -127;
         }
@@ -1426,6 +1461,8 @@ void run_flywheel(void* params) {
         // Send speeds to intake motors
         intake_in.move_voltage(intakeSpeedInner*12000 / 127);
         intake_out.move_voltage(intakeSpeedOuter*12000 / 127);
+        
+        scraper.move_voltage(scraperSpeed*12000/127);
         
         // Remember ball info for fireing
         ballWasIn = ballIsIn;
@@ -1748,10 +1785,11 @@ void run_arm(void* params) {
         
         
         // If we need to seek, then tell the arm, wrist, and flipper (lerp code)
+        // All clamping was 100, changed to 127 3/22/19
         if (armSeek > 0) {
             armSpeed = (armSeek - armPos) / armSeekRate;
-            if (armSpeed > 100) armSpeed = 100;
-            if (armSpeed < -100) armSpeed = -100;
+            if (armSpeed > 127) armSpeed = 127;
+            if (armSpeed < -127) armSpeed = -127;
             if (armSpeed < 0) armSpeed /= 1;        // slower on the way down
         }
         if (wristSeek != -1) {
@@ -1765,13 +1803,13 @@ void run_arm(void* params) {
             if (slowSeek) wSR = wristSeekSlow;
             
             wristSpeed = -(actualWristSeek - wristPos) / (wristSeekRate * wSR);
-            if (wristSpeed > 100) wristSpeed = 100;
-            if (wristSpeed < -100) wristSpeed = -100;
+            if (wristSpeed > 127) wristSpeed = 127;
+            if (wristSpeed < -127) wristSpeed = -127;
         }
         if (flipperSeek > 0) {
             flipperSpeed = (flipperSeek - flipperPos) / flipperSeekRate;
-            if (flipperSpeed > 100) flipperSpeed = 100;
-            if (flipperSpeed < -100) flipperSpeed = -100;
+            if (flipperSpeed > 127) flipperSpeed = 127;
+            if (flipperSpeed < -127) flipperSpeed = -127;
         }
         
         
