@@ -99,7 +99,7 @@ int autonSelect = 0;                    // Routine to start on
 #define ARM_SKILLS_POS 180*5
 #define ARM_HOLD_POS 25*5
 #define SCRAPER_UP_POS -10
-#define SCRAPER_DOWN_POS 40
+#define SCRAPER_DOWN_POS 50
 
 #define TOP 2                           // Top Flag
 #define MIDDLE 1                        // Middle Flag
@@ -240,7 +240,19 @@ double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
 double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     
     0,
-    TURN,90,2,
+    WRISTSEEK,WRIST_VERTICAL_POS,
+    TURN,90,5,
+    PAUSE,0.1,
+    TURN,180,5,
+    PAUSE,0.1,
+    TURN,270,5,
+    PAUSE,0.1,
+    TURN,0,5,
+    PAUSE,0.1,
+    TURN,180,5,
+    PAUSE,0.1,
+    TURN,0,5,
+    PAUSE,0.1,
     END,
     
     

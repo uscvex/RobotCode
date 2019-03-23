@@ -101,8 +101,8 @@ using namespace pros;
 
 // Gyro Stuff
 #ifdef USE_SERIAL_GYRO
-    #define CSCALE 1    // 0.9876     //Clockwise scale adjustments to counteract rotation errors
-    #define ASCALE 1    // 0.9486    //Anti-clockwise scale adjustments to counteract rotation errors
+    #define CSCALE 1.01111    // 0.9876     //Clockwise scale adjustments to counteract rotation errors
+    #define ASCALE 1.00999    // 0.9486    //Anti-clockwise scale adjustments to counteract rotation errors
 #else
     #define CSCALE 0.9876     //Clockwise scale adjustments to counteract rotation errors
     #define ASCALE 0.9486    //Anti-clockwise scale adjustments to counteract rotation errors
@@ -178,12 +178,12 @@ double ticksPerTile = 640;
 double minForward = 40;
 double driveLerp = 0.1;
 // Turn
-double turnAccepted = 1;
+double turnAccepted = 0.5;
 double pulsePause = 10;
-double pulseTime = 5;
-double minSpeed = 25;
+double pulseTime = 7;
+double minSpeed = 20;
 double maxTurn = 127;
-double turnRate = 150;
+double turnRate = 100;           // Smaller = faster 150
 double ticksPerDegree = 10;
 // Tracking
 double trackingTicksPerTile = 640;
@@ -922,7 +922,7 @@ void run_drive(void* params) {
             if (autoSpeed == 0 || (autoMode == DRIVEMODE_TURN && forward != 0)) {
                 if (abs(direction - targetDirection) < turnAccepted) {
                     turnGoodCount++;
-                    if (turnGoodCount > 3)
+                    if (turnGoodCount > 10)
                         autonComplete = true;
                 }
                 else {
