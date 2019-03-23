@@ -97,7 +97,7 @@ using namespace pros;
 #define wristSeekRate 0.25
 #define wristSeekSlow 8
 #define flipperSeekRate 1
-#define scraperSeekRate 1
+#define scraperSeekRate 0.25
 
 // Gyro Stuff
 #ifdef USE_SERIAL_GYRO
@@ -154,7 +154,7 @@ Motor wrist(17, SPEED, 1, DEGREES);
 Motor flip(20, SPEED, 0, DEGREES);
 
 // Skills Scraper
-Motor scraper(11,TORQUE,0,DEGREES);
+Motor scraper(13,TORQUE,0,DEGREES);
 
 // Gyro Sensor
 ADIGyro sensor_gyro(1, GYRO_PORT);  // A
@@ -375,7 +375,7 @@ extern "C" void vexGenericSerialEnable(  uint32_t index, uint32_t nu );
 extern "C" void vexGenericSerialBaudrate(  uint32_t index, uint32_t rate );
 
 // Port to use for serial data
-#define SERIALPORT 15           // Port 15
+#define SERIALPORT 14           // Port 15
 // Variable to put the gyro value into
 double gyroValue = 0;
 
@@ -1400,6 +1400,7 @@ void run_flywheel(void* params) {
             fireBall = false;
             flywheelRunSpeed = -1;
             flipCapWIntake = false;
+            scraperSeek = -1;
         }
         
         if (runTillBall) {
@@ -1443,7 +1444,7 @@ void run_flywheel(void* params) {
         // flywheelSpeed = 0;
         ///////////////////////////////
         
-        if (scraperSeek >= 0) {
+        if (scraperSeek != -1) {
             scraperSpeed = (scraperSeek - scraperPos) / scraperSeekRate;
             if (scraperSpeed > 127) scraperSpeed = 127;
             if (scraperSpeed < -127) scraperSpeed = -127;
@@ -2305,6 +2306,10 @@ void opcontrol() {
     
     
     while (true) {
+        
+        if (controller.get_digital(BTN_CHOOSE_AUTON)) {
+            setGyro(0);
+        }
         
         std::cout << "Sensor: " << sensor_gyro.get_value() << " Gyro: " << gyroDirection << " Direction: " << direction << std::endl;
         //std::cout << " Arm Pos: " << armPos << " Wrist Pos: " << wristPos << " Flip Pos: " << flipperPos << " Stack Step " << stackStep << std::endl;
