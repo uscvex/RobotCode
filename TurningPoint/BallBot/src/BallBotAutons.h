@@ -45,6 +45,7 @@ int autonSelect = 0;                    // Routine to start on
 #define DRIVE_TO -25                    // Drive to point, (s,x,y,t)
 #define TURN_TO -26                     // Turn to face point
 #define INTAKE_FLIP -27                 // Run outer intake backwards to flip cap
+#define SCRAPER -28                     // Position seek for scraper
 
 
                                         // Conditionals
@@ -83,7 +84,7 @@ int autonSelect = 0;                    // Routine to start on
 #define STACKED -5                      // Pause condition wait till stacked
 #define AFTER -6
 #define BEFORE -7
-
+// #define SCRAPER_UP -8
                                         // #defines for arm positions
 #define FLIP_POS1 1                     // 1:1 Ratio, 0°
 #define FLIP_POS2 180                   // 1:1 Ratio, 180°
@@ -547,7 +548,7 @@ double blueBackAuton[] = {              // BACK BLUE SIDE, WE WANT 10PT SWING
     END                                 // END OF ROUTINE
 };
 
-double skills[] = {
+/*double skills[] = {
     270,
     
     WRISTSEEK,-1000,                    // DEPLOY FLIPPER
@@ -759,5 +760,6 @@ double skills[] = {
     DRIVE,127,90,DISTANCE,3,4,
     END
 };
+*/
 
 #endif
