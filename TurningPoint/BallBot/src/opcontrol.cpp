@@ -240,57 +240,67 @@ extern double redBackAuton[];
 extern double blueBackAuton[];
 
 
-#define SCRAPER_FLIP_POS 80
+#define SCRAPER_FLIP_POS 90
 #define SCRAPER_UP -8
+#define SCRAPER_DOWN_POS 70
 
+#define FAR_FLAG_DIST 1.75
+#define MIDDLE_FLAG_DIST 0.8
 
 
 double skills[] = {
-    270,
+//    270,
+//
+//    WRISTSEEK,-1000,                    // DEPLOY FLIPPER
+//    FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
+//    INTAKE_ON,                          // START INTAKE
+//    SCRAPER,SCRAPER_DOWN_POS-10,        // LOWER SCRAPER
+//    PAUSE,0.125,
+//    DRIVE,90,270,BLACK_B,0.5,           // DRIVE OFF TILE
+//    DRIVE,100,270,DISTANCE,1.25,2,      // DRIVE TO FLIP CAP                        FLIP CAP 1
+//    WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
+//
+//    SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
+//    TURN,220,2,                         // TURN TO FACE NEXT CAP
+//    DRIVE,127,220,DISTANCE,1,2,         // DRIVE TO NEXT CAP
+//    SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 2
+//    PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
+//    DRIVE,-127,220,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
+//
+//    SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
+//    TURN,160,2,                         // TURN TO FACE NEXT CAP
+//    DRIVE,127,160,DISTANCE,0.5,1,       // DRIVE TO NEXT CAP
+//    SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 3
+//    PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
+//    DRIVE,-127,160,DISTANCE,0.5,2,      // DRIVE AWAY FROM CAP
+//
+//    START_COAST,                        // LET FLYWHEEL SPIN UP TO SPEED
+//
+//    TURN,90,2,                          // TURN TO FACE START TILE
+//    DRIVE,127,90,WHITE_R,2,             // DRIVE TO START TILE
+//    DRIVE,-80,90,0.05,                  // BREAK TO STOP
+//    TURN,0,2,                           // TURN TO FACE FLAGS
     
-    WRISTSEEK,-1000,                    // DEPLOY FLIPPER
-    FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
-    INTAKE_ON,                          // START INTAKE
-    SCRAPER,SCRAPER_DOWN_POS-10,        // LOWER SCRAPER
-    PAUSE,0.125,
-    DRIVE,90,270,BLACK_B,0.5,          // DRIVE OFF TILE
-    DRIVE,90,270,DISTANCE,1.25,2,      // DRIVE TO FLIP CAP                        FLIP CAP 1
-    WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
+    0,
     
-    SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
-    TURN,220,2,                         // TURN TO FACE NEXT CAP
-    DRIVE,127,220,DISTANCE,1,2,         // DRIVE TO NEXT CAP
-    SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 2
-    PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
-    DRIVE,-127,220,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
-    
-    SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
-    TURN,160,2,                         // TURN TO FACE NEXT CAP
-    DRIVE,127,160,DISTANCE,0.5,1,       // DRIVE TO NEXT CAP
-    SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 3
-    PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
-    DRIVE,-127,160,DISTANCE,0.5,2,      // DRIVE AWAY FROM CAP
-    
-    START_COAST,                        // LET FLYWHEEL SPIN UP TO SPEED
-    
-    TURN,90,2,                          // TURN TO FACE START TILE
-    DRIVE,127,90,WHITE_R,2,             // DRIVE TO START TILE
-    DRIVE,-80,90,0.05,                  // BREAK TO STOP
-    TURN,0,2,                           // TURN TO FACE FLAGS
-    
+    SCRAPER,SCRAPER_DOWN_POS+10,           // LOWER SONAR
     DRIVE,127,1,BLACK_L,2,              // DRIVE OFF START TILE
     DRIVE,127,1,0.1,
     DRIVE,127,1,WHITE_L,2,              // DRIVE TO NEXT TILE
     //DRIVE,127,2,0.1,
     //DRIVE,100,2,BLACK_L,2,              // DRIVE OFF NEXT TILE
-    DRIVE,127,2,DISTANCE,0.8,1,          // LINE UP FOR SHOT
+    //DRIVE,127,2,DISTANCE,0.8,1,         // LINE UP FOR SHOT
+    DRIVE,127,2,SONAR,FAR_FLAG_DIST,2,              // LINE UP FOR SHOT
+    PAUSE,0.5,
+    DRIVE,-60,2,SONAR,FAR_FLAG_DIST,2,             // LINE UP FOR SHOT
+    SCRAPER,SCRAPER_UP_POS,             // PUT SONAR AWAY
     
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP LEFT FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,0.9,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST,2,      // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
@@ -303,6 +313,8 @@ double skills[] = {
     INTAKE_ON,                          // TURN INTAKE BACK ON
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER AGAIN
     
+    END,
+    
     TURN,0,2,                           // TURN TO LINE UP
     DRIVE,-127,0,WHITE_L,2,             // DRIVE TO RED TILE
     DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO MIDDLE OF IT
@@ -314,14 +326,14 @@ double skills[] = {
     WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
     TURN,130,2,                         // TURN TO FACE NEXT CAP
     
-    DRIVE,-127,130,DISTANCE,1.5,2,      // DRIVE TO NEXT CAP
+    DRIVE,-90,130,DISTANCE,1.5,3,       // DRIVE TO NEXT CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP
     PAUSE,0.25,
     FLIP,
-    TURN,210,2,                         // TURN TO FACE PLATFORM
+    TURN,180,2,                         // TURN TO FACE PLATFORM
     WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 4
     SCRAPER,SCRAPER_UP_POS,             // ENSURE SCRAPER IS UP
-    DRIVE,127,210,DISTANCE,1.2,2,       // DRIVE TO PLATFORM
+    DRIVE,127,180,DISTANCE,1.2,2,       // DRIVE TO PLATFORM
     SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER
     WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT FLIPPER
     FLIPSEEK,FLIP_POS1,                 // REVERT FLIPPER
@@ -332,22 +344,31 @@ double skills[] = {
     SCRAPER,SCRAPER_DOWN_POS-10,        // MOVE SCRAPER TO CAP FLIP POSITION
     
     TURN,270,2,                         // TURN TO FACE NEXT CAP                    FLIP CAP 5
-    DRIVE,90,270,DISTANCE,1,1,         // DRIVE TO FLIP NEXT CAP
+    DRIVE,90,270,DISTANCE,1.1,1,          // DRIVE TO FLIP NEXT CAP         WAS 1
     
     DRIVE,-127,270,DISTANCE,0.25,1,     // DRIVE AWAY FROM CAP
     
     TURN,315,2,                         // TURN TO FACE FLAGS
     SCRAPER,SCRAPER_UP_POS,             // LIFT SCRAPER TO SAFETY
-    DRIVE,127,0,DISTANCE,0.4,1,         // DRIVE TO CORRECT RANGE
-    TURN,0,1,                           // TURN TO FACE FLAGS
-    DRIVE,127,0,DISTANCE,0.1,1,         // DRIVE TO CORRECT RANGE
+    DRIVE,127,315,WHITE_E,1,            // DRIVE TO CENTER LINE
+    DRIVE,-127,315,DISTANCE,0.25,1,     // DRIVE BACK A LITTLE
+    SCRAPER,SCRAPER_DOWN_POS-10,        // LOWER SONAR
+    TURN,0,2,                           // TURN TO FACE FLAGS
+    
+    DRIVE,127,2,SONAR,FAR_FLAG_DIST,2,              // LINE UP FOR SHOT
+    DRIVE,-127,2,SONAR,FAR_FLAG_DIST,2,             // LINE UP FOR SHOT
+    SCRAPER,SCRAPER_UP_POS,             // PUT SONAR AWAY
+    
+//    DRIVE,127,0,DISTANCE,0.4,1,         // DRIVE TO CORRECT RANGE
+//    TURN,0,1,                           // TURN TO FACE FLAGS
+//    DRIVE,127,0,DISTANCE,0.1,1,         // DRIVE TO CORRECT RANGE
     
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,0.7,2,      // DRIVE TO TOP FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,0.8,2,      // DRIVE TO TOP FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           MIDDLE MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
@@ -361,7 +382,7 @@ double skills[] = {
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER AGAIN
     
     TURN,0,2,                           // TURN TO LINE UP
-    DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO LINE UP WITH NEXT CAP
+    DRIVE,-127,0,DISTANCE,0.8,1,        // DRIVE TO LINE UP WITH NEXT CAP
     
     FLIPSEEK,FLIP_POS1,                 // PUT FLIPPER CORRECT WAY UP
     TURN,90,0,                          // TURN TO FACE NEXT CAP
@@ -390,9 +411,14 @@ double skills[] = {
     PAUSE,0.25,
     DRIVE,-127,90,DISTANCE,1.25,2,      // DRIVE TO LINE UP FOR FLAGS
     
+    
+    SCRAPER,SCRAPER_DOWN_POS-10,        // LOWER SONAR
     TURN,0,2,                           // TURN TO FACE FLAGS
     SCRAPER,SCRAPER_UP_POS,             // LIFT SCRAPER TO SAFETY
-    DRIVE,127,0,DISTANCE,0.1,1,         // DRIVE TO CORRECT RANGE
+    //DRIVE,127,0,DISTANCE,0.4,1,         // DRIVE TO CORRECT RANGE
+    DRIVE,127,2,SONAR,FAR_FLAG_DIST,2,              // LINE UP FOR SHOT
+    DRIVE,-127,2,SONAR,FAR_FLAG_DIST,2,             // LINE UP FOR SHOT
+    SCRAPER,SCRAPER_UP_POS,             // PUT SONAR AWAY
     
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP RIGHT FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
@@ -414,7 +440,25 @@ double skills[] = {
     
     TURN,0,2,                           // TURN TO LINE UP
     
+    DRIVE,-127,0,WHITE_R,2,             // DRIVE UNTIL ON THE TILE
+    DRIVE,-127,0,0.1,
+    DRIVE,-127,0,BLACK_R,2,             // DRIVE UNTIL OFF THE TILE
+    DRIVE,-127,0,DISTANCE,0.3,2,        // DRIVE TO LINE UP
     
+    TURN,90,2,                          // TURN TO FACE PLATFORM
+    
+    INTAKE_ON,
+    
+    DRIVE,127,90,DISTANCE,0.5,1,        // DRIVE TO PLATFORM
+    WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN
+    DRIVE,127,90,DISTANCE,2.5,4,        // PARK
+    
+    //END,                                // END OF 'SAFE' MODE
+    
+    FLIPSEEK,FLIP_POS1-90,              // TURN FLIPPER
+    PAUSE,0.75,
+    TURN,0,2,                           // TURN TO FLIP CAP                         FLIP CAP 8
+    FLIPSEEK,-1,                        // STOP FLIPPER
     END
 };
 
@@ -1537,7 +1581,7 @@ void run_flywheel(void* params) {
             }
             
             
-            if (controller.get_digital(BTN_FIRE_LOW) && autonSelect != SKILLSAUTON) { // auto fire low
+            if (controller.get_digital(BTN_FIRE_LOW)) { //} && autonSelect != SKILLSAUTON) { // auto fire low
                 wristSeek = WRIST_VERTICAL_POS;
                 doSet = false;
                 if (!justAskedForFire) {
@@ -1876,7 +1920,7 @@ void run_arm(void* params) {
             
         if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
             if (!justFlipped) {
-                if (autonSelect == SKILLSAUTON) {
+                if (false) {    //autonSelect == SKILLSAUTON) {
                     if (armSeek == ARM_SKILLS_POS) {
                         armSeek = ARM_HOLD_POS;
                         runTillBall = 2;
@@ -1905,7 +1949,7 @@ void run_arm(void* params) {
         // Wrist in either mode
         if (controller.get_digital(BTN_WRIST)) {
             if (!justWristToggled) {
-                if (autonSelect == SKILLSAUTON) {
+                if (false) {     //autonSelect == SKILLSAUTON) {
                     if (armSeek == 1) {
                         armSeek = ARM_HOLD_POS;
                         runTillBall = 2;
@@ -1993,7 +2037,7 @@ void run_arm(void* params) {
                  }
                  justArmToggled = true;*/
             }
-            if (controller.get_digital(BTN_ARM_LOW) && autonSelect != SKILLSAUTON) {
+            if (controller.get_digital(BTN_ARM_LOW)) {       // && autonSelect != SKILLSAUTON) {
                 if (stackStep == -1 || stackStep < LOW_STACK_START) {
                     stackStep = LOW_STACK_START;
                 }
@@ -2039,7 +2083,7 @@ void run_arm(void* params) {
             if (wristSpeed > 127) wristSpeed = 127;
             if (wristSpeed < -127) wristSpeed = -127;
         }
-        if (flipperSeek > 0) {
+        if (flipperSeek != -1) {
             flipperSpeed = (flipperSeek - flipperPos) / flipperSeekRate;
             if (flipperSpeed > 127) flipperSpeed = 127;
             if (flipperSpeed < -127) flipperSpeed = -127;

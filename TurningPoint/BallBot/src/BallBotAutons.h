@@ -100,7 +100,7 @@ int autonSelect = 0;                    // Routine to start on
 #define ARM_SKILLS_POS 180*5
 #define ARM_HOLD_POS 25*5
 #define SCRAPER_UP_POS -10
-#define SCRAPER_DOWN_POS 50
+
 
 #define TOP 2                           // Top Flag
 #define MIDDLE 1                        // Middle Flag
