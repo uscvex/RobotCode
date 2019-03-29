@@ -240,7 +240,7 @@ extern double redBackAuton[];
 extern double blueBackAuton[];
 
 
-#define SCRAPER_FLIP_POS 80
+#define SCRAPER_FLIP_POS 90
 #define SCRAPER_UP -10
 #define SCRAPER_DOWN_POS 50
 
@@ -254,18 +254,18 @@ double skills[] = {
     WRISTSEEK,-1000,                    // DEPLOY FLIPPER
     FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
     INTAKE_ON,                          // START INTAKE
-    SCRAPER,SCRAPER_DOWN_POS-10,        // LOWER SCRAPER
+    SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER
     PAUSE,0.125,
     DRIVE,127,270,BLACK_B,0.5,          // DRIVE OFF TILE
     DRIVE,127,270,DISTANCE,1.25,2,      // DRIVE TO FLIP CAP                        FLIP CAP 1
     WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
 
     SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
-    TURN,220,2,                         // TURN TO FACE NEXT CAP
-    DRIVE,127,220,DISTANCE,1,2,         // DRIVE TO NEXT CAP
+    TURN,225,2,                         // TURN TO FACE NEXT CAP
+    DRIVE,127,225,DISTANCE,1,2,         // DRIVE TO NEXT CAP
     SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 2
     PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
-    DRIVE,-127,220,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
+    DRIVE,-127,225,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
 
     SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
     TURN,160,2,                         // TURN TO FACE NEXT CAP
@@ -299,7 +299,7 @@ double skills[] = {
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST-0.05,2,      // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,TOP,                           // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
@@ -333,8 +333,8 @@ double skills[] = {
     PAUSE,0.25,
     //DRIVE,90,135,DISTANCE,0.2,1,        // DRIVE FORWARD A LITTLE
     FLIP,
-    TURN,180,2,                         // TURN TO FACE PLATFORM
     WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 4
+    TURN,180,2,                         // TURN TO FACE PLATFORM
     SCRAPER,SCRAPER_UP_POS,             // ENSURE SCRAPER IS UP
     DRIVE,127,180,DISTANCE,1.3,2,       // DRIVE TO PLATFORM
     SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER
@@ -344,7 +344,7 @@ double skills[] = {
     DRIVE,-127,180,DISTANCE,0.25,1,     // DRIVE AWAY FROM PLATFORM
     PAUSE,0.5,                          // LET BALL ROLL IN
     
-    SCRAPER,SCRAPER_DOWN_POS-10,        // MOVE SCRAPER TO CAP FLIP POSITION
+    SCRAPER,SCRAPER_DOWN_POS,        // MOVE SCRAPER TO CAP FLIP POSITION
     
     TURN,270,2,                         // TURN TO FACE NEXT CAP                    FLIP CAP 5
     DRIVE,90,270,DISTANCE,1.1,1,        // DRIVE TO FLIP NEXT CAP         WAS 1
@@ -366,12 +366,11 @@ double skills[] = {
 //    TURN,0,1,                           // TURN TO FACE FLAGS
 //    DRIVE,127,0,DISTANCE,0.1,1,         // DRIVE TO CORRECT RANGE
     
-    TURN,0,2,
+    TURN,315,2,
+    DRIVE,127,315,DISTANCE,0.6,2,       // DRIVE TO LINE UP
+    //TURN,0,2,
     
-    DRIVE,127,0,SONAR,FAR_FLAG_DIST+0.1,2,              // LINE UP FOR SHOT
-    PAUSE,0.25,
-    DRIVE,-60,0,SONAR,FAR_FLAG_DIST+0.1,2,              // LINE UP FOR SHOT
-    PAUSE,0.5,
+    //DRIVE,60,0,SONAR,FAR_FLAG_DIST+0.4,2,              // LINE UP FOR SHOT
     
     TURN,345,2,
     
@@ -380,7 +379,7 @@ double skills[] = {
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST+0.2,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST-0.1,2,      // DRIVE TO MIDDLE FLAG DIST
     FIRE,TOP,                           // SHOOT MIDDLE FLAG                       MIDDLE MIDDLE FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
@@ -410,7 +409,7 @@ double skills[] = {
     PAUSE,0.25,                         // PAUSE TO LIFT
     DRIVE,127,90,DISTANCE,0.1,1,        // DRIVE AWAY FROM WALL
     FLIP,                               // FLIP CAP
-    PAUSE,1,
+    PAUSE,0.25,
     WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 6
     TURN,160,2,                         // TURN TO FACE PLATFORM
     DRIVE,127,160,DISTANCE,1.5,2,       // DRIVE TO PLATFORM
@@ -423,28 +422,31 @@ double skills[] = {
     PAUSE,0.5,
     
     TURN,90,2,                          // TURN TO FACE NEXT CAP
-    SCRAPER,SCRAPER_DOWN_POS-10,        // MOVE SCRAPER TO CAP FLIP POSITION
+    SCRAPER,SCRAPER_DOWN_POS,        // MOVE SCRAPER TO CAP FLIP POSITION
     DRIVE,127,90,DISTANCE,1.25,2,       // DRIVE TO FLIP CAP                        FLIP CAP 7
+    SCRAPER,SCRAPER_UP_POS,             // LIFT TO FLIP CAP FAR
     PAUSE,0.25,
-    DRIVE,-127,90,DISTANCE,1,2,         // DRIVE TO LINE UP FOR FLAGS
+    DRIVE,-127,90,WHITE_E,2,         // DRIVE TO LINE UP FOR FLAGS
+    DRIVE,90,90,0.05,
+    PAUSE,0.5,
+    DRIVE,127,90,DISTANCE,0.5,2,
     
-    
-    TURN,345,2,                           // TURN TO FACE FLAGS
     SCRAPER,SCRAPER_UP_POS,             // LIFT SCRAPER TO SAFETY
+    
+    TURN,0,2,                           // TURN TO FACE FLAGS
+    //TURN,345,1,
     //DRIVE,127,0,DISTANCE,0.4,1,         // DRIVE TO CORRECT RANGE
     
-    TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT CENTRE-MOST BLUE FLAG
+    //TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT CENTRE-MOST BLUE FLAG
     
-    DRIVE,127,CDIR,SONAR,FAR_FLAG_DIST,2,              // LINE UP FOR SHOT
-    PAUSE,0.5,
-    DRIVE,-60,CDIR,SONAR,FAR_FLAG_DIST,2,             // LINE UP FOR SHOT
-    
+    DRIVE,60,0,SONAR,FAR_FLAG_DIST+0.4,2,              // LINE UP FOR SHOT
+    TURN,345,1,
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP RIGHT FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
-    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST,2,      // DRIVE TO MIDDLE FLAG DIST
+    DRIVE,127,CDIR,DISTANCE,MIDDLE_FLAG_DIST+0.1,2,      // DRIVE TO MIDDLE FLAG DIST
     FIRE,TOP,                           // SHOOT MIDDLE FLAG                       MIDDLE RIGHT FLAG
     PAUSE,FIRED,5,                      // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
@@ -459,13 +461,13 @@ double skills[] = {
     INTAKE_ON,                          // TURN INTAKE BACK ON
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER AGAIN
     
-    TURN,10,2,                           // TURN TO LINE UP
+    TURN,20,2,                           // TURN TO LINE UP
     
-    DRIVE,-127,10,WHITE_R,2,             // DRIVE UNTIL ON THE TILE
-    DRIVE,-127,0,0.1,
+    DRIVE,-127,20,WHITE_R,2,             // DRIVE UNTIL ON THE TILE
+    DRIVE,-127,20,0.1,
     TURN,0,2,
     DRIVE,-127,0,BLACK_R,2,             // DRIVE UNTIL OFF THE TILE
-    DRIVE,-127,0,DISTANCE,0.3,2,        // DRIVE TO LINE UP
+    DRIVE,-127,0,DISTANCE,0.5,2,        // DRIVE TO LINE UP
     
     TURN,80,2,                          // TURN TO FACE PLATFORM
     
@@ -1593,7 +1595,7 @@ void run_flywheel(void* params) {
             if (controller.get_digital(BTN_TOGGLE_SCRAPER)) {
                 if (!justToggledScraper) {
                     if (scraperSeek == SCRAPER_UP_POS)
-                        scraperSeek = SCRAPER_DOWN_POS;
+                        scraperSeek = SCRAPER_FLIP_POS;
                     else
                         scraperSeek = SCRAPER_UP_POS;
                 }
