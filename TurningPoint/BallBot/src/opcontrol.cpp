@@ -106,11 +106,13 @@ using namespace pros;
 
 // Gyro Correction Values
 #ifdef USE_SERIAL_GYRO
-    #define CSCALE 1//1.01111    // 0.9876     //Clockwise scale adjustments to counteract rotation errors
-    #define ASCALE 1//1.00999    // 0.9486    //Anti-clockwise scale adjustments to counteract rotation errors
+    #define CSCALE 1                //Clockwise scale adjustments to counteract rotation errors
+    #define ASCALE 1                //Anti-clockwise scale adjustments to counteract rotation errors
 #else
-    #define CSCALE 0.9876     // Clockwise scale adjustments to counteract rotation errors
-    #define ASCALE 0.9486    // Anti-clockwise scale adjustments to counteract rotation errors
+    #define CSCALE 0.9876           // Red Bot Clockwise scale adjustments to counteract rotation errors
+    #define ASCALE 0.9486           // Red Bot Anti-clockwise scale adjustments to counteract rotation errors
+    #define CSCALEBLUE 0.9264       // Blue Bot Clockwise scale adjustments to counteract rotation errors
+    #define ASCALEBLUE 0.9279       // Blue Bot Anti-clockwise scale adjustments to counteract rotation errors
 #endif
 
 #define GYRO_PORT 1
@@ -236,7 +238,7 @@ extern double defaultAuton[];
 extern double redAuton[];
 extern double blueAuton[];
 //extern double skills[];
-extern double redBackAuton[];
+//extern double redBackAuton[];
 extern double blueBackAuton[];
 
 
@@ -247,6 +249,117 @@ extern double blueBackAuton[];
 #define FAR_FLAG_DIST 1.2
 #define MIDDLE_FLAG_DIST 0.8
 #define FIRE_TRY_TIME 2.5
+
+double redBackAuton[] = {
+    270,                                // ROBOT STARTS FACING 270°
+    
+    WRISTSEEK,-1000,                    // DEPLOY FLIPPER
+    FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
+    INTAKE_ON,                          // START INTAKE
+    DRIVE,127,270,BLACK_B,0.5,          // DRIVE OFF TILE
+    DRIVE,90,270,DISTANCE,1.3,2,        // DRIVE TO FLIP CAP                        KNOCK CAP 1
+    WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
+    
+    DRIVE,-127,270,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
+    TURN,0,0.125,                       // SHORT TURN TO CONTROL DIRECTION
+    TURN,90,2,                          // TURN TO FACE CAP
+    WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
+    PAUSE,0.5,                          // PAUSE TO LET FLIPPER DOWN
+    DRIVE,-70,90,DISTANCE,1,2,          // DRIVE TO GET CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP UP                              COLLECT CAP 1
+    
+    PAUSE,0.5,                          // WAIT FOR CAP TO LIFT
+    DRIVE,90,90,WHITE_R,3,              // DRIVE TO START TILE
+    DRIVE,-90,90,0.05,                  // DRIVE TO BREAK
+    PAUSE,1,                            // PAUSE TO STOP TIP
+    DRIVE,-90,90,DISTANCE,0.125,1,      // DRIVE AWAY A LITTLE
+    PAUSE,0.25,                         // SHORT PAUSE
+    TURN,180,2,                         // TURN TO LINE UP
+    PAUSE,0.5,                          // SHORT PAUSE
+    DRIVE,90,180,WHITE_L,2,             // DRIVE TO WHITE LINE
+    DRIVE,-90,180,0.1,                  // DRIVE TO BREAK
+    DRIVE,-60,180,DISTANCE,0.125,1,     // DRIVE BACK A LITTLE
+    PAUSE,0.5,                          // SHORT PAUSE
+    TURN,270,2,                         // TURN TO FACE POLE
+    PAUSE,0.25,                         // SHORT PAUSE
+    ARMSEEK,ARM_POS_LOW,                // RAISE ARM
+    PAUSE,2,                            // WAIT FOR ARM TO RAISE
+    
+    DRIVE,-90,270,WHITE_L,2,            // DRIVE ONTO TILE
+    DRIVE,-90,270,DISTANCE,0.5,2,       // DRIVE TO POLE
+    PAUSE,0.5,                          // PAUSE TO STOP MOMENTUM
+    WRISTSEEK,-1,                       // DROP CAP                                 HIGH SCORE CAP 1
+    PAUSE,1,                            // LET CAP SCORE
+    DRIVE,90,270,DISTANCE,0.5,2,        // DRIVE AWAY
+    ARMSEEK,1,                          // LOWER ARM
+    WRISTSEEK,WRIST_VERTICAL_POS,       // RAISE WRIST
+    
+    TURN,180,2,                         // TURN TO FACE WALL
+    DRIVE,127,180,DISTANCE,1,1,         // DRIVE TO WALL
+    DRIVE,127,180,0.5,                  // ENSURE AGAINST WALL
+    SET_GYRO,180,                       // RESET GYRO TO 180
+    
+    DRIVE,-127,180,DISTANCE,0.2,1,      // DRIVE AWAY FROM WALL
+    TURN,90,2,                          // TURN TO FACE NEXT CAP
+    WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
+    PAUSE,0.5,                          // PAUSE TO LET FLIPPER DOWN
+    DRIVE,-80,90,DISTANCE,1.5,2 ,       // DRIVE TO NEXT CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP                                 COLLECT CAP 2
+    PAUSE,0.5,                          // PAUSE SO CAP LIFTS
+    DRIVE,127,90,DISTANCE,0.25,1,       // DRIVE TO LINE UP
+    TURN,45,2,                          // TURN READY TO DRIVE
+    DRIVE,127,45,DISTANCE,0.8,1,        // DRIVE TO LINE UP
+    TURN,0,2,                           // TURN TO FACE POLE
+    //DRIVE,90,0,DISTANCE,0.1,1,          // DRIVE AWAY FROM POLE
+    ARMSEEK,ARM_POS_LOW,                // RAISE ARM
+    PAUSE,2,                            // WAIT FOR ARM TO RAISE
+    FLIP,                               // FLIP CAP
+    
+    DRIVE,-90,0,DISTANCE,0.9,2,         // DRIVE TO POLE
+    WRISTSEEK,-1,                       // DROP CAP                                 HIGH SCORE CAP 2
+    PAUSE,1,                            // LET CAP SCORE
+    DRIVE,90,0,WHITE_R,2,               // DRIVE AWAY
+    ARMSEEK,1,                          // LOWER ARM
+    WRISTSEEK,WRIST_VERTICAL_POS,       // RAISE WRIST
+    
+    START_COAST,                        // LET FLYWHEEL SPIN UP
+    TURN,90,2,                          // TURN TO FACE START TILE
+    DRIVE,127,90,WHITE_R,2,             // DRIVE TO START TILE
+    DRIVE,127,90,DISTANCE,0.125,1,      // DRIVE A LITTLE MORE
+    
+    TURN,5,2,                           // TURN TO FACE FLAGS
+    
+    DRIVE,127,5,WHITE_L,2,              // DRIVE TO TILE
+    DRIVE,127,5,0.1,                    // DRIVE TO ENSURE FULLY ON TILE
+    DRIVE,127,5,BLACK_L,2,              // DRIVE OFF START TILE
+    DRIVE,127,5,0.1,                    // DRIVE TO ENSURE FULLY ON TILE
+    DRIVE,127,5,WHITE_L,2,              // DRIVE TO NEXT TILE
+    DRIVE,127,5,DISTANCE,0.8,1,         // LINE UP FOR SHOT
+    
+    PAUSE,UNTIL,41.5,                   // WAIT TILL THE END
+    
+    FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP LEFT FLAG
+    PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
+    PAUSE,0.1,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    DRIVE,127,CDIR,DISTANCE,            // CONTINUED ON NEXT LINE
+    MIDDLE_FLAG_DIST,2,                 // DRIVE TO MIDDLE FLAG DIST
+    FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
+    PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
+    PAUSE,0.1,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    INTAKE_OFF,                         // TURN INTAKE OFF
+    DRIVE,127,CDIR,0.5,                 // DRIVE TO TOGGLE BOTTOM FLAG              BOTTOM LEFT FLAG
+    DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
+    INTAKE_ON,                          // TURN INTAKE BACK ON
+    
+    
+    
+    END,                                // END OF ROUTINE
+};
+
 
 double skills[] = {
     270,                                // ROBOT STARTS FACING 270°
@@ -744,19 +857,46 @@ void run_gyro(void* params) {
         gyro1.port=GYRO_PORT;
         gyro1.truedir=0;
         gyro1.last=sensor_gyro.get_value();
-        gyro1.ascale=ASCALE;
-        gyro1.cscale=CSCALE;
+        if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON) {
+            gyro1.ascale=ASCALEBLUE;
+            gyro1.cscale=CSCALEBLUE;
+        }
+        else {
+            gyro1.ascale=ASCALE;
+            gyro1.cscale=CSCALE;
+        }
         
         gyro2.port=GYRO_PORT;   // If using two gyros, this would be the port of the second gyro
         gyro2.truedir=0;
         gyro2.last=sensor_gyro.get_value();
-        gyro2.ascale=ASCALE;
-        gyro2.cscale=CSCALE;
+        if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON) {
+            gyro2.ascale=ASCALEBLUE;
+            gyro2.cscale=CSCALEBLUE;
+        }
+        else {
+            gyro2.ascale=ASCALE;
+            gyro2.cscale=CSCALE;
+        }
         
         gyroDirection=0;
     }
     
     while(true) {
+        
+        // Check which bot the code is running on, and adjust tuning values accordingly
+        if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON) {
+            gyro1.ascale=ASCALEBLUE;
+            gyro1.cscale=CSCALEBLUE;
+            gyro2.ascale=ASCALEBLUE;
+            gyro2.cscale=CSCALEBLUE;
+        }
+        else {
+            gyro1.ascale=ASCALE;
+            gyro1.cscale=CSCALE;
+            gyro2.ascale=ASCALE;
+            gyro2.cscale=CSCALE;
+        }
+        
         checkGyro(&gyro1);
         checkGyro(&gyro2);
         
@@ -1454,9 +1594,6 @@ void run_flywheel(void* params) {
                         targetSpeed = speedDiff*distDiff + flyWheelSpeeds[index-1][2];
                     }
                 }
-                if (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON) {
-                    targetSpeed += 75;
-                }
             }
             
             if (flywheelRunSpeed != -1)
@@ -1679,6 +1816,13 @@ void run_flywheel(void* params) {
         
 //        if (autonSelect == SKILLSAUTON)
 //            targetSpeed = 450;
+        
+        
+        if (targetSpeed != 0 && (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON)) {
+            targetSpeed += 20;
+            if (targetSpeed > 600)
+                targetSpeed = 600;
+        }
         
 
         if (targetSpeed > 0) {

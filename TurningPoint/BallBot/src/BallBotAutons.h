@@ -378,7 +378,7 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     END                                 // END OF ROUTINE
 };
 
-double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
+/*double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     0,                                  // START FACING 0 DEGREES
     
     INTAKE_FLIP,
@@ -461,7 +461,7 @@ double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     PAUSE,FIRED,5,
     
     END                                 // END OF ROUTINE
-};
+};*/
 
 double blueBackAuton[] = {              // BACK BLUE SIDE, WE WANT 10PT SWING
     0,                                  // START FACING 0 DEGREES
