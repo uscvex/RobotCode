@@ -54,7 +54,7 @@ For example
 Now type
 > git push
 
-There should be some kind of completed/sucess message
+There should be some kind of completed/success message
 And you're done!
 
 If you want to go back and change things later, make sure to cd to RobotCode again, and type
