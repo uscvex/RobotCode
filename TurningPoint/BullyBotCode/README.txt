@@ -39,10 +39,10 @@ Make the changes you wish to these files
 Once you're done, save and close the files and go back the terminal
 Type
 > git status
-You should no see a message listing the files you modified
+You should now see a message listing the files you modified
 
 Type 
-> git add {TurningPoint/BullyBotCode/filename}
+> git add {TurningPoint/BullyBotCode/BullyBotV{1/2}/filename}
 For each of the files you want to save
 
 Now type
