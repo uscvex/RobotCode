@@ -221,7 +221,7 @@ void autoArm()
      seek = 22;
      if (speed < 5) {
      seek = -1;
-     step = -1;
+     step = -1; 
      }
      }
      ApexMotor1.setVelocity(speed, vex::velocityUnits::pct);
