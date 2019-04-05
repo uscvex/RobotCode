@@ -239,7 +239,7 @@ extern double defaultAuton[];
 //extern double blueAuton[];
 //extern double skills[];
 //extern double redBackAuton[];
-extern double blueBackAuton[];
+//extern double blueBackAuton[];
 
 
 #define SCRAPER_FLIP_POS 90
@@ -344,23 +344,27 @@ double blueAuton[] = {
     WRISTSEEK,WRIST_FORWARD_POS,
     PAUSE,0.5,                          // DEPLOY DONE
     
-    DRIVE,-70,180,DISTANCE,0.6,1,       // DRIVE TO LINE UP FOR CAP
+    DRIVE,-70,180,DISTANCE,0.7,1,       // DRIVE TO LINE UP FOR CAP
     TURN,225,1,                         // AIM AT CAP
     TURN,225,2,                         // AIM AT CAP
     
     
     DRIVE,-50,225,DISTANCE,1,2,         // DRIVE TO CAP 1
     WRISTSEEK,WRIST_VERTICAL_POS,       // PICK IT UP                               GRAB CAP 1
-    PAUSE,1,                            // TIME TO PICK UP
+    PAUSE,0.25,                         // TIME TO PICK UP
+    FLIP,                               // FLIP SO BALLS ROLL OFF
+    PAUSE,0.75,                         // LET FLIP HAPPEN
     
-    DRIVE,70,225,WHITE_L,2,             // DRIVE TILL RIGHT SENSOR IS OVER START TILE
+    DRIVE,70,225,WHITE_L,2,             // DRIVE TILL LEFT SENSOR IS OVER START TILE
     TURN,180,2,                         // TURN FOR NEXT DRIVE
+    FLIP,                               // FLIP CAP BACK
     DRIVE,70,180,BLACK_L,2,             // DRIVE UNTIL OFF START TILE
-    DRIVE,-90,180,DISTANCE,0.1,1,       // DRIVE TO LINE UP
+    DRIVE,-70,180,0.05,                 // DRIVE TO BREAK
+    DRIVE,-70,180,DISTANCE,0.05,1,      // DRIVE TO LINE UP
     TURN,270,2,                         // TURN TO LINE UP
     
     DRIVE,-90,270,0.1,                  // DRIVE AWAY FROM POLE
-    TURN,270,2,                         // TURN TO LINE UP
+    TURN,265,2,                         // TURN TO LINE UP
     DRIVE,70,270,0.1,                   // DRIVE BACK TO WALL
     
     DRIVE,50,270,DISTANCE,0.4,2,        // DRIVE TO WALL
@@ -375,17 +379,17 @@ double blueAuton[] = {
     DRIVE,90,0,0.1,                     // MAKE SURE ON TILE
     DRIVE,90,0,BLACK_B,2,               // DRIVE OFF TILE
     DRIVE,-90,0,0.1,                    // DRIVE TO BREAK
-    DRIVE,-90,0,DISTANCE,1,2,           // DRIVE TO LINE UP
+    DRIVE,-90,0,DISTANCE,0.9,2,         // DRIVE TO LINE UP
     
-    TURN,90,2,                          // TURN TO FACE CAP
+    TURN,85,2,                          // TURN TO FACE CAP
     INTAKE_ON,                          // START INTAKE
     WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
-    DRIVE,80,90,BLACK_B,1,              // DRIVE OFF TILE
-    DRIVE,80,90,DISTANCE,1.4,2,         // DRIVE TO GET BALL
-    DRIVE,-80,90,DISTANCE,0.125,2,      // DRIVE BACK FROM CAP                      KNOCK CAP 2
+    DRIVE,80,85,BLACK_B,1,              // DRIVE OFF TILE
+    DRIVE,80,85,DISTANCE,1.4,2,         // DRIVE TO GET BALL
+    DRIVE,-80,85,DISTANCE,0.25,2,       // DRIVE BACK FROM CAP                      KNOCK CAP 2
     
     TURN,5,2,                           // TURN TO FACE FLAGS
-    DRIVE,90,5,DISTANCE,0.65,2,         // DRIVE TO FLAG DISTANCE
+    DRIVE,90,5,DISTANCE,0.6,2,          // DRIVE TO FLAG DISTANCE
     TURN,15,2,                          // TURN TO FACE FLAGS
     TURN_AIM,RED_FLAG,CENTER,2,         // AIM AT CENTRE-MOST BLUE FLAG
     
@@ -402,12 +406,13 @@ double blueAuton[] = {
     STOP_FIRE,                          // STOP FLYWHEEL
     
     DRIVE,127,CDIR,DISTANCE,            // CONTINUED ON NEXT LINE
-    MIDDLE_FLAG_DIST,2,                 // DRIVE TO MIDDLE FLAG DIST
+    MIDDLE_FLAG_DIST-0.2,2,             // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE MIDDLE FLAG
     PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
+    TURN,0,0.5,                         // TURN TO 0°
     INTAKE_OFF,                         // TURN INTAKE OFF
     DRIVE,127,CDIR,0.5,                 // DRIVE TO TOGGLE BOTTOM FLAG              BOTTOM MIDDLE FLAG
     DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
@@ -522,6 +527,122 @@ double redBackAuton[] = {
     STOP_FIRE,                          // STOP FLYWHEEL
     FLIP,                               // PUT FLIPPER STRAIGHT
     
+    INTAKE_OFF,                         // TURN INTAKE OFF
+    DRIVE,127,CDIR,0.5,                 // DRIVE TO TOGGLE BOTTOM FLAG              BOTTOM LEFT FLAG
+    DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
+    INTAKE_ON,                          // TURN INTAKE BACK ON
+    
+    
+    END,                                // END OF ROUTINE
+};
+
+double blueBackAuton[] = {
+    90,                                // ROBOT STARTS FACING 270°
+    
+    WRISTSEEK,-1000,                    // DEPLOY FLIPPER
+    FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
+    INTAKE_ON,                          // START INTAKE
+    DRIVE,127,90,BLACK_B,0.5,          // DRIVE OFF TILE
+    DRIVE,80,90,DISTANCE,1.3,2,        // DRIVE TO FLIP CAP                        KNOCK CAP 1
+    PAUSE,0.5,                          // SHORT PAUSE
+    WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
+    
+    DRIVE,-127,90,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
+    TURN,0,0.25,                        // SHORT TURN TO CONTROL DIRECTION
+    TURN,270,2,                          // TURN TO FACE CAP
+    WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
+    PAUSE,0.5,                          // PAUSE TO LET FLIPPER DOWN
+    DRIVE,-70,270,DISTANCE,1,2,          // DRIVE TO GET CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP UP                              COLLECT CAP 1
+    
+    PAUSE,0.5,                          // WAIT FOR CAP TO LIFT
+    DRIVE,90,270,WHITE_L,3,              // DRIVE TO START TILE
+    DRIVE,-90,270,0.05,                  // DRIVE TO BREAK
+    PAUSE,1,                            // PAUSE TO STOP TIP
+    DRIVE,-90,270,DISTANCE,0.125,1,      // DRIVE AWAY A LITTLE
+    PAUSE,0.25,                         // SHORT PAUSE
+    TURN,180,2,                         // TURN TO LINE UP
+    PAUSE,0.5,                          // SHORT PAUSE
+    DRIVE,90,180,WHITE_R,2,             // DRIVE TO WHITE LINE
+    DRIVE,-90,180,0.1,                  // DRIVE TO BREAK
+    DRIVE,-60,180,DISTANCE,0.125,1,     // DRIVE BACK A LITTLE
+    PAUSE,0.5,                          // SHORT PAUSE
+    TURN,90,2,                         // TURN TO FACE POLE
+    PAUSE,0.25,                         // SHORT PAUSE
+    ARMSEEK,ARM_POS_LOW,                // RAISE ARM
+    PAUSE,2,                            // WAIT FOR ARM TO RAISE
+    
+    DRIVE,-90,90,WHITE_R,2,            // DRIVE ONTO TILE
+    DRIVE,-90,90,DISTANCE,0.5,2,       // DRIVE TO POLE
+    PAUSE,0.5,                          // PAUSE TO STOP MOMENTUM
+    WRISTSEEK,-1,                       // DROP CAP                                 HIGH SCORE CAP 1
+    PAUSE,1,                            // LET CAP SCORE
+    DRIVE,90,90,DISTANCE,0.5,2,        // DRIVE AWAY
+    ARMSEEK,1,                          // LOWER ARM
+    WRISTSEEK,WRIST_FORWARD_POS,        // RAISE WRIST
+    PAUSE,0.5,                          // SHORT PAUSE
+    WRISTSEEK,WRIST_VERTICAL_POS,       // RAISE WRIST
+    
+    TURN,180,2,                         // TURN TO FACE WALL
+    DRIVE,127,180,DISTANCE,1,1,         // DRIVE TO WALL
+    DRIVE,127,180,0.5,                  // ENSURE AGAINST WALL
+    SET_GYRO,180,                       // RESET GYRO TO 180
+    
+    DRIVE,-127,180,DISTANCE,0.2,1,      // DRIVE AWAY FROM WALL
+    TURN,270,2,                          // TURN TO FACE NEXT CAP
+    WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FLIPPER
+    PAUSE,0.5,                          // PAUSE TO LET FLIPPER DOWN
+    DRIVE,-80,270,DISTANCE,1.35,2,       // DRIVE TO NEXT CAP
+    WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP                                 COLLECT CAP 2
+    PAUSE,0.5,                          // PAUSE SO CAP LIFTS
+    DRIVE,127,270,DISTANCE,0.25,1,       // DRIVE TO LINE UP
+    TURN,315,1,                          // TURN READY TO DRIVE
+    DRIVE,127,315,DISTANCE,0.8,1,        // DRIVE TO LINE UP
+    TURN,0,2,                           // TURN TO FACE POLE
+    ARMSEEK,ARM_POS_LOW,                // RAISE ARM
+    FLIP,                               // FLIP CAP
+    PAUSE,2,                            // WAIT FOR ARM TO RAISE
+    
+    DRIVE,-90,0,WHITE_E,1,              // DRIVE TO LINE
+    DRIVE,-90,0,DISTANCE,0.5,2,         // DRIVE TO POLE
+    PAUSE,0.5,                          // PAUSE TO STOP MOMENTUM
+    WRISTSEEK,-1,                       // DROP CAPHIGH SCORE CAP 2                 HIGH SCORE CAP 2
+    PAUSE,1,                            // LET CAP SCORE
+    DRIVE,90,0,WHITE_L,2,               // DRIVE AWAY
+    ARMSEEK,1,                          // LOWER ARM
+    WRISTSEEK,WRIST_VERTICAL_POS,       // RAISE WRIST
+    
+    START_COAST,                        // LET FLYWHEEL SPIN UP
+    TURN,270,2,                          // TURN TO FACE START TILE
+    DRIVE,127,270,WHITE_L,2,             // DRIVE TO START TILE
+    DRIVE,127,270,DISTANCE,0.125,1,      // DRIVE A LITTLE MORE
+    
+    TURN,359,2,                           // TURN TO FACE FLAGS
+    
+    DRIVE,127,359,WHITE_R,2,              // DRIVE TO TILE
+    DRIVE,127,359,0.1,                    // DRIVE TO ENSURE FULLY ON TILE
+    DRIVE,127,359,BLACK_R,2,              // DRIVE OFF START TILE
+    DRIVE,127,359,0.1,                    // DRIVE TO ENSURE FULLY ON TILE
+    DRIVE,127,359,WHITE_R,2,              // DRIVE TO NEXT TILE
+    DRIVE,127,359,DISTANCE,0.8,1,         // LINE UP FOR SHOT
+    
+    
+    PAUSE,UNTIL,41.25,                  // WAIT AS LATE AS POSSIBLE
+    
+    FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP LEFT FLAG
+    PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
+    PAUSE,0.1,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    
+    DRIVE,127,CDIR,DISTANCE,            // CONTINUED ON NEXT LINE
+    MIDDLE_FLAG_DIST+0.1,2,             // DRIVE TO MIDDLE FLAG DIST
+    FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
+    PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
+    PAUSE,0.1,                          // SHORT PAUSE
+    STOP_FIRE,                          // STOP FLYWHEEL
+    FLIP,                               // PUT FLIPPER STRAIGHT
+    
+    TURN,0,0.5,                         // TURN STRAIGHT
     INTAKE_OFF,                         // TURN INTAKE OFF
     DRIVE,127,CDIR,0.5,                 // DRIVE TO TOGGLE BOTTOM FLAG              BOTTOM LEFT FLAG
     DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
@@ -836,6 +957,38 @@ void setScraperPos(double pos) {
 }
 
 
+void calibrateVision() {
+    
+    // Calibration for Blue Bot
+    if (autonSelect == BLUEBACKAUTON || autonSelect == REDBACKAUTON) {
+        camera.set_exposure(70);
+    }
+    
+    // Calibration for Red Bot
+    else {
+        
+        pros::vision_signature_s_t BLUE_SIG =
+        pros::Vision::signature_from_utility(BLUE_FLAG, -2469, -611, -1540, 203, 7341, 3772, 0.5, 1);
+        
+        pros::vision_signature_s_t RED_SIG =
+        pros::Vision::signature_from_utility(RED_FLAG, 1283, 3237, 2260, -415, 1, -207, 1.1, 1);
+        
+        pros::vision_signature_s_t GREEN_SIG =
+        pros::Vision::signature_from_utility(GREEN_FLAG, -2685, -1579, -2132, -3263, -1853, -2558, 1.4, 1);
+        
+        
+        camera.set_signature(BLUE_FLAG, &BLUE_SIG);
+        camera.set_signature(RED_FLAG, &RED_SIG);
+        camera.set_signature(GREEN_FLAG, &GREEN_SIG);
+        
+        camera.set_exposure(70);
+    }
+    
+    camera.set_zero_point(pros::E_VISION_ZERO_CENTER);
+    
+}
+
+
 void initAll() {        // called when robot activates & start of auton
     if (!hasInitialised) {
         // First time / manual init...
@@ -862,10 +1015,7 @@ void initAll() {        // called when robot activates & start of auton
         controller.print(0,0,"            ");
     }
     hasInitialised = true;
-    // Every time init...
-    // Set camera zero pos & exposure
-    camera.set_zero_point(pros::E_VISION_ZERO_CENTER);
-    camera.set_exposure(83);
+    calibrateVision();
 }
 
 // Increments autonomous routine pointer & returns next command
@@ -1588,6 +1738,7 @@ double getDistance() {
     // Sonar not implemented, so return default distance
     return defaultFlywheelDistance;
 }
+
 
 
 // Read vision sensor to get angle needed to turn
@@ -2363,8 +2514,19 @@ void run_arm(void* params) {
             if (armSpeed < 0) armSpeed /= 1;        // slower on the way down
         }
         if (wristSeek != -1) {
+            double wristLowerRed = 0;
+            // Don't raise forks all the way up on RedBot due to size constraints
+            if (autonSelect == REDAUTON || autonSelect == BLUEAUTON || autonSelect == SKILLSAUTON) {
+                // If we are raising the arm then we don't need to worry about forks
+                if (armSeek <= 10) {
+                    if (wristSeek == WRIST_VERTICAL_POS) {
+                        wristLowerRed = 10;
+                    }
+                }
+            }
             
-            double actualWristSeek = wristSeek + ( armPos * 3 / 5 );
+            // Calculate new seek based on arm position
+            double actualWristSeek = wristSeek + ( armPos * 3 / 5 ) + wristLowerRed;
             
             if (actualWristSeek < 0) actualWristSeek = 0;
             if (actualWristSeek > 800) actualWristSeek = 800;
@@ -2874,6 +3036,8 @@ void opcontrol() {
     
     // Start task
    
+    calibrateVision();
+    
     int lastBlinkTime = millis();
     bool justToggledAuto = false;
     int startTime = millis();
