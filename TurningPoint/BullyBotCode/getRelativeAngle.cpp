@@ -1,4 +1,4 @@
-// Read vision sensor to get angle needed to turn
+// Read vision sensor to get angle needed to turn.
 double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     
     // Default to red-team
