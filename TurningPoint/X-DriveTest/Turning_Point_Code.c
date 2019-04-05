@@ -27,35 +27,35 @@ int startTile=1;
 float* autoTab;
 
 
-#include "gyro.c"												//include gyro code
+#include "gyro.c"                                                //include gyro code
 #include "AUTONOMOUS.c"
 //#include "Sounds.c"
 
-#define	JITTER 			2										//Max value to ignore from the gyro - increase accuracy, prevent drift
-#define	JOYZONE 		15									//Deadzone for the joystick
-#define	CSCALE 			1.01237							//Clockwise scale adjustments to counteract rotation errors
-#define	ASCALE 			1.00637							//Anti-clockwise scale adjustments to counteract rotation errors
-#define VALIDFIRE 500										//Time in miliseconds to count balls shot
-#define SLEWRATE1 8											//Slew rate for drive motors
-#define SLEWRATE2 4											//Slew rate for conveyor motors
-#define SLEWRATE3 2											//Slew rate for flywheel
+#define    JITTER             2                                        //Max value to ignore from the gyro - increase accuracy, prevent drift
+#define    JOYZONE         15                                    //Deadzone for the joystick
+#define    CSCALE             1.01237                            //Clockwise scale adjustments to counteract rotation errors
+#define    ASCALE             1.00637                            //Anti-clockwise scale adjustments to counteract rotation errors
+#define VALIDFIRE 500                                        //Time in miliseconds to count balls shot
+#define SLEWRATE1 8                                            //Slew rate for drive motors
+#define SLEWRATE2 4                                            //Slew rate for conveyor motors
+#define SLEWRATE3 2                                            //Slew rate for flywheel
 
 
 int deployed = 0;
 int counter=0;
 
-float motorSlew[10];										//Table for motor slewing
+float motorSlew[10];                                        //Table for motor slewing
 
 
-int doneAutonomous = 0;									//Flag for if calibrated sensors												//Tile we start on
-int doneSetup=0;												//Have calibrated?
+int doneAutonomous = 0;                                    //Flag for if calibrated sensors                                                //Tile we start on
+int doneSetup=0;                                                //Have calibrated?
 
 // drive variables
-float	MoveDir=0;												//Which way to drive
-float	FaceDir=0;												//Which way to face
-float	DriveTime=0;											//How long to drive for
-float	DriveSpeed=0;											//How fast to drive
-int	turnPulse=0;												//Nudge turn speed to find angle more accurately.
+float    MoveDir=0;                                                //Which way to drive
+float    FaceDir=0;                                                //Which way to face
+float    DriveTime=0;                                            //How long to drive for
+float    DriveSpeed=0;                                            //How fast to drive
+int    turnPulse=0;                                                //Nudge turn speed to find angle more accurately.
 float PauseTime = 0;
 int nextCommand = 1;
 float turn = 0;
@@ -67,7 +67,7 @@ int turnMode=1;
 float turnRate = 127;
 int turnFoundCounter = 0;
 int turnAccepted = 2;
-int MINSPEED = 22;											//Minimum rotation speed for autonomous -------- was 20 (30)
+int MINSPEED = 22;                                            //Minimum rotation speed for autonomous -------- was 20 (30)
 int pulse1=4;
 int pulse2=4;
 
@@ -89,139 +89,139 @@ bool quickToss = false;
 // bottom-top = 3200-500;
 task runManip()
 {
-	bool justFlipped = false;
-	bool justRaised = false;
-	while (true) {
-
-		// Track current position, set speeds to 0 at start of each loop
-		wristSpeed = 0;
-		flipSpeed = 0;
-		flipPosition = -(-4000.0 + (float)SensorValue(flipPot)) / (40-4);
-		wristPosition = (3200.0 - (float)SensorValue(wristPot)) / (32.0-5.0) - (10*(flipPosition < 50));
-
-		// Auto-mini-routines
-		/*if (vexRT[Btn5D]) {
-			if (!justFlipped) {
-				if (flipPosition > 50) flipSeek = 1; else flipSeek = 100;
-				justFlipped = true;
-			}
-		}
-		else {
-			justFlipped = false;
-		}
-
-		if (vexRT[Btn5U]) {
-			if (!justRaised) {
-				if (wristPosition > 30) wristSeek = 1; else wristSeek = 60;
-				justRaised = true;
-			}
-		}
-		else {
-			justRaised = false;
-		}
-
-		if (vexRT[Btn6D]) {
-			wristSeek = 1;
-			flipSeek = 100;
-		}*/
-
-		// Auto-flip
-		if (vexRT[Btn6U] && flipStep <=0) {
-			flipStep = 1;
-			quickToss = false;
-		}
-		if (vexRT[Btn6D] && flipStep <=0) {
-			flipStep = 1;
-			quickToss = true;
-		}
-
-		if (flipStep == 1) {
-			if (!vexRT[Btn6U]) {
-				flipStep++;
-			}
-		}
-		if (flipStep == 2) {
-			wristSeek = 60;
-			if (wristPosition > 50) {
-				flipStep++;
-			}
-		}
-		if (flipStep == 3) {
-			wristSeek = 60;
-			flipSeek = 1;
-			if (flipSeek < 30 && (vexRT[Btn6U]||vexRT[Btn6D])) {
-				flipStep++;
-				if (quickToss) {
-					flipStep++;
-				}
-				clearTimer(T1);
-			}
-		}
-		if (flipStep == 4) {
-			wristSeek = 60 - (wristDownSpeed*time1(T1))/1000;					// 2 sec to go 20, 10/1000 ms
-			flipSeek = 1;
-			if (wristPosition < wristHoldPosition) {
-				flipStep = 6;
-			}
-		}
-		if (flipStep == 5) {
-			wristSeek = 60;
-			flipSeek = 1;
-			if (flipPosition < 5) {
-				flipStep++;
-			}
-		}
-		if (flipStep == 6) {
-			flipSeek = 1;
-			wristSeek = wristHoldPosition;
-			if (wristPosition < wristHoldPosition) {
-				flipStep = -1;
-				flipSeek = -1;
-				wristSeek = wristHoldPosition;
-			}
-		}
-
-		// Lerps for wrist and flip
-		if (wristSeek >= 0) {
-			wristSpeed = -(wristSeek - wristPosition) * wristSeekRate;
-		}
-
-		if (flipSeek >= 0) {
-			flipSpeed = -(flipSeek - flipPosition) * flipSeekRate;
-		}
-
-		// Manual overrides
-		if (vexRT[Btn7U]) {
-			wristSeek = -1;
-			flipSeek = -1;
-			flipStep = -1;
-		}
-		if (vexRT[Btn8R]) {
-			wristSpeed = 127;
-			wristSeek = -1;
-		}
-		if (vexRT[Btn8D]) {
-			wristSpeed = -127;
-			wristSeek = -1;
-		}
-		if (vexRT[Btn8L]) {
-			flipSpeed = 127;
-			flipSeek = -1;
-		}
-		if (vexRT[Btn8U]) {
-			flipSpeed = -127;
-			flipSeek = -1;
-		}
-
-		// Send values to motors
-		motor[wristMotor] = wristSpeed;
-		motor[flipMotor] = flipSpeed;
-
-		// End
-		wait1Msec(10);
-	}
-
-
+    bool justFlipped = false;
+    bool justRaised = false;
+    while (true) {
+        
+        // Track current position, set speeds to 0 at start of each loop
+        wristSpeed = 0;
+        flipSpeed = 0;
+        flipPosition = -(-4000.0 + (float)SensorValue(flipPot)) / (40-4);
+        wristPosition = (3200.0 - (float)SensorValue(wristPot)) / (32.0-5.0) - (10*(flipPosition < 50));
+        
+        // Auto-mini-routines
+        /*if (vexRT[Btn5D]) {
+         if (!justFlipped) {
+         if (flipPosition > 50) flipSeek = 1; else flipSeek = 100;
+         justFlipped = true;
+         }
+         }
+         else {
+         justFlipped = false;
+         }
+         
+         if (vexRT[Btn5U]) {
+         if (!justRaised) {
+         if (wristPosition > 30) wristSeek = 1; else wristSeek = 60;
+         justRaised = true;
+         }
+         }
+         else {
+         justRaised = false;
+         }
+         
+         if (vexRT[Btn6D]) {
+         wristSeek = 1;
+         flipSeek = 100;
+         }*/
+        
+        // Auto-flip
+        if (vexRT[Btn6U] && flipStep <=0) {
+            flipStep = 1;
+            quickToss = false;
+        }
+        if (vexRT[Btn6D] && flipStep <=0) {
+            flipStep = 1;
+            quickToss = true;
+        }
+        
+        if (flipStep == 1) {
+            if (!vexRT[Btn6U]) {
+                flipStep++;
+            }
+        }
+        if (flipStep == 2) {
+            wristSeek = 60;
+            if (wristPosition > 50) {
+                flipStep++;
+            }
+        }
+        if (flipStep == 3) {
+            wristSeek = 60;
+            flipSeek = 1;
+            if (flipSeek < 30 && (vexRT[Btn6U]||vexRT[Btn6D])) {
+                flipStep++;
+                if (quickToss) {
+                    flipStep++;
+                }
+                clearTimer(T1);
+            }
+        }
+        if (flipStep == 4) {
+            wristSeek = 60 - (wristDownSpeed*time1(T1))/1000;                    // 2 sec to go 20, 10/1000 ms
+            flipSeek = 1;
+            if (wristPosition < wristHoldPosition) {
+                flipStep = 6;
+            }
+        }
+        if (flipStep == 5) {
+            wristSeek = 60;
+            flipSeek = 1;
+            if (flipPosition < 5) {
+                flipStep++;
+            }
+        }
+        if (flipStep == 6) {
+            flipSeek = 1;
+            wristSeek = wristHoldPosition;
+            if (wristPosition < wristHoldPosition) {
+                flipStep = -1;
+                flipSeek = -1;
+                wristSeek = wristHoldPosition;
+            }
+        }
+        
+        // Lerps for wrist and flip
+        if (wristSeek >= 0) {
+            wristSpeed = -(wristSeek - wristPosition) * wristSeekRate;
+        }
+        
+        if (flipSeek >= 0) {
+            flipSpeed = -(flipSeek - flipPosition) * flipSeekRate;
+        }
+        
+        // Manual overrides
+        if (vexRT[Btn7U]) {
+            wristSeek = -1;
+            flipSeek = -1;
+            flipStep = -1;
+        }
+        if (vexRT[Btn8R]) {
+            wristSpeed = 127;
+            wristSeek = -1;
+        }
+        if (vexRT[Btn8D]) {
+            wristSpeed = -127;
+            wristSeek = -1;
+        }
+        if (vexRT[Btn8L]) {
+            flipSpeed = 127;
+            flipSeek = -1;
+        }
+        if (vexRT[Btn8U]) {
+            flipSpeed = -127;
+            flipSeek = -1;
+        }
+        
+        // Send values to motors
+        motor[wristMotor] = wristSpeed;
+        motor[flipMotor] = flipSpeed;
+        
+        // End
+        wait1Msec(10);
+    }
+    
+    
 }
 
 
@@ -235,70 +235,70 @@ int liftHigh = 100;
 int liftLow = 60;
 
 task runLift() {
-	int lastHigh = 0;
-	int lastLow = 0;
-	while (1) {
-		liftSpeed = 0;
-		liftPosition = -(SensorValue(liftREnc)*100)/450 + liftOffset;
-
-		while (liftPosition < 0) {
-			liftPosition++;
-			liftOffset++;
-		}
-		while (liftPosition > 101) {
-			liftPosition--;
-			liftOffset--;
-		}
-
-		if (vexRT[Btn5U]) {
-			if (lastHigh == 0) {
-				if (liftSeek == liftHigh) {
-					liftSeek = 0;
-				}
-				else {
-					liftSeek = liftHigh;
-				}
-			}
-			lastHigh = 1;
-		}
-		else {
-			lastHigh = 0;
-		}
-
-		if (vexRT[Btn5D]) {
-			if (lastLow == 0) {
-				if (liftSeek == liftLow) {
-					liftSeek = 0;
-				}
-				else {
-					liftSeek = liftLow;
-				}
-			}
-			lastLow = 1;
-		}
-		else {
-			lastLow = 0;
-		}
-
-		if (liftSeek >= 0) {
-			liftSpeed = -(liftPosition - liftSeek)*liftSeekRate;
-		}
-
-		// Manual Overrides
-		if (vexRT[Btn7R]) {
-			liftSpeed = 127;
-			liftSeek = -1;
-		}
-		if (vexRT[Btn7D]) {
-			liftSpeed = -127;
-			liftSeek = -1;
-		}
-
-		// Set Motors
-		motor[liftR] = liftSpeed;
-
-		wait1Msec(10);
-	}
+    int lastHigh = 0;
+    int lastLow = 0;
+    while (1) {
+        liftSpeed = 0;
+        liftPosition = -(SensorValue(liftREnc)*100)/450 + liftOffset;
+        
+        while (liftPosition < 0) {
+            liftPosition++;
+            liftOffset++;
+        }
+        while (liftPosition > 101) {
+            liftPosition--;
+            liftOffset--;
+        }
+        
+        if (vexRT[Btn5U]) {
+            if (lastHigh == 0) {
+                if (liftSeek == liftHigh) {
+                    liftSeek = 0;
+                }
+                else {
+                    liftSeek = liftHigh;
+                }
+            }
+            lastHigh = 1;
+        }
+        else {
+            lastHigh = 0;
+        }
+        
+        if (vexRT[Btn5D]) {
+            if (lastLow == 0) {
+                if (liftSeek == liftLow) {
+                    liftSeek = 0;
+                }
+                else {
+                    liftSeek = liftLow;
+                }
+            }
+            lastLow = 1;
+        }
+        else {
+            lastLow = 0;
+        }
+        
+        if (liftSeek >= 0) {
+            liftSpeed = -(liftPosition - liftSeek)*liftSeekRate;
+        }
+        
+        // Manual Overrides
+        if (vexRT[Btn7R]) {
+            liftSpeed = 127;
+            liftSeek = -1;
+        }
+        if (vexRT[Btn7D]) {
+            liftSpeed = -127;
+            liftSeek = -1;
+        }
+        
+        // Set Motors
+        motor[liftR] = liftSpeed;
+        
+        wait1Msec(10);
+    }
 }
 
 
@@ -318,18 +318,18 @@ task runLift() {
 
 void pre_auton()
 {
-	// Set bStopTasksBetweenModes to false if you want to keep user created tasks running between
-	// Autonomous and Tele-Op modes. You will need to manage all user created tasks if set to false.
-	bStopTasksBetweenModes = true;
-
-	// All activities that occur before the competition starts
-	// Example: clearing encoders, setting servo positions, ...
+    // Set bStopTasksBetweenModes to false if you want to keep user created tasks running between
+    // Autonomous and Tele-Op modes. You will need to manage all user created tasks if set to false.
+    bStopTasksBetweenModes = true;
+    
+    // All activities that occur before the competition starts
+    // Example: clearing encoders, setting servo positions, ...
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                General functions and tasks used by
-//																Autonomous and User control.
+//                                                                Autonomous and User control.
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -337,339 +337,339 @@ int calibrating=0;
 
 task debug()
 {
-	//while (true)
-	{
-		//clearDebugStream();
-		//wait10Msec(100);
-	}
+    //while (true)
+    {
+        //clearDebugStream();
+        //wait10Msec(100);
+    }
 }
 
 task turnCircle()
 {
-	int lightOn = 0;
-	int last7L = 0;
-	while (true)
-	{
-		if (vexRT[Btn7L]==1)
-		{
-			if (last7L==0) turnMode++;
-			last7L=1;
-			}else{
-			last7L=0;
-		}
-		if (turnMode%2==1&&calibrating==0)
-		{
-			//SensorValue(turnLight)=0;
-			}else{
-			lightOn++;
-			//if (lightOn<5) SensorValue(turnLight)=1; else SensorValue(turnLight)=0;
-			//if (lightOn>10) lightOn=0;
-		}
-
-		wait1Msec(50);
-	}
+    int lightOn = 0;
+    int last7L = 0;
+    while (true)
+    {
+        if (vexRT[Btn7L]==1)
+        {
+            if (last7L==0) turnMode++;
+            last7L=1;
+        }else{
+            last7L=0;
+        }
+        if (turnMode%2==1&&calibrating==0)
+        {
+            //SensorValue(turnLight)=0;
+        }else{
+            lightOn++;
+            //if (lightOn<5) SensorValue(turnLight)=1; else SensorValue(turnLight)=0;
+            //if (lightOn>10) lightOn=0;
+        }
+        
+        wait1Msec(50);
+    }
 }
 
 
 task loading()
 {
-	calibrating=1;
-	clearLCDLine(1);
-	displayLCDString(1,0,"0               ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"00              ");
-	displayLCDString(1,0,"0               ");
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"000             ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"0000            ");
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"00000           ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"000000          ");
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"0000000         ");
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"00000000        ");
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"000000000       ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"0000000000      ");
-
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"00000000000     ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"000000000000    ");
-
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"0000000000000   ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"00000000000000  ");
-
-	wait1Msec(188);
-	clearLCDLine(1);
-	displayLCDString(1,0,"000000000000000 ");
-
-
-	wait1Msec(187);
-	clearLCDLine(1);
-	displayLCDString(1,0,"0000000000000000");
-	playTone(1000,10);
-	playTone(1100,10);
-	playTone(1300,20);
-
-	calibrating=0;
+    calibrating=1;
+    clearLCDLine(1);
+    displayLCDString(1,0,"0               ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"00              ");
+    displayLCDString(1,0,"0               ");
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"000             ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"0000            ");
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"00000           ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"000000          ");
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"0000000         ");
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"00000000        ");
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"000000000       ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"0000000000      ");
+    
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"00000000000     ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"000000000000    ");
+    
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"0000000000000   ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"00000000000000  ");
+    
+    wait1Msec(188);
+    clearLCDLine(1);
+    displayLCDString(1,0,"000000000000000 ");
+    
+    
+    wait1Msec(187);
+    clearLCDLine(1);
+    displayLCDString(1,0,"0000000000000000");
+    playTone(1000,10);
+    playTone(1100,10);
+    playTone(1300,20);
+    
+    calibrating=0;
 }
 
 void InitAll()
 {
-	if (doneSetup==0)
-	{
-		startTask(loading);
-		clearLCDLine(0);
-		displayLCDString(0,2,"CALIBRATING!");
-		for (int i =0; i<10;i++){
-			motorSlew[i]=0;
-		}
-		deployed=0;
-		counter=0;
-		SensorType[in1] = sensorNone;
-		SensorType[in1] = sensorNone;
-		wait1Msec(1000);
-		SensorType[in1] = sensorGyro;
-		SensorType[gyro] = sensorGyro;
-		wait1Msec(2000);
-		SensorScale[in1] = 142;
-		SensorScale[in1] = 142;
-		clearTimer(T2);
-		resetGyro();
-	}
-	doneSetup=1;
+    if (doneSetup==0)
+    {
+        startTask(loading);
+        clearLCDLine(0);
+        displayLCDString(0,2,"CALIBRATING!");
+        for (int i =0; i<10;i++){
+            motorSlew[i]=0;
+        }
+        deployed=0;
+        counter=0;
+        SensorType[in1] = sensorNone;
+        SensorType[in1] = sensorNone;
+        wait1Msec(1000);
+        SensorType[in1] = sensorGyro;
+        SensorType[gyro] = sensorGyro;
+        wait1Msec(2000);
+        SensorScale[in1] = 142;
+        SensorScale[in1] = 142;
+        clearTimer(T2);
+        resetGyro();
+    }
+    doneSetup=1;
 }
 
 
 task newDrive()
 {
-	float upDrive;
-	float rightDrive;
-	float driveAngle=1;
-	float driveMag;
-	float gyroAng;
-	float seek,angle,ang1;
-
-	lastAng=0;
-
-	while (true)
-	{
-		angleAdjust=270;
-		turn = -vexRT[Ch1];
-		/*if (turn<0)
-		{
-		turn=-(turn*turn)/127;
-		}else{
-		turn=(turn*turn)/127;
-		}*/
-		upDrive=-vexRT[Ch3];
-		rightDrive=vexRT[Ch4]*-1;		//cheaterd- shouldn't be neg (-)
-
-		//		if (SensorValue(groundUp)>TIPDIST)
-		//		{
-		//			upDrive=127;
-		//			rightDrive=0;
-		//			turn=0;
-		//		}
-
-
-		if (rightDrive==0){rightDrive=0.1;}	//This is to prevent divide by 0 error
-		if (rightDrive*upDrive>=0)
-		{
-			driveAngle = atan((upDrive) / (rightDrive)); 			//Find angle of joystick
-			}else{
-			driveAngle = atan2((upDrive),  (rightDrive));
-		}
-		driveAngle = radiansToDegrees(driveAngle);						//Change it to degrees
-		if (rightDrive<0 && upDrive<0)
-		{
-			driveAngle=driveAngle+180;
-		}
-		driveMag = sqrt((rightDrive*rightDrive) + (upDrive*upDrive));	//Find magnitude of joystick
-		if (driveMag>127){driveMag=127;}
-
-		if (driveMag<JOYZONE){
-			driveMag=0;
-		}
-		if (abs(turn)<JOYZONE){
-			turn=0;
-		}
-
-		if (seekAngle>=0)		//user control angle seek override
-		{
-			DriveTime=USER;
-			DriveSpeed=0;
-			MoveDir=0;
-			FaceDir=seekAngle;
-			seekAngle=-1;
-			turnPulse=0;
-		}
-
-		if (DriveTime!=0)   //autonomous taking over
-		{
-			driveMag=DriveSpeed;
-			driveAngle=MoveDir;
-
-			seek = FaceDir; //value in degrees to rotate to
-			angle=gyroDir/10;
-
-			//de-rotate 'angle' so seek in range +/- 180
-			ang1=seek-angle;          			//de-rotate
-			if (ang1<0) {ang1=360+ang1;}    //correct de-rotation
-			if (ang1>180) {ang1=ang1-360;}  //+=clockwise -=anti-clockwise
-
-			if (driveMag<MINSPEED)
-			{
-				ang1=(ang1/turnRate)*127;            //dividing by 90 means full speed for first 90 degrees of turn. Alter this for different turn agression
-			}
-
-			if (ang1>127) {ang1=127;}       //clamp max speed
-			if (ang1<-127) {ang1=-127;}     //to +/- 127
-
-			if (driveMag>=MINSPEED) {					//robot moving at least MINSPEED so can find angle more accuratly
-				if (ang1<0){
-					if (ang1>-2){ang1=0;}else{if (ang1>-4){ang1=-4;}}
-					}else {
-					if (ang1<2){ang1=0;}else{if (ang1<4){ang1=4;}}
-				}
-			}
-			else
-			{
-				{
-					turn=ang1;
-					ang1=abs(ang1);
-					if (ang1<MINSPEED)
-					{
-						if (((lastAng>0)&&(turn<0))||((lastAng<0)&&(turn>0))) ang1=0;
-						else
-						{
-							if (ang1>MINSPEED/5)
-							{
-								ang1=MINSPEED;
-							}
-							else
-							{
-								turnPulse++;
-								if (turnPulse<pulse1) ang1=MINSPEED;		//2
-								else
-								{
-									ang1=1;
-									if (turnPulse>pulse2) turnPulse=0;		//4
-								}
-							}
-						}
-					}
-					if (turn<0) ang1=-ang1;
-				}
-			}
-
-			if ((ang1==0)&&(driveMag==0)) {
-				turnFoundCounter++;
-				if (turnFoundCounter >= turnAccepted) {
-					nextCommand=1;
-					DriveTime=0;
-				}
-				}else{
-				turnFoundCounter=0;
-			}
-			turn=ang1;
-			lastAng=ang1;
-		}
-
-		gyroAng=gyroDir/10;
-		driveAngle=driveAngle-gyroAng;//-90;			//cheated (no -90)
-		if (driveAngle<0){driveAngle=360+driveAngle;}
-		//Set motors equal to correct variation of sin & cos
-		if(driveMag>=JOYZONE && DriveTime==0){
-			driveAngle+=angleAdjust;
-			if (driveAngle>360){driveAngle-=360;}
-		}
-
-		if (turnMode%2==1)
-		{
-			//regular turning circle
-			motorSlew[driveFL] = driveMag*( cosDegrees(driveAngle) - sinDegrees(driveAngle) ) + turn;			//+		1			/3
-			motorSlew[driveFR] =  driveMag*( (-cosDegrees(driveAngle)) - sinDegrees(driveAngle) ) + turn;	//-	 -1			/3
-			motorSlew[driveBL] = -driveMag*( cosDegrees(driveAngle) + sinDegrees(driveAngle) ) - turn;		//+	 -1
-			motorSlew[driveBR] =  -driveMag*( sinDegrees(driveAngle) - cosDegrees(driveAngle) ) - turn;	//-	  1
-			}else{
-			//extended turning circle
-			motorSlew[driveFL] = driveMag*( cosDegrees(driveAngle) - sinDegrees(driveAngle) ) + turn/5;			//+		1			/3
-			motorSlew[driveFR] =  driveMag*( (-cosDegrees(driveAngle)) - sinDegrees(driveAngle) ) + turn/5;	//-	 -1			/3
-			motorSlew[driveBL] = -driveMag*( cosDegrees(driveAngle) + sinDegrees(driveAngle) ) + turn;		//+	 -1
-			motorSlew[driveBR] =  -driveMag*( sinDegrees(driveAngle) - cosDegrees(driveAngle) ) + turn;	//-	  1
-		}
-
-		wait1Msec(20);
-	}
+    float upDrive;
+    float rightDrive;
+    float driveAngle=1;
+    float driveMag;
+    float gyroAng;
+    float seek,angle,ang1;
+    
+    lastAng=0;
+    
+    while (true)
+    {
+        angleAdjust=270;
+        turn = -vexRT[Ch1];
+        /*if (turn<0)
+         {
+         turn=-(turn*turn)/127;
+         }else{
+         turn=(turn*turn)/127;
+         }*/
+        upDrive=-vexRT[Ch3];
+        rightDrive=vexRT[Ch4]*-1;        //cheaterd- shouldn't be neg (-)
+        
+        //        if (SensorValue(groundUp)>TIPDIST)
+        //        {
+        //            upDrive=127;
+        //            rightDrive=0;
+        //            turn=0;
+        //        }
+        
+        
+        if (rightDrive==0){rightDrive=0.1;}    //This is to prevent divide by 0 error
+        if (rightDrive*upDrive>=0)
+        {
+            driveAngle = atan((upDrive) / (rightDrive));             //Find angle of joystick
+        }else{
+            driveAngle = atan2((upDrive),  (rightDrive));
+        }
+        driveAngle = radiansToDegrees(driveAngle);                        //Change it to degrees
+        if (rightDrive<0 && upDrive<0)
+        {
+            driveAngle=driveAngle+180;
+        }
+        driveMag = sqrt((rightDrive*rightDrive) + (upDrive*upDrive));    //Find magnitude of joystick
+        if (driveMag>127){driveMag=127;}
+        
+        if (driveMag<JOYZONE){
+            driveMag=0;
+        }
+        if (abs(turn)<JOYZONE){
+            turn=0;
+        }
+        
+        if (seekAngle>=0)        //user control angle seek override
+        {
+            DriveTime=USER;
+            DriveSpeed=0;
+            MoveDir=0;
+            FaceDir=seekAngle;
+            seekAngle=-1;
+            turnPulse=0;
+        }
+        
+        if (DriveTime!=0)   //autonomous taking over
+        {
+            driveMag=DriveSpeed;
+            driveAngle=MoveDir;
+            
+            seek = FaceDir; //value in degrees to rotate to
+            angle=gyroDir/10;
+            
+            //de-rotate 'angle' so seek in range +/- 180
+            ang1=seek-angle;                      //de-rotate
+            if (ang1<0) {ang1=360+ang1;}    //correct de-rotation
+            if (ang1>180) {ang1=ang1-360;}  //+=clockwise -=anti-clockwise
+            
+            if (driveMag<MINSPEED)
+            {
+                ang1=(ang1/turnRate)*127;            //dividing by 90 means full speed for first 90 degrees of turn. Alter this for different turn agression
+            }
+            
+            if (ang1>127) {ang1=127;}       //clamp max speed
+            if (ang1<-127) {ang1=-127;}     //to +/- 127
+            
+            if (driveMag>=MINSPEED) {                    //robot moving at least MINSPEED so can find angle more accuratly
+                if (ang1<0){
+                    if (ang1>-2){ang1=0;}else{if (ang1>-4){ang1=-4;}}
+                }else {
+                    if (ang1<2){ang1=0;}else{if (ang1<4){ang1=4;}}
+                }
+            }
+            else
+            {
+                {
+                    turn=ang1;
+                    ang1=abs(ang1);
+                    if (ang1<MINSPEED)
+                    {
+                        if (((lastAng>0)&&(turn<0))||((lastAng<0)&&(turn>0))) ang1=0;
+                        else
+                        {
+                            if (ang1>MINSPEED/5)
+                            {
+                                ang1=MINSPEED;
+                            }
+                            else
+                            {
+                                turnPulse++;
+                                if (turnPulse<pulse1) ang1=MINSPEED;        //2
+                                else
+                                {
+                                    ang1=1;
+                                    if (turnPulse>pulse2) turnPulse=0;        //4
+                                }
+                            }
+                        }
+                    }
+                    if (turn<0) ang1=-ang1;
+                }
+            }
+            
+            if ((ang1==0)&&(driveMag==0)) {
+                turnFoundCounter++;
+                if (turnFoundCounter >= turnAccepted) {
+                    nextCommand=1;
+                    DriveTime=0;
+                }
+            }else{
+                turnFoundCounter=0;
+            }
+            turn=ang1;
+            lastAng=ang1;
+        }
+        
+        gyroAng=gyroDir/10;
+        driveAngle=driveAngle-gyroAng;//-90;            //cheated (no -90)
+        if (driveAngle<0){driveAngle=360+driveAngle;}
+        //Set motors equal to correct variation of sin & cos
+        if(driveMag>=JOYZONE && DriveTime==0){
+            driveAngle+=angleAdjust;
+            if (driveAngle>360){driveAngle-=360;}
+        }
+        
+        if (turnMode%2==1)
+        {
+            //regular turning circle
+            motorSlew[driveFL] = driveMag*( cosDegrees(driveAngle) - sinDegrees(driveAngle) ) + turn;            //+        1            /3
+            motorSlew[driveFR] =  driveMag*( (-cosDegrees(driveAngle)) - sinDegrees(driveAngle) ) + turn;    //-     -1            /3
+            motorSlew[driveBL] = -driveMag*( cosDegrees(driveAngle) + sinDegrees(driveAngle) ) - turn;        //+     -1
+            motorSlew[driveBR] =  -driveMag*( sinDegrees(driveAngle) - cosDegrees(driveAngle) ) - turn;    //-      1
+        }else{
+            //extended turning circle
+            motorSlew[driveFL] = driveMag*( cosDegrees(driveAngle) - sinDegrees(driveAngle) ) + turn/5;            //+        1            /3
+            motorSlew[driveFR] =  driveMag*( (-cosDegrees(driveAngle)) - sinDegrees(driveAngle) ) + turn/5;    //-     -1            /3
+            motorSlew[driveBL] = -driveMag*( cosDegrees(driveAngle) + sinDegrees(driveAngle) ) + turn;        //+     -1
+            motorSlew[driveBR] =  -driveMag*( sinDegrees(driveAngle) - cosDegrees(driveAngle) ) + turn;    //-      1
+        }
+        
+        wait1Msec(20);
+    }
 }
 
 void slewMotor(int index, int rate)
 {
-	int motorValue = motor[index];
-	int difference = (motorValue - motorSlew[index])/rate;
-	if (difference == 0)
-	{
-		motor[index] = motorSlew[index];
-	}
-	else
-	{
-		motor[index] = motorValue-difference;
-	}
+    int motorValue = motor[index];
+    int difference = (motorValue - motorSlew[index])/rate;
+    if (difference == 0)
+    {
+        motor[index] = motorSlew[index];
+    }
+    else
+    {
+        motor[index] = motorValue-difference;
+    }
 }
 
 
 task slewMotors()
 {
-	while (true)
-	{
-		int slewRate=SLEWRATE1;
-		if (DriveTime==USER) {slewRate=1;}			//override for fine angle seeking control
-		slewMotor(driveFR, slewRate);
-		slewMotor(driveFL,slewRate);
-		slewMotor(driveBR,slewRate);
-		slewMotor(driveBL,slewRate);
-		wait1Msec(15);
-	}
+    while (true)
+    {
+        int slewRate=SLEWRATE1;
+        if (DriveTime==USER) {slewRate=1;}            //override for fine angle seeking control
+        slewMotor(driveFR, slewRate);
+        slewMotor(driveFL,slewRate);
+        slewMotor(driveBR,slewRate);
+        slewMotor(driveBL,slewRate);
+        wait1Msec(15);
+    }
 }
 
 
@@ -686,211 +686,211 @@ task slewMotors()
 task autonomous()
 //task usercontrol()
 {
-	//playSoundFile("windows.wav");
-	int followingLine=0;
-	int coolDownR=0;
-	int coolDownL=0;
-	int StrafeLeft=0;
-	int StrafeRight=0;
-	//Declare variables
-	InitAll();
-	doneAutonomous=1;
-	deployed=1;
-	DriveTime=0;
-	clearTimer(T1);
-	int TabPoint=0;
-	nextCommand=1;
-
-	if (startTile == 1) {autoTab=&basicDriveAuton;}
-
-	////////////////////
-	//    TESTING     //
-	//  startTile=9;  //
-	////////////////////
-
-	startTask(readGyro);
-	startTask(slewMotors);
-	startTask(newDrive);
-
-	//set truedir from table
-	setGyro((autoTab[0])*10);
-	//	truedir=autoTab[0]*10;			//so the robot knows which way it's pointing at the start
-	autoTab+=1;//setGyro(500);
-	if (true)//attackOrNot==1)
-	{
-		while (true)
-		{
-			/////////////////////////////////////
-			//process autonomous command table
-			/////////////////////////////////////
-			if (nextCommand) 											//ready for new command. Some commands below will set nextCommand immediately
-				//whereas others (e.g. PAUSE) wait for timers to finish before asking for
-			//the next command.
-			{
-				nextCommand=0;											//command processing
-				switch(autoTab[TabPoint]){					//read command from table
-				case DRIVE:													//process DRIVE command
-					MoveDir=autoTab[TabPoint+1];			//read 'direction to move in' from table
-					MoveDir=180+MoveDir;
-					if (MoveDir>360){MoveDir-=360;}
-					if (MoveDir<0){MoveDir+=360;}
-					FaceDir=autoTab[TabPoint+2];			//read 'direction to face' from table
-					DriveTime=autoTab[TabPoint+3];		//read 'time to drive for' from table. NOTE, if this is negative it
-					//represents a conditonal command like looking for a white line
-					DriveSpeed=127;    							 	//full speed
-					TabPoint+=4;           						//ready for next command in table
-					clearTimer(T2);										//reset timer so it can be used to check length of time driving
-					break;
-				case SLOW:													//process SLOW command. All params same as DRIVE except DriveSpeed.
-					MoveDir=autoTab[TabPoint+1];
-					MoveDir=180+MoveDir;
-					if (MoveDir>360){MoveDir-=360;}
-					if (MoveDir<0){MoveDir+=360;}
-					FaceDir=autoTab[TabPoint+2];
-					DriveTime=autoTab[TabPoint+3];
-					DriveSpeed=55; 			   						//slow speed
-					TabPoint+=4;           						//ready for next command in table
-					clearTimer(T2);
-					break;
-				case TURN:													//process TURN command. All params same as DRIVE except DriveSpeed
-					MoveDir=0;
-					FaceDir=autoTab[TabPoint+1];
-					DriveTime=autoTab[TabPoint+2];
-					DriveSpeed=0; 			    					//zero speed so will just turn on the spot
-					TabPoint+=3;
-					clearTimer(T2);
-					break;
-				case PAUSE:													//process PAUSE command.
-					PauseTime=autoTab[TabPoint+1];		//read 'pause length' from table
-					TabPoint+=2;											//ready for next command in table
-					clearTimer(T2);										//reset timer so it can be used to measure length of pause
-					break;
-				case SETGYRO:												//process SETGYRO command.
-					setGyro((autoTab[TabPoint+1])*10);
-					//					truedir=autoTab[TabPoint+1];			//sets gyro direction based on parameter read from command table.
-					//this is used to recalibrate gyro when robot direction is known.
-					TabPoint+=2;											//ready for next command in table
-					nextCommand=1;										//immediately ask to process next command
-					break;
-				case LINEFOLLOW:
-					MoveDir=autoTab[TabPoint+1];			//read 'direction to move in' from table
-					MoveDir=180+MoveDir;
-					followingLine=1;
-					if (MoveDir>360){MoveDir-=360;}
-					if (MoveDir<0){MoveDir+=360;}
-					FaceDir=autoTab[TabPoint+2];			//read 'direction to face' from table
-					DriveTime=autoTab[TabPoint+3];		//read 'time to drive for' from table. NOTE, if this is negative it
-					//represents a conditonal command like looking for a white line
-					DriveSpeed=127;    							 	//full speed
-					clearTimer(T2);
-					TabPoint+=4;
-					break;
-				case END:
-					//Do nothing
-					break;
-				}
-			}
-
-			if (PauseTime>0)
-			{
-				if (time1(T2)>=PauseTime*1000)
-				{
-					PauseTime=0;
-					nextCommand=1;
-				}
-			}
-
-			if (coolDownL>=0) coolDownL--;
-			if (coolDownR>=0) coolDownR--;
-
-			if (DriveTime>0 && followingLine==1)
-			{
-
-			}
-
-			if (StrafeLeft==1)
-			{
-				StrafeLeft=2;
-				MoveDir=MoveDir-30;
-			}
-			if (StrafeLeft==2)
-			{
-				if (coolDownR==1)
-				{
-					MoveDir=MoveDir+30;
-					StrafeLeft=0;
-				}
-			}
-			if (StrafeRight==1)
-			{
-				StrafeRight=2;
-				MoveDir=MoveDir+30;
-			}
-			if (StrafeRight==2)
-			{
-				if (coolDownL==1)
-				{
-					MoveDir=MoveDir-30;
-					StrafeRight=0;
-				}
-			}
-
-			if (DriveTime!=0)
-			{
-				if (DriveTime>0)
-				{
-					if (time1(T2)>=DriveTime*1000)
-					{
-						DriveTime=0;
-						followingLine=0;
-						nextCommand=1;
-					}
-				}/*else if (DriveTime==RIGHTWHITE)
-				{
-				if (SensorValue(rightLine)<=RIGHTWHITELINE)
-				{
-				DriveTime=0;
-				nextCommand=1;
-				}
-				}else if (DriveTime==LEFTWHITE)
-				{
-				if (SensorValue(leftLine)<=LEFTWHITELINE)
-				{
-				DriveTime=0;
-				nextCommand=1;
-				}
-				}else if (DriveTime==LEFTULTRA)
-				{
-				if ((SensorValue(poleDist)<=sonarDist&&SensorValue(poleDist)!=-1) || (time1(T2)>=ultraTimeOut*1000))
-				{
-				DriveTime=0;
-				nextCommand=1;
-				}
-				}else if (DriveTime==RIGHTULTRA)
-				{
-				if ((SensorValue(rightDist)<=sonarDist&&SensorValue(rightDist)!=-1)  || (time1(T2)>=ultraTimeOut*1000))
-				{
-				DriveTime=0;
-				nextCommand=1;
-				}
-				}else if (DriveTime==BLACK)
-				{
-				if (lineFound==0)
-				{
-				DriveTime=0;
-				nextCommand=1;
-				}
-				}*/else if (DriveTime==HITWALL)
-				{
-					//if (SensorValue(didHitWall)==1)
-					{
-						DriveTime=0;
-						nextCommand=1;
-					}
-				}
-			}
-		}
-	}
+    //playSoundFile("windows.wav");
+    int followingLine=0;
+    int coolDownR=0;
+    int coolDownL=0;
+    int StrafeLeft=0;
+    int StrafeRight=0;
+    //Declare variables
+    InitAll();
+    doneAutonomous=1;
+    deployed=1;
+    DriveTime=0;
+    clearTimer(T1);
+    int TabPoint=0;
+    nextCommand=1;
+    
+    if (startTile == 1) {autoTab=&basicDriveAuton;}
+    
+    ////////////////////
+    //    TESTING     //
+    //  startTile=9;  //
+    ////////////////////
+    
+    startTask(readGyro);
+    startTask(slewMotors);
+    startTask(newDrive);
+    
+    //set truedir from table
+    setGyro((autoTab[0])*10);
+    //    truedir=autoTab[0]*10;            //so the robot knows which way it's pointing at the start
+    autoTab+=1;//setGyro(500);
+    if (true)//attackOrNot==1)
+    {
+        while (true)
+        {
+            /////////////////////////////////////
+            //process autonomous command table
+            /////////////////////////////////////
+            if (nextCommand)                                             //ready for new command. Some commands below will set nextCommand immediately
+                //whereas others (e.g. PAUSE) wait for timers to finish before asking for
+                //the next command.
+            {
+                nextCommand=0;                                            //command processing
+                switch(autoTab[TabPoint]){                    //read command from table
+                    case DRIVE:                                                    //process DRIVE command
+                        MoveDir=autoTab[TabPoint+1];            //read 'direction to move in' from table
+                        MoveDir=180+MoveDir;
+                        if (MoveDir>360){MoveDir-=360;}
+                        if (MoveDir<0){MoveDir+=360;}
+                        FaceDir=autoTab[TabPoint+2];            //read 'direction to face' from table
+                        DriveTime=autoTab[TabPoint+3];        //read 'time to drive for' from table. NOTE, if this is negative it
+                        //represents a conditonal command like looking for a white line
+                        DriveSpeed=127;                                     //full speed
+                        TabPoint+=4;                                   //ready for next command in table
+                        clearTimer(T2);                                        //reset timer so it can be used to check length of time driving
+                        break;
+                    case SLOW:                                                    //process SLOW command. All params same as DRIVE except DriveSpeed.
+                        MoveDir=autoTab[TabPoint+1];
+                        MoveDir=180+MoveDir;
+                        if (MoveDir>360){MoveDir-=360;}
+                        if (MoveDir<0){MoveDir+=360;}
+                        FaceDir=autoTab[TabPoint+2];
+                        DriveTime=autoTab[TabPoint+3];
+                        DriveSpeed=55;                                        //slow speed
+                        TabPoint+=4;                                   //ready for next command in table
+                        clearTimer(T2);
+                        break;
+                    case TURN:                                                    //process TURN command. All params same as DRIVE except DriveSpeed
+                        MoveDir=0;
+                        FaceDir=autoTab[TabPoint+1];
+                        DriveTime=autoTab[TabPoint+2];
+                        DriveSpeed=0;                                     //zero speed so will just turn on the spot
+                        TabPoint+=3;
+                        clearTimer(T2);
+                        break;
+                    case PAUSE:                                                    //process PAUSE command.
+                        PauseTime=autoTab[TabPoint+1];        //read 'pause length' from table
+                        TabPoint+=2;                                            //ready for next command in table
+                        clearTimer(T2);                                        //reset timer so it can be used to measure length of pause
+                        break;
+                    case SETGYRO:                                                //process SETGYRO command.
+                        setGyro((autoTab[TabPoint+1])*10);
+                        //                    truedir=autoTab[TabPoint+1];            //sets gyro direction based on parameter read from command table.
+                        //this is used to recalibrate gyro when robot direction is known.
+                        TabPoint+=2;                                            //ready for next command in table
+                        nextCommand=1;                                        //immediately ask to process next command
+                        break;
+                    case LINEFOLLOW:
+                        MoveDir=autoTab[TabPoint+1];            //read 'direction to move in' from table
+                        MoveDir=180+MoveDir;
+                        followingLine=1;
+                        if (MoveDir>360){MoveDir-=360;}
+                        if (MoveDir<0){MoveDir+=360;}
+                        FaceDir=autoTab[TabPoint+2];            //read 'direction to face' from table
+                        DriveTime=autoTab[TabPoint+3];        //read 'time to drive for' from table. NOTE, if this is negative it
+                        //represents a conditonal command like looking for a white line
+                        DriveSpeed=127;                                     //full speed
+                        clearTimer(T2);
+                        TabPoint+=4;
+                        break;
+                    case END:
+                        //Do nothing
+                        break;
+                }
+            }
+            
+            if (PauseTime>0)
+            {
+                if (time1(T2)>=PauseTime*1000)
+                {
+                    PauseTime=0;
+                    nextCommand=1;
+                }
+            }
+            
+            if (coolDownL>=0) coolDownL--;
+            if (coolDownR>=0) coolDownR--;
+            
+            if (DriveTime>0 && followingLine==1)
+            {
+                
+            }
+            
+            if (StrafeLeft==1)
+            {
+                StrafeLeft=2;
+                MoveDir=MoveDir-30;
+            }
+            if (StrafeLeft==2)
+            {
+                if (coolDownR==1)
+                {
+                    MoveDir=MoveDir+30;
+                    StrafeLeft=0;
+                }
+            }
+            if (StrafeRight==1)
+            {
+                StrafeRight=2;
+                MoveDir=MoveDir+30;
+            }
+            if (StrafeRight==2)
+            {
+                if (coolDownL==1)
+                {
+                    MoveDir=MoveDir-30;
+                    StrafeRight=0;
+                }
+            }
+            
+            if (DriveTime!=0)
+            {
+                if (DriveTime>0)
+                {
+                    if (time1(T2)>=DriveTime*1000)
+                    {
+                        DriveTime=0;
+                        followingLine=0;
+                        nextCommand=1;
+                    }
+                }/*else if (DriveTime==RIGHTWHITE)
+                  {
+                  if (SensorValue(rightLine)<=RIGHTWHITELINE)
+                  {
+                  DriveTime=0;
+                  nextCommand=1;
+                  }
+                  }else if (DriveTime==LEFTWHITE)
+                  {
+                  if (SensorValue(leftLine)<=LEFTWHITELINE)
+                  {
+                  DriveTime=0;
+                  nextCommand=1;
+                  }
+                  }else if (DriveTime==LEFTULTRA)
+                  {
+                  if ((SensorValue(poleDist)<=sonarDist&&SensorValue(poleDist)!=-1) || (time1(T2)>=ultraTimeOut*1000))
+                  {
+                  DriveTime=0;
+                  nextCommand=1;
+                  }
+                  }else if (DriveTime==RIGHTULTRA)
+                  {
+                  if ((SensorValue(rightDist)<=sonarDist&&SensorValue(rightDist)!=-1)  || (time1(T2)>=ultraTimeOut*1000))
+                  {
+                  DriveTime=0;
+                  nextCommand=1;
+                  }
+                  }else if (DriveTime==BLACK)
+                  {
+                  if (lineFound==0)
+                  {
+                  DriveTime=0;
+                  nextCommand=1;
+                  }
+                  }*/else if (DriveTime==HITWALL)
+                  {
+                      //if (SensorValue(didHitWall)==1)
+                      {
+                          DriveTime=0;
+                          nextCommand=1;
+                      }
+                  }
+            }
+        }
+    }
 }
 
 
@@ -910,92 +910,92 @@ task autonomous()
 task usercontrol()
 //task autonomous()
 {
-	if (doneAutonomous==0)
-	{
-		//playSoundFile("windows.wav");
-	}
-	PauseTime=0;
-	//DriveTime=0;
-	int lastPressed=0;
-	clearTimer(T1);
-	clearTimer(T4);
-
-	//startTask(sounds);
-	startTask(turnCircle);
-	startTask(debug);
-	startTask(slewMotors);
-	//setGyro(0);
-	//	truedir=0;
-	startTask(readGyro);
-	startTask(newDrive);
-	startTask(runLift);
-	startTask(runManip);
-
-	while(1 == 1)
-	{
-
-		//DriveTime=0;
-		PauseTime=0;
-
-		///////////////////////
-		// Initial setup mode
-		///////////////////////
-
-		if (doneAutonomous == 0)
-		{
-			//		while (doneSetup==0)
-			{
-				if (nLCDButtons==1 && nLCDButtons!=lastPressed)
-				{
-					playTone(1000,10);
-					if (startTile<13)
-					{
-						startTile++;
-						}else{
-						startTile=1;
-					}
-				}
-
-				if (nLCDButtons==2 && nLCDButtons!=lastPressed)
-				{
-					playTone(1000,10);
-				}
-				if (nLCDButtons==4 && lastPressed!=nLCDButtons && vexRT[Btn8U]==1)
-				{
-					playTone(1000,10);
-					doneSetup=0;
-					InitAll();
-				}
-				/*if (vexRT[Btn7D]==1)
-				{
-				doneSetup=0;
-				InitAll();
-				}*/
-
-				lastPressed=nLCDButtons;
-			}
-		}
-
-		//		if (vexRT[Btn7D]==1)
-		//		{
-		//				clawSeek=169;
-		//				liftFind=127;
-		//		}
-
-
-		if (vexRT[Btn7U]) {
-			DriveTime = 0;
-			liftSeek = -1;
-		}
-
-
-		if (vexRT[Btn7L]==1)		//reset gyro
-		{
-			resetGyro();
-			if (vexRT[Btn7U]==1)
-			{
-				InitAll();
-			}
-		}
-	}
+    if (doneAutonomous==0)
+    {
+        //playSoundFile("windows.wav");
+    }
+    PauseTime=0;
+    //DriveTime=0;
+    int lastPressed=0;
+    clearTimer(T1);
+    clearTimer(T4);
+    
+    //startTask(sounds);
+    startTask(turnCircle);
+    startTask(debug);
+    startTask(slewMotors);
+    //setGyro(0);
+    //    truedir=0;
+    startTask(readGyro);
+    startTask(newDrive);
+    startTask(runLift);
+    startTask(runManip);
+    
+    while(1 == 1)
+    {
+        
+        //DriveTime=0;
+        PauseTime=0;
+        
+        ///////////////////////
+        // Initial setup mode
+        ///////////////////////
+        
+        if (doneAutonomous == 0)
+        {
+            //        while (doneSetup==0)
+            {
+                if (nLCDButtons==1 && nLCDButtons!=lastPressed)
+                {
+                    playTone(1000,10);
+                    if (startTile<13)
+                    {
+                        startTile++;
+                    }else{
+                        startTile=1;
+                    }
+                }
+                
+                if (nLCDButtons==2 && nLCDButtons!=lastPressed)
+                {
+                    playTone(1000,10);
+                }
+                if (nLCDButtons==4 && lastPressed!=nLCDButtons && vexRT[Btn8U]==1)
+                {
+                    playTone(1000,10);
+                    doneSetup=0;
+                    InitAll();
+                }
+                /*if (vexRT[Btn7D]==1)
+                 {
+                 doneSetup=0;
+                 InitAll();
+                 }*/
+                
+                lastPressed=nLCDButtons;
+            }
+        }
+        
+        //        if (vexRT[Btn7D]==1)
+        //        {
+        //                clawSeek=169;
+        //                liftFind=127;
+        //        }
+        
+        
+        if (vexRT[Btn7U]) {
+            DriveTime = 0;
+            liftSeek = -1;
+        }
+        
+        
+        if (vexRT[Btn7L]==1)        //reset gyro
+        {
+            resetGyro();
+            if (vexRT[Btn7U]==1)
+            {
+                InitAll();
+            }
+        }
+    }
 }

@@ -1,0 +1,1 @@
+I moved your files here. It'd be great if you could go through and comment your code. The idea is for anyone reading the code to know what each and every line does. I included a couple examples of thorough comments in this directory. There's a lot more in TurningPoint/CodeSnippets if you want to take a look. 
