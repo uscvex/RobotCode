@@ -112,6 +112,7 @@ double defaultAuton[] = {
 };
 
 // Arrays for routines
+/*
 double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     
     180,                                // START FACING 180
@@ -236,27 +237,9 @@ double blueAuton[] = {                  // FRONT BLUE SIDE, WE WANT 19 PT SWING
     DRIVE,-127,90,1,                   // DRIVE AWAY FROM FLAGS
     
     END                                 // END OF ROUTINE
-};
+};*/
 
-double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
-    
-    0,
-    WRISTSEEK,WRIST_VERTICAL_POS,
-    TURN,90,5,
-    PAUSE,0.1,
-    TURN,180,5,
-    PAUSE,0.1,
-    TURN,270,5,
-    PAUSE,0.1,
-    TURN,0,5,
-    PAUSE,0.1,
-    TURN,180,5,
-    PAUSE,0.1,
-    TURN,0,5,
-    PAUSE,0.1,
-    END,
-    
-    
+/*double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     
     180,                                // START FACING 180
     
@@ -376,7 +359,7 @@ double redAuton[] = {                   // FRONT RED SIDE, WE WANT 19 PT SWING
     DRIVE,-127,270,1,                   // DRIVE AWAY FROM FLAGS
     
     END                                 // END OF ROUTINE
-};
+};*/
 
 /*double redBackAuton[] = {               // BACK RED SIDE, WE WANT 10PT SWING
     0,                                  // START FACING 0 DEGREES
