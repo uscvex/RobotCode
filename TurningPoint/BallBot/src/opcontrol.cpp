@@ -46,6 +46,8 @@ using namespace pros;
 // Comment this entire line if no
 //#define USE_SERIAL_GYRO 1
 
+// When defined, camera will use the green flags to determine what flags to aim for
+#define USE_GREEN_FLAGS 1
 
 // Defines for different gearings for motors
 #define TURBO E_MOTOR_GEARSET_06
@@ -119,7 +121,7 @@ using namespace pros;
 
 // Vision Sensor Stuff
 #define DEFAULT 0                       // Choose colour of flag based on auton mode
-#define MAX_FLAG_WIDTH 500              // Widest object camera will recognise
+#define MAX_FLAG_WIDTH 150              // Widest object camera will recognise
 #define MAX_FLAG_HEIGHT 500             // Tallest object camera will recognise
 #define MIN_FLAG_Y -200                 // Lowest camera will recognise object
 #define AIM_ACCEPT 5                    // Stop auto-aiming within x
@@ -970,18 +972,18 @@ void calibrateVision() {
     else {
         
         BLUE_SIG =
-        pros::Vision::signature_from_utility(BLUE_FLAG, -2469, -611, -1540, 203, 7341, 3772, 0.9, 1);
+        pros::Vision::signature_from_utility(BLUE_FLAG, -2469, -611, -1540, 203, 7341, 3772, 0.8, 1);
         
         RED_SIG =
-        pros::Vision::signature_from_utility(RED_FLAG, 1283, 3237, 2260, -415, 1, -207, 1.1, 1);
+        pros::Vision::signature_from_utility(RED_FLAG, 1283, 3237, 2260, -415, 1, -207, 1.6, 1);
         
         GREEN_SIG =
-        pros::Vision::signature_from_utility(GREEN_FLAG, -2685, -1579, -2132, -3263, -1853, -2558, 1.4, 1);
+        pros::Vision::signature_from_utility(GREEN_FLAG, -2685, -1579, -2132, -3263, -1853, -2558, 2.5, 1);
         
         
-//        camera.set_signature(BLUE_FLAG, &BLUE_SIG);
-//        camera.set_signature(RED_FLAG, &RED_SIG);
-//        camera.set_signature(GREEN_FLAG, &GREEN_SIG);
+        camera.set_signature(BLUE_FLAG, &BLUE_SIG);
+        camera.set_signature(RED_FLAG, &RED_SIG);
+        camera.set_signature(GREEN_FLAG, &GREEN_SIG);
         
         camera.set_exposure(70);
     }
@@ -1774,7 +1776,18 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     
     if (allThings.size() == 0) return 0;    // No correct objects found, so don't aim
     
+    // Check for any very large objects
+    for (int i = 0; i < allThings.size(); i++) {
+        if (lookingFor == BLUE_FLAG || lookingFor == RED_FLAG) {
+            // Check if too big/close
+            if (allThings[i].width > MAX_FLAG_WIDTH || allThings[i].height > MAX_FLAG_HEIGHT) {
+                allThings.erase(allThings.begin() + i);
+                i--;
+            }
+        }
+    }
     
+#ifdef USE_GREEN_FLAGS
     // Now check objects to delete any imposters
     for (int i = 0; i < allThings.size(); i++) {
         if (lookingFor == BLUE_FLAG || lookingFor == RED_FLAG) {
@@ -1797,7 +1810,18 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
                     }
                 }
                 else {
-                    
+                    if (
+                        greenThings[j].y_middle_coord > allThings[i].top_coord
+                        &&
+                        greenThings[j].y_middle_coord < allThings[i].top_coord + allThings[i].height
+                        &&
+                        greenThings[j].left_coord > allThings[i].x_middle_coord
+                        &&
+                        greenThings[j].left_coord + greenThings[j].width < allThings[i].left_coord + allThings[i].width + allThings[i].width
+                        ) {
+                        greenWithinRange = true;
+                        break;
+                    }
                 }
             }
             
@@ -1808,6 +1832,7 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
             
         }
     }
+#endif
 
     if (allThings.size() == 0) return 0;    // Check if we've deleted all the things
     
