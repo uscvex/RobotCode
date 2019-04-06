@@ -1,59 +1,37 @@
 
 #include "robot-config.h"
 #include <iostream>
-/*---------------------------------------------------------------------------*/
-/*                                                                           */
-/*        Description: Competition template for VCS VEX V5                    */
-/*                                                                           */
-/*---------------------------------------------------------------------------*/
 
-//global vars
-int apexSpeedPCT = 50;
+
+int apexSpeedPCT = 50;                          //global vars
 int armParallelSpeedPCT=100;
-int armParallelPositionDEG=45; //TODO: change this
+int armParallelPositionDEG=45;
 int armExtendedSpeedPCT=100;
 int armExtendedPositionDEG=135;
 int manualArmSpeedPCT=80;
 int armAutoReturnSpeedPCT=100;
 
-int step=-1;
+int step=-1;                                    //for auton motor position seeking
 double seek=-1;
 double currentPos=0;
 double speed=0;
 
-//Creates a competition object that allows access to Competition methods.
+//competition object
 vex::competition Competition;
 
 /*---------------------------------------------------------------------------*/
-/*                          Pre-Autonomous Functions                         */
-/*                                                                           */
-/*  You may want to perform some actions before the competition starts.      */
-/*  Do them in the following function.  You must return from this function   */
-/*  or the autonomous and usercontrol tasks will not be started.  This       */
-/*  function is only called once after the cortex has been powered on and    */
-/*  not every time that the robot is disabled.                               */
+/*                          Pre-Autonomous Functions                         */                                                                           */
+/*  Called once after cortex powered on (NOT every time robot is disabled)   */
 /*---------------------------------------------------------------------------*/
 
 void pre_auton( void ) {
-    // All activities that occur before the competition starts
-    // Example: clearing encoders, setting servo positions, ...
 }
 
 /*---------------------------------------------------------------------------*/
-/*                                                                           */
 /*                              Autonomous Task                              */
-/*                                                                           */
-/*  This task is used to control your robot during the autonomous phase of   */
-/*  a VEX Competition.                                                       */
-/*                                                                           */
-/*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
 void autonomous( void ) {
-    // ..........................................................................
-    {
-        //1. move -458
-        
         //1
         LeftMotor1.rotateFor(-1.273, vex::rotationUnits::rev, 80, vex::velocityUnits::pct, false);
         LeftMotor2.rotateFor(-1.273, vex::rotationUnits::rev, 80, vex::velocityUnits::pct, false);
@@ -86,7 +64,6 @@ void autonomous( void ) {
         RightMotor2.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);//(Axis3-Axis1)
         RightMotor3.spin(vex::directionType::rev, 50, vex::velocityUnits::pct);//(Axis3-Axis1)
         vex::task::sleep(500);
-        
         
         LeftMotor1.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct); //(Axis3+Axis1)
         LeftMotor2.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct); //(Axis3+Axis1)
@@ -170,7 +147,7 @@ void autonomous( void ) {
         vex::task::sleep(23000);
         
         
-        //changed!!!
+        //11.5
         LeftMotor1.spin(vex::directionType::rev, 100, vex::velocityUnits::pct); //(Axis3+Axis1)
         LeftMotor2.spin(vex::directionType::rev, 100, vex::velocityUnits::pct); //(Axis3+Axis1)
         LeftMotor3.spin(vex::directionType::rev, 100, vex::velocityUnits::pct); //(Axis3+Axis1)
@@ -187,7 +164,7 @@ void autonomous( void ) {
         RightMotor2.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct);//(Axis3-Axis1)
         RightMotor3.spin(vex::directionType::fwd, 0, vex::velocityUnits::pct);//(Axis3-Axis1)
         vex::task::sleep(23000);
-    }
+    
 }
 void runner(double a, double b, double c, double d, double e, double f){
     LeftMotor1.rotateFor(vex::directionType::fwd, a, vex::rotationUnits::deg, false);
@@ -199,37 +176,14 @@ void runner(double a, double b, double c, double d, double e, double f){
 }
 
 /*---------------------------------------------------------------------------*/
-/*                                                                           */
-/*                              User Control Task                            */
-/*                                                                           */
-/*  This task is used to control your robot during the user control phase of */
-/*  a VEX Competition.                                                       */
-/*                                                                           */
-/*  You must modify the code to add your own robot specific commands here.   */
+/*                              User Control Task+                           */
 /*---------------------------------------------------------------------------*/
 
-void autoArm()
-{//seek 275 for the 90 degrees
-    ApexMotor1.rotateTo(-230,vex::rotationUnits::deg, 15, vex::velocityUnits::pct);
-    
-    /*step=1;
-     currentPos=ApexMotor1.rotation(vex::rotationUnits::deg);
-     if(seek!=-1){
-     speed=(seek-currentPos);//yields thing in degrees.
-     }
-     if(step==1){//seek the 90 degrees
-     seek = 22;
-     if (speed < 5) {
-     seek = -1;
-     step = -1; 
-     }
-     }
-     ApexMotor1.setVelocity(speed, vex::velocityUnits::pct);
-     ApexMotor1.spin(vex::directionType::rev);*/
-    
-}
-void armcontrolR1(void) {
-    //runArm();
+/*
+Brings arm up, then brings it down. (arm goes higher up w/ more negative numbers) 
+Enabled w/ usercontrol
+*/
+void armcontrol(void) {
     ApexMotor1.startRotateTo(-250,vex::rotationUnits::deg, 100, vex::velocityUnits::pct);//up
     vex::task::sleep(500);
     ApexMotor1.startRotateTo(-100,vex::rotationUnits::deg, 100, vex::velocityUnits::pct);//down
@@ -237,101 +191,28 @@ void armcontrolR1(void) {
     ApexMotor1.startRotateTo(0, vex::rotationUnits::deg, 25, vex::velocityUnits::pct);//down slower
     vex::task::sleep(300);
 }
-/*
- void armcontrolL1(void) {
- ApexMotor1.spin(vex::directionType::fwd,90,vex::velocityUnits::pct);
- 
- }
- */
-/*void manual(void) {
- while(true) {
- if(Controller1.ButtonL2.pressing()){
- ApexMotor1.spin(vex::directionType::fwd,90,vex::velocityUnits::pct);
- //manual down.
- }
- else if(Controller1.ButtonL1.pressing()){
- ApexMotor1.spin(vex::directionType::rev,90,vex::velocityUnits::pct);
- //manual up.
- }
- else {
- ApexMotor1.stop(vex::brakeType::brake);
- }
- 
- 
- }
- 
- }
- */
-void usercontrol( void ) {
-    // User control code here, inside the loop
-    armcontrolR1();
-    //manual();
+
+/*For opcontrol/ non-autonomous purposes*/
+void usercontrol( void ) { 
+    //Enable arm
+    armcontrol();
+    
+    //Drive Control: Arcade Mode
     while (1) {
-        
-        //run arm
-        //**pressing returns bool
-        /*if(Controller1.ButtonR1.pressing()){
-         
-         //runArm();
-         ApexMotor1.startRotateTo(-250,vex::rotationUnits::deg, 100, vex::velocityUnits::pct);//up
-         vex::task::sleep(500);
-         ApexMotor1.startRotateTo(-100,vex::rotationUnits::deg, 100, vex::velocityUnits::pct);//down
-         vex::task::sleep(300);
-         ApexMotor1.startRotateTo(0, vex::rotationUnits::deg, 25, vex::velocityUnits::pct);//down slower
-         vex::task::sleep(300);
-         
-         }
-         
-         else if(Controller1.ButtonL2.pressing()){
-         ApexMotor1.spin(vex::directionType::fwd,90,vex::velocityUnits::pct);
-         //manual down.
-         }
-         else if(Controller1.ButtonL1.pressing()){
-         ApexMotor1.spin(vex::directionType::rev,90,vex::velocityUnits::pct);
-         //manual up.
-         }
-         else {
-         ApexMotor1.stop(vex::brakeType::brake);
-         }
-         
-         
-         */
-        //
-        //ApexMotor.rotateTo(armParallelPositionDEG,vex::rotationUnits::deg,armParallelSpeedPCT,vex::velocityUnits::pct,false);
-        //ApexMotor.rotateTo(0,vex::rotationUnits::deg,armParallelSpeedPCT,vex::velocityUnits::pct,false);
-        
         LeftMotor1.spin(vex::directionType::fwd, (Controller1.Axis3.value() + Controller1.Axis1.value()/2), vex::velocityUnits::pct); //(Axis3+Axis1)
         LeftMotor2.spin(vex::directionType::fwd, (Controller1.Axis3.value() + Controller1.Axis1.value()/2), vex::velocityUnits::pct); //(Axis3+Axis1)
         LeftMotor3.spin(vex::directionType::fwd, (Controller1.Axis3.value() + Controller1.Axis1.value()/2), vex::velocityUnits::pct); //(Axis3+Axis1)
         RightMotor1.spin(vex::directionType::fwd, (Controller1.Axis3.value() - Controller1.Axis1.value()/2), vex::velocityUnits::pct);//(Axis3-Axis1)
         RightMotor2.spin(vex::directionType::fwd, (Controller1.Axis3.value() - Controller1.Axis1.value()/2), vex::velocityUnits::pct);//(Axis3-Axis1)
         RightMotor3.spin(vex::directionType::fwd, (Controller1.Axis3.value() - Controller1.Axis1.value()/2), vex::velocityUnits::pct);//(Axis3-Axis1)
-        /* if(Controller1.ButtonL2.pressing()){
-         ApexMotor1.spin(vex::directionType::fwd,90,vex::velocityUnits::pct);
-         //manual down.
-         }
-         else if(Controller1.ButtonL1.pressing()){
-         ApexMotor1.spin(vex::directionType::rev,90,vex::velocityUnits::pct);
-         //manual up.
-         }
-         else{
-         ApexMotor1.spin(vex::directionType::fwd,0,vex::velocityUnits::pct);
-         //ApexMotor1.spin(vex::directionType::rev,90,vex::velocityUnits::pct);
-         }
-         */
-        vex::task::sleep(20); //Sleep the task for a short amount of time to prevent wasted resources.
+        
+        vex::task::sleep(20); //Prevents wasted resources.
     }
 }
 
-//
-// Main will set up the competition functions and callbacks.
-//
 int main() {
-    
-    //Run the pre-autonomous function.
     pre_auton();
-    Controller1.ButtonR1.pressed(armcontrolR1);
-    //Controller1.ButtonL1.pressed(armcontrolL1);
+        
     //Set up callbacks for autonomous and driver control periods.
     Competition.autonomous( autonomous );
     Competition.drivercontrol( usercontrol );
