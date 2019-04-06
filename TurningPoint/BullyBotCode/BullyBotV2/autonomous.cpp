@@ -1,7 +1,7 @@
 
 #include "main.h"
 
-/**
+/*
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
  * the Field Management System or the VEX Competition Switch in the autonomous
@@ -13,10 +13,6 @@
  * from where it left off.
  */
 void autonomous(){
-    // Start task
-    pros::Task autonArmTask(run_arm);
-    //pros::Task autonWristTask(run_wrist);
-    
-    runAuton();
-    
+    pros::Task autonArmTask(run_arm);                   //Enable position seeking
+    runAuton();                                         //Run routine
 }
