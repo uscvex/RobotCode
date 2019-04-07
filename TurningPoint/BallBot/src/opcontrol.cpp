@@ -129,6 +129,9 @@ using namespace pros;
 #define FLYWHEEL_AIM_RANGE 5            // fire ball when within x degrees of flag
 #define VISION_SEEK_RATE 3              // How fast to turn to aim, bigger = slower
 
+#define BLUE_CODE_ID 11                 // Colour code ids for blue flag
+#define RED_CODE_ID 19                  // Colour code ids for red flag
+
 #include "BallBotAutons.h"              // File with autonomous routine steps
 
 // Defines for auton routine numbers
@@ -957,9 +960,15 @@ void setScraperPos(double pos) {
     scraperOffset = pos;
     scraperPos = pos;
 }
+
+
+
 pros::vision_signature_s_t GREEN_SIG;
 pros::vision_signature_s_t RED_SIG;
 pros::vision_signature_s_t BLUE_SIG;
+
+pros::vision_color_code_t BLUE_CODE;
+pros::vision_color_code_t RED_CODE;
 
 void calibrateVision() {
     
@@ -971,24 +980,32 @@ void calibrateVision() {
     // Calibration for Red Bot
     else {
         
+        
+
+        // Create signatures for calibration
         BLUE_SIG =
-        pros::Vision::signature_from_utility(BLUE_FLAG, -2469, -611, -1540, 203, 7341, 3772, 0.8, 1);
+        pros::Vision::signature_from_utility(BLUE_FLAG, -1963, -1007, -1484, 1447, 3061, 2254, 1, 1);
         
         RED_SIG =
-        pros::Vision::signature_from_utility(RED_FLAG, 1283, 3237, 2260, -415, 1, -207, 1.6, 1);
+        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 0.8, 1);
         
         GREEN_SIG =
-        pros::Vision::signature_from_utility(GREEN_FLAG, -2685, -1579, -2132, -3263, -1853, -2558, 2.5, 1);
-        
+        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 5.3, 1);
         
         camera.set_signature(BLUE_FLAG, &BLUE_SIG);
         camera.set_signature(RED_FLAG, &RED_SIG);
         camera.set_signature(GREEN_FLAG, &GREEN_SIG);
         
-        camera.set_exposure(70);
+        BLUE_CODE = camera.create_color_code(BLUE_FLAG,GREEN_FLAG);
+        RED_CODE = camera.create_color_code(RED_FLAG,GREEN_FLAG);
+        
+        camera.set_exposure(69);
+        
     }
     
     camera.set_zero_point(pros::E_VISION_ZERO_TOPLEFT);
+    
+    
     
 }
 
@@ -1745,7 +1762,10 @@ double getDistance() {
 
 
 
+
 // Read vision sensor to get angle needed to turn
+// Returns angle to desired target
+// Or 0 if error
 double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     
     int lookingFor = BLUE_FLAG;     // default to red-team
@@ -1755,111 +1775,68 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     if (target != DEFAULT)
         lookingFor = target;
     
-    std::vector<vision_object_s_t> allThings;
-    std::vector<vision_object_s_t> greenThings;
+    // Containers for the things we'll see
+    std::vector<vision_object_s_t> blueThings;
+    std::vector<vision_object_s_t> redThings;
     
-    int noObjs = camera.get_object_count();                     // Find number of objects visable
+    // Find number of objects visable
+    int noObjs = camera.get_object_count();
+    
     
     if (noObjs > 100)      // Camera error, so don't aim
         return 0;
     
-    for (int i = 0; i < noObjs; i++) {                          // Go through them all
-        vision_object_s_t thisThing = camera.get_by_size(i);    // And check if we care about
-        if (thisThing.signature == lookingFor) {                // The type of object it is
-            allThings.push_back(thisThing);                     // And stick it into a vector
-        }
-        if (thisThing.signature == GREEN_FLAG) {                // Put any green objects into vector
-            greenThings.push_back(thisThing);
-        }
-    }
-    
-    
-    if (allThings.size() == 0) return 0;    // No correct objects found, so don't aim
-    
-    // Check for any very large objects
-    for (int i = 0; i < allThings.size(); i++) {
-        if (lookingFor == BLUE_FLAG || lookingFor == RED_FLAG) {
-            // Check if too big/close
-            if (allThings[i].width > MAX_FLAG_WIDTH || allThings[i].height > MAX_FLAG_HEIGHT) {
-                allThings.erase(allThings.begin() + i);
-                i--;
+    // Got through all objects seen
+    for (int i = 0; i < noObjs; i++) {
+        vision_object_s_t thisThing = camera.get_by_size(i);
+        // Print their info
+        
+        // If object is a colour code
+        if (thisThing.type == 1) {
+            // Red flags should have angle ~0°
+            if (thisThing.signature == RED_CODE_ID && abs(thisThing.angle) < 90) {
+                redThings.push_back(thisThing);
+            }
+            // Blue flags should have angle ~180°
+            if (thisThing.signature == BLUE_CODE_ID && abs(thisThing.angle) > 90) {
+                blueThings.push_back(thisThing);
             }
         }
     }
     
-#ifdef USE_GREEN_FLAGS
-    // Now check objects to delete any imposters
-    for (int i = 0; i < allThings.size(); i++) {
-        if (lookingFor == BLUE_FLAG || lookingFor == RED_FLAG) {
-            // Check if green object is within range
-            bool greenWithinRange = false;
-            for (int j = 0; j < greenThings.size(); j++) {
-                // Reference frame is 0,0 top left, increasing right and down D:
-                if (lookingFor == BLUE_FLAG) {
-                    if (
-                        greenThings[j].y_middle_coord > allThings[i].top_coord
-                        &&
-                        greenThings[j].y_middle_coord < allThings[i].top_coord + allThings[i].height
-                        &&
-                        greenThings[j].left_coord + greenThings[j].width < allThings[i].x_middle_coord
-                        &&
-                        greenThings[j].left_coord > allThings[i].left_coord - allThings[i].width
-                        ) {
-                        greenWithinRange = true;
-                        break;
-                    }
-                }
-                else {
-                    if (
-                        greenThings[j].y_middle_coord > allThings[i].top_coord
-                        &&
-                        greenThings[j].y_middle_coord < allThings[i].top_coord + allThings[i].height
-                        &&
-                        greenThings[j].left_coord > allThings[i].x_middle_coord
-                        &&
-                        greenThings[j].left_coord + greenThings[j].width < allThings[i].left_coord + allThings[i].width + allThings[i].width
-                        ) {
-                        greenWithinRange = true;
-                        break;
-                    }
-                }
-            }
-            
-            if (!greenWithinRange) {// && greenThings.size() > 0) {
-                allThings.erase(allThings.begin() + i);
-                i--;
-            }
-            
-        }
-    }
-#endif
-
-    if (allThings.size() == 0) return 0;    // Check if we've deleted all the things
+    std::vector<vision_object_s_t> *theseThings;
     
-    // Now find the thing furthest right or left, or the closest to the center
+    if (lookingFor == BLUE_FLAG)
+        theseThings = &blueThings;
+    if (lookingFor == RED_FLAG)
+        theseThings = &redThings;
     
+    if (theseThings->size() == 0)
+        return 0;
+    
+    // Find which object is closest to left/middle/right
     double closestDist;
     if (location == CENTER) {
         closestDist = 10000;
-        for (int i = 0; i < allThings.size(); i++) {
-            if (abs(allThings[i].x_middle_coord - (VISION_FOV_WIDTH/2)) < closestDist) {
-                closestDist = allThings[i].x_middle_coord;
+        for (int i = 0; i < (*theseThings).size(); i++) {
+            if (abs((*theseThings)[i].x_middle_coord - (VISION_FOV_WIDTH/2)) < closestDist) {
+                closestDist = (*theseThings)[i].x_middle_coord;
             }
         }
     }
     if (location == LEFT) {
         closestDist = 10000;
-        for (int i = 0; i < allThings.size(); i++) {
-            if (allThings[i].x_middle_coord < closestDist) {
-                closestDist = allThings[i].x_middle_coord;
+        for (int i = 0; i < (*theseThings).size(); i++) {
+            if ((*theseThings)[i].x_middle_coord < closestDist) {
+                closestDist = (*theseThings)[i].x_middle_coord;
             }
         }
     }
     if (location == RIGHT) {
         closestDist = -10000;
-        for (int i = 0; i < allThings.size(); i++) {
-            if (allThings[i].x_middle_coord > closestDist) {
-                closestDist = allThings[i].x_middle_coord;
+        for (int i = 0; i < (*theseThings).size(); i++) {
+            if ((*theseThings)[i].x_middle_coord > closestDist) {
+                closestDist = (*theseThings)[i].x_middle_coord;
             }
         }
     }
@@ -1869,6 +1846,9 @@ double getRelativeAngle(int location = CENTER, int target = DEFAULT) {
     if (lookingFor == BLUE_FLAG) closestDist -= FLAG_OFFSET;
     
     closestDist = closestDist - (VISION_FOV_WIDTH/2);
+    
+    if ((-closestDist/VISION_SEEK_RATE) == 0)
+        return 0.001;
     
     return -closestDist/VISION_SEEK_RATE;
     
@@ -1981,7 +1961,7 @@ void run_flywheel(void* params) {
             
             
             // Check current speed of flywheel & if aimed
-            if ( (abs(getFlywheelSpeed() - targetSpeed) < FLYWHEEL_SPEED_RANGE) && (abs(relativeAngle) < FLYWHEEL_AIM_RANGE) ) {
+            if ( (abs(getFlywheelSpeed() - targetSpeed) < FLYWHEEL_SPEED_RANGE) && (abs(relativeAngle) < FLYWHEEL_AIM_RANGE && relativeAngle != 0) ) {
                 // Set flag for fireing ball
                 fireBall = true;
             }
@@ -2212,6 +2192,7 @@ void run_flywheel(void* params) {
 //        if (targetSpeed == flyWheelDefaultSpeed && autonSelect != SKILLSAUTON) {
 //            flywheelSpeed = flyWheelDefaultSpeed;
 //        }
+        
         
         ///////////////////////////////
         // flywheelSpeed = 0;
@@ -2612,6 +2593,7 @@ void run_arm(void* params) {
 void run_auton() {
     
     initAll();
+    calibrateVision();
     
     int driveMode = 0;
     double pauseTime = 0;
@@ -2979,7 +2961,7 @@ void run_auton() {
         
         if (aimPlease) {
             double relAngle = getRelativeAngle(aimTarget, aimLocation);
-            if (abs(relAngle) < AIM_ACCEPT)  {
+            if (abs(relAngle) < AIM_ACCEPT && relAngle != 0)  {
                 aimPlease = false;
                 nextCommand = true;
                 pauseTime = 0;
@@ -3170,6 +3152,7 @@ void opcontrol() {
                 if (autonSelect > NUMBER_AUTONS - 1) {
                     autonSelect = 0;
                 }
+                calibrateVision();
             }
             justToggledAuto = true;
         }
