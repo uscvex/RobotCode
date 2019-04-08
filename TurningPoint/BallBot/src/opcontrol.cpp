@@ -250,6 +250,8 @@ extern double defaultAuton[];
 #define SCRAPER_FLIP_POS 90
 #define SCRAPER_UP -10
 #define SCRAPER_DOWN_POS 50
+#define ARM_KNOCK_POS 200
+#define WRIST_KNOCK_POS 160
 
 #define FAR_FLAG_DIST 1.2
 #define MIDDLE_FLAG_DIST 0.8
@@ -1681,7 +1683,7 @@ void run_drive(void* params) {
             // We use the same code for each bot, so differentiate by whick autonomous routine the bot is runnning
             if (autonSelect == REDAUTON || autonSelect == BLUEAUTON || autonSelect == SKILLSAUTON) {
                 // Tank Controls For Sam
-                if (controlMode == FLYWHEEL) {  // Each control mode has a different front/back of the robot
+                if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {  // Each control mode has a different front/back of the robot
                     leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
                     rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
                 }
@@ -1692,7 +1694,7 @@ void run_drive(void* params) {
             }
             else {
                 // Arcade Controls For RJ/Ramon
-                if (controlMode == FLYWHEEL) {  // Each control mode has a different front/back of the robot
+                if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {  // Each control mode has a different front/back of the robot
                     leftSpeed = controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
                     rightSpeed = controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
                 }
@@ -1961,7 +1963,7 @@ void run_flywheel(void* params) {
             
             
             // Check current speed of flywheel & if aimed
-            if ( (abs(getFlywheelSpeed() - targetSpeed) < FLYWHEEL_SPEED_RANGE) && (abs(relativeAngle) < FLYWHEEL_AIM_RANGE && relativeAngle != 0) ) {
+            if ( (abs(getFlywheelSpeed() - targetSpeed) < FLYWHEEL_SPEED_RANGE) && (abs(relativeAngle) < FLYWHEEL_AIM_RANGE) ) {
                 // Set flag for fireing ball
                 fireBall = true;
             }
@@ -1987,7 +1989,9 @@ void run_flywheel(void* params) {
                     targetFlag = 1;
                     fireBall = false;
                     flywheelRunSpeed = -1;
-                    driveDistSonar(127, direction, 1, 2);
+                    driveStop();
+                    driveDist(127, direction, 0.75, 2);
+                    autoFireState = 2;
                 }
                 else {
                     autoFireState = -1;
@@ -2087,14 +2091,28 @@ void run_flywheel(void* params) {
             else if (controller.get_digital(BTN_FIRE_BOTH)) { // auto fire both
                 doSet = true;
                 if (!justAskedForFire) {
-                    //driveDistSonar(127, direction, 1.5, 2);
-                    autoFireState = 1;
-                    targetFlag = 3;
-                    autoFireTimeout = -1;
-                    fireBall = false;
-                    justAskedForFire = true;
-                    flywheelRunSpeed = -1;
-                    flipCapWIntake = false;
+                    if (autonSelect == SKILLSAUTON) {
+                        //driveDistSonar(127, direction, 1.5, 2);
+                        autoFireState = 1;
+                        targetFlag = 3;
+                        autoFireTimeout = -1;
+                        fireBall = false;
+                        justAskedForFire = true;
+                        flywheelRunSpeed = -1;
+                        flipCapWIntake = false;
+                    } else {
+                        justAskedForFire = true;
+                        if (armSeek == ARM_KNOCK_POS && wristSeek == WRIST_KNOCK_POS && flipperSeek == (FLIP_POS1 + FLIP_POS2)/2) {
+                            armSeek = 1;
+                            wristSeek = WRIST_VERTICAL_POS;
+                            flipperSeek = FLIP_POS1;
+                        }
+                        else {
+                            armSeek = ARM_KNOCK_POS;
+                            wristSeek = WRIST_KNOCK_POS;
+                            flipperSeek = (FLIP_POS1 + FLIP_POS2)/2;
+                        }
+                    }
                 }
             }
             else {
