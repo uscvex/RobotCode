@@ -735,9 +735,10 @@ double skills[] = {
     WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP
     PAUSE,0.25,                         // PAUSE TO LET IT LIFT
     FLIP,                               // FLIP THE CAP
-    WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 4
+    //WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 4
     
     TURN,180,2,                         // TURN TO FACE PLATFORM
+    WRISTSEEK,-1,                       // DROP CAP                                 FLIP CAP 4
     SCRAPER,SCRAPER_UP_POS,             // ENSURE SCRAPER IS UP
     DRIVE,127,180,DISTANCE,1.3,2,       // DRIVE TO PLATFORM
     SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER
@@ -791,8 +792,9 @@ double skills[] = {
     DRIVE,127,90,DISTANCE,0.1,1,        // DRIVE AWAY FROM WALL
     FLIP,                               // FLIP CAP
     PAUSE,0.25,                         // PAUSE TO LET FLIP
-    WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 6
+    //WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 6
     TURN,160,2,                         // TURN TO FACE PLATFORM
+    WRISTSEEK,-1,                       // DROP CAP                                 FLIP CAP 6
     DRIVE,127,160,DISTANCE,1.5,2,       // DRIVE TO PLATFORM
     
     SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER
