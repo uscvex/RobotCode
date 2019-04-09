@@ -1,47 +1,44 @@
 
 #include "main.h"
 using namespace pros;
+                                                                 /* Button definition */
+#define ANLG_FB ANALOG_LEFT_Y                                          // Define front-back channel for arcade mode drive
+#define ANLG_LR ANALOG_RIGHT_X                                         // Define turning channel for arcade mode
 
-#define ANLG_FB ANALOG_LEFT_Y
-#define ANLG_LR ANALOG_RIGHT_X
+#define BTN_ARM_UP DIGITAL_UP                                          // Manually raise arm
+#define BTN_ARM_DOWN DIGITAL_DOWN                                      // Manually lower arm
+#define BTN_MANUAL_CW DIGITAL_RIGHT                                    // Manually rotate wrist clockwise
+#define BTN_MANUAL_CCW DIGITAL_LEFT                                    // Manually rotate wrist counterclockwise
+#define BTN_FLOOR_FLIP DIGITAL_B                                       // For automatic cap-flipping routine
+#define BTN_TARE_ARM DIGITAL_Y                                         // Sets arm position to 0
 
-#define BTN_ARM_UP DIGITAL_UP
-#define BTN_ARM_DOWN DIGITAL_DOWN
-#define BTN_MANUAL_CW DIGITAL_RIGHT
-#define BTN_MANUAL_CCW DIGITAL_LEFT
-#define BTN_FLOOR_FLIP DIGITAL_B
-#define BTN_TARE_ARM DIGITAL_Y
+#define BTN_ARM_OTHERSIDE DIGITAL_R1                                   // Toggles arm position: pole height or ground
+#define BTN_ARM_AUTOBUMPUP DIGITAL_L1                                  // Raises arm predetermined number of ticks
+#define BTN_ARM_AUTOBUMPDOWN DIGITAL_L2                                // Lowers arm predetermined number of ticks
+#define BTN_ARM_AUTODOWN DIGITAL_R2                                    // Lowers arm to the ground
 
-#define BTN_ARM_OTHERSIDE DIGITAL_R1
-#define BTN_ARM_AUTOBUMPUP DIGITAL_L1
-#define BTN_ARM_AUTOBUMPDOWN DIGITAL_L2
-#define BTN_ARM_AUTODOWN DIGITAL_R2
+Controller controller (E_CONTROLLER_MASTER);                     /* Instantiate controller */
+    
+                                                                 /* Global variables and constants */
+double armSeek = -1;                                                   // The position arm is trying to reach. -1 when not seeking
+double armPos = 0;                                                     // Current arm position                                                                             
+double armPower = 0;                                                   // Power sent to the arm, from 0 to 12000
+double armSpeed = 12000;                                               // Max speed of arm (usual speed)
 
-#define SEEKRATE 2
-Controller controller (E_CONTROLLER_MASTER);
-double armSeek = -1;
-double armPos = 0;
+int colorMultiplier = 1;                                               // 1 or -1. Causes mirroring of auton routines for red/blue sides
 
-double armPower = 0;
-double armSpeed = 12000;
+int flipStep = -1;                                                     // Tracks step# in a multi-step routine
+int closeEnough = 10;                                                  // Threshold error for motor position seeking
+int DEGS_FOR_COMPLETE_DOWN = 20;                                       // Used instead of 0 when seeking ground. Compensates for mech issues
+int BUMP_VALUE = 110;                                                  // Amount (ticks) by which arm goes up/down
+int UPPER_ARM_THRESHOLD = 1300;                                        // Highest position the arm can go
 
-int colorMultiplier = 1;
+double POLE_HEIGHT_DEGS = 750;                                         // Arm height to reach low pole
+double ABOVE_POLE_HEIGHT_DEGS = 1200;                                  // Arm height to seek when flipping cap above pole
 
-int flipStep = -1;
-int closeEnough = 10;
-int DEGS_FOR_COMPLETE_DOWN = 20;
-int BUMP_VALUE = 110;
-int UPPER_ARM_THRESHOLD = 300;
-bool isFlipped = false;
-bool isBumpedUp = false;
-bool justFlipped = false;
-
-double OTHER_SIDE = 600;
-double POLE_HEIGHT_DEGS = 750;
-double ABOVE_POLE_HEIGHT_DEGS = 1200;
-
-Motor left1(8, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);//2
-Motor left2(2, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);//18
+                                                                    /* Motors Instantiation */
+Motor left1(8, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);    // Set drive motors
+Motor left2(2, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
 Motor left3(10, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
 Motor left4(9, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
 Motor right1(6, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
@@ -49,19 +46,16 @@ Motor right2(4, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
 Motor right3(15, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
 Motor right4(5, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
 
-Motor catl(16, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES); //TODO: basic functions for that. like drive
-Motor catr(17, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
-f
-Motor wrist(1, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES); //TODO: wrist flip function back :(
-Motor flipper(8, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+Motor wrist(1, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);     // Wrist motor
+Motor flipper(8, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);   // Arm motor
 
-
+/* Zero motors at beginning of the match */
 void myInit(void* param){
-    //motorApexA.tare_position();
-    //motorApexA.tare_position();
+    wrist.tare_position();
+    flipper.tare_position();
 }
 
-/*Drive in arcade mode activated*/
+/* Drive in arcade mode activated*/
 void enable_drive(void* param){
     while(true) {
         left1.move_voltage((controller.get_analog(ANLG_FB) +  controller.get_analog(ANLG_LR))*12000/127);
@@ -76,6 +70,7 @@ void enable_drive(void* param){
     }
 }
 
+/* Task for arm controls */
 void manual_arm(void* param){
     armSeek = -1;
     
@@ -128,7 +123,7 @@ void manual_arm(void* param){
             if(justFlipped == false){
                 justFlipped = true;
                 pros::lcd::print(5, "(t)justFlipped: ", justFlipped);
-                if(armSeek == OTHER_SIDE)
+                if(armSeek == POLE_HEIGHT_DEGS)
                     armSeek = 100;
                 else
                     armSeek = OTHER_SIDE;
