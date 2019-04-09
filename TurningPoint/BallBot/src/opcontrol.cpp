@@ -877,6 +877,7 @@ bool nextCommand = true;
 // For Flywheel
 int autoFireState = -1;         // -1 for neutral, 1 for 'aim & spin & fire', 2 for 'spin & fire', 3 for 'fire!'
 int targetFlag = 1;             // 1 for low, 2 for high, 3 for high then low
+bool fireBoth = false;          // Are we doing a double shot
 
 // For Intake
 bool forceIntake = false;       // Do we want to force the intake to run at a speed
@@ -1667,7 +1668,7 @@ void run_drive(void* params) {
         
         
         // Auto-move is complete, so stop moving
-        if (autonComplete && autoFireState == -1) {
+        if (autonComplete && (autoFireState == -1 || fireBoth)) {
             // We want to stop moving so set appropriate flags
             autonComplete = false;          // Reset 'stop' flag
             autoMode = DRIVEMODE_USER;      // Give control back to user
@@ -1994,9 +1995,11 @@ void run_flywheel(void* params) {
                     driveStop();
                     driveDist(127, direction, 0.75, 2);
                     autoFireState = 2;
+                    fireBoth = true;
                 }
                 else {
                     autoFireState = -1;
+                    fireBoth = false;
                     targetSpeed = flyWheelDefaultSpeed;
                     fireBall = false;
                     flywheelRunSpeed = -1;
@@ -2068,6 +2071,7 @@ void run_flywheel(void* params) {
                     
                     autoFireTimeout = -1;
                     targetFlag = 1;
+                    fireBoth = false;
                     fireBall = false;
                     justAskedForFire = true;
                     flywheelRunSpeed = -1;
@@ -2082,6 +2086,7 @@ void run_flywheel(void* params) {
                         autoFireState = 2;
                     else
                         autoFireState = 1;
+                    fireBoth = false;
                     targetFlag = 2;
                     autoFireTimeout = -1;
                     fireBall = false;
@@ -2093,9 +2098,11 @@ void run_flywheel(void* params) {
             else if (controller.get_digital(BTN_FIRE_BOTH)) { // auto fire both
                 doSet = true;
                 if (!justAskedForFire) {
-                    if (autonSelect == SKILLSAUTON) {
+                    // Blue Bot this button is anti-park, Red Bot it is double-fire
+                    if (autonSelect != BLUEBACKAUTON && autonSelect != REDBACKAUTON) {
                         //driveDistSonar(127, direction, 1.5, 2);
-                        autoFireState = 1;
+                        fireBoth = true;
+                        autoFireState = 2;  // Don't aim
                         targetFlag = 3;
                         autoFireTimeout = -1;
                         fireBall = false;
