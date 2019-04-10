@@ -14,14 +14,14 @@
 // Auto aim works
 // Auton fairly consistant
 // Bot 1
-//  -- 6 flags + 1 high cap + 1 low cap
-//  -- Total points 13
-//  -- Swing of 19
+//  -- 3 flags + 1 high cap + 1 low cap
+//  -- Total points 8
+//  -- Swing of 15
 // Bot 2
-// -- 2 high caps
-// -- Maybe 1 opponent high flag
+// -- 3 flags + 2 high caps
+// -- Total points 9
 //
-// Prog. Skills 20-24 pts
+// Prog. Skills 24-28 pts
 //
 //
 // To Do:
@@ -979,23 +979,17 @@ void calibrateVision() {
     
     // Calibration for Blue Bot
     if (autonSelect == BLUEBACKAUTON || autonSelect == REDBACKAUTON) {
-        camera.set_exposure(70);
-    }
-    
-    // Calibration for Red Bot
-    else {
         
         
-
         // Create signatures for calibration
         BLUE_SIG =
-        pros::Vision::signature_from_utility(BLUE_FLAG, -1963, -1007, -1484, 1447, 3061, 2254, 1, 1);
+        pros::Vision::signature_from_utility(BLUE_FLAG, -3181, 233, -1474, 3431, 11679, 7554, 0.7, 1);
         
         RED_SIG =
-        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 0.8, 1);
+        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 1.1, 1);
         
         GREEN_SIG =
-        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 5.3, 1);
+        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 4, 1);
         
         camera.set_signature(BLUE_FLAG, &BLUE_SIG);
         camera.set_signature(RED_FLAG, &RED_SIG);
@@ -1004,7 +998,30 @@ void calibrateVision() {
         BLUE_CODE = camera.create_color_code(BLUE_FLAG,GREEN_FLAG);
         RED_CODE = camera.create_color_code(RED_FLAG,GREEN_FLAG);
         
-        camera.set_exposure(69);
+        camera.set_exposure(50);
+    }
+    
+    // Calibration for Red Bot
+    else {
+        
+        // Create signatures for calibration
+        BLUE_SIG =
+        pros::Vision::signature_from_utility(BLUE_FLAG, -1963, -1007, -1484, 1447, 3061, 2254, 1.4, 1);
+        
+        RED_SIG =
+        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 0.9, 1);
+        
+        GREEN_SIG =
+        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 4, 1);
+        
+        camera.set_signature(BLUE_FLAG, &BLUE_SIG);
+        camera.set_signature(RED_FLAG, &RED_SIG);
+        camera.set_signature(GREEN_FLAG, &GREEN_SIG);
+        
+        BLUE_CODE = camera.create_color_code(BLUE_FLAG,GREEN_FLAG);
+        RED_CODE = camera.create_color_code(RED_FLAG,GREEN_FLAG);
+        
+        camera.set_exposure(50);
         
     }
     
