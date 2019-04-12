@@ -980,16 +980,15 @@ void calibrateVision() {
     // Calibration for Blue Bot
     if (autonSelect == BLUEBACKAUTON || autonSelect == REDBACKAUTON) {
         
-        
         // Create signatures for calibration
         BLUE_SIG =
-        pros::Vision::signature_from_utility(BLUE_FLAG, -3181, 233, -1474, 3431, 11679, 7554, 0.7, 1);
+        pros::Vision::signature_from_utility(BLUE_FLAG, -3181, 233, -1474, 3431, 11679, 7554, 1, 1);
         
         RED_SIG =
-        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 1.1, 1);
+        pros::Vision::signature_from_utility(RED_FLAG, 2725, 5285, 4006, -459, 1, -228, 1.4, 1);
         
         GREEN_SIG =
-        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 4, 1);
+        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 4.8, 1);
         
         camera.set_signature(BLUE_FLAG, &BLUE_SIG);
         camera.set_signature(RED_FLAG, &RED_SIG);
@@ -998,7 +997,7 @@ void calibrateVision() {
         BLUE_CODE = camera.create_color_code(BLUE_FLAG,GREEN_FLAG);
         RED_CODE = camera.create_color_code(RED_FLAG,GREEN_FLAG);
         
-        camera.set_exposure(50);
+        camera.set_exposure(79);
     }
     
     // Calibration for Red Bot
@@ -1006,13 +1005,13 @@ void calibrateVision() {
         
         // Create signatures for calibration
         BLUE_SIG =
-        pros::Vision::signature_from_utility(BLUE_FLAG, -1963, -1007, -1484, 1447, 3061, 2254, 1.4, 1);
+        pros::Vision::signature_from_utility(BLUE_FLAG, -3181, 233, -1474, 3431, 11679, 7554, 1, 1);
         
         RED_SIG =
-        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 0.9, 1);
+        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 1, 1);
         
         GREEN_SIG =
-        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 4, 1);
+        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 4.8, 1);
         
         camera.set_signature(BLUE_FLAG, &BLUE_SIG);
         camera.set_signature(RED_FLAG, &RED_SIG);
@@ -1021,7 +1020,7 @@ void calibrateVision() {
         BLUE_CODE = camera.create_color_code(BLUE_FLAG,GREEN_FLAG);
         RED_CODE = camera.create_color_code(RED_FLAG,GREEN_FLAG);
         
-        camera.set_exposure(50);
+        camera.set_exposure(78);
         
     }
     
@@ -1477,6 +1476,7 @@ void run_drive(void* params) {
     double slewRate = 2;        // How much dampening on the drive
     
     int turnGoodCount = 0;      // How long have we been facing the correct angle
+    double slewPower = 0;       // Slew for BlueBot
     
     while (true) {
         
@@ -1715,12 +1715,16 @@ void run_drive(void* params) {
             else {
                 // Arcade Controls For RJ/Ramon
                 if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {  // Each control mode has a different front/back of the robot
-                    leftSpeed = controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
-                    rightSpeed = controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
+                    
+                    slewPower = slewPower + (controller.get_analog(ANALOG_LEFT_Y) - slewPower) / 16;
+                    
+                    leftSpeed = slewPower + controller.get_analog(ANALOG_RIGHT_X);
+                    rightSpeed = slewPower - controller.get_analog(ANALOG_RIGHT_X);
                 }
                 else {
-                    leftSpeed = -controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_X);
-                    rightSpeed = -controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_X);
+                    slewPower = slewPower + (controller.get_analog(ANALOG_LEFT_Y) - slewPower) / 16;
+                    leftSpeed = -slewPower + controller.get_analog(ANALOG_RIGHT_X);
+                    rightSpeed = -slewPower - controller.get_analog(ANALOG_RIGHT_X);
                 }
             }
             
