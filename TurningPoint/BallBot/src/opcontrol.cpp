@@ -125,7 +125,7 @@ using namespace pros;
 #define MAX_FLAG_HEIGHT 500             // Tallest object camera will recognise
 #define MIN_FLAG_Y -200                 // Lowest camera will recognise object
 #define AIM_ACCEPT 5                    // Stop auto-aiming within x
-#define FLAG_OFFSET 1                   // Value to add/subtract to angle to hit flag closer to edge
+#define FLAG_OFFSET -10                 // Value to add/subtract to angle to hit flag closer to edge
 #define FLYWHEEL_AIM_RANGE 5            // fire ball when within x degrees of flag
 #define VISION_SEEK_RATE 3              // How fast to turn to aim, bigger = slower
 
@@ -680,12 +680,13 @@ double skills[] = {
     DRIVE,-127,225,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
 
     SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
-    TURN,160,0.66,                      // TURN TO FACE NEXT CAP         2
-    DRIVE,90,160,DISTANCE,0.5,1,        // DRIVE TO NEXT CAP -- slowly so we don't jolt too much
+    TURN,180,0.66,                      // TURN TO FACE NEXT CAP         2
+    DRIVE,90,180,DISTANCE,0.35,1,       // DRIVE TO NEXT CAP -- slowly so we don't jolt too much
     SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 3
     PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
+    DRIVE,90,180,DISTANCE,0.15,1,       // DRIVE TO NEXT CAP -- slowly so we don't jolt too much
     PAUSE,0.25,                         // PAUSE TO ENSURE FLIP
-    DRIVE,-127,160,DISTANCE,0.5,2,      // DRIVE AWAY FROM CAP
+    DRIVE,-127,180,DISTANCE,0.5,2,      // DRIVE AWAY FROM CAP
 
     START_COAST,                        // LET FLYWHEEL SPIN UP TO SPEED
 
@@ -793,15 +794,15 @@ double skills[] = {
     FLIP,                               // FLIP CAP
     PAUSE,0.25,                         // PAUSE TO LET FLIP
     //WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 6
-    TURN,160,2,                         // TURN TO FACE PLATFORM
     WRISTSEEK,-1,                       // DROP CAP                                 FLIP CAP 6
-    DRIVE,127,160,DISTANCE,1.5,2,       // DRIVE TO PLATFORM
+    TURN,140,2,                         // TURN TO FACE PLATFORM
+    DRIVE,127,140,DISTANCE,1.5,2,       // DRIVE TO PLATFORM
     
     SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER
     WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT FLIPPER
     FLIPSEEK,FLIP_POS1,                 // REVERT FLIPPER
     PAUSE,0.25,                         // PAUSE TO LET SCRAPER DROP
-    DRIVE,-127,160,DISTANCE,0.5,1,      // DRIVE AWAY FROM PLATFORM
+    DRIVE,-127,140,DISTANCE,0.5,1,      // DRIVE AWAY FROM PLATFORM
     PAUSE,0.25,                         // PAUSE TO LET BALL ROLL IN
     
     TURN,90,2,                          // TURN TO FACE NEXT CAP
@@ -813,7 +814,7 @@ double skills[] = {
     DRIVE,90,90,0.05,                   // DRIVE TO BREAK
     PAUSE,0.5,                          // PAUSE TO STOP TIPPINT
     DRIVE,127,90,DISTANCE,0.5,2,        // DRIVE TO LINE UP
-    
+
     SCRAPER,SCRAPER_UP_POS,             // LIFT SCRAPER TO SAFETY
     TURN,0,2,                           // TURN TO FACE FLAGS
     DRIVE,60,0,SONAR,                   // CONTINUED ON NEXT LINE
@@ -837,6 +838,8 @@ double skills[] = {
     DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
     INTAKE_ON,                          // TURN INTAKE BACK ON
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER AGAIN
+    
+    INTAKE_FLIP,                        // TURN INTAKE BACKWARDS TO LOSE ANY BALLS
     
     TURN,20,1,                          // TURN TO LINE UP
     DRIVE,-127,20,WHITE_R,2,            // DRIVE UNTIL ON THE TILE
@@ -1001,7 +1004,7 @@ void calibrateVision() {
     }
     
     // Calibration for Red Bot
-    else {
+    else if (autonSelect == BLUEAUTON || autonSelect == REDAUTON){
         
         // Create signatures for calibration
         BLUE_SIG =
@@ -1022,6 +1025,28 @@ void calibrateVision() {
         
         camera.set_exposure(78);
         
+    }
+    
+    // Calibration for Skills
+    else {
+        // Create signatures for calibration
+        BLUE_SIG =
+        pros::Vision::signature_from_utility(BLUE_FLAG, -3181, 233, -1474, 3431, 11679, 7554, 1, 1);
+        
+        RED_SIG =
+        pros::Vision::signature_from_utility(RED_FLAG, 1165, 4187, 2676, -383, 167, -108, 0, 1);
+        
+        GREEN_SIG =
+        pros::Vision::signature_from_utility(GREEN_FLAG, -1945, -577, -1261, -6207, -5107, -5657, 2.7, 1);
+        
+        camera.set_signature(BLUE_FLAG, &BLUE_SIG);
+        camera.set_signature(RED_FLAG, &RED_SIG);
+        camera.set_signature(GREEN_FLAG, &GREEN_SIG);
+        
+        BLUE_CODE = camera.create_color_code(BLUE_FLAG,GREEN_FLAG);
+        RED_CODE = camera.create_color_code(RED_FLAG,GREEN_FLAG);
+        
+        camera.set_exposure(78);
     }
     
     camera.set_zero_point(pros::E_VISION_ZERO_TOPLEFT);
