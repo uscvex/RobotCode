@@ -23,7 +23,7 @@ Controller controller (E_CONTROLLER_MASTER);                     /* Instantiate 
 double armSeek = -1;                                                   // The position arm is trying to reach. -1 when not seeking
 double armPos = 0;                                                     // Current arm position                                                                             
 double armPower = 0;                                                   // Power sent to the arm, from 0 to 12000
-double armSpeed = 12000;                                               // Max speed of arm (usual speed)
+double MAX_SPEED = 12000;                                               // Max speed of arm (usual speed)
 
 int colorMultiplier = 1;                                               // 1 or -1. Causes mirroring of auton routines for red/blue sides
 
@@ -38,7 +38,7 @@ double ABOVE_POLE_HEIGHT_DEGS = 1200;                                  // Arm he
 
                                                                     /* Motors Instantiation */
 Motor left1(8, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);    // Set drive motors
-Motor left2(2, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
+Motor left2(2, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);    
 Motor left3(10, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
 Motor left4(9, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
 Motor right1(6, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
@@ -55,7 +55,7 @@ void myInit(void* param){
     flipper.tare_position();
 }
 
-/* Drive in arcade mode activated*/
+/* Drive in arcade mode activated; once this is called, controller always listening for input*/
 void enable_drive(void* param){
     while(true) {
         left1.move_voltage((controller.get_analog(ANLG_FB) +  controller.get_analog(ANLG_LR))*12000/127);
@@ -75,10 +75,10 @@ void manual_arm(void* param){
     armSeek = -1;
     
     while(true){
-        armPower = 0;
-        if(controller.get_digital(BTN_ARM_UP)) //manual arm up
+        armPower = 0;                          // Calculated later
+        if(controller.get_digital(BTN_ARM_UP)) // If arm-up button pressed
         {
-            armPower = armSpeed;
+            armPower = MAX_SPEED;               // 
             if(armPos > UPPER_ARM_THRESHOLD){ //dont keep going. Gonna skip gears
                 pros::lcd::print(0, "armPos: %f\n", armPos);
                 pros::lcd::print(0, "armPos: %f\n", armPos);
@@ -89,7 +89,7 @@ void manual_arm(void* param){
         else if(controller.get_digital(BTN_ARM_DOWN)) //manual arm down
         {
             armSeek = -1;
-            armPower = -1*armSpeed;
+            armPower = -1*MAX_SPEED;
             if(armPos < -15){ //dont keep going. Gonna skip gears
                 armPower = 0;
             }
@@ -197,22 +197,11 @@ void manual_arm(void* param){
          pros::lcd::print(7, "4entered flipstep4 conditional");
          }
          */
-        //armPos = motorApexA.get_position();
-        //wristPos = motorWrist.get_position();
+        
         pros::lcd::print(0, "armPosA: %f\n", armPos);
         //pros::lcd::print(1, "armPosB: %f\n", motorApexB.get_position());
         pros::lcd::print(2, "armSeek: %f\n", armSeek);
-        //pros::lcd::print(3, "wristPos: %f\n", wristPos);
-        //pros::lcd::print(4, "wristSeek: %f\n", wristSeek);
-        /*
-         if(abs(wristPos-wristSeek) < closeEnough)
-         {
-         if(wristSeek == DEGS_FOR_A_180)
-         isFlipped = true;
-         else if(wristSeek == 0)
-         isFlipped = false;
-         }
-         */
+        
         //if doing an auto arm thing, auto-set to perfect speed
         if(armSeek != -1){
             armPower = (armSeek - armPos)*30;
@@ -328,6 +317,22 @@ void turnMotorsAt(int wheelSeek){
     delay(1);
 }
 
+ void flipCap(){
+	 motorWrist.tare_position();
+	 int position = motorWrist.get_position();
+   int t0 = pros::millis();
+			while(position < 180){
+				if(pros::millis() == t0 + 2000)         
+					 break;
+					position = motorWrist.get_position();
+					int voltage = (90 - position)*150;
+
+				if(voltage < 3000)
+					voltage = 3000;
+
+					motorWrist.move_voltage(voltage);
+				}
+ }
 void driveForward(int wheelSeek){
     int t0 = pros::millis() + abs(wheelSeek)*3;
     tareDriveMotors();
@@ -404,45 +409,6 @@ void driveForward(int wheelSeek, int maxVoltage){
     delay(1);
 }
 
-/*
- void armMove(int seekDegrees){
- motorApexA.tare_position();
- motorApexB.tare_position();
- 
- int t0 = pros::millis();
- int autoArmPos = motorApexA.get_position();
- if(seekDegrees > 0){
- while(autoArmPos < seekDegrees){
- if(pros::millis() == t0 + abs(seekDegrees) * 3)
- break;
- autoArmPos = motorApexA.get_position();
- int driveVoltage = (seekDegrees - autoArmPos)*35;
- 
- motorApexA.move_voltage(driveVoltage);
- motorApexB.move_voltage(driveVoltage);
- 
- 
- }
- }
- 
- else{
- while(autoArmPos > seekDegrees){
- 
- if(pros::millis() == t0 + abs(seekDegrees) * 3)
- break;
- 
- autoArmPos = motorApexA.get_position();
- int driveVoltage = (seekDegrees - autoArmPos)*35;
- 
- if(driveVoltage > -1*MIN_DRIVE_VOLTAGE)
- driveVoltage = -1*MIN_DRIVE_VOLTAGE;
- 
- motorApexA.move_voltage(driveVoltage);
- 
- }
- }
- }
- */
 void run_arm(void* param){
     motorApexA.tare_position();
     
@@ -463,44 +429,35 @@ void run_arm(void* param){
                     armAutonPower = -12000;
                 
             }
-            
-            pros::lcd::print(6,"armPower: %f\n", armAutonPower);
-            
-            //motorApexA.move_voltage(armAutonPower);
-            //motorApexB.move_voltage(armAutonPower);
         }
         pros::delay(20);
     }
-    pros::lcd::print(7,"Error: loop exited");
 }
 
-void runAuton() {
-    armAutonSeek = 0;
+void runAuton() {                         //delay(n) pauses robot to prevent inertial interference from previous move 
+    armAutonSeek = 0;                     //Seek 0. This should essentially do nothing since it's the beginning of auton
     
-    driveForward(-377,8000);
+    driveForward(-377,8000);              //Roll back. Passes ball to BallBot intake
     delay(1200);
-    driveForward(870,8000);
+    driveForward(870,8000);               //Forward to corner
     delay(1000);
     
-    //200 turn = 90 deg.
-    turnMotorsAt(-300*colorMultiplier);
+    //200deg turn = 90 deg irl
+    turnMotorsAt(-300*colorMultiplier);   //Make 135 degree turn so claw faces platforms
+    delay(1000);                          
+    driveForward(-100,5000);              //Back in a bit further
+    turnMotorsAt(120*colorMultiplier);    //Turn 45 deg, so claw faces opponent's side. 
     delay(1000);
-    driveForward(-100,5000);
-    turnMotorsAt(120*colorMultiplier);
+    driveForward(-350,8000);              //Slams backwards into wall to self-align
     delay(1000);
-    driveForward(-350,8000); //engage w/ cap
-    delay(1000);
-    driveForward(1000,9900);
+    driveForward(1000,9900);              //Engage w/ cap
     driveMotorsAt(0);
     
     delay(1000);
     
-    armAutonSeek = 350;
+    armAutonSeek = 350;                   //Raise arm slightly
     delay(1200);
-    //flipCap();
-    
-    delay(500);
-    armAutonSeek = 0;
+    armAutonSeek = 0;                     //
     
     delay(500);
     driveForward(-304,8000);
