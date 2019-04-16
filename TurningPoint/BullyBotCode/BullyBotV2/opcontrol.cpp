@@ -135,12 +135,13 @@ void manual_arm(void* param){
             pros::lcd::print(5, "(f)justFlipped: ", justFlipped);
             
         }
-        /*
-         if(controller.get_digital(BTN_MANUAL_CW)) //Y
+        
+	 /*Manual controls*/
+         if(controller.get_digital(BTN_MANUAL_CW)) 
          {
-         wristSeek = -1;
-         motorWrist.tare_position();
-         wristPower = MANUAL_WRIST_SPEED;
+         	wristSeek = -1;				//Doesn't see a position.
+         	motorWrist.tare_position();		//Primary function of this is re-zeroing of displaced encoders	
+         	wristPower = MANUAL_WRIST_SPEED;	//Turn the wrist
          }
          
          else if(controller.get_digital(BTN_MANUAL_CCW)) //A
@@ -196,7 +197,7 @@ void manual_arm(void* param){
          }
          pros::lcd::print(7, "4entered flipstep4 conditional");
          }
-         */
+         
         
         pros::lcd::print(0, "armPosA: %f\n", armPos);
         //pros::lcd::print(1, "armPosB: %f\n", motorApexB.get_position());
@@ -318,20 +319,19 @@ void turnMotorsAt(int wheelSeek){
 }
 
  void flipCap(){
-	 motorWrist.tare_position();
-	 int position = motorWrist.get_position();
-   int t0 = pros::millis();
-			while(position < 180){
-				if(pros::millis() == t0 + 2000)         
-					 break;
-					position = motorWrist.get_position();
-					int voltage = (90 - position)*150;
-
-				if(voltage < 3000)
-					voltage = 3000;
-
-					motorWrist.move_voltage(voltage);
-				}
+	 motorWrist.tare_position();					//In this event that encoders get messed up, tare.
+	 int position = motorWrist.get_position();			//Track position of wrist
+   	 int t0 = pros::millis();					//The time in milliseconds now
+	 								//^If something gets stuck, gives up on cap flip instead of trying forever
+	while(position < 180){						//While we still haven't reached 180deg
+		if(pros::millis() == t0 + 2000)   			//If we've been trying for over 2 sec...  	    
+			break;						//...give up.
+		position = motorWrist.get_position();   		//Get wrist's position
+		int voltage = (90 - position)*150;			//Voltage / speed of wrist gets slower as closer to 180
+		if(voltage < 3000)					//Set minimum voltage
+			voltage = 3000;
+		motorWrist.move_voltage(voltage);			//Turn wrist at calculated voltage
+	}
  }
 void driveForward(int wheelSeek){
     int t0 = pros::millis() + abs(wheelSeek)*3;
@@ -455,47 +455,48 @@ void runAuton() {                         //delay(n) pauses robot to prevent ine
     
     delay(1000);
     
-    armAutonSeek = 350;                   //Raise arm slightly
+    armAutonSeek = POLE_HEIGHT_DEGS + 100; //Raise arm to just above pole
     delay(1200);
-    armAutonSeek = 0;                     //
-    
+    turnMotorsAt(120*colorMultiplier);     //Turn towards the pole
+    flipCap();				   //Turn the cap over 180 deg
+    delay(500);				  
+    armAutonSeek = POLE_HEIGHT_DEGS -200   //Lower cap onto pole
     delay(500);
-    driveForward(-304,8000);
-    delay(500);
-    
-    turnMotorsAt(-120);
-    delay(500);
-    driveForward(450,12000);
-    driveMotorsAt(0);
-    delay(500);
-    
-    turnMotorsAt(170);
+
+    driveForward(-304,8000);		   //Back out of cap
+    delay(500); 
+    armAutonSeek = 0;                      //Put arm back down
     delay(500);
     
-    driveForward(-1100,12000);
-    driveMotorsAt(0);
+    turnMotorsAt(-120);			   //Turn ccw so that claw faces other cap
+    delay(500);	
+    driveForward(450,12000);		   //Forward into cap
+    delay(500);
+    
+    turnMotorsAt(170);			   //Turn cw to knock ball out from under cap
+    delay(500);
+    
+    driveForward(-1100,12000);		   //Drive back into wall, slamming into it to re-align
     delay(1000);
-    driveForward(350,12000);
-    
-    delay(1000);
-    turnMotorsAt(230);
-    
-    delay(500);
-    
-    driveForward(-800,12000);
-    driveMotorsAt(0);
-    delay(1000);
-    
-    armAutonSeek = 377;
-    
-    turnMotorsAt(-200);
-    delay(1000);
-    
-    driveForward(400,3000);
-    driveMotorsAt(0);
+    driveForward(350,12000);		   //Drive out towards opposing side
     
     delay(1000);
+    turnMotorsAt(230);			   //Turn cw so claw faces back wall
     
-    driveForward(1200,12000);
+    delay(500);
+    
+    driveForward(-800,12000);		   //Drive backwards to that robot is to the left of the platform
+    delay(1000);
+    
+    armAutonSeek = 377;			   //Arm up so that it doesn't jam under the platform
+    turnMotorsAt(-200);			   //Slam into wall to align
+    delay(1000);
+    
+    driveForward(400,3000);		   //Slowly drive up to platform, gently touching it to align again
+    driveMotorsAt(0);			   //Stop completely
+    
+    delay(1000);
+    
+    driveForward(1200,12000);		   //Run motor for a long time to get onto platform
     driveMotorsAt(0);
 }
