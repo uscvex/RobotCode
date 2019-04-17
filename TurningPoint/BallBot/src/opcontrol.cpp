@@ -782,7 +782,7 @@ double skills[] = {
     DRIVE,-127,180,DISTANCE,0.25,1,     // DRIVE AWAY FROM PLATFORM
     PAUSE,0.25,                         // LET BALL ROLL IN
     
-    SCRAPER,SCRAPER_DOWN_POS,           // MOVE SCRAPER TO CAP FLIP POSITION
+    SCRAPER,SCRAPER_DOWN_POS-10,           // MOVE SCRAPER TO CAP FLIP POSITION
     TURN,270,1,                         // TURN TO FACE NEXT CAP - WAS 2                    FLIP CAP 5
     DRIVE,90,270,DISTANCE,1.1,1,        // DRIVE TO FLIP NEXT CAP
     PAUSE,0.25,                         // PAUSE TO LET BALL INTAKE
@@ -840,7 +840,7 @@ double skills[] = {
     PAUSE,0.25,                         // PAUSE TO LET BALL ROLL IN
     
     TURN,90,2,                          // TURN TO FACE NEXT CAP
-    SCRAPER,SCRAPER_DOWN_POS,           // MOVE SCRAPER TO CAP FLIP POSITION
+    SCRAPER,SCRAPER_DOWN_POS-10,           // MOVE SCRAPER TO CAP FLIP POSITION
     DRIVE,127,90,DISTANCE,1.25,2,       // DRIVE TO FLIP CAP                        FLIP CAP 7
     SCRAPER,SCRAPER_UP_POS,             // LIFT TO FLIP CAP FAR
     PAUSE,0.25,                         // PAUSE TO LET BALL INTAKE
