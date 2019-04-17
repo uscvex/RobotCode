@@ -59,6 +59,7 @@ using namespace pros;
 #define FLYWHEEL 1
 #define ARM 2
 
+
 ///////////////////////////////////////////////////////////////////////////
 // Controller Mapping
 // #defines for controller buttons
@@ -97,6 +98,9 @@ using namespace pros;
 #define KNOCK_HIGH_START 500
 #define LOW_STACK_START 1000
 
+
+///////////////////////////////////
+// Tuning Parameters
 // #defines For Tuning
 
 // Arm - higher value is more gentle seek
@@ -147,6 +151,7 @@ Controller controller(E_CONTROLLER_MASTER);     // Controller object
 ///////////////////////////////////////////////////////////////////////////////
 // Motors
 // Motor name(port, gearing, reversed?, encoder_units);
+
 // Drive Motors
 Motor drive_left_1(1, SPEED, 0, DEGREES);
 Motor drive_left_2(2, SPEED, 1, DEGREES);
@@ -203,13 +208,13 @@ double trackingTicksPerTile = 640;  // Encoder ticks/tile used for position trac
 double trackingTicksPerDegree = 10; // Encoder ticks/degree used for position tracking
 
 // Drive control variables
-// Drive
+// Driving
 double autoMode = DRIVEMODE_USER;   // Mode for the drive, can be user, time, distance, turn
 bool autonComplete = false;         // Has the drive move completed?
 double autoTime = 0;                // How long to drive for
 bool speedOverride = false;         // Do we want to override the drive & force a speed
-double rightRunSpeed = 0;               // If yes, right side speed is
-double leftRunSpeed = 0;                // And left side speed is
+double rightRunSpeed = 0;           // If yes, right side speed is
+double leftRunSpeed = 0;            // And left side speed is
 bool drivingToPos = false;          // Do we want to drive to an (x,y) position
 double autoTimeOut = 0;             // How long should the bot try before giving up
 double targetDistance = 0;          // How far should the bot drive
@@ -223,12 +228,12 @@ double lastRightEnc = 0;            // Where was the left encoder last frame
 double lastLeftEnc = 0;             // Where was the right encoder last frame
 bool usingSonarDist = false;        // Do we want to use sonar for distance, false = encoder based distance
 double cmPerTile = 610;             // Centimeters per tile for ultrasonic rangefinder (sonar)
-// Turn
+// Turning
 double targetDirection = 0;         // Direction we want the bot to face (degrees)
 double turnMode = 0;                // Turn mode, can be encoder of gyro
 double direction = 0;               // Direction the bot thinks it's facing
 // Position Tracking
-// Some variables are similar to those above, however, this is so we can have different parameters for position tracking
+// Some variables are similar to those above, this is so we can have different parameters for position tracking
 double targetX = 0;                 // X position we want to get to
 double targetY = 0;                 // Y position we want to get to
 double targetS = 0;                 // Speed we want to drive at
@@ -1019,7 +1024,7 @@ void setScraperPos(double pos) {
 }
 
 
-
+// Signatures to feed to the vision sensor
 pros::vision_signature_s_t GREEN_SIG;
 pros::vision_signature_s_t RED_SIG;
 pros::vision_signature_s_t BLUE_SIG;
@@ -1027,6 +1032,8 @@ pros::vision_signature_s_t BLUE_SIG;
 pros::vision_color_code_t BLUE_CODE;
 pros::vision_color_code_t RED_CODE;
 
+// Function to set vision sensor parameters
+// Values generated in VEX Vision Utility
 void calibrateVision() {
     
     // Calibration for Blue Bot
@@ -1106,19 +1113,22 @@ void calibrateVision() {
 }
 
 
+// Initialize function
 void initAll() {        // called when robot activates & start of auton
     if (!hasInitialised) {
         // First time / manual init...
         // Calibrate gyro, tare motors, start tasks
         controller.print(0,0,"Calibrating");
         sensor_gyro = ADIGyro(1, GYRO_PORT);
+        // Tare motor positions
         arm_1.tare_position();
         arm_2.tare_position();
         wrist.tare_position();
         flip.tare_position();
-#ifndef USE_SERIAL_GYRO
+#ifndef USE_SERIAL_GYRO     // We don't need to calibrate if using the fancy gyro
         pros::delay(4000);
 #endif
+        // Start the tasks
         pros::Task flywheelTask (run_flywheel);
         pros::Task armTask (run_arm);
         pros::Task driveTask (run_drive);
@@ -1131,6 +1141,7 @@ void initAll() {        // called when robot activates & start of auton
         
         controller.print(0,0,"            ");
     }
+    // Remember we've calibrated already, so we don't do it again
     hasInitialised = true;
     calibrateVision();
 }
@@ -1778,7 +1789,8 @@ void run_drive(void* params) {
             // We use the same code for each bot, so differentiate by whick autonomous routine the bot is runnning
             if (autonSelect == REDAUTON || autonSelect == BLUEAUTON || autonSelect == SKILLSAUTON) {
                 // Tank Controls For Sam
-                if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {  // Each control mode has a different front/back of the robot
+                // Each control mode has a different front/back of the robot
+                if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {
                     leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
                     rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
                 }
@@ -1789,8 +1801,10 @@ void run_drive(void* params) {
             }
             else {
                 // Arcade Controls For RJ/Ramon
-                if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {  // Each control mode has a different front/back of the robot
+                // Each control mode has a different front/back of the robot
+                if (controlMode == FLYWHEEL && armSeek != ARM_KNOCK_POS) {
                     
+                    // Dampen acceleration (driver preference)
                     slewPower = slewPower + (controller.get_analog(ANALOG_LEFT_Y) - slewPower) / 16;
                     
                     leftSpeed = slewPower + controller.get_analog(ANALOG_RIGHT_X);
@@ -1860,8 +1874,6 @@ double getDistance() {
     // Sonar not implemented, so return default distance
     return defaultFlywheelDistance;
 }
-
-
 
 
 // Read vision sensor to get angle needed to turn
@@ -2145,7 +2157,7 @@ void run_flywheel(void* params) {
             if (controller.get_digital(BTN_TOGGLE_SCRAPER)) {
                 if (!justToggledScraper) {
                     if (scraperSeek == SCRAPER_UP_POS)
-                        scraperSeek = SCRAPER_FLIP_POS;
+                        scraperSeek = SCRAPER_DOWN_POS;
                     else
                         scraperSeek = SCRAPER_UP_POS;
                 }
@@ -2499,7 +2511,7 @@ void run_arm(void* params) {
                 if (controlMode == FLYWHEEL) {
                     controlMode = ARM;
                     if (autonSelect == SKILLSAUTON) {
-                        flipperSeek = FLIP_POS2;
+                        flipperSeek = FLIP_POS1;
                         wristSeek = WRIST_FORWARD_POS;
                     }
                 }
@@ -2592,37 +2604,43 @@ void run_arm(void* params) {
         if (controlMode == ARM) {
             
             // Manual Overrides
+            // Manual arm down
             if (controller.get_digital(BTN_ARM_DOWN)) {
                 armSpeed = -100;
                 armSeek = -1;
                 stackStep = -1;
             }
+            // Manual arm up
             if (controller.get_digital(BTN_ARM_UP)) {
                 armSpeed = 100;
                 armSeek = -1;
                 stackStep = -1;
             }
+            // Manual wrist down
             if (controller.get_digital(BTN_WRIST_DOWN)) {
                 wristSpeed = -100;
                 wristSeek = -1;
                 stackStep = -1;
             }
+            // Manual wrist up
             if (controller.get_digital(BTN_WRIST_UP)) {
                 wristSpeed = 100;
                 wristSeek = -1;
                 stackStep = -1;
             }
+            // Manual spin forks left
             if (controller.get_digital(BTN_FLIPPER_LEFT)) {
                 flipperSpeed = -25;
                 flipperSeek = -1;
                 stackStep = -1;
             }
+            // Manual spin forks right
             if (controller.get_digital(BTN_FLIPPER_RIGHT)) {
                 flipperSpeed = 25;
                 flipperSeek = -1;
                 stackStep = -1;
             }
-            
+            // Auto stack high pole
             if (controller.get_digital(BTN_ARM_HIGH)) {
                 if (stackStep == -1 || stackStep > LOW_STACK_START) {
                     stackStep = HIGH_STACK_START;
@@ -2638,6 +2656,7 @@ void run_arm(void* params) {
                  }
                  justArmToggled = true;*/
             }
+            // Auto stack low pole
             if (controller.get_digital(BTN_ARM_LOW)) {       // && autonSelect != SKILLSAUTON) {
                 if (stackStep == -1 || stackStep < LOW_STACK_START) {
                     stackStep = LOW_STACK_START;
@@ -2654,7 +2673,8 @@ void run_arm(void* params) {
              }*/
             
         }
-        if (controller.get_digital(BTN_ABORT)) {                // Stop all auton functions!
+        // Stop all auton functions!
+        if (controller.get_digital(BTN_ABORT)) {
             wristSeek = -1;
             armSeek = -1;
             flipperSeek = -1;
@@ -2748,13 +2768,6 @@ void run_auton() {
         
         // Auton table decipherer - switch statement
         // Commands will set flags / call object funtions
-        // Need commands for:
-        // DRIVE (Time, distance, lidar)
-        // TURN (Abs & relative)
-        // PAUSE (Time, till ball shot)
-        // SETGYRO
-        // FIRE (Auto aim, high & low)
-        // INTAKE (Time / Until ball enters)
         double ds,dd,dt;
         if (nextCommand) {
             std::cout << "Next Command: " << pros::millis() << std::endl;
@@ -3042,6 +3055,7 @@ void run_auton() {
         // eg. checking timers for pause, flags for shooting balls, etc.
         bool terminateDrive = false;
         
+        // Check if we're withing the lidar dist
         if (driveMode == LIDAR) {
             // Check if close enough going forward
             if (ds > 0 && getDistance() <= lidarDist) terminateDrive = true;
@@ -3049,6 +3063,7 @@ void run_auton() {
             if (ds < 0 && getDistance() >= lidarDist) terminateDrive = true;
         }
         
+        // Check if we've seen a white line
         if (driveMode <= WHITE_E && driveMode >= BLACK_R) {     // White line sensors
             switch (driveMode) {
                 case WHITE_E:
@@ -3090,6 +3105,7 @@ void run_auton() {
             }
         }
         
+        // If we want to aim, make sure we do!
         if (aimPlease) {
             double relAngle = getRelativeAngle(aimTarget, aimLocation);
             if (abs(relAngle) < AIM_ACCEPT && relAngle != 0)  {
@@ -3101,6 +3117,7 @@ void run_auton() {
             turnRelative(relAngle, -1);
         }
         
+        // Check if we should stop pausing
         if (pauseTime == UNTIL) {
             if (millis() - startTime > pauseTimeOut) {
                 pauseTime = 0;
@@ -3154,6 +3171,7 @@ void run_auton() {
             }
         }
         
+        // If we should stop driving, then do!
         if (terminateDrive) {
             std::cout << "Stop Drive" << std::endl;
             driveMode = 0;
@@ -3167,6 +3185,7 @@ void run_auton() {
 }
 
 
+// Print the auton mode to the controller screen
 void run_screen(void* params) {
     while (true) {
         if (autonSelect == REDAUTON)
@@ -3209,8 +3228,9 @@ void opcontrol() {
     int startTime = millis();
     int vibDone = 0;
     
-    if (autonSelect == SKILLSAUTON) {    // Auto-deploy at start of drive skills
+    if (autonSelect == SKILLSAUTON) {    // Auto-deploy at start of driver skills
         wristSeek = WRIST_VERTICAL_POS;
+        scraperSeek = SCRAPER_DOWN_POS;
         runTillBall = 2;
         coast = true;
     }
@@ -3218,10 +3238,12 @@ void opcontrol() {
     
     while (true) {
         
+        // Button to reset the gyro for testing
         if (controller.get_digital(BTN_CHOOSE_AUTON)) {
             setGyro(0);
         }
         
+        // Print some info the the terminal
         std::cout << "Sensor: " << sensor_gyro.get_value() << " Gyro: " << gyroDirection << " Direction: " << direction << std::endl;
         //std::cout << " Arm Pos: " << armPos << " Wrist Pos: " << wristPos << " Flip Pos: " << flipperPos << " Stack Step " << stackStep << std::endl;
         std::cout << "X: " << xPosition << ", Y: " << yPosition << ", D: " << trackingDirection << std::endl;
@@ -3232,6 +3254,7 @@ void opcontrol() {
         int noObjs = camera.get_object_count();
         std::cout << "N: " << noObjs << std::endl;
         
+        // Flash the light fast if the camera is not working
         if (noObjs > 1000) {
             if (millis() > abs(lastBlinkTime) + 62) {
                 if (lastBlinkTime > 0) {
@@ -3245,6 +3268,7 @@ void opcontrol() {
             }
         }
         
+        // Code to count number of each type of flag
         if (noObjs > 27) noObjs = 27;
         for (int i = 0; i < noObjs; i++) {
             vision_object_s_t thisThing = camera.get_by_size(i);
@@ -3258,6 +3282,7 @@ void opcontrol() {
         if (count_B > 0 || count_R > 0 || count_G > 0)
             std::cout << "B: " << count_B << " R: " << count_R << " G: " << count_G << std::endl;
         
+        // Print auton mode to brain screen
         if (autonSelect == REDAUTON)
             pros::lcd::print(0, "FRONT RED FRONT RED FRONT RED FRONT RED FRONT RED FRONT RED FRONT RED");
         else if (autonSelect == BLUEAUTON)
@@ -3269,6 +3294,7 @@ void opcontrol() {
         else if (autonSelect == BLUEBACKAUTON)
             pros::lcd::print(0, "BACK BLUE BACK BLUE BACK BLUE BACK BLUE BACK BLUE BACK BLUE BACK BLUE");
         
+        // Print some more info to screen
         pros::lcd::print(2, "Direction: %f", direction);
         pros::lcd::print(3, "Arm: %.0f Wrist: %.0f Flipper: %.0f", armPos, wristPos, flipperPos);
         pros::lcd::print(4, "Stack Step: %f", stackStep);
@@ -3277,6 +3303,7 @@ void opcontrol() {
         pros::lcd::print(6, "Sonar Dist: %i", sonar.get_value());
         pros::lcd::print(6, "Arm Diff: %f", (armSeek - armPos));
         
+        // If we press this button combo, switch auton mode
         if ( controller.get_digital(BTN_ABORT) && controller.get_digital(BTN_CHOOSE_AUTON) ) {
             if (!justToggledAuto) {
                 autonSelect++;
