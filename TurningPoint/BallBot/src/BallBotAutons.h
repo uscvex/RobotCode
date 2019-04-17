@@ -46,6 +46,7 @@ int autonSelect = 0;                    // Routine to start on
 #define TURN_TO -26                     // Turn to face point
 #define INTAKE_FLIP -27                 // Run outer intake backwards to flip cap
 #define SCRAPER -28                     // Position seek for scraper
+#define FIRE_AIM_BOTH - 29
 
 
                                         // Conditionals
