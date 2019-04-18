@@ -394,12 +394,12 @@ double blueAuton[] = {
     DRIVE,-90,0,0.1,                    // DRIVE TO BREAK
     DRIVE,-90,0,DISTANCE,0.9,2,         // DRIVE TO LINE UP
     
-    TURN,85,2,                          // TURN TO FACE CAP
+    TURN,90,2,                          // TURN TO FACE CAP
     INTAKE_ON,                          // START INTAKE
     WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
-    DRIVE,80,85,BLACK_B,1,              // DRIVE OFF TILE
-    DRIVE,80,85,DISTANCE,1.4,2,         // DRIVE TO GET BALL
-    DRIVE,-80,85,DISTANCE,0.25,2,       // DRIVE BACK FROM CAP                      KNOCK CAP 2
+    DRIVE,80,90,BLACK_B,1,              // DRIVE OFF TILE
+    DRIVE,80,90,DISTANCE,1.4,2,         // DRIVE TO GET BALL
+    DRIVE,-80,90,DISTANCE,0.25,2,       // DRIVE BACK FROM CAP                      KNOCK CAP 2
     
     TURN,5,2,                           // TURN TO FACE FLAGS
     DRIVE,90,5,DISTANCE,0.6,2,          // DRIVE TO FLAG DISTANCE
@@ -710,13 +710,18 @@ double skills[] = {
     DRIVE,90,45,DISTANCE,1.2,2,         // DRIVE AWAY
     
     FLIPSEEK,FLIP_POS1,
+    
+    /////////////////////////////////////////////////////////////
+    // COMMENT THIS BLOCK IF SKILLS TAKING TOO LONG
+    // SAVES ~5s AT THE EXPENSE OF 1 POINT
     TURN,10,2,                          // TURN TO FACE NEXT CAP
     WRISTSEEK,WRIST_FORWARD_POS,        // LOWER FORKS
     DRIVE,-50,10,DISTANCE,0.5,2,        // DRIVE TO CAP
     WRISTSEEK,WRIST_VERTICAL_POS,       // RAISE FORKS
     DRIVE,60,10,DISTANCE,0.1,0.5,       // DRIVE AWAY FROM WALL
     DRIVE,90,10,DISTANCE,0.4,1,         // DRIVE AWAY
-    
+    // STOP COMMENTING HERE
+    /////////////////////////////////////////////////////////////
     
     START_COAST,                        // LET FLYWHEEL SPIN UP TO SPEED
 
@@ -756,6 +761,7 @@ double skills[] = {
     DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
     INTAKE_ON,                          // TURN INTAKE BACK ON
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER AGAIN
+    FLIPSEEK,-1,                        // STOP TANGLE WITH NET
     
     TURN,0,1,                           // TURN TO LINE UP
     DRIVE,-127,0,WHITE_L,2,             // DRIVE TO RED TILE
@@ -763,6 +769,7 @@ double skills[] = {
     DRIVE,-127,0,DISTANCE,0.5,1,        // DRIVE TO MIDDLE OF IT
     TURN,90,0,                          // TURN TO FACE WALL
     
+    FLIPSEEK,FLIP_POS1,                 // PUT FLIPPER BACK
     DRIVE,100,90,0.5,                   // DRIVE TO WALL
     SET_GYRO,90,                        // SET GYRO
     
@@ -787,7 +794,7 @@ double skills[] = {
     DRIVE,-127,180,DISTANCE,0.25,1,     // DRIVE AWAY FROM PLATFORM
     PAUSE,0.25,                         // LET BALL ROLL IN
     
-    SCRAPER,SCRAPER_DOWN_POS-10,           // MOVE SCRAPER TO CAP FLIP POSITION
+    SCRAPER,SCRAPER_DOWN_POS,           // MOVE SCRAPER TO CAP FLIP POSITION
     TURN,270,1,                         // TURN TO FACE NEXT CAP - WAS 2                    FLIP CAP 5
     DRIVE,90,270,DISTANCE,1.1,1,        // DRIVE TO FLIP NEXT CAP
     PAUSE,0.25,                         // PAUSE TO LET BALL INTAKE
@@ -845,7 +852,7 @@ double skills[] = {
     PAUSE,0.25,                         // PAUSE TO LET BALL ROLL IN
     
     TURN,90,2,                          // TURN TO FACE NEXT CAP
-    SCRAPER,SCRAPER_DOWN_POS-10,           // MOVE SCRAPER TO CAP FLIP POSITION
+    SCRAPER,SCRAPER_DOWN_POS,           // MOVE SCRAPER TO CAP FLIP POSITION
     DRIVE,127,90,DISTANCE,1.25,2,       // DRIVE TO FLIP CAP                        FLIP CAP 7
     SCRAPER,SCRAPER_UP_POS,             // LIFT TO FLIP CAP FAR
     PAUSE,0.25,                         // PAUSE TO LET BALL INTAKE
@@ -904,6 +911,7 @@ double skills[] = {
     TURN,80,0.8,                        // TURN TO FACE PLATFORM
     INTAKE_ON,                          // ENSURE INTAKE IS RUNNING
     WRISTSEEK,WRIST_FORWARD_POS,        // PUT FLIPPER DOWN
+    FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
     DRIVE,127,80,DISTANCE,0.75,1,       // DRIVE TO PLATFORM
     DRIVE,127,80,WHITE_B,1,             // DRIVE UP FIRST PLATFORM
     DRIVE,127,80,DISTANCE,2,4,          // DRIVE UP PLATFORM 2.75
