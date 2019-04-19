@@ -680,23 +680,6 @@ double skills[] = {
     DRIVE,110,270,DISTANCE,1.25,2,      // DRIVE TO FLIP CAP                        FLIP CAP 1
     WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
 
-    
-    /*SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
-    TURN,225,0.66,                      // TURN TO FACE NEXT CAP         2
-    DRIVE,90,225,DISTANCE,1,2,          // DRIVE TO NEXT CAP -- slowly so we don't jolt too much
-    SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 2
-    PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
-    DRIVE,-127,225,DISTANCE,1,2,        // DRIVE AWAY FROM CAP
-
-    SCRAPER,SCRAPER_FLIP_POS,           // LOWER SCRAPER FOR NEXT FLIP
-    TURN,180,0.66,                      // TURN TO FACE NEXT CAP         2
-    DRIVE,90,180,DISTANCE,0.35,1,       // DRIVE TO NEXT CAP -- slowly so we don't jolt too much
-    SCRAPER,SCRAPER_UP_POS,             // FLIP NEXT CAP                            FLIP CAP 3
-    PAUSE,SCRAPER_UP,1,                 // PAUSE UNTIL SCRAPER IS UP
-    DRIVE,90,180,DISTANCE,0.15,1,       // DRIVE TO NEXT CAP -- slowly so we don't jolt too much
-    PAUSE,0.25,                         // PAUSE TO ENSURE FLIP
-    DRIVE,-127,180,DISTANCE,0.5,2,      // DRIVE AWAY FROM CAP*/
-
     FLIPSEEK,FLIP_POS1,
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER
     TURN,45,2,                          // TURN TO FACE CAP
@@ -834,10 +817,10 @@ double skills[] = {
     DRIVE,-90,90,DISTANCE,2.5,2,        // DRIVE TO GET NEXT CAP (SLOWLY)
     
     WRISTSEEK,WRIST_VERTICAL_POS,       // LIFT CAP
-    PAUSE,0.25,                         // PAUSE TO LIFT
+    //PAUSE,0.25,                         // PAUSE TO LIFT    0.25
     DRIVE,127,90,DISTANCE,0.1,1,        // DRIVE AWAY FROM WALL
     FLIP,                               // FLIP CAP
-    PAUSE,0.25,                         // PAUSE TO LET FLIP
+    //PAUSE,0.25,                         // PAUSE TO LET FLIP    0.25
     //WRISTSEEK,WRIST_FORWARD_POS,        // DROP CAP                                 FLIP CAP 6
     WRISTSEEK,-1,                       // DROP CAP                                 FLIP CAP 6
     TURN,155,2,                         // TURN TO FACE PLATFORM
@@ -1133,7 +1116,7 @@ void initAll() {        // called when robot activates & start of auton
         arm_2.tare_position();
         wrist.tare_position();
         flip.tare_position();
-#ifndef USE_SERIAL_GYRO     // We don't need to calibrate if using the fancy gyro
+#ifndef PRACTICE_SKILLS     // We don't need to calibrate if practicing driver skills
         pros::delay(4000);
 #endif
         // Start the tasks
@@ -2162,12 +2145,19 @@ void run_flywheel(void* params) {
         if (controlMode == FLYWHEEL) {
             
             // Toggle button for scraper
-            if (controller.get_digital(BTN_TOGGLE_SCRAPER)) {
+            if (controller.get_digital(BTN_TOGGLE_SCRAPER) || (autonSelect == SKILLSAUTON && controller.get_digital(BTN_FIRE_LOW))) {
                 if (!justToggledScraper) {
-                    if (scraperSeek == SCRAPER_UP_POS)
-                        scraperSeek = SCRAPER_DOWN_POS;
-                    else
+                    if (scraperSeek == SCRAPER_UP_POS) {
+                        if (controller.get_digital(BTN_TOGGLE_SCRAPER)) {
+                            scraperSeek = SCRAPER_FLIP_POS;
+                        }
+                        else {
+                            scraperSeek = SCRAPER_DOWN_POS;
+                        }
+                    }
+                    else {
                         scraperSeek = SCRAPER_UP_POS;
+                    }
                 }
                 justToggledScraper = true;
             }
@@ -2176,8 +2166,9 @@ void run_flywheel(void* params) {
             }
             
             
-            if (controller.get_digital(BTN_FIRE_LOW)) { //} && autonSelect != SKILLSAUTON) { // auto fire low
+            if (controller.get_digital(BTN_FIRE_LOW) && autonSelect != SKILLSAUTON) { // auto fire low
                 wristSeek = WRIST_VERTICAL_POS;
+                scraperSeek = SCRAPER_UP_POS;
                 doSet = false;
                 if (!justAskedForFire) {
                     if (autoFireState <= 0 && autonSelect != REDAUTON && autonSelect != BLUEAUTON && autonSelect != SKILLSAUTON)
@@ -2196,7 +2187,9 @@ void run_flywheel(void* params) {
             }
             else if (controller.get_digital(BTN_FIRE_HIGH)) { // auto fire high
                 wristSeek = WRIST_VERTICAL_POS;
+                scraperSeek = SCRAPER_UP_POS;
                 doSet = false;
+                scraperSeek = SCRAPER_UP_POS;
                 if (!justAskedForFire) {
                     if (autoFireState <= 0 && autonSelect != REDBACKAUTON && autonSelect != BLUEBACKAUTON)
                         autoFireState = 2;
@@ -2214,6 +2207,7 @@ void run_flywheel(void* params) {
             else if (controller.get_digital(BTN_FIRE_BOTH)) { // auto fire both
                 doSet = true;
                 if (!justAskedForFire) {
+                    scraperSeek = SCRAPER_UP_POS;
                     // Blue Bot this button is anti-park, Red Bot it is double-fire
                     if (autonSelect != BLUEBACKAUTON && autonSelect != REDBACKAUTON) {
                         //driveDistSonar(127, direction, 1.5, 2);
@@ -2513,7 +2507,7 @@ void run_arm(void* params) {
         }
         
         // Read button toggle between flywheel & arm control
-        if (controller.get_digital(BTN_TOGGLE)) {
+        if (controller.get_digital(BTN_TOGGLE)) {//} || (autonSelect == SKILLSAUTON && controller.get_digital(BTN_FIRE_LOW))) {
             if (!justToggledMode) {
                 controller.rumble(".");
                 if (controlMode == FLYWHEEL) {
@@ -2570,6 +2564,7 @@ void run_arm(void* params) {
         // Wrist in either mode
         if (controller.get_digital(BTN_WRIST)) {
             if (!justWristToggled) {
+                scraperSeek = SCRAPER_UP_POS;
                 if (false) {     //autonSelect == SKILLSAUTON) {
                     if (armSeek == 1) {
                         armSeek = ARM_HOLD_POS;
@@ -2665,7 +2660,7 @@ void run_arm(void* params) {
                  justArmToggled = true;*/
             }
             // Auto stack low pole
-            if (controller.get_digital(BTN_ARM_LOW)) {       // && autonSelect != SKILLSAUTON) {
+            if (controller.get_digital(BTN_ARM_LOW) && autonSelect != SKILLSAUTON) {
                 if (stackStep == -1 || stackStep < LOW_STACK_START) {
                     stackStep = LOW_STACK_START;
                 }
@@ -3236,9 +3231,14 @@ void opcontrol() {
     int startTime = millis();
     int vibDone = 0;
     
+#ifdef PRACTICE_SKILLS
+    autonSelect = SKILLSAUTON;
+#endif
+    
     if (autonSelect == SKILLSAUTON) {    // Auto-deploy at start of driver skills
         wristSeek = WRIST_VERTICAL_POS;
         scraperSeek = SCRAPER_DOWN_POS;
+        flipperSeek = FLIP_POS1;
         runTillBall = 2;
         coast = true;
     }
