@@ -118,8 +118,8 @@ using namespace pros;
 #else
     #define CSCALE 0.9876           // Red Bot Clockwise scale adjustments to counteract rotation errors
     #define ASCALE 0.9486           // Red Bot Anti-clockwise scale adjustments to counteract rotation errors
-    #define CSCALEBLUE 0.9293       // Blue Bot Clockwise scale adjustments to counteract rotation error
-    #define ASCALEBLUE 0.9293       // Blue Bot Anti-clockwise scale adjustments to counteract rotation errors
+    #define CSCALEBLUE 0.9264//0.9293       // Blue Bot Clockwise scale adjustments to counteract rotation error
+    #define ASCALEBLUE 0.9279//0.9293       // Blue Bot Anti-clockwise scale adjustments to counteract rotation errors
 #endif
 
 #define GYRO_PORT 1
@@ -263,6 +263,13 @@ extern double defaultAuton[];
 #define MIDDLE_FLAG_DIST 0.8
 #define FIRE_TRY_TIME 2.5
 
+#define FLAG_SHOOT_CLOSE_DIST 0.65
+#define FLAG_SHOOT_FAR_DIST 0.45
+
+#define FLAG_SHOOT_DIST FLAG_SHOOT_FAR_DIST
+
+
+
 double redAuton[] = {
     180,                                // ROBOT STARTS FACING 180°
     
@@ -315,7 +322,7 @@ double redAuton[] = {
     DRIVE,-80,270,DISTANCE,0.125,2,     // DRIVE BACK FROM CAP                      KNOCK CAP 2
     
     TURN,345,2,                         // TURN TO FACE FLAGS
-    DRIVE,90,345,DISTANCE,0.65,2,       // DRIVE TO FLAG DISTANCE
+    DRIVE,90,345,DISTANCE,FLAG_SHOOT_DIST,2,       // DRIVE TO FLAG DISTANCE
     TURN,330,2,                         // TURN TO FACE FLAGS
     TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT CENTRE-MOST BLUE FLAG
     
@@ -325,6 +332,9 @@ double redAuton[] = {
     TURN_AIM,BLUE_FLAG,CENTER,2,        // AIM AT CENTRE-MOST BLUE FLAG
     PAUSE,2,                            // PAUSE AFTER TURNING
     PAUSE,UNTIL,41.25,                  // WAIT AS LATE AS POSSIBLE
+    PAUSE,0.01,                         // PAUSE AFTER TURNING
+    
+    TURN_AIM,BLUE_FLAG,CENTER,1,        // AIM AT CENTRE-MOST BLUE FLAG
     
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP MIDDLE FLAG
     PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
@@ -338,6 +348,7 @@ double redAuton[] = {
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
     
+    TURN,0,0.5,                         // TURN TO 0°
     INTAKE_OFF,                         // TURN INTAKE OFF
     DRIVE,127,CDIR,0.5,                 // DRIVE TO TOGGLE BOTTOM FLAG              BOTTOM MIDDLE FLAG
     DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
@@ -368,7 +379,8 @@ double blueAuton[] = {
     FLIP,                               // FLIP SO BALLS ROLL OFF
     PAUSE,0.75,                         // LET FLIP HAPPEN
     
-    DRIVE,70,225,WHITE_L,2,             // DRIVE TILL LEFT SENSOR IS OVER START TILE
+    TURN,220,1,                         // TURN A LITTLE
+    DRIVE,70,220,WHITE_L,2,             // DRIVE TILL LEFT SENSOR IS OVER START TILE WAS 225
     TURN,180,2,                         // TURN FOR NEXT DRIVE
     FLIP,                               // FLIP CAP BACK
     DRIVE,70,180,BLACK_L,2,             // DRIVE UNTIL OFF START TILE
@@ -402,7 +414,7 @@ double blueAuton[] = {
     DRIVE,-80,90,DISTANCE,0.25,2,       // DRIVE BACK FROM CAP                      KNOCK CAP 2
     
     TURN,5,2,                           // TURN TO FACE FLAGS
-    DRIVE,90,5,DISTANCE,0.6,2,          // DRIVE TO FLAG DISTANCE
+    DRIVE,90,5,DISTANCE,FLAG_SHOOT_DIST+0.1,2,          // DRIVE TO FLAG DISTANCE
     TURN,15,2,                          // TURN TO FACE FLAGS
     TURN_AIM,RED_FLAG,CENTER,2,         // AIM AT CENTRE-MOST BLUE FLAG
     
@@ -412,6 +424,8 @@ double blueAuton[] = {
     TURN_AIM,RED_FLAG,CENTER,2,         // AIM AT CENTRE-MOST BLUE FLAG
     PAUSE,2,                            // PAUSE AFTER TURNING
     PAUSE,UNTIL,41.25,                  // WAIT AS LATE AS POSSIBLE
+    PAUSE,0.01,                         // PAUSE AFTER TURNING
+    TURN_AIM,RED_FLAG,CENTER,1,        // AIM AT CENTRE-MOST BLUE FLAG
     
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP MIDDLE FLAG
     PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
@@ -440,7 +454,7 @@ double redBackAuton[] = {
     WRISTSEEK,WRIST_FORWARD_POS,        // START DEPLOY FLIPPER
     FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
     INTAKE_ON,                          // START INTAKE
-    DRIVE,127,270,BLACK_B,0.5,          // DRIVE OFF TILE
+    DRIVE,90,270,BLACK_B,0.5,           // DRIVE OFF TILE
     DRIVE,80,270,DISTANCE,1.3,2,        // DRIVE TO FLIP CAP                        KNOCK CAP 1
     WRISTSEEK,WRIST_VERTICAL_POS,       // FINISH DEPLOY FLIPPER
     PAUSE,0.5,                          // SHORT PAUSE
@@ -556,7 +570,7 @@ double blueBackAuton[] = {
     WRISTSEEK,WRIST_FORWARD_POS,        // START DEPLOY FLIPPER
     FLIPSEEK,FLIP_POS1,                 // MAKE SURE FLIPPER STRAIGHT
     INTAKE_ON,                          // START INTAKE
-    DRIVE,127,90,BLACK_B,0.5,           // DRIVE OFF TILE
+    DRIVE,90,90,BLACK_B,0.5,           // DRIVE OFF TILE
     DRIVE,80,90,DISTANCE,1.3,2,         // DRIVE TO FLIP CAP                        KNOCK CAP 1
     WRISTSEEK,WRIST_VERTICAL_POS,       // FINISH DEPLOY FLIPPER
     PAUSE,0.5,                          // SHORT PAUSE
@@ -2780,6 +2794,9 @@ void run_auton() {
             int ifLayer = 0;
             switch ((int)processEntry()) {
                 case PAUSE:
+                    if (autonSelect == REDAUTON || autonSelect == BLUEAUTON) {
+                        aimPlease = false;
+                    }
                     pauseTimeOut = -1;
                     pauseTime = processEntry();
                     std::cout << "Pause" << std::endl;
@@ -3241,6 +3258,11 @@ void opcontrol() {
         flipperSeek = FLIP_POS1;
         runTillBall = 2;
         coast = true;
+    }
+    
+    // Start in cap mode for BlueBot
+    if (autonSelect == BLUEBACKAUTON || autonSelect == REDBACKAUTON) {
+        controlMode = ARM;
     }
     
     
