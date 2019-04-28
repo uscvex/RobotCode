@@ -95,7 +95,7 @@ int autonSelect = 0;                    // Routine to start on
 #define WRIST_FORWARD_EXTRA (0*3)       // 1:3 Ratio, 30°
 #define WRIST_FORWARD_DROP_POS (67*3)   // 1:3 Ratio, 65°
 #define WRIST_VERTICAL_POS 1            // 1:3 Ratio, 0°
-#define ARM_POS_HIGH (125*5)            // 1:5 Ratio, 120°
+
 #define ARM_POS_LOW (90*5)              // 1:5 Ratio, 90°
 #define ARM_POS_DOWN 1                  // 1:5 Ratio, 0°
 #define ARM_SKILLS_POS 180*5
