@@ -1,14 +1,39 @@
 #include "main.h"
 
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+// Declare motors and controller objects
+Controller controller(E_CONTROLLER_MASTER);
+
+
+// Have we initialized yet?
+bool haveInitialized = false;
+
+// Initialization function
+void init() {
+    // Do every-time init here (clear state vars, etc.)
+    
+    // Do one-time init here (start tasks, clear encoder values, etc.)
+    if (!haveInitialized) {
+        haveInitialized = true;
+        rightEncoder.reset();
+        leftEncoder.reset();
+        backEncoder.reset();
+        
+        // Play a song
+        mLiftL.move_voltage(-2000);
+        mLiftR.move_voltage(-2000);
+        delay(1000);
+        mLiftL.move_voltage(0);
+        mLiftR.move_voltage(0);
+        
+        mClamp.tare_position();
+        mLiftR.tare_position();
+        mLiftL.tare_position();
+        
+        pros::Task driveTask (runDrive);
+        pros::Task liftTask (runLift);
+    }
 }
+
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -18,10 +43,9 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
+    init();
 }
+
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
