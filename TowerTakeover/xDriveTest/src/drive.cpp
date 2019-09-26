@@ -23,6 +23,13 @@ void runDrive(void* params)
         // Var to hold turn speed
         double turn = controller.get_analog(ANALOG_RIGHT_X);
         
+        // Fit turn to curve
+        if (turn < 0)
+            turn = -turn * turn / 127;
+        else {
+            turn = turn * turn / 127;
+        }
+        
         // Get forward/backward component of desired velocity
         double upDrive=controller.get_analog(ANALOG_LEFT_Y);
         // Get left/right component of desired velocity
@@ -44,7 +51,8 @@ void runDrive(void* params)
             driveAngle = 180 + driveAngle;
         
         // Find magnitude of joystick
-        double driveMag = sqrt((rightDrive*rightDrive) + (upDrive*upDrive));
+        // Use mag^2 / 127 to give different curve
+        double driveMag = /*sqrt*/((rightDrive*rightDrive) + (upDrive*upDrive)) / 127;
         if (driveMag>127)
             driveMag = 127;
         

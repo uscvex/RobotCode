@@ -17,6 +17,7 @@ Motor mInIntakeL(12,SPEED,1);
 // Vars for auton control of mechanisms
 double liftSeek = -1;
 double clampSeek = -1;
+double runIntake = 0;
 
 
 // Task to run lift
@@ -24,6 +25,7 @@ void runLift(void* params) {
     
     bool justToggledLift = false;
     bool justToggledClamp = false;
+    bool justToggledIntake = false;
     
     while (true) {
         // Vars to hold speed values
@@ -73,12 +75,27 @@ void runLift(void* params) {
             justToggledClamp = false;
         }
         
+        // Toggle intake
+        if (controller.get_digital(DIGITAL_L1)) {
+            if (!justToggledIntake) {
+                if (runIntake == 127)
+                    runIntake = 0;
+                else
+                    runIntake = 127;
+            }
+            justToggledIntake = true;
+        }
+        else {
+            justToggledIntake = false;
+        }
         
+        inIntakeSpeed = runIntake;
         
         // Check manual overrides
         if (controller.get_digital(DIGITAL_UP)) {
             clampSeek = -1;
             liftSeek = -1;
+            runIntake = 0;
         }
         if (controller.get_digital(DIGITAL_Y)) {
             liftSeek = -1;
@@ -96,11 +113,9 @@ void runLift(void* params) {
             clampSeek = -1;
             clampSpeed = 127;
         }
-        if (controller.get_digital(DIGITAL_L1)) {
-            inIntakeSpeed = 127;
-        }
         if (controller.get_digital(DIGITAL_L2)) {
-            inIntakeSpeed = -127;
+            inIntakeSpeed = -30;
+            runIntake = 0;
         }
         
         

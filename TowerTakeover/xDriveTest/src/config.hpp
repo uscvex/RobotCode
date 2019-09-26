@@ -7,16 +7,44 @@
 // All #defines should be in this file too
 //
 
-#define JOYZONE 10                          // Joystick dead zone
 
-#define SPEED E_MOTOR_GEARSET_18            // Speed motor gearset
-#define TORQUE E_MOTOR_GEARSET_36            // Speed motor gearset
+//////////////////////////////////////////
+// Controls
+//
+// Joystick dead zone
+#define JOYZONE 10
 
-// Tuning value for position tracking
-#define INCHESPERTICK 0.02836160034
-#define TRACKINGDIAMETER 19
+//////////////////////////////////////////
+// Speed Motor Gearsets
+//
+#define SPEED E_MOTOR_GEARSET_18
+#define TORQUE E_MOTOR_GEARSET_36
 
 
+
+
+//////////////////////////////////////////
+// Position Tracking
+//
+// Encoder Ports
+#define R_ENCODER_PORT 1,2
+#define L_ENCODER_PORT 3,4
+#define B_ENCODER_PORT 5,6
+
+// Physical Constants
+#define INCHES_PER_TICK 0.02836160034
+#define TRACKING_DIAMETER 19
+
+// Fudge Factors
+#define FORWARD_FUDGE_FACTOR 1
+#define STRAFE_FUDGE_FACTOR 1
+#define ROTATIONAL_FUDGE_FACTOR 1
+
+
+
+//////////////////////////////////////////
+// Lift
+//
 // Lift tuning params
 #define LIFT_DEPOSIT_POS 6000
 #define LIFT_HOLD_POS 3000

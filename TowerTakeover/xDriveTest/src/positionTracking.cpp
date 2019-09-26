@@ -2,9 +2,9 @@
 
 
 // Position tracking encoders
-ADIEncoder rightEncoder(1,2);
-ADIEncoder leftEncoder(3,4);
-ADIEncoder backEncoder(5,6);
+ADIEncoder rightEncoder(R_ENCODER_PORT);
+ADIEncoder leftEncoder(L_ENCODER_PORT);
+ADIEncoder backEncoder(B_ENCODER_PORT);
 
 // Vars to save robot global position
 double globalDirection = 0;
@@ -44,16 +44,16 @@ void trackPosition() {
     backChange -= angleChange/2;
     
     // Convert ticks to inches
-    angleChange *= INCHESPERTICK;
+    angleChange *= INCHES_PER_TICK;
     
     // Find actual angle change (rad) based on distance between encoders
-    angleChange /= TRACKINGDIAMETER;
+    angleChange /= TRACKING_DIAMETER;
     
     // Convert to degrees
     angleChange = (180 * angleChange) / (double)M_PI;
     
     // Calculate new global direction
-    globalDirection += angleChange;
+    globalDirection += angleChange * ROTATIONAL_FUDGE_FACTOR;
     
     // Wrap to [0,360]
     if (globalDirection > 360) globalDirection -= 360;
@@ -63,8 +63,8 @@ void trackPosition() {
     double globalDirectionRad = ((double)M_PI * globalDirection) / 180;
     
     // Find change in forward position and sideways position
-    double forwardChange = INCHESPERTICK * (leftChange - rightChange) / 2;
-    double strafeChange = backChange * INCHESPERTICK;
+    double forwardChange = FORWARD_FUDGE_FACTOR * INCHES_PER_TICK * (leftChange - rightChange) / 2;
+    double strafeChange = STRAFE_FUDGE_FACTOR * backChange * INCHES_PER_TICK;
     
     // Calculate global change based on current angle
     double changeX = forwardChange * sin(globalDirectionRad) + strafeChange * cos(globalDirectionRad);
