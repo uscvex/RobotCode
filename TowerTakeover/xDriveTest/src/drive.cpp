@@ -2,14 +2,14 @@
 
 
 // Drive motors
-Motor mFRA(8,SPEED,0);
-Motor mFRB(7,SPEED,1);
-Motor mBRA(9,SPEED,0);
-Motor mBRB(10,SPEED,1);
-Motor mFLA(13,SPEED,0);
-Motor mFLB(17,SPEED,1);
-Motor mBLA(19,SPEED,0);
-Motor mBLB(20,SPEED,1);
+Motor mFRA(M_FRA_P,SPEED,0);
+Motor mFRB(M_FRB_P,SPEED,1);
+Motor mBRA(M_BRA_P,SPEED,0);
+Motor mBRB(M_BRB_P,SPEED,1);
+Motor mFLA(M_FLA_P,SPEED,0);
+Motor mFLB(M_FLB_P,SPEED,1);
+Motor mBLA(M_BLA_P,SPEED,0);
+Motor mBLB(M_BLB_P,SPEED,1);
 
 // Drive task (xDrive)
 void runDrive(void* params)

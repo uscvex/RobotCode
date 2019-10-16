@@ -14,6 +14,7 @@
 // Joystick dead zone
 #define JOYZONE 10
 
+
 //////////////////////////////////////////
 // Speed Motor Gearsets
 //
@@ -21,6 +22,32 @@
 #define TORQUE E_MOTOR_GEARSET_36
 
 
+//////////////////////////////////////////
+// Motor Ports
+//
+// Drive Motors
+#define M_FRA_P 8
+#define M_FRB_P 7
+#define M_BRA_P 9
+#define M_BRB_P 10
+#define M_FLA_P 13
+#define M_FLB_P 17
+#define M_BLA_P 19
+#define M_BLB_P 20
+
+// Tower lift
+#define M_LIFT_R_P 15
+#define M_LIFT_L_P 14
+
+// Intake Wheels
+#define M_IN_INTAKE_R_P 11
+#define M_IN_INTAKE_L_P 12
+#define M_OUT_INTAKE_R_P 21
+#define M_OUT_INTAKE_L_P 21
+
+// Intake Arms
+#define M_INTAKE_ARM_R_P 21
+#define M_INTAKE_ARM_L_P 21
 
 
 //////////////////////////////////////////
@@ -46,8 +73,8 @@
 // Lift
 //
 // Lift tuning params
-#define LIFT_DEPOSIT_POS 6000
-#define LIFT_HOLD_POS 3000
+#define LIFT_DEPOSIT_POS 6000 * 5
+#define LIFT_HOLD_POS 3000 * 5
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
@@ -55,6 +82,15 @@
 #define CLAMP_RELEASE_POS 1
 #define CLAMP_HOLD_POS 2800
 #define CLAMP_SEEK_RATE 1
+
+// Intake tuning params
+#define INTAKE_IN_SPEED 127
+#define INTAKE_OUT_SPEED 30
+
+// Intake arm params
+#define INTAKE_ARM_SEEK_RATE 2.5
+#define INTAKE_ARM_IN_POS 1
+#define INTAKE_ARM_OUT_POS 60
 
 
 
@@ -78,9 +114,6 @@ extern Motor mFLB;
 extern Motor mBLA;
 extern Motor mBLB;
 
-// Clamp winch
-extern Motor mClamp;
-
 // Lift
 extern Motor mLiftR;
 extern Motor mLiftL;
@@ -89,6 +122,14 @@ extern Motor mLiftL;
 extern Motor mInIntakeR;
 extern Motor mInIntakeL;
 
+// Outer intake
+extern Motor mOutIntakeR;
+extern Motor mOutIntakeL;
+
+// Intake arms
+extern Motor mIntakeArmR;
+extern Motor mIntakeArmL;
+
 // Position tracking encoders
 extern ADIEncoder rightEncoder;
 extern ADIEncoder leftEncoder;
@@ -96,7 +137,9 @@ extern ADIEncoder backEncoder;
 
 // Vars for auton control of mechanisms
 extern double liftSeek;
-extern double clampSeek;
+extern double intakeArmSeekLeft;
+extern double intakeArmSeekRight;
+extern double runIntake;
 
 // Have we initialized yet?
 extern bool haveInitialized;

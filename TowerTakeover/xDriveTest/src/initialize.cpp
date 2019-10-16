@@ -18,14 +18,15 @@ void init() {
         leftEncoder.reset();
         backEncoder.reset();
         
-        // Play a song
+        // Move arm down to calibrate
         mLiftL.move_voltage(-2000);
         mLiftR.move_voltage(-2000);
         delay(1000);
         mLiftL.move_voltage(0);
         mLiftR.move_voltage(0);
         
-        mClamp.tare_position();
+        mIntakeArmR.tare_position();
+        mIntakeArmL.tare_position();
         mLiftR.tare_position();
         mLiftL.tare_position();
         
