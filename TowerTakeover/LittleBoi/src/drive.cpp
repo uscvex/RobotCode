@@ -76,6 +76,8 @@ void runDrive(void* params) {
         driveL3.move_voltage(12000 * (forwardSpeed + turnSpeed) / 127);
         driveL4.move_voltage(12000 * (forwardSpeed + turnSpeed) / 127);
         
+        
+        // Let other tasks have a turn
         delay(20);
     }
 }

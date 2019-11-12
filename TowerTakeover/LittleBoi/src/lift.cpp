@@ -16,6 +16,7 @@ using namespace pros;
 #define CLAW_CLOSE_POS 180
 #define CLAW_SEEK_RATE 0.5
 
+#define BUTTON_HOLD_TIME 250
 
 Motor liftR(5,TORQUE,1);
 Motor liftL(6,TORQUE,0);
@@ -78,7 +79,6 @@ void runLift(void* params) {
         }
         else {
             justClawed = false;
-            
         }
         
         // Move lift up
@@ -102,8 +102,8 @@ void runLift(void* params) {
         
         // Move lift down
         if (controller.get_digital(DIGITAL_R2)) {
-            // If we've been holding the button for 250ms then move all the way down
-            if (millis() - lastReleasedTime > 250) {
+            // If we've been holding the button for time then move all the way down
+            if (millis() - lastReleasedTime > BUTTON_HOLD_TIME) {
                 liftSeek = 1;
             }
             // Otherwise move down by a set amount
