@@ -33,7 +33,7 @@ double liftSeek = 0;
 void runLift(void* params) {
     
     // Toggle bools
-    bool justClawed = false;
+    //bool justClawed = false;
     bool justLiftedUp = false;
     bool justLiftedDown = false;
     
@@ -68,18 +68,23 @@ void runLift(void* params) {
         // Semi auto controls
         
         // Toggle claw open/close
-        if (controller.get_digital(DIGITAL_L1)) {
-            if (!justClawed) {
-                if (clawSeek != CLAW_OPEN_POS)
-                    clawSeek = CLAW_OPEN_POS;
-                else
-                    clawSeek = CLAW_CLOSE_POS;
-            }
-            justClawed = true;
-        }
-        else {
-            justClawed = false;
-        }
+//        if (controller.get_digital(DIGITAL_L1)) {
+//            if (!justClawed) {
+//                if (clawSeek != CLAW_OPEN_POS)
+//                    clawSeek = CLAW_OPEN_POS;
+//                else
+//                    clawSeek = CLAW_CLOSE_POS;
+//            }
+//            justClawed = true;
+//        }
+//        else {
+//            justClawed = false;
+//        }
+        
+        if (controller.get_digital(DIGITAL_L1))
+            clawSeek = CLAW_CLOSE_POS;
+        if (controller.get_digital(DIGITAL_L2))
+            clawSeek = CLAW_OPEN_POS;
         
         // Move lift up
         if (controller.get_digital(DIGITAL_R1)) {
