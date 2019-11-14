@@ -2,9 +2,9 @@
 
 using namespace pros;
 
-#define LOW_TOWER_POS 1750
-#define MID_TOWER_POS 2500
-#define HIGH_TOWER_POS 3500
+#define LOW_TOWER_POS 1800
+#define MID_TOWER_POS 2250
+#define HIGH_TOWER_POS 3600
 #define LIFT_DOWN_POS 1
 
 #define LIFT_SEEK_RATE 1
@@ -33,7 +33,7 @@ double liftSeek = 0;
 void runLift(void* params) {
     
     // Toggle bools
-    //bool justClawed = false;
+    bool justClawed = false;
     bool justLiftedUp = false;
     bool justLiftedDown = false;
     
@@ -68,21 +68,19 @@ void runLift(void* params) {
         // Semi auto controls
         
         // Toggle claw open/close
-//        if (controller.get_digital(DIGITAL_L1)) {
-//            if (!justClawed) {
-//                if (clawSeek != CLAW_OPEN_POS)
-//                    clawSeek = CLAW_OPEN_POS;
-//                else
-//                    clawSeek = CLAW_CLOSE_POS;
-//            }
-//            justClawed = true;
-//        }
-//        else {
-//            justClawed = false;
-//        }
+        if (controller.get_digital(DIGITAL_L1)) {
+            if (!justClawed) {
+                if (clawSeek != CLAW_OPEN_POS)
+                    clawSeek = CLAW_OPEN_POS;
+                else
+                    clawSeek = CLAW_CLOSE_POS;
+            }
+            justClawed = true;
+        }
+        else {
+            justClawed = false;
+        }
         
-        if (controller.get_digital(DIGITAL_L1))
-            clawSeek = CLAW_CLOSE_POS;
         if (controller.get_digital(DIGITAL_L2))
             clawSeek = CLAW_OPEN_POS;
         
@@ -91,9 +89,9 @@ void runLift(void* params) {
             // If this is a new press
             if (!justLiftedUp) {
                 // Then move lift up to next position
-                if (liftSeek < LOW_TOWER_POS)
+                if (liftSeek < LOW_TOWER_POS && liftPos < LOW_TOWER_POS)
                     liftSeek = LOW_TOWER_POS;
-                else if (liftSeek < MID_TOWER_POS)
+                else if (liftSeek < MID_TOWER_POS && liftPos < MID_TOWER_POS)
                     liftSeek = MID_TOWER_POS;
                 else if (liftSeek < HIGH_TOWER_POS)
                     liftSeek = HIGH_TOWER_POS;
@@ -109,11 +107,14 @@ void runLift(void* params) {
         if (controller.get_digital(DIGITAL_R2)) {
             // If we've been holding the button for time then move all the way down
             if (millis() - lastReleasedTime > BUTTON_HOLD_TIME) {
-                liftSeek = 1;
+                liftSeek = -1;
+                liftSpeed = -127;
             }
             // Otherwise move down by a set amount
             else if (!justLiftedDown) {
                 liftSeek = liftSeek - LIFT_DOWN_INCREMENT;
+                if (liftSeek < 0)
+                    liftSeek = -1;
             }
             // Don't let us repeat until we've let go
             justLiftedDown = true;
