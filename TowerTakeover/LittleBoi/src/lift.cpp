@@ -5,6 +5,9 @@ using namespace pros;
 #define LOW_TOWER_POS 1800
 #define MID_TOWER_POS 2250
 #define HIGH_TOWER_POS 3600
+#define LIFT_CUBE_PUSH_POS 650
+
+
 #define LIFT_DOWN_POS 1
 
 #define LIFT_SEEK_RATE 1
@@ -47,8 +50,8 @@ void runLift(void* params) {
         clawPos = claw.get_position();
         
         // Print to screen
-        pros::lcd::print(2, "Lift pos: %f", liftPos);
-        pros::lcd::print(3, "Claw pos: %f", clawPos);
+        pros::lcd::print(3, "Lift pos: %f", liftPos);
+        pros::lcd::print(4, "Claw pos: %f", clawPos);
         
         
         // Start speeds at 0 for safety
@@ -108,7 +111,8 @@ void runLift(void* params) {
             // If we've been holding the button for time then move all the way down
             if (millis() - lastReleasedTime > BUTTON_HOLD_TIME) {
                 liftSeek = -1;
-                liftSpeed = -127;
+                if (liftPos > LOW_TOWER_POS/2)
+                    liftSpeed = -127;
             }
             // Otherwise move down by a set amount
             else if (!justLiftedDown) {
@@ -124,6 +128,10 @@ void runLift(void* params) {
             lastReleasedTime = millis();
         }
         
+        // Button to lift to claw push height
+        if (controller.get_digital(DIGITAL_DOWN)) {
+            liftSeek = LIFT_CUBE_PUSH_POS;
+        }
         
         // Manual overrides
         // Lift up

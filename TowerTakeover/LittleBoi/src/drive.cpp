@@ -12,6 +12,16 @@ using namespace pros;
 // Joystick deadzone
 #define DEADZONE 15
 
+// Auton tuning parameters
+#define TURN_RATE 0.5           // Bigger = slower
+#define MAX_TURN_SPEED 127      // Bigger = faster
+#define MIN_TURN_SPEED 30       // Bigger = faster
+#define MIN_DRIVE_SPEED 40      // Bigger = faster
+#define DRIVE_DIST_RATE 16       // Bigger = slower
+
+#define TURN_PULSE_ON 1         // Bigger = longer pulse
+#define TURN_PULSE_OFF 16        // Bigger = longer wait between pulses
+
 // Drive motor declarations
 Motor driveR1(1,SPEED,0);
 Motor driveR2(2,SPEED,1);
@@ -23,11 +33,41 @@ Motor driveL2(9,SPEED,0);
 Motor driveL3(8,SPEED,1);
 Motor driveL4(7,SPEED,0);
 
+int driveMode = USER;
+double faceDir = -1;
+double driveSpeed = 0;
+double targetDrivePos;
+
+// Returns average encoder position of drive
+double getDriveEncoderAvg() {
+    double result = 0;
+    
+    result += driveL1.get_position();
+    result += driveL2.get_position();
+    result += driveL3.get_position();
+    result += driveL4.get_position();
+    
+    result += driveR1.get_position();
+    result += driveR2.get_position();
+    result += driveR3.get_position();
+    result += driveR4.get_position();
+    
+    result /= 8;
+    
+    return result;
+}
+
 
 // Drive task
 void runDrive(void* params) {
     
+    double turnSeek = -1;
+    
+    int turnPulseCounter = 0;
+    
     while (true) {
+        
+        pros::lcd::print(4, "Encoders: %f", getDriveEncoderAvg());
         
         // User input
         double forwardSpeedUser = controller.get_analog(ANALOG_LEFT_Y);
@@ -61,8 +101,98 @@ void runDrive(void* params) {
         double turnSpeed = turnSpeed + (turnSpeedUser - turnSpeed) / turnDampen;
         double forwardSpeed = forwardSpeed + (forwardSpeedUser - forwardSpeed) / forwardDampen;
         
+        // Auton control code
+        if (driveMode != USER) {
+           
+            // We have been given a direction to face, so record it
+            turnSeek = faceDir;
+            forwardSpeed = driveSpeed;
+            
+            double turnPower = direction - turnSeek;
+            
+            // Clamp turn to +/- 180 so we always turn shorter distance
+            if (turnPower < 0) turnPower += 360;
+            if (turnPower > 180) turnPower -= 360;
+            
+            // Decrease turn speed by tuning parameter
+            turnPower /= TURN_RATE;
+            
+            // Clamp max speed
+            if (turnPower > MAX_TURN_SPEED) turnPower = MAX_TURN_SPEED;
+            if (turnPower < -MAX_TURN_SPEED) turnPower = -MAX_TURN_SPEED;
+            
         
-        // Auton control code here:
+            // Record sign
+            bool negative = false;
+            
+            // Take abs value
+            if (turnPower < 0) {
+                turnPower *= -1;
+                    negative = true;
+                }
+            
+            // If turn is small, and we're moving slow
+            if (turnPower < MIN_TURN_SPEED) {
+                
+                // Incremnent pulse counter
+                turnPulseCounter++;
+                
+                // If pulse is on, then set turnPower to min speed
+                if (turnPulseCounter > TURN_PULSE_OFF) {
+                    turnPower = MIN_TURN_SPEED;
+                }
+                
+                // Wrap counter when limit reached
+                if (turnPulseCounter > TURN_PULSE_ON + TURN_PULSE_OFF)
+                    turnPulseCounter = 0;
+                
+            }
+            
+            // Undo the abs from earlier
+            if (negative)
+                turnPower *= -1;
+                
+            
+            if (driveMode == DRIVE_DIST) {
+                
+                // Calculate slow down factor based on distance remaining
+                double driveDistSlowDown = targetDrivePos - getDriveEncoderAvg();
+                
+                driveDistSlowDown /= DRIVE_DIST_RATE;
+                
+                // Make it positive
+                if (driveDistSlowDown < 0) driveDistSlowDown *= -1;
+                
+                // Clamp to 1
+                if (driveDistSlowDown > 1) driveDistSlowDown = 1;
+                
+                // Scale forwardSpeed by this factor
+                forwardSpeed *= driveDistSlowDown;
+            }
+            
+            // Make sure forward speed is greater that some min speed
+            if (forwardSpeed > 0) {
+                if (forwardSpeed < MIN_DRIVE_SPEED)
+                    forwardSpeed = MIN_DRIVE_SPEED;
+            }
+            else if (forwardSpeed < 0) {
+                if (forwardSpeed > -MIN_DRIVE_SPEED)
+                    forwardSpeed = -MIN_DRIVE_SPEED;
+            }
+            
+            // Finally set turn speed
+            turnSpeed = turnPower;
+        }
+        
+        
+        
+        
+        // Cancel auto-function
+        if (controller.get_digital(DIGITAL_UP)) {
+            turnSeek = -1;
+            faceDir = -1;
+            driveMode = USER;
+        }
         
         
         
@@ -78,7 +208,7 @@ void runDrive(void* params) {
         
         
         // Let other tasks have a turn
-        delay(20);
+        delay(10);
     }
 }
 

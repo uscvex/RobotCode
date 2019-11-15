@@ -16,10 +16,29 @@ using namespace pros;
 
 #define LIFT_ABS_TOP_POS 3700
 
+#define RED_AUTON 0
+#define BLUE_AUTON 1
+#define PROGRAMMING_SKILLS 2
+
+#define GYRO_PORT 1
+
+#define USER 0
+#define TURN 1
+#define DRIVE_TIME 2
+#define DRIVE_DIST 3
+
+#define TICKS_PER_INCH 57
+
+extern ADIGyro sensor_gyro;
 
 // Function prototypes
 void runDrive(void* params);
 void runLift(void* params);
+void runGyro(void* params);
+
+void setDirection(double dir);
+double getDriveEncoderAvg();
+
 
 // Motor declarations
 extern Motor driveR1;
@@ -45,6 +64,23 @@ extern double liftPos;
 extern double clawPos;
 extern double clawSeek;
 extern double liftSeek;
+
+extern double direction;
+
+extern int driveMode;
+extern double faceDir;
+extern double driveSpeed;
+extern double targetDrivePos;
+
+extern int autonSelect;
+extern int numAutons;
+
+
+// Auton routines
+
+extern double redAuton[];
+extern double blueAuton[];
+extern double programmingSkills[];
 
 
 #endif
