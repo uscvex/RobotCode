@@ -1,3 +1,7 @@
+////////////////////////////////////////////////
+// BIG BOT LIFT
+//
+
 #include "main.h"
 
 
@@ -62,6 +66,10 @@ double intakeArmSeekLeft = -1;
 double intakeArmSeekRight = -1;
 double runIntake = 0;
 
+double liftPos = 0;
+double intakeArmPosLeft = 0;
+double intakeArmPosRight = 0;
+
 
 // Task to run lift, etc.
 void runLift(void* params) {
@@ -80,9 +88,9 @@ void runLift(void* params) {
         double intakeArmSpeedRight = 0;
         
         // Calculate mechanism positions
-        double liftPos = (mLiftL.get_position() + mLiftR.get_position())/2;
-        double intakeArmPosLeft = mIntakeArmL.get_position();
-        double intakeArmPosRight = mIntakeArmR.get_position();
+        liftPos = (mLiftL.get_position() + mLiftR.get_position())/2;
+        intakeArmPosLeft = mIntakeArmL.get_position();
+        intakeArmPosRight = mIntakeArmR.get_position();
         
         
         // Do seek movements if we need to

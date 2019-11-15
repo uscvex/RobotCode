@@ -1,3 +1,7 @@
+////////////////////////////////////////////////
+// BIG BOT POSITION TRACKING
+//
+
 #include "main.h"
 
 
@@ -35,6 +39,14 @@ double lastRightEncoder = 0;
 double lastLeftEncoder = 0;
 double lastBackEncoder = 0;
 
+void setDirection(double dir) {
+    globalDirection = dir;
+}
+
+// Function to get distance between two points
+double pythag(double x1, double y1, double x2, double y2) {
+    return sqrt( ((x1-x2)*(x1-x2)) + ((y1-y2)*(y1-y2)) );
+}
 
 // Function to update global position based on encoder inputs
 void trackPosition() {

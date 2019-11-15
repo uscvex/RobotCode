@@ -1,3 +1,7 @@
+////////////////////////////////////////////////
+// BIG BOT DRIVE
+//
+
 #include "main.h"
 
 // Drive Motors
@@ -10,6 +14,16 @@
 #define M_BLA_P 19
 #define M_BLB_P 20
 
+// Auton tuning parameters
+#define TURN_RATE 0.5           // Bigger = slower
+#define MAX_TURN_SPEED 127      // Bigger = faster
+#define MIN_TURN_SPEED 30       // Bigger = faster
+#define MIN_DRIVE_SPEED 40      // Bigger = faster
+#define DRIVE_DIST_RATE 16       // Bigger = slower
+
+#define TURN_PULSE_ON 1         // Bigger = longer pulse
+#define TURN_PULSE_OFF 16        // Bigger = longer wait between pulses
+
 
 // Drive motors
 Motor mFRA(M_FRA_P,SPEED,0);
@@ -21,18 +35,24 @@ Motor mFLB(M_FLB_P,SPEED,1);
 Motor mBLA(M_BLA_P,SPEED,0);
 Motor mBLB(M_BLB_P,SPEED,1);
 
+
+// Auton control variables
+int driveMode = USER;
+double faceDir = -1;
+double driveDir = -1;
+double driveSpeed = 0;
+double startingDrivePosX = 0;
+double startingDrivePosY = 0;
+double distanceToDrive = 0;
+
+
 // Drive task (xDrive)
 void runDrive(void* params)
 {
     
-//    mFRA.set_current_limit(1420);
-//    mFRB.set_current_limit(1420);
-//    mBRA.set_current_limit(1420);
-//    mBRA.set_current_limit(1420);
-//    mFLA.set_current_limit(1420);
-//    mFLB.set_current_limit(1420);
-//    mBLA.set_current_limit(1420);
-//    mBLB.set_current_limit(1420);
+    double turnSeek = -1;
+    
+    int turnPulseCounter = 0;
  
     while (true) {
         // Run position update function
@@ -83,6 +103,110 @@ void runDrive(void* params)
             turn = 0;
         }
         
+        
+        /////////////////////////////////////////////////////////////////
+        
+        // Auton control code
+        if (driveMode != USER) {
+            
+            // We have been given a direction to face, so record it
+            turnSeek = faceDir;     // We will face this direction
+            driveAngle = driveDir;  // We will drive this direction
+            driveMag = driveSpeed;  // We will drive at this speed
+            
+            // Turn power will be how hard to turn
+            double turnPower = globalDirection - turnSeek;
+            
+            // Clamp turn to +/- 180 so we always turn shorter distance
+            if (turnPower < 0) turnPower += 360;
+            if (turnPower > 180) turnPower -= 360;
+            
+            // Decrease turn speed by tuning parameter
+            turnPower /= TURN_RATE;
+            
+            // Clamp max speed
+            if (turnPower > MAX_TURN_SPEED) turnPower = MAX_TURN_SPEED;
+            if (turnPower < -MAX_TURN_SPEED) turnPower = -MAX_TURN_SPEED;
+            
+            
+            // Record sign
+            bool negative = false;
+            
+            // Take abs value
+            if (turnPower < 0) {
+                turnPower *= -1;
+                negative = true;
+            }
+            
+            // If turn is small
+            if (turnPower < MIN_TURN_SPEED) {
+                
+                // Incremnent pulse counter
+                turnPulseCounter++;
+                
+                // If pulse is on, then set turnPower to min speed
+                if (turnPulseCounter > TURN_PULSE_OFF) {
+                    turnPower = MIN_TURN_SPEED;
+                }
+                
+                // Wrap counter when limit reached
+                if (turnPulseCounter > TURN_PULSE_ON + TURN_PULSE_OFF)
+                    turnPulseCounter = 0;
+                
+            }
+            
+            // Undo the abs from earlier
+            if (negative)
+                turnPower *= -1;
+            
+            
+            if (driveMode == DRIVE_DIST) {
+                
+                // Calculate slow down factor based on distance remaining
+                double driveDistSlowDown = distanceToDrive - pythag(startingDrivePosX, startingDrivePosY, globalX, globalY);
+                
+                driveDistSlowDown /= DRIVE_DIST_RATE;
+                
+                // Make it positive
+                if (driveDistSlowDown < 0) driveDistSlowDown *= -1;
+                
+                // Clamp to 1
+                if (driveDistSlowDown > 1) driveDistSlowDown = 1;
+                
+                // Scale forwardSpeed by this factor
+                driveMag *= driveDistSlowDown;
+            }
+            
+            
+            // Make sure forward speed is greater that some min speed
+            if (driveMag > 0) {
+                if (driveMag < MIN_DRIVE_SPEED)
+                    driveMag = MIN_DRIVE_SPEED;
+            }
+            else if (driveMag < 0) {
+                if (driveMag > -MIN_DRIVE_SPEED)
+                    driveMag = -MIN_DRIVE_SPEED;
+            }
+            
+            // Finally set turn speed
+            turn = turnPower;
+        }
+        
+        
+        
+        
+        // Cancel auto-function
+        if (controller.get_digital(DIGITAL_UP)) {
+            turnSeek = -1;
+            faceDir = -1;
+            driveMode = USER;
+        }
+        
+        /////////////////////////////////////////////////////////////////
+        
+        
+        
+        
         // Find direction robot is facing
         double gyroAng=globalDirection;
         
@@ -90,7 +214,7 @@ void runDrive(void* params)
         driveAngle = driveAngle - gyroAng;
         
         // Clamp angle to be [0,360] after doing subtraction
-        if (driveAngle  <0)
+        if (driveAngle < 0)
             driveAngle = 360 + driveAngle;
         
         // Convert back to radians

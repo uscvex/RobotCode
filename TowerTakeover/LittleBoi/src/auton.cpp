@@ -1,3 +1,7 @@
+////////////////////////////////////////////////
+// LITTLE BOT AUTON
+//
+
 #include "main.h"
 
 using namespace pros;
@@ -10,14 +14,14 @@ using namespace std;
 #define CLAW_CLOSE_POS_A 180
 
 // Auton commands
-#define TURN 1
-#define DRIVE 2
-#define DRIVEDIST 3
-#define LIFTPOS 4
-#define CLAWPOS 5
-#define END 7
-#define PAUSE 8
-#define WAIT 9
+#define TURN 1          // TURN, <FACEDIR>, <TIMEOUT>
+#define DRIVE 2         // DRIVE, <DRIVESPEED>, <FACEDIR>, <TIMEOUT>
+#define DRIVEDIST 3     // DRIVE, <DRIVESPEED>, <FACEDIR>, <DISTANCE>, <TIMEOUT>
+#define LIFTPOS 4       // LIFTPOS, <POSITION>
+#define CLAWPOS 5       // CLASPOS, <POSITION>
+#define END 7           // END
+#define PAUSE 8         // PAUSE, <TIMEOUT>
+#define WAIT 9          // WAIT, <CONDITION>, <PARAMETER>, <TIMEOUT>
 
 
 // Wait conditions

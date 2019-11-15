@@ -1,3 +1,7 @@
+////////////////////////////////////////////////
+// LITTLE BOT DRIVE
+//
+
 #include "main.h"
 
 using namespace pros;
@@ -36,7 +40,7 @@ Motor driveL4(7,SPEED,0);
 int driveMode = USER;
 double faceDir = -1;
 double driveSpeed = 0;
-double targetDrivePos;
+double targetDrivePos = 0;
 
 // Returns average encoder position of drive
 double getDriveEncoderAvg() {
@@ -131,7 +135,7 @@ void runDrive(void* params) {
                     negative = true;
                 }
             
-            // If turn is small, and we're moving slow
+            // If turn is small
             if (turnPower < MIN_TURN_SPEED) {
                 
                 // Incremnent pulse counter

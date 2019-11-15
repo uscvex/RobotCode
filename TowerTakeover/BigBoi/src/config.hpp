@@ -1,3 +1,8 @@
+////////////////////////////////////////////////
+// BIG BOT CONFIG
+//
+
+
 #ifndef _CONFIG_H_
 #define _CONFIG_H_ 1
 
@@ -21,6 +26,15 @@
 #define SPEED E_MOTOR_GEARSET_18
 #define TORQUE E_MOTOR_GEARSET_36
 
+// Drive modes
+#define USER 0
+#define TURN 1
+#define DRIVE_TIME 2
+#define DRIVE_DIST 3
+
+#define RED_AUTON 0
+#define BLUE_AUTON 1
+#define PROGRAMMING_SKILLS 2
 
 
 // Function prototypes
@@ -28,6 +42,10 @@ void runDrive(void* params);
 void runLift(void* params);
 void trackPosition();
 void init();
+
+void setDirection(double dir);
+double pythag(double x1, double y1, double x2, double y2);
+
 
 // Declare motors and controller objects
 extern Controller controller;
@@ -82,6 +100,22 @@ extern double globalY;
 extern double lastRightEncoder;
 extern double lastLeftEncoder;
 extern double lastBackEncoder;
+
+extern int driveMode;
+extern double faceDir;
+extern double driveDir;
+extern double driveSpeed;
+extern double startingDrivePosX;
+extern double startingDrivePosY;
+extern double distanceToDrive;
+
+extern double liftPos;
+extern double intakeArmPosLeft;
+extern double intakeArmPosRight;
+
+extern int autonSelect;
+extern int numAutons;
+
 
 
 

@@ -1,7 +1,23 @@
+////////////////////////////////////////////////
+// BIG BOT MAIN
+//
+
 #include "main.h"
 
 // Declare motors and controller objects
 Controller controller(E_CONTROLLER_MASTER);
+
+ADIDigitalOut solenoid( 7, false );
+
+// Print current auton routine selection to controller
+void printAuton() {
+    if (autonSelect == RED_AUTON)
+        controller.print(0,0,"Red Auton       ");
+    if (autonSelect == BLUE_AUTON)
+        controller.print(0,0,"Blue Auton      ");
+    if (autonSelect == PROGRAMMING_SKILLS)
+        controller.print(0,0,"Prog. Skills    ");
+}
 
 
 // Have we initialized yet?
@@ -36,6 +52,8 @@ void init() {
         
         pros::Task driveTask (runDrive);
         pros::Task liftTask (runLift);
+        
+        printAuton();
     }
 }
 
@@ -69,3 +87,53 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {}
+
+
+
+void opcontrol() {
+    
+    // Call init function at start of opcontrol
+    init();
+    
+    bool pistonOn = false;
+    bool justToggled = false;
+    
+    bool justSwitchedAuton = false;
+    
+    // Stop auton drive
+    driveMode = USER;
+    
+    while (true) {
+        
+        // Just chill out
+        
+        if (controller.get_digital(DIGITAL_B)) {
+            if (!justToggled) {
+                pistonOn = !pistonOn;
+                solenoid.set_value(pistonOn);
+            }
+            justToggled = true;
+        }
+        else {
+            justToggled = false;
+        }
+        
+        
+        if (controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_X)) {
+            if (!justSwitchedAuton) {
+                autonSelect++;
+                if (autonSelect >= numAutons) {
+                    autonSelect = 0;
+                }
+                printAuton();
+            }
+            justSwitchedAuton = true;
+        }
+        else {
+            justSwitchedAuton = false;
+        }
+        
+        
+        delay(20);
+    }
+}
