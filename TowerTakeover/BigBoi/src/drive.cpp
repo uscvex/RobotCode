@@ -15,8 +15,8 @@
 #define M_BLB_P 20
 
 // Auton tuning parameters
-#define TURN_RATE 0.5           // Bigger = slower
-#define MAX_TURN_SPEED 127      // Bigger = faster
+#define TURN_RATE 0.25           // Bigger = slower
+#define MAX_TURN_SPEED 90      // Bigger = faster
 #define MIN_TURN_SPEED 30       // Bigger = faster
 #define MIN_DRIVE_SPEED 40      // Bigger = faster
 #define DRIVE_DIST_RATE 16       // Bigger = slower
@@ -111,7 +111,8 @@ void runDrive(void* params)
             
             // We have been given a direction to face, so record it
             turnSeek = faceDir;     // We will face this direction
-            driveAngle = driveDir;  // We will drive this direction
+            driveAngle = driveDir + 90;  // We will drive this direction
+            if (driveAngle > 360) driveAngle -= 360;
             driveMag = driveSpeed;  // We will drive at this speed
             
             // Turn power will be how hard to turn
@@ -208,7 +209,7 @@ void runDrive(void* params)
         
         
         // Find direction robot is facing
-        double gyroAng=globalDirection;
+        double gyroAng = globalDirection;
         
         // Change robot's reference frame to be relative to rest of world
         driveAngle = driveAngle - gyroAng;
@@ -229,7 +230,7 @@ void runDrive(void* params)
         // Manual buttons
         // Drive back slowly button
         if (controller.get_digital(DIGITAL_DOWN)) {
-            driveMag = 30;
+            driveMag = 40;
             driveAngle = 3*M_PI/2;
         }
         

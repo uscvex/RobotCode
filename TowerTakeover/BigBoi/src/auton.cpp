@@ -25,6 +25,7 @@ using namespace std;
 #define INTAKESPEED 10      // INTAKESPEED, <SPEED>
 #define INTAKEPOSLEFT 11    // INTAKEPOSLEFT, <POSITION>
 #define INTAKEPOSRIGHT 12   // INTAKEPOSRIGHT, <POSITION>
+#define DEPOSIT 13          // DEPOSIT
 
 // Wait conditions
 #define LIFTBELOW 1
@@ -34,6 +35,7 @@ using namespace std;
 #define INTAKEARMRIGHTBELOW 5
 #define INTAKEARMRIGHTABOVE 6
 #define TIME 7
+#define DEPOSITDONE 8
 
 int autonSelect = 2;
 int numAutons = 3;
@@ -52,9 +54,9 @@ double blueAuton[] = {
 
 double programmingSkills[] = {
     270,
-    DRIVEDIST,127,270,270,48,5,
-    DRIVE,-60,270,270,0.05,
-    
+    DRIVEDIST,90,270,90,12,1,
+    DRIVE,60,90,90,0.05,
+    TURN,90,1,
     END
 };
 
@@ -185,6 +187,12 @@ void autonomous() {
                     nextCommand = true;
                     break;
                     
+                case DEPOSIT:           // Tell robot to deposit stack
+                    cout << "DEPOSIT";
+                    depositStep = 1;
+                    nextCommand = true;
+                    break;
+                    
                 case END:       // Do nothing, we are finished
                     cout << "END" << endl;
                     break;
@@ -260,6 +268,13 @@ void autonomous() {
                     if (millis() - autonStartTime > 1000 * waitParameter) {
                         finishedWait = true;
                         cout << "Wait time done\n";
+                    }
+                    break;
+                    
+                case DEPOSITDONE:          // Auto deposit stack is finished
+                    if (depositStep <= -1) {
+                        finishedWait = true;
+                        cout << "Deposit done\n";
                     }
                     break;
                     

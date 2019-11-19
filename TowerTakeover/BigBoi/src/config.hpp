@@ -31,6 +31,7 @@
 #define TURN 1
 #define DRIVE_TIME 2
 #define DRIVE_DIST 3
+#define DRIVE_DEPOSIT 4
 
 #define RED_AUTON 0
 #define BLUE_AUTON 1
@@ -116,7 +117,7 @@ extern double intakeArmPosRight;
 extern int autonSelect;
 extern int numAutons;
 
-
+extern int depositStep;
 
 
 #endif

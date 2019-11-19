@@ -8,19 +8,24 @@
 //////////////////////////////////////////
 // Lift tuning params
 //
-#define LIFT_DEPOSIT_POS 18000
-#define LIFT_HOLD_POS 11000
+#define LIFT_DEPOSIT_POS 18500
+#define LIFT_HOLD_POS 10500
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
+#define DEPOSIT_OUTTAKE_POS 15000
+#define DEPOSIT_ACCEPT_POS 17500
+
 // Intake tuning params
 #define INTAKE_IN_SPEED 127
-#define INTAKE_OUT_SPEED 30
+#define INTAKE_OUT_SPEED 60
 
 // Intake arm params
 #define INTAKE_ARM_SEEK_RATE 1
 #define INTAKE_ARM_IN_POS 1
 #define INTAKE_ARM_OUT_POS 800
+
+#define DEPOSIT_WAIT_TIME 1000
 
 
 
@@ -70,6 +75,8 @@ double liftPos = 0;
 double intakeArmPosLeft = 0;
 double intakeArmPosRight = 0;
 
+int depositStep = -1;
+
 
 // Task to run lift, etc.
 void runLift(void* params) {
@@ -78,6 +85,7 @@ void runLift(void* params) {
     bool justToggledClamp = false;
     bool justToggledIntake = false;
     bool justToggledIntakeArm = false;
+    double depositTime = millis();
     
     while (true) {
         // Vars to hold speed values
@@ -110,7 +118,7 @@ void runLift(void* params) {
         
         // Auto functions
         // Toggle lift
-        if (controller.get_digital(DIGITAL_R1)) {
+        if (controller.get_digital(DIGITAL_B)) {
             if (!justToggledLift) {
                 if (liftSeek == LIFT_HOLD_POS)
                     liftSeek = LIFT_DEPOSIT_POS;
@@ -124,7 +132,7 @@ void runLift(void* params) {
         }
         
         // Toggle intake arms deploy/retract
-        if (controller.get_digital(DIGITAL_B)) {
+        if (controller.get_digital(DIGITAL_R1)) {
             if (!justToggledIntakeArm) {
                 if (intakeArmSeekLeft == INTAKE_ARM_IN_POS && intakeArmSeekRight == INTAKE_ARM_IN_POS) {
                     intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
@@ -159,6 +167,76 @@ void runLift(void* params) {
         inIntakeSpeed = runIntake;
         outIntakeSpeed = runIntake;
         
+        
+        if (controller.get_digital(DIGITAL_R2)) {
+            depositStep = 0;
+        }
+        
+        // Auto deposit stack
+        switch (depositStep) {
+            case 0:
+                if (!controller.get_digital(DIGITAL_R2))
+                    depositStep++;
+                break;
+                
+            case 1:     // First, start moving intake and lift up
+                intakeArmSeekRight = INTAKE_ARM_IN_POS;
+                intakeArmSeekLeft = INTAKE_ARM_IN_POS;
+                outIntakeSpeed = 0;
+                liftSeek = LIFT_DEPOSIT_POS;
+                
+                if (liftPos > DEPOSIT_OUTTAKE_POS)
+                    depositStep++;
+                
+                break;
+                
+            case 2:     // Stop moving the outer intake, and move inner intake out
+                outIntakeSpeed = 0;
+                inIntakeSpeed = INTAKE_OUT_SPEED;
+                depositTime = millis();
+                
+                if (liftPos > DEPOSIT_ACCEPT_POS)
+                    depositStep++;
+                    
+                break;
+                
+            case 3:
+                if (millis() - depositTime > DEPOSIT_WAIT_TIME)
+                    depositStep++;
+                break;
+                
+            case 4:     // Move lift back to intake position and drive backwards
+                liftSeek = LIFT_HOLD_POS;
+                
+                // Drive back slowly
+                driveMode = DRIVE_DEPOSIT;
+                driveSpeed = 40;
+                driveDir = globalDirection + 180;
+                if (driveDir > 360)
+                    driveDir -= 360;
+                faceDir = globalDirection;
+                
+                if (liftPos < LIFT_HOLD_POS + 500)
+                    depositStep++;
+                
+                break;
+                
+            case 5:     // We are clear so we can stop now
+                driveMode = USER;
+                driveSpeed = 0;
+                driveDir = -1;
+                faceDir = -1;
+                
+                depositStep = -1;
+                break;
+                
+            default:    // If we have any illegal value here, make it -1
+                depositStep = -1;
+                break;
+        }
+        
+        
+        
         // Check manual overrides
         
         // Abort!
@@ -167,16 +245,19 @@ void runLift(void* params) {
             intakeArmSeekRight = -1;
             liftSeek = -1;
             runIntake = 0;
+            depositStep = -1;
         }
         
         // Manual tower lift down
         if (controller.get_digital(DIGITAL_Y)) {
             liftSeek = -1;
+            depositStep = -1;
             liftSpeed = -127;
         }
         // Manual tower lift up
         if (controller.get_digital(DIGITAL_A)) {
             liftSeek = -1;
+            depositStep = -1;
             liftSpeed = 127;
         }
         
