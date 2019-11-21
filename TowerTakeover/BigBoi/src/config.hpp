@@ -32,10 +32,15 @@
 #define DRIVE_TIME 2
 #define DRIVE_DIST 3
 #define DRIVE_DEPOSIT 4
+#define DRIVE_DEPLOY 5
+#define DRIVE_TO 6
 
 #define RED_AUTON 0
 #define BLUE_AUTON 1
 #define PROGRAMMING_SKILLS 2
+
+#define INTAKE_ARM_IN_POS 1
+#define INTAKE_ARM_OUT_POS 800
 
 
 // Function prototypes
@@ -46,6 +51,7 @@ void init();
 
 void setDirection(double dir);
 double pythag(double x1, double y1, double x2, double y2);
+void setPosition(double x, double y, double d);
 
 
 // Declare motors and controller objects
@@ -118,6 +124,12 @@ extern int autonSelect;
 extern int numAutons;
 
 extern int depositStep;
+extern int deployStep;
+
+extern double driveToX;
+extern double driveToY;
+
+extern double lastAutonTime;
 
 
 #endif

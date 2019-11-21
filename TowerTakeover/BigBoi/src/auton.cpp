@@ -13,6 +13,8 @@ using namespace std;
 #define CLAW_OPEN_POS_A 1
 #define CLAW_CLOSE_POS_A 180
 
+
+                            // FIRST LINE: <X>, <Y>, <DIRECTION>
 // Auton commands
 #define TURN 1              // TURN, <FACEDIR>, <TIMEOUT>
 #define DRIVE 2             // DRIVE, <SPEED>, <DRIVEDIR>, <FACEDIR>, <TIMEOUT>
@@ -26,6 +28,8 @@ using namespace std;
 #define INTAKEPOSLEFT 11    // INTAKEPOSLEFT, <POSITION>
 #define INTAKEPOSRIGHT 12   // INTAKEPOSRIGHT, <POSITION>
 #define DEPOSIT 13          // DEPOSIT
+#define DEPLOY 14           // DEPLOY
+#define DRIVETO 15          // DRIVE TO, <SPEED>, <FACEDIR>, <X>, <Y>, <TIMOUT>
 
 // Wait conditions
 #define LIFTBELOW 1
@@ -36,9 +40,11 @@ using namespace std;
 #define INTAKEARMRIGHTABOVE 6
 #define TIME 7
 #define DEPOSITDONE 8
+#define DEPLOYDONE 9
 
 int autonSelect = 2;
 int numAutons = 3;
+double lastAutonTime = 0;
 
 double redAuton[] = {
     180,
@@ -53,10 +59,31 @@ double blueAuton[] = {
 };
 
 double programmingSkills[] = {
-    270,
-    DRIVEDIST,90,270,90,12,1,
-    DRIVE,60,90,90,0.05,
-    TURN,90,1,
+    -60,-45,270,
+    
+    DEPLOY,
+    WAIT,DEPLOYDONE,15,
+    WAIT,LIFTBELOW,12000,5,
+    DRIVETO,40,270,-60,-45,1,
+    
+    INTAKESPEED,127,
+    INTAKEPOS,INTAKE_ARM_OUT_POS,
+    WAIT,INTAKEARMLEFTABOVE,600,1,
+    DRIVETO,40,270,-30,-45,9,
+    DRIVETO,40,280,-26,-40,2,
+    DRIVETO,40,270,-30,-45,2,
+    
+    DRIVETO,50,245,0,-54,3,
+    DRIVETO,50,280,12,-50,4,
+    DRIVETO,50,280,44,-42,9,
+    INTAKEPOS,INTAKE_ARM_IN_POS,
+    DRIVETO,70,225,58,-58,5,
+    
+    DEPOSIT,
+    WAIT,DEPOSITDONE,10,
+    
+    DRIVETO,50,20,
+    
     END
 };
 
@@ -91,8 +118,8 @@ void autonomous() {
     if (autonSelect == BLUE_AUTON) nextEntry = &blueAuton[0];
     if (autonSelect == PROGRAMMING_SKILLS) nextEntry = &programmingSkills[0];
     
-    // Set robot current direction
-    setDirection(processEntry());
+    // Set robot current position
+    setPosition(processEntry(),processEntry(),processEntry());
     
     nextCommand = true;
     
@@ -100,6 +127,8 @@ void autonomous() {
         
         // If we are ready for the next command
         if (nextCommand) {
+            
+            lastAutonTime = (millis() - autonStartTime) / 1000; // Record time
             
             nextCommand = false;            // We are not ready for next command any more
             commandStartTime = millis();    // Record the time the command was started
@@ -119,7 +148,8 @@ void autonomous() {
                 case WAIT:      // Wait until condition is met
                     cout << "WAIT" << endl;
                     waitCondition = (int)processEntry();
-                    waitParameter = processEntry();
+                    if (waitCondition != DEPOSITDONE && waitCondition != DEPLOYDONE)
+                        waitParameter = processEntry();
                     commandTimeOut = processEntry() * 1000;
                     break;
                     
@@ -152,6 +182,19 @@ void autonomous() {
                     // Record starting position
                     startingDrivePosX = globalX;
                     startingDrivePosY = globalY;
+                    
+                    commandTimeOut = processEntry() * 1000;
+                    break;
+                    
+                case DRIVETO: // Drive to a point
+                    cout << "DRIVETO" << endl;
+                    driveMode = DRIVE_TO;
+                    driveSpeed = processEntry();
+                    driveDir = -1;
+                    
+                    faceDir = processEntry();
+                    driveToX = processEntry();
+                    driveToY = processEntry();
                     
                     commandTimeOut = processEntry() * 1000;
                     break;
@@ -190,6 +233,12 @@ void autonomous() {
                 case DEPOSIT:           // Tell robot to deposit stack
                     cout << "DEPOSIT";
                     depositStep = 1;
+                    nextCommand = true;
+                    break;
+                    
+                case DEPLOY:           // Tell robot to deploy
+                    cout << "DEPLOY";
+                    deployStep = 1;
                     nextCommand = true;
                     break;
                     
@@ -278,6 +327,13 @@ void autonomous() {
                     }
                     break;
                     
+                case DEPLOYDONE:          // Auto deploy is finished
+                    if (deployStep <= -1) {
+                        finishedWait = true;
+                        cout << "Deploy done\n";
+                    }
+                    break;
+                    
             }
             
             // If condition is met the we are done
@@ -305,6 +361,22 @@ void autonomous() {
             }
         }
         
+        if (driveMode == DRIVE_TO) {
+            bool finishedDrive = false;
+            
+            // If we've moved at least as far as we wanted to
+            if (pythag(driveToX, driveToY, globalX, globalY) <= 1) {     // Drive within 1"
+                finishedDrive = true;
+            }
+            
+            if (finishedDrive) {
+                faceDir = -1;
+                driveSpeed = 0;
+                driveMode = USER;
+                nextCommand = true;
+            }
+        }
+        
         // If we timed out, make sure to stop whatever it was we were doing
         if (commandTimedOut) {
             
@@ -321,6 +393,15 @@ void autonomous() {
                 driveDir = -1;
                 driveSpeed = 0;
                 driveMode = USER;
+            }
+            
+            // If we were depositing stack
+            if (depositStep != -1) {
+                depositStep = -1;
+            }
+            // If we were deploying
+            if (deployStep != -1) {
+                deployStep = -1;
             }
             
             

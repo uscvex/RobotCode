@@ -15,17 +15,21 @@
 
 #define DEPOSIT_OUTTAKE_POS 15000
 #define DEPOSIT_ACCEPT_POS 17500
+#define LIFT_DEPLOYED_POS 9000
+#define TRAY_SLIDE_POS 4000
+#define TRAY_SLIDE_TIME 250
 
 // Intake tuning params
 #define INTAKE_IN_SPEED 127
-#define INTAKE_OUT_SPEED 60
+#define INTAKE_OUT_SPEED -60
+
+#define INTAKE_DEPOSIT_SPEED -40
 
 // Intake arm params
 #define INTAKE_ARM_SEEK_RATE 1
-#define INTAKE_ARM_IN_POS 1
-#define INTAKE_ARM_OUT_POS 800
 
-#define DEPOSIT_WAIT_TIME 1000
+
+#define DEPOSIT_WAIT_TIME 1250
 
 
 
@@ -76,6 +80,8 @@ double intakeArmPosLeft = 0;
 double intakeArmPosRight = 0;
 
 int depositStep = -1;
+int deployStep = -1;
+bool doneDeploy = false;
 
 
 // Task to run lift, etc.
@@ -169,8 +175,92 @@ void runLift(void* params) {
         
         
         if (controller.get_digital(DIGITAL_R2)) {
-            depositStep = 0;
+            if (doneDeploy) {
+                depositStep = 0;
+            }
+            else {
+                deployStep = 0;
+            }
         }
+        
+        
+        // Auto deploy tower
+        switch (deployStep) {
+            case 0:     // Wait until released button
+                if (!controller.get_digital(DIGITAL_R2))
+                    deployStep++;
+                break;
+                
+            case 1:     // Move lift up until tray slides out
+                doneDeploy = true;
+                liftSeek = LIFT_DEPOSIT_POS;
+                intakeArmSeekRight = INTAKE_ARM_OUT_POS;
+                intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
+                depositTime = millis();
+                
+                if (liftPos > TRAY_SLIDE_POS)
+                    deployStep++;
+                break;
+                
+            case 2:     // Wait until tray has slid
+                liftSeek = TRAY_SLIDE_POS;
+                intakeArmSeekRight = INTAKE_ARM_OUT_POS;
+                intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
+                
+                if (millis() - depositTime > TRAY_SLIDE_TIME)
+                    deployStep++;
+                break;
+                
+            case 3:     // Move lift up until middle section clicks
+                liftSeek = LIFT_DEPOSIT_POS;
+                intakeArmSeekRight = INTAKE_ARM_OUT_POS;
+                intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
+                depositTime = millis();
+                
+                if (liftPos > LIFT_DEPLOYED_POS)
+                    deployStep++;
+                break;
+                
+            case 4:     // Drive forward slowly and keep the lift up
+                liftSeek = LIFT_DEPOSIT_POS;
+                driveMode = DRIVE_DEPLOY;
+                driveSpeed = 40;
+                driveDir = globalDirection;
+                faceDir = globalDirection;
+                distanceToDrive = 4;
+                startingDrivePosX = globalX;
+                startingDrivePosY = globalY;
+                
+                deployStep++;
+                break;
+                
+            case 5:
+                if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
+                    faceDir = -1;
+                    driveSpeed = 0;
+                    driveMode = USER;
+                }
+                
+                if (liftPos > DEPOSIT_ACCEPT_POS)
+                    deployStep++;
+                break;
+                
+            case 6:     // Deploy is done
+                liftSeek = LIFT_HOLD_POS;
+                driveMode = USER;
+                driveSpeed = 0;
+                driveDir = -1;
+                faceDir = -1;
+                
+                deployStep = -1;
+                break;
+   
+                
+            default:
+                deployStep = -1;
+                break;
+        }
+        
         
         // Auto deposit stack
         switch (depositStep) {
@@ -192,7 +282,7 @@ void runLift(void* params) {
                 
             case 2:     // Stop moving the outer intake, and move inner intake out
                 outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_OUT_SPEED;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 depositTime = millis();
                 
                 if (liftPos > DEPOSIT_ACCEPT_POS)
@@ -201,11 +291,15 @@ void runLift(void* params) {
                 break;
                 
             case 3:
+                outIntakeSpeed = 0;
+                inIntakeSpeed = -INTAKE_OUT_SPEED;
                 if (millis() - depositTime > DEPOSIT_WAIT_TIME)
                     depositStep++;
                 break;
                 
             case 4:     // Move lift back to intake position and drive backwards
+                outIntakeSpeed = 0;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 liftSeek = LIFT_HOLD_POS;
                 
                 // Drive back slowly
@@ -216,12 +310,30 @@ void runLift(void* params) {
                     driveDir -= 360;
                 faceDir = globalDirection;
                 
-                if (liftPos < LIFT_HOLD_POS + 500)
-                    depositStep++;
+                distanceToDrive = 15;
+                startingDrivePosX = globalX;
+                startingDrivePosY = globalY;
+                
+                depositStep++;
                 
                 break;
                 
-            case 5:     // We are clear so we can stop now
+            case 5:     // Drive back until drive is done
+                outIntakeSpeed = 0;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+                liftSeek = LIFT_HOLD_POS;
+                
+                if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
+                    faceDir = -1;
+                    driveSpeed = 0;
+                    driveMode = USER;
+                }
+                
+                if (liftPos < LIFT_HOLD_POS + 500)
+                    depositStep++;
+                break;
+                
+            case 6:     // We are clear so we can stop now
                 driveMode = USER;
                 driveSpeed = 0;
                 driveDir = -1;
@@ -246,6 +358,7 @@ void runLift(void* params) {
             liftSeek = -1;
             runIntake = 0;
             depositStep = -1;
+            deployStep = -1;
         }
         
         // Manual tower lift down
@@ -278,8 +391,8 @@ void runLift(void* params) {
         
         // Manual intake wheels out
         if (controller.get_digital(DIGITAL_L2)) {
-            inIntakeSpeed = -INTAKE_OUT_SPEED;
-            outIntakeSpeed = -INTAKE_OUT_SPEED;
+            inIntakeSpeed = INTAKE_OUT_SPEED;
+            outIntakeSpeed = INTAKE_OUT_SPEED;
             runIntake = 0;
         }
         

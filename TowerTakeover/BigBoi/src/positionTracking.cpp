@@ -43,6 +43,12 @@ void setDirection(double dir) {
     globalDirection = dir;
 }
 
+void setPosition(double x, double y, double d = globalDirection) {
+    globalX = x;
+    globalY = y;
+    globalDirection = d;
+}
+
 // Function to get distance between two points
 double pythag(double x1, double y1, double x2, double y2) {
     return sqrt( ((x1-x2)*(x1-x2)) + ((y1-y2)*(y1-y2)) );
@@ -105,6 +111,6 @@ void trackPosition() {
     globalY += changeY;
     
     // Print position info to screen
-    pros::lcd::print(1, "(x,y,theta) = (%f, %f, %f)", globalX, globalY, globalDirection);\
+    pros::lcd::print(1, "(x,y,theta) = (%f, %f, %f)", globalX, globalY, globalDirection);
     
 }

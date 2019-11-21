@@ -50,8 +50,10 @@ void init() {
         mLiftR.tare_position();
         mLiftL.tare_position();
         
-        pros::Task driveTask (runDrive);
-        pros::Task liftTask (runLift);
+        pros::Task driveTask (runDrive,(void*)"PROS", TASK_PRIORITY_DEFAULT,
+                              TASK_STACK_DEPTH_DEFAULT, "Drive task");
+        pros::Task liftTask (runLift,(void*)"PROS", TASK_PRIORITY_DEFAULT,
+                             TASK_STACK_DEPTH_DEFAULT, "Lift task");
         
         printAuton();
     }
@@ -93,7 +95,7 @@ void competition_initialize() {}
 void opcontrol() {
     
     // Call init function at start of opcontrol
-    init();
+    //init();
     
     bool pistonOn = false;
     bool justToggled = false;
@@ -104,6 +106,8 @@ void opcontrol() {
     driveMode = USER;
     
     while (true) {
+        
+        pros::lcd::print(0, "lastAutonTime: %f", lastAutonTime);
         
         // Just chill out
         

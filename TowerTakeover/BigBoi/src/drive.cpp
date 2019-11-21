@@ -17,12 +17,15 @@
 // Auton tuning parameters
 #define TURN_RATE 0.25           // Bigger = slower
 #define MAX_TURN_SPEED 90      // Bigger = faster
-#define MIN_TURN_SPEED 30       // Bigger = faster
+#define MIN_TURN_SPEED 20       // Bigger = faster
 #define MIN_DRIVE_SPEED 40      // Bigger = faster
 #define DRIVE_DIST_RATE 16       // Bigger = slower
 
 #define TURN_PULSE_ON 1         // Bigger = longer pulse
 #define TURN_PULSE_OFF 16        // Bigger = longer wait between pulses
+#define TURN_DRIVE_RATE 2           // Bigger = weaker turn whilst driving
+
+#define AUTON_DRIVE_SLEW 16
 
 
 // Drive motors
@@ -45,6 +48,9 @@ double startingDrivePosX = 0;
 double startingDrivePosY = 0;
 double distanceToDrive = 0;
 
+double driveToX = 0;
+double driveToY = 0;
+
 
 // Drive task (xDrive)
 void runDrive(void* params)
@@ -53,6 +59,9 @@ void runDrive(void* params)
     double turnSeek = -1;
     
     int turnPulseCounter = 0;
+    
+    double driveMagSlew = 0;
+    double driveMagSlewRunning = 0;
  
     while (true) {
         // Run position update function
@@ -113,7 +122,8 @@ void runDrive(void* params)
             turnSeek = faceDir;     // We will face this direction
             driveAngle = driveDir + 90;  // We will drive this direction
             if (driveAngle > 360) driveAngle -= 360;
-            driveMag = driveSpeed;  // We will drive at this speed
+            
+            driveMagSlew = driveSpeed;  // We will drive at this speed
             
             // Turn power will be how hard to turn
             double turnPower = globalDirection - turnSeek;
@@ -154,13 +164,18 @@ void runDrive(void* params)
                 if (turnPulseCounter > TURN_PULSE_ON + TURN_PULSE_OFF)
                     turnPulseCounter = 0;
                 
+                // If we're driving fast, turn weak
+                if (driveMagSlew > MIN_DRIVE_SPEED) {
+                    turn /= TURN_DRIVE_RATE;
+                }
+                
             }
             
             // Undo the abs from earlier
             if (negative)
                 turnPower *= -1;
             
-            
+            // We are driving a distance
             if (driveMode == DRIVE_DIST) {
                 
                 // Calculate slow down factor based on distance remaining
@@ -175,22 +190,78 @@ void runDrive(void* params)
                 if (driveDistSlowDown > 1) driveDistSlowDown = 1;
                 
                 // Scale forwardSpeed by this factor
-                driveMag *= driveDistSlowDown;
+                driveMagSlew *= driveDistSlowDown;
+            }
+            
+            // We want to drive to a point
+            if (driveMode == DRIVE_TO) {
+                
+                // Calculate angle to drive at
+                double deltaX = driveToX - globalX;
+                double deltaY = driveToY - globalY;
+                
+                // Prevent div/0 error for next step
+                if (deltaX == 0)
+                    deltaX = 0.01;
+                
+                // Find angle to drive in
+                driveAngle = atan(deltaY / deltaX);
+                
+                // Convert to degrees
+                driveAngle = (180 * driveAngle) / (double)M_PI;
+                
+//                if (deltaX < 0 && deltaY >= 0) {
+//                    // Quadrent 2
+//                    driveAngle = 90 - driveAngle;
+//                }
+//                if (deltaX < 0 && deltaY < 0) {
+//                    // Quadrent 3
+//                    driveAngle = 180 + driveAngle;
+//                }
+                if (deltaX < 0)
+                    driveAngle += 180;
+                
+                // Subtract 90 to get to our coordinate system
+                //driveAngle -= 90;
+                // Bound to [0,360]
+                while (driveAngle < 0) driveAngle += 360;
+                while (driveAngle > 360) driveAngle -= 360;
+
+                
+                // Slow down as we get close
+                double driveDistSlowDown = pythag(driveToX, driveToY, globalX, globalY);
+                
+                driveDistSlowDown /= DRIVE_DIST_RATE;
+                
+                // Make it positive
+                if (driveDistSlowDown < 0) driveDistSlowDown *= -1;
+                
+                // Clamp to 1
+                if (driveDistSlowDown > 1) driveDistSlowDown = 1;
+                
+                // Scale forwardSpeed by this factor
+                driveMagSlew *= driveDistSlowDown;
+                
+                pros::lcd::print(5, "driveAngle: %f", driveAngle);
             }
             
             
             // Make sure forward speed is greater that some min speed
-            if (driveMag > 0) {
-                if (driveMag < MIN_DRIVE_SPEED)
-                    driveMag = MIN_DRIVE_SPEED;
+            if (driveMagSlew > 0) {
+                if (driveMagSlew < MIN_DRIVE_SPEED)
+                    driveMagSlew = MIN_DRIVE_SPEED;
             }
-            else if (driveMag < 0) {
-                if (driveMag > -MIN_DRIVE_SPEED)
-                    driveMag = -MIN_DRIVE_SPEED;
+            else if (driveMagSlew < 0) {
+                if (driveMagSlew > -MIN_DRIVE_SPEED)
+                    driveMagSlew = -MIN_DRIVE_SPEED;
             }
             
             // Finally set turn speed
             turn = turnPower;
+            
+            // Calculate driveMag based on slew
+            driveMagSlewRunning += (driveMagSlew - driveMagSlewRunning) / AUTON_DRIVE_SLEW;
+            driveMag = driveMagSlewRunning;
         }
         
         
