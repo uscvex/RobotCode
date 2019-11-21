@@ -22,12 +22,24 @@ using namespace std;
 #define END 7           // END
 #define PAUSE 8         // PAUSE, <TIMEOUT>
 #define WAIT 9          // WAIT, <CONDITION>, <PARAMETER>, <TIMEOUT>
+#define DRIVEWHITE 10   // DRIVE, <DRIVESPEED>, <FACEDIR>, <TYPE>, <TIMEOUT>
 
+#define BOTH_W 1
+#define BOTH_B 2
+#define RIGHT_W 3
+#define RIGHT_B 4
+#define LEFT_W 5
+#define LEFT_B 6
 
 // Wait conditions
 #define LIFTBELOW 1
 #define LIFTABOVE 2
 #define TIME 3
+
+#define WHITE_THRESHOLD_R 300
+#define WHITE_THRESHOLD_L 300
+
+
 
 int autonSelect = 2;
 int numAutons = 3;
@@ -130,6 +142,15 @@ void autonomous() {
                     driveMode = DRIVE_TIME;
                     driveSpeed = processEntry();
                     faceDir = processEntry();
+                    commandTimeOut = processEntry() * 1000;
+                    break;
+                    
+                case DRIVEWHITE: // Drive until sensors see white/black
+                    cout << "DRIVEWHITE" << endl;
+                    driveMode = DRIVE_WHITE;
+                    driveSpeed = processEntry();
+                    faceDir = processEntry();
+                    driveDist = processEntry();
                     commandTimeOut = processEntry() * 1000;
                     break;
                     
@@ -237,6 +258,56 @@ void autonomous() {
             if (finishedDrive) {
                 faceDir = -1;
                 driveSpeed = 0;
+                driveMode = USER;
+                nextCommand = true;
+            }
+        }
+
+        
+        // Check if we've hit the white/black area
+        if (driveMode == DRIVE_WHITE) {
+            bool finishedDrive = false;
+            
+            bool whiteR = (whiteLineR.get_value() < WHITE_THRESHOLD_R);
+            bool whiteL = (whiteLineL.get_value() < WHITE_THRESHOLD_L);
+            
+            switch ((int)driveDist) {
+                case BOTH_W:
+                    if (whiteL && whiteR) {
+                        finishedDrive = true;
+                    }
+                    break;
+                case BOTH_B:
+                    if (!whiteL && !whiteR) {
+                        finishedDrive = true;
+                    }
+                    break;
+                case RIGHT_W:
+                    if (whiteR) {
+                        finishedDrive = true;
+                    }
+                    break;
+                case RIGHT_B:
+                    if (!whiteR) {
+                        finishedDrive = true;
+                    }
+                    break;
+                case LEFT_W:
+                    if (whiteL) {
+                        finishedDrive = true;
+                    }
+                    break;
+                case LEFT_B:
+                    if (!whiteL) {
+                        finishedDrive = true;
+                    }
+                    break;
+            }
+            
+            if (finishedDrive) {
+                faceDir = -1;
+                driveSpeed = 0;
+                driveDist = 0;
                 driveMode = USER;
                 nextCommand = true;
             }

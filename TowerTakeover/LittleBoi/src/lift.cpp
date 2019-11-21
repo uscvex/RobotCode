@@ -120,9 +120,19 @@ void runLift(void* params) {
             }
             // Otherwise move down by a set amount
             else if (!justLiftedDown) {
-                liftSeek = liftSeek - LIFT_DOWN_INCREMENT;
-                if (liftSeek < 0)
-                    liftSeek = -1;
+                if (liftSeek > LOW_TOWER_POS - 500) {
+                    liftSeek = liftSeek - LIFT_DOWN_INCREMENT;
+                    if (liftSeek < 0)
+                        liftSeek = -1;
+                }
+                else {
+                    if (liftSeek != LIFT_CUBE_PUSH_POS) {
+                        liftSeek = LIFT_CUBE_PUSH_POS;
+                    }
+                    else {
+                        liftSeek = 1;
+                    }
+                }
             }
             // Don't let us repeat until we've let go
             justLiftedDown = true;

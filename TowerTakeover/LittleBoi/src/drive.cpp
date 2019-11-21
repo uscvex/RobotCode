@@ -37,6 +37,9 @@ Motor driveL2(9,SPEED,0);
 Motor driveL3(8,SPEED,1);
 Motor driveL4(7,SPEED,0);
 
+ADILineSensor whiteLineR(2);
+ADILineSensor whiteLineL(3);
+
 int driveMode = USER;
 double faceDir = -1;
 double driveSpeed = 0;
@@ -72,6 +75,8 @@ void runDrive(void* params) {
     while (true) {
         
         pros::lcd::print(4, "Encoders: %f", getDriveEncoderAvg());
+        
+        pros::lcd::print(5, "Right: %d  Left: %d", whiteLineR.get_value(), whiteLineL.get_value());
         
         // User input
         double forwardSpeedUser = controller.get_analog(ANALOG_LEFT_Y);

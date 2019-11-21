@@ -30,10 +30,13 @@ using namespace pros;
 #define TURN 1
 #define DRIVE_TIME 2
 #define DRIVE_DIST 3
+#define DRIVE_WHITE 4
 
 #define TICKS_PER_INCH 57
 
 extern ADIGyro sensor_gyro;
+extern ADILineSensor whiteLineR;
+extern ADILineSensor whiteLineL;
 
 // Function prototypes
 void runDrive(void* params);
