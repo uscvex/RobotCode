@@ -30,6 +30,7 @@ using namespace std;
 #define DEPOSIT 13          // DEPOSIT
 #define DEPLOY 14           // DEPLOY
 #define DRIVETO 15          // DRIVE TO, <SPEED>, <FACEDIR>, <X>, <Y>, <TIMOUT>
+#define SETPOS 16           // SETPOS, <X>, <Y>
 
 // Wait conditions
 #define LIFTBELOW 1
@@ -60,29 +61,83 @@ double blueAuton[] = {
 
 double programmingSkills[] = {
     -60,-45,270,
-    
-    DEPLOY,
-    WAIT,DEPLOYDONE,15,
-    WAIT,LIFTBELOW,12000,5,
+
+    //DEPLOY,
+    //WAIT,DEPLOYDONE,15,
+    //WAIT,LIFTBELOW,12000,5,
     DRIVETO,40,270,-60,-45,1,
-    
+
     INTAKESPEED,127,
-    INTAKEPOS,INTAKE_ARM_OUT_POS,
-    WAIT,INTAKEARMLEFTABOVE,600,1,
+   // INTAKEPOS,INTAKE_ARM_OUT_POS,     // For safety
+  //  WAIT,INTAKEARMLEFTABOVE,600,1,
     DRIVETO,40,270,-30,-45,9,
     DRIVETO,40,280,-26,-40,2,
     DRIVETO,40,270,-30,-45,2,
-    
+
     DRIVETO,50,245,0,-54,3,
     DRIVETO,50,280,12,-50,4,
     DRIVETO,50,280,44,-42,9,
-    INTAKEPOS,INTAKE_ARM_IN_POS,
-    DRIVETO,70,225,58,-58,5,
+    //INTAKEPOS,INTAKE_ARM_IN_POS,      // For safety
+    DRIVETO,70,225,62,-62,3,
+    DRIVE,60,45,225,0.2,
     
-    DEPOSIT,
-    WAIT,DEPOSITDONE,10,
     
-    DRIVETO,50,20,
+    SETPOS,54,-54,
+    
+    //DEPOSIT,
+   // WAIT,DEPOSITDONE,13,
+    
+    DRIVEDIST,40,45,225,20,2,          /////////////////////// REMOVE WHEN DEPOSIT
+    
+    DRIVETO,50,225,55,-36,3,            // Drive away from stack
+    
+    DRIVETO,40,30,52,-26,3,             // Line up for S. Cube East Tower
+    
+   // INTAKEPOS,INTAKE_ARM_OUT_POS,         // For safety
+    INTAKESPEED,127,
+    WAIT,INTAKEARMLEFTABOVE,600,1,
+    
+    
+    DRIVETO,40,30,52,-20,3,             // Get S. cube from East Tower
+    DRIVETO,40,30,58,-24,1,             // Back off and line up for 3 long row
+    TURN,90,0.25,
+    
+    
+    DRIVETO,40,90,25,-21,5,             // Get 3 long row
+    
+    DRIVETO,40,35,17,-17,2,             // Drive to line up
+    DRIVETO,40,35,12,-12,3,             // Get E. cube from Centre Tower
+    DRIVETO,40,35,19,-19,2,             // Back off
+    
+    
+    DRIVETO,40,50,11,-18,3,             // Get S. cube from Centre Tower
+    DRIVETO,40,50,23,-18,3,             // Back off
+    
+    DRIVETO,40,135,21,-18,4,            // Line up for N. cube from South Tower
+    DRIVETO,40,135,10,-20,3,            // Get cube
+    DRIVETO,40,135,17,-15,4,            // Back off
+    
+    DRIVETO,40,90,10,-20,5,             // Line up for next row
+    
+    DRIVETO,40,90,-35,-25,10,           // Get next row
+    
+    DRIVETO,40,90,-28,-24,3,            // Line up for S. cube from West Tower
+    TURN,60,0.5,
+    
+    DRIVETO,40,50,-35,-23,3,            // Get cube
+    PAUSE,0.25,                         // Wait to intake
+    DRIVETO,40,50,-25,-33,2,            // Back off
+    
+    
+    DRIVETO,60,180,-70,-33,3,           // Go to goal wall
+    SETPOS,-60,-33,
+    DRIVEDIST,60,270,135,6,2,
+    DRIVEDIST,60,185,135,55,3,
+    DRIVEDIST,60,135,135,6,2,
+    
+    
+    //DEPOSIT,                            // Drop off stack
+    //WAIT,DEPOSITDONE,13,
     
     END
 };
@@ -139,6 +194,11 @@ void autonomous() {
             
             // Figure out which command we are supposed to perform
             switch ((int)processEntry()) {
+                    
+                case SETPOS:    // Sets X, Y position of robot
+                    setPosition(processEntry(),processEntry());
+                    nextCommand = true;
+                    break;
                     
                 case PAUSE:     // Pause for a time (given in seconds)
                     cout << "PAUSE" << endl;

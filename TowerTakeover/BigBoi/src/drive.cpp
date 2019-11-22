@@ -25,7 +25,7 @@
 #define TURN_PULSE_OFF 16        // Bigger = longer wait between pulses
 #define TURN_DRIVE_RATE 2           // Bigger = weaker turn whilst driving
 
-#define AUTON_DRIVE_SLEW 16
+#define AUTON_DRIVE_SLEW 16      // Bigger = slower
 
 
 // Drive motors

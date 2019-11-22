@@ -26,11 +26,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/drive.cpp.o",
-            "src/drive.cpp"
+            "bin/main.cpp.o",
+            "src/main.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/drive.cpp"
+        "file": "src/main.cpp"
     },
     {
         "arguments": [
@@ -92,11 +92,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/positionTracking.cpp.o",
-            "src/positionTracking.cpp"
+            "bin/drive.cpp.o",
+            "src/drive.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/positionTracking.cpp"
+        "file": "src/drive.cpp"
     },
     {
         "arguments": [
@@ -125,11 +125,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/main.cpp.o",
-            "src/main.cpp"
+            "bin/positionTracking.cpp.o",
+            "src/positionTracking.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/main.cpp"
+        "file": "src/positionTracking.cpp"
     },
     {
         "arguments": [

@@ -43,10 +43,15 @@ void setDirection(double dir) {
     globalDirection = dir;
 }
 
-void setPosition(double x, double y, double d = globalDirection) {
+void setPosition(double x, double y, double d) {
     globalX = x;
     globalY = y;
     globalDirection = d;
+}
+
+void setPosition(double x, double y) {
+    globalX = x;
+    globalY = y;
 }
 
 // Function to get distance between two points

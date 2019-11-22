@@ -9,15 +9,16 @@
 // Lift tuning params
 //
 #define LIFT_DEPOSIT_POS 18500
-#define LIFT_HOLD_POS 10500
+#define LIFT_HOLD_POS 11000
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
 #define DEPOSIT_OUTTAKE_POS 15000
-#define DEPOSIT_ACCEPT_POS 17500
+#define DEPOSIT_ACCEPT_POS 18000
+#define DEPLOY_ACCEPT_POS 17500
 #define LIFT_DEPLOYED_POS 9000
 #define TRAY_SLIDE_POS 4000
-#define TRAY_SLIDE_TIME 250
+#define TRAY_SLIDE_TIME 125         // Time to wait for the tray to slide out during deploy
 
 // Intake tuning params
 #define INTAKE_IN_SPEED 127
@@ -29,9 +30,9 @@
 #define INTAKE_ARM_SEEK_RATE 1
 
 
-#define DEPOSIT_WAIT_TIME 1250
+#define DEPOSIT_WAIT_TIME 1500
 
-
+#define DEPOSIT_BACKOFF_SPEED 50
 
 //////////////////////////////////////////
 // Motor Ports
@@ -241,7 +242,7 @@ void runLift(void* params) {
                     driveMode = USER;
                 }
                 
-                if (liftPos > DEPOSIT_ACCEPT_POS)
+                if (liftPos > DEPLOY_ACCEPT_POS)
                     deployStep++;
                 break;
                 
@@ -292,7 +293,7 @@ void runLift(void* params) {
                 
             case 3:
                 outIntakeSpeed = 0;
-                inIntakeSpeed = -INTAKE_OUT_SPEED;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 if (millis() - depositTime > DEPOSIT_WAIT_TIME)
                     depositStep++;
                 break;
@@ -304,13 +305,13 @@ void runLift(void* params) {
                 
                 // Drive back slowly
                 driveMode = DRIVE_DEPOSIT;
-                driveSpeed = 40;
+                driveSpeed = DEPOSIT_BACKOFF_SPEED;
                 driveDir = globalDirection + 180;
                 if (driveDir > 360)
                     driveDir -= 360;
                 faceDir = globalDirection;
                 
-                distanceToDrive = 15;
+                distanceToDrive = 20;
                 startingDrivePosX = globalX;
                 startingDrivePosY = globalY;
                 

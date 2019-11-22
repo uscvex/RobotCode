@@ -52,6 +52,7 @@ void init();
 void setDirection(double dir);
 double pythag(double x1, double y1, double x2, double y2);
 void setPosition(double x, double y, double d);
+void setPosition(double x, double y);
 
 
 // Declare motors and controller objects
