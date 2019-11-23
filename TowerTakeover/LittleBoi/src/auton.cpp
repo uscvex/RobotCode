@@ -84,7 +84,7 @@ double programmingSkills[] = {
     DRIVEDIST,-60,180,10,3,             // DRIVE AWAY FROM TOWER
     
     DRIVE,-100,180,0.5,                  // DRIVE INTO WALL
-    DRIVEDIST,100,180,15,0.5,            // DRIVE AWAY FROM WALL
+    DRIVEDIST,100,180,9,0.5,            // DRIVE AWAY FROM WALL
     DRIVE,-40,180,0.05,                 // BREAK
     
     LIFTPOS,LIFT_GRAB_POS,              // LOWER LIFT HARD
@@ -219,12 +219,11 @@ double programmingSkills[] = {
     LIFTPOS,LIFT_GRAB_POS,              // LOWER LIFT HARD
     WAIT,LIFTBELOW,400,2,               // WAIT UNTIL LIFT DOWN
     
-    TURN,315,1,                         // TURN FOR NEXT CUBE
+    TURN,270,1,                         // TURN FOR NEXT CUBE
     
-    DRIVEDIST,100,315,30,5,             // DRIVE TO TOWER
-    DRIVEDIST,100,225,30,5,             // DRIVE TO TOWER
+    DRIVEDIST,100,270,42,5,             // DRIVE TO TOWER
     LIFTPOS,1,                          // LOWER LIFT
-    DRIVEDIST,100,225,8,5,              // DRIVE TO TOWER
+    DRIVEDIST,100,270,8,5,              // DRIVE TO TOWER
     CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB
     DRIVE,-60,270,0.05,                 // BREAK
     PAUSE,0.5,                          // PAUSE FOR GRAB
@@ -232,8 +231,8 @@ double programmingSkills[] = {
     TURN,225,1,                         // TURN TO FACE TOWER
     LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
     WAIT,LIFTABOVE,2000,2,              // WAIT FOR LIFT
-    DRIVEDIST,60,225,10,2,              // DRIVE TO TOWER
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE
+    DRIVEDIST,60,225,12,2,              // DRIVE TO TOWER
+    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        SIXTH TOWER
     
     END
 };
