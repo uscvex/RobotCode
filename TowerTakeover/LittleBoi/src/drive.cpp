@@ -5,6 +5,7 @@
 #include "main.h"
 
 using namespace pros;
+using namespace std;
 
 // Drive dampening parameters (anti-tip)
 #define DRIVE_DAMPEN 1
@@ -72,6 +73,9 @@ void runDrive(void* params) {
     
     int turnPulseCounter = 0;
     
+    double turnSpeed = 0;
+    double forwardSpeed = 0;
+    
     while (true) {
         
         pros::lcd::print(4, "Encoders: %f", getDriveEncoderAvg());
@@ -107,12 +111,12 @@ void runDrive(void* params) {
             turnDampen = 1;
         }
         
-        double turnSpeed = turnSpeed + (turnSpeedUser - turnSpeed) / turnDampen;
-        double forwardSpeed = forwardSpeed + (forwardSpeedUser - forwardSpeed) / forwardDampen;
+        turnSpeed = turnSpeed + (turnSpeedUser - turnSpeed) / turnDampen;
+        forwardSpeed = forwardSpeed + (forwardSpeedUser - forwardSpeed) / forwardDampen;
         
         // Auton control code
         if (driveMode != USER) {
-           
+            
             // We have been given a direction to face, so record it
             turnSeek = faceDir;
             forwardSpeed = driveSpeed;
@@ -130,15 +134,15 @@ void runDrive(void* params) {
             if (turnPower > MAX_TURN_SPEED) turnPower = MAX_TURN_SPEED;
             if (turnPower < -MAX_TURN_SPEED) turnPower = -MAX_TURN_SPEED;
             
-        
+            
             // Record sign
             bool negative = false;
             
             // Take abs value
             if (turnPower < 0) {
                 turnPower *= -1;
-                    negative = true;
-                }
+                negative = true;
+            }
             
             // If turn is small
             if (turnPower < MIN_TURN_SPEED) {
@@ -160,13 +164,13 @@ void runDrive(void* params) {
             // Undo the abs from earlier
             if (negative)
                 turnPower *= -1;
-                
+            
             
             if (driveMode == DRIVE_DIST) {
                 
                 // Calculate slow down factor based on distance remaining
                 double driveDistSlowDown = targetDrivePos - getDriveEncoderAvg();
-                
+               
                 driveDistSlowDown /= DRIVE_DIST_RATE;
                 
                 // Make it positive
@@ -194,15 +198,14 @@ void runDrive(void* params) {
         }
         
         
-        
-        
         // Cancel auto-function
         if (controller.get_digital(DIGITAL_UP)) {
             turnSeek = -1;
             faceDir = -1;
+            forwardSpeed = 0;
+            turnSpeed = 0;
             driveMode = USER;
         }
-        
         
         
         // Finally set motor voltages
@@ -220,4 +223,3 @@ void runDrive(void* params) {
         delay(10);
     }
 }
-
