@@ -13,7 +13,7 @@
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
-#define DEPOSIT_OUTTAKE_POS 15000
+#define DEPOSIT_OUTTAKE_POS 13000
 #define DEPOSIT_ACCEPT_POS 18000
 #define DEPLOY_ACCEPT_POS 17500
 #define LIFT_DEPLOYED_POS 9000
@@ -225,7 +225,7 @@ void runLift(void* params) {
             case 4:     // Drive forward slowly and keep the lift up
                 liftSeek = LIFT_DEPOSIT_POS;
                 driveMode = DRIVE_DEPLOY;
-                driveSpeed = 40;
+                driveSpeed = 60;
                 driveDir = globalDirection;
                 faceDir = globalDirection;
                 distanceToDrive = 4;
@@ -274,6 +274,7 @@ void runLift(void* params) {
                 intakeArmSeekRight = INTAKE_ARM_IN_POS;
                 intakeArmSeekLeft = INTAKE_ARM_IN_POS;
                 outIntakeSpeed = 0;
+                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 liftSeek = LIFT_DEPOSIT_POS;
                 
                 if (liftPos > DEPOSIT_OUTTAKE_POS)

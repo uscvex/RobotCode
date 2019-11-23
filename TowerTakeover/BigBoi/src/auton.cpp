@@ -62,82 +62,93 @@ double blueAuton[] = {
 double programmingSkills[] = {
     -60,-45,270,
 
-    //DEPLOY,
-    //WAIT,DEPLOYDONE,15,
-    //WAIT,LIFTBELOW,12000,5,
-    DRIVETO,40,270,-60,-45,1,
+    DEPLOY,
+    WAIT,DEPLOYDONE,15,
+    WAIT,LIFTBELOW,12000,5,
+    PAUSE,1,
+    INTAKESPEED,-60,                    // RUN INTAKE OUT
+    //DRIVETO,60,270,-60,-45,1,           // DRIVE BACK TO START AFTER DEPLOY
 
-    INTAKESPEED,127,
-   // INTAKEPOS,INTAKE_ARM_OUT_POS,     // For safety
-  //  WAIT,INTAKEARMLEFTABOVE,600,1,
-    DRIVETO,40,270,-30,-45,9,
-    DRIVETO,40,280,-26,-40,2,
-    DRIVETO,40,270,-30,-45,2,
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // For safety
+    WAIT,INTAKEARMLEFTABOVE,600,1,
+    INTAKESPEED,127,                    // RUN INTAKE
 
-    DRIVETO,50,245,0,-54,3,
-    DRIVETO,50,280,12,-50,4,
-    DRIVETO,50,280,44,-42,9,
-    //INTAKEPOS,INTAKE_ARM_IN_POS,      // For safety
-    DRIVETO,70,225,62,-62,3,
-    DRIVE,60,45,225,0.2,
+    DRIVETO,60,270,-38,-45,9,           // ROW OF FOUR
+
+    DRIVETO,40,270,-28,-58,3,           // DRIVE READY FOR SQUARE
+    PAUSE,0.25,
+    DRIVETO,80,270,0,-60,3,             // TURN TO GET FOUR IN A SQUARE
+    DRIVETO,40,270,-12,-60,1,           // DRIVE BACK
+
+    DRIVETO,40,290,12,-50,4,            // DRIVE TO START OF ROW
+    DRIVETO,40,270,44,-50,9,            // DRIVE THROUGH REST OF ROW
+    PAUSE,0.25,
+
+    
+    TURN,180,0.5,
+    TURN,135,0.5,
+    //TURN,225,0.5,
+    
+    INTAKEPOS,INTAKE_ARM_IN_POS,        // PULL ARMS IN
+    DRIVETO,70,225,60,-60,3,            // DRIVE TO CORNER
+    
+    DRIVE,127,180,225,0.75,               // DRIVE SOUTH HARD
+    //DRIVE,127,270,225,0.75,               // DRIVE EAST HARD
+    
+    //DRIVE,60,45,225,0.05,                // BREAK
+
+    SETPOS,54,-54,                      // SET POSITION
+
+    //END,    //////////////////////////////////////////////////////////////////////////////////// END
+
+    DEPOSIT,                            // DROP OFF STACK
+    WAIT,DEPOSITDONE,13,
+    
+//    54,-54,225,                         /////////////////////// REMOVE WHEN DEPOSIT
+//    DRIVEDIST,40,45,225,20,2,           /////////////////////// REMOVE WHEN DEPOSIT
+    
+    //DRIVETO,60,225,55,-36,3,            // Drive away from stack
     
     
-    SETPOS,54,-54,
+    DRIVETO,90,90,54,-18,3,             // LINE UP FOR 3 ROW
     
-    //DEPOSIT,
-   // WAIT,DEPOSITDONE,13,
-    
-    DRIVEDIST,40,45,225,20,2,          /////////////////////// REMOVE WHEN DEPOSIT
-    
-    DRIVETO,50,225,55,-36,3,            // Drive away from stack
-    
-    DRIVETO,40,30,52,-26,3,             // Line up for S. Cube East Tower
-    
-   // INTAKEPOS,INTAKE_ARM_OUT_POS,         // For safety
-    INTAKESPEED,127,
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
+    INTAKESPEED,90,                    // RUN INTAKE SLOW
     WAIT,INTAKEARMLEFTABOVE,600,1,
     
-    
-    DRIVETO,40,30,52,-20,3,             // Get S. cube from East Tower
-    DRIVETO,40,30,58,-24,1,             // Back off and line up for 3 long row
-    TURN,90,0.25,
-    
-    
-    DRIVETO,40,90,25,-21,5,             // Get 3 long row
-    
-    DRIVETO,40,35,17,-17,2,             // Drive to line up
-    DRIVETO,40,35,12,-12,3,             // Get E. cube from Centre Tower
-    DRIVETO,40,35,19,-19,2,             // Back off
+    INTAKESPEED,127,                    // RUN INTAKE FAST
+    PAUSE,0.5,
+    DRIVETO,80,90,12,-16,6,             // GET 1ST 3 ROW
     
     
-    DRIVETO,40,50,11,-18,3,             // Get S. cube from Centre Tower
-    DRIVETO,40,50,23,-18,3,             // Back off
+    DRIVETO,80,90,0,-14,6,             // LINE UP FOR NEXT ROW
+
     
-    DRIVETO,40,135,21,-18,4,            // Line up for N. cube from South Tower
-    DRIVETO,40,135,10,-20,3,            // Get cube
-    DRIVETO,40,135,17,-15,4,            // Back off
+    DRIVETO,80,90,-50,-15,6,             // GET 2ND 3 ROW
     
-    DRIVETO,40,90,10,-20,5,             // Line up for next row
+    //TURN,135,1,                         // TURN TO FACE SOUTHH
+    DRIVETO,80,135,-50,-46,5,           // DRIVE NEAR ZONE
+   
+    PAUSE,0.5,
     
-    DRIVETO,40,90,-35,-25,10,           // Get next row
+    DRIVEDIST,80,315,135,10,2,
+    DRIVEDIST,80,135,135,20,2,
+    DRIVEDIST,80,315,135,15,2,
+    INTAKEPOS,INTAKE_ARM_IN_POS,        // PUT ARMS IN
+    PAUSE,0.5,
+    DRIVEDIST,80,135,135,10,2,
     
-    DRIVETO,40,90,-28,-24,3,            // Line up for S. cube from West Tower
-    TURN,60,0.5,
+    //TURN,90,1,                          // SWEEP CUBE
     
-    DRIVETO,40,50,-35,-23,3,            // Get cube
-    PAUSE,0.25,                         // Wait to intake
-    DRIVETO,40,50,-25,-33,2,            // Back off
+    //TURN,135,1,                         // AIM FOR ZONE
+    DRIVEDIST,60,135,135,10,2,
+    //DRIVE,60,90,135,0.5,
     
+    DRIVE,127,180,135,0.75,              // DRIVE SOUTH HARD
+    DRIVE,127,90,135,0.75,               // DRIVE WEST HARD
     
-    DRIVETO,60,180,-70,-33,3,           // Go to goal wall
-    SETPOS,-60,-33,
-    DRIVEDIST,60,270,135,6,2,
-    DRIVEDIST,60,185,135,55,3,
-    DRIVEDIST,60,135,135,6,2,
-    
-    
-    //DEPOSIT,                            // Drop off stack
-    //WAIT,DEPOSITDONE,13,
+    DEPOSIT,                            // Drop off stack
+    WAIT,DEPOSITDONE,13,
     
     END
 };
@@ -184,6 +195,7 @@ void autonomous() {
         if (nextCommand) {
             
             lastAutonTime = (millis() - autonStartTime) / 1000; // Record time
+            controller.print(0,0,"T: %f", lastAutonTime);
             
             nextCommand = false;            // We are not ready for next command any more
             commandStartTime = millis();    // Record the time the command was started
