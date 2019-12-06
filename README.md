@@ -16,10 +16,10 @@ https://pros.cs.purdue.edu/v5/getting-started/linux.html
 
 ### Building code
 
-1.  Open termial and cd to the project directory
+1.  Open termial and cd into the project directory
 2.  Run 'prosv5 make'
 
 ### Flashing code
 
-1.  Open termial and cd to the project directory
+1.  Open termial and cd into the project directory
 2.  Run 'prosv5 upload'
