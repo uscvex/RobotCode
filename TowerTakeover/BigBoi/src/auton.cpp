@@ -43,7 +43,7 @@ using namespace std;
 #define DEPOSITDONE 8
 #define DEPLOYDONE 9
 
-int autonSelect = RED_AUTON;
+int autonSelect = BLUE_AUTON;
 int numAutons = 3;
 double lastAutonTime = 0;
 
@@ -58,7 +58,7 @@ double redAuton[] = {
     PAUSE,1,                            // WAIT A BIT LONGER
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
     WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
-    DRIVETO,120,270,-60,-21,1,          // DRIVE BACK TO START POS
+    DRIVETO,120,270,-60,-21,0.5,        // DRIVE BACK TO START POS
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,60,270,-16,-21,5,           // DRIVE TO GET FIRST ROW               ROW OF THREE
@@ -98,7 +98,7 @@ double redAuton[] = {
     DRIVETO,60,290,-26,-45,3,           // DRIVE BACK FROM ORANGE
     INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
     DRIVETO,90,135,-55,-55,4,           // DRIVE TO CORNER
-    DRIVETO,90,135,-58,-58,1,           // DRIVE TO CORNER
+    DRIVETO,90,135,-60,-60,1,           // DRIVE TO CORNER
     
     DEPOSIT,                            // DROP OFF STACK
     WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
@@ -118,47 +118,47 @@ double blueAuton[] = {
     PAUSE,1,                            // WAIT A BIT LONGER
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
     WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
-    DRIVETO,120,90,60,-21,1,            // DRIVE BACK TO START POS
+    DRIVETO,120,90,60,-21,0.5,          // DRIVE BACK TO START POS
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,60,90,16,-21,5,             // DRIVE TO GET FIRST ROW               ROW OF THREE
     PAUSE,0.75,                         // PAUSE FOR LAST CUBE
     
     DRIVETO,80,0,29,-23,3,              // DRIVE TO LINE UP FOR PURPLE
-    DRIVETO,60,0,29,-15,3,              // DRIVE TO GET PURPLE                  PURPLE CUBE
+    DRIVETO,60,0,29,-13,3,              // DRIVE TO GET PURPLE                  PURPLE CUBE
     PAUSE,0.5,
     DRIVETO,80,0,29,-18,3,              // DRIVE AWAY FROM PURPLE
     
-    DRIVETO,80,0,24,-18,3,              // DRIVE TO LINE UP FOR GREEN
-    DRIVETO,60,0,24,-10,3,              // DRIVE TO GET GREEN                   GREEN CUBE
+    DRIVETO,80,0,28,-18,3,              // DRIVE TO LINE UP FOR GREEN
+    DRIVETO,60,0,24,-8,3,              // DRIVE TO GET GREEN                   GREEN CUBE
     PAUSE,0.5,
     
-    DRIVETO,100,45,28,-15,3,            // DRIVE AWAY FROM GREEN
+    DRIVETO,100,25,28,-15,3,            // DRIVE AWAY FROM GREEN        WAS 45
     DRIVETO,60,45,22,-11,3,             // DRIVE TO GET ORANGE                  ORANGE CUBE
     PAUSE,0.5,
-    DRIVETO,120,45,24,-25,3,            // DRIVE AWAY FROM ORANGE
+    DRIVETO,120,45,24,-20,3,            // DRIVE AWAY FROM ORANGE
     
-    DRIVETO,120,90,54,-32,3,            // DRIVE TO LINE UP FOR PURPLE
+    DRIVETO,120,90,54,-25,3,            // DRIVE TO LINE UP FOR PURPLE      Y=-32
     TURN,345,1,                         // TURN TO FACE PURPLE
     DRIVETO,60,15,54,-22,3,             // DRIVE TO GET PURPLE                  PURPLE CUBE
     PAUSE,0.5,
-    DRIVETO,120,15,54,-32,3,            // DRIVE AWAY FROM PURPLE
+    DRIVETO,120,15,56,-28,3,            // DRIVE AWAY FROM PURPLE   Y=-32
     
     INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
-    DRIVETO,80,90,58,-45, 3,            // DRIVE TO LINE UP FOR ROW OF FOUR
+    DRIVETO,80,90,58,-43, 3,            // DRIVE TO LINE UP FOR ROW OF FOUR     Y=-45
     
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT INTAKE ARMS OUT
-    DRIVETO,80,90,60,-45,1,             // DRIVE TO LINE UP FOR ROW OF FOUR
+    DRIVETO,80,90,60,-43,1,             // DRIVE TO LINE UP FOR ROW OF FOUR     Y=-45
     WAIT,INTAKEARMLEFTABOVE,600,1,      // PUT ARMS OUT
     PAUSE,0.25,
-    DRIVETO,40,90,32,-45,6,             // DRIVE GET ROW OF FOUR                ROW OF FOUR
-    DRIVETO,40,90,22,-40,6,             // DRIVE GET ORANGE                     ORANGE CUBE
+    DRIVETO,40,90,32,-43,6,             // DRIVE GET ROW OF FOUR                ROW OF FOUR Y=-45
+    DRIVETO,40,70,22,-37,6,             // DRIVE GET ORANGE                     ORANGE CUBE Y=-40
     
     
-    DRIVETO,60,70,26,-45,3,             // DRIVE BACK FROM ORANGE
+    DRIVETO,60,70,26,-40,3,             // DRIVE BACK FROM ORANGE   Y=-45
     INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
-    DRIVETO,90,225,55,-55,4,            // DRIVE TO CORNER
-    DRIVETO,90,225,58,-58,1,            // DRIVE TO CORNER
+    DRIVETO,90,225,55,-48,4,            // DRIVE TO CORNER  Y=-55
+    DRIVETO,90,225,65,-52,1,            // DRIVE TO CORNER  Y=-60
     
     DEPOSIT,                            // DROP OFF STACK
     WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE

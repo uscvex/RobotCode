@@ -8,7 +8,7 @@
 //////////////////////////////////////////
 // Lift tuning params
 //
-#define LIFT_HOLD_POS 11000
+#define LIFT_HOLD_POS 10500 //11000
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
