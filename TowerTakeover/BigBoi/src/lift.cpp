@@ -8,31 +8,33 @@
 //////////////////////////////////////////
 // Lift tuning params
 //
-#define LIFT_DEPOSIT_POS 18500
 #define LIFT_HOLD_POS 11000
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
+// Stack deposit
+#define LIFT_DEPOSIT_POS 19000
+#define DEPOSIT_ACCEPT_POS 16000
 #define DEPOSIT_OUTTAKE_POS 13000
-#define DEPOSIT_ACCEPT_POS 18000
-#define DEPLOY_ACCEPT_POS 17500
-#define LIFT_DEPLOYED_POS 9000
-#define TRAY_SLIDE_POS 4000
-#define TRAY_SLIDE_TIME 125         // Time to wait for the tray to slide out during deploy
+#define INTAKE_DEPOSIT_SPEED -60
+#define DEPOSIT_WAIT_TIME 2500
+#define DEPOSIT_BACKOFF_SPEED 40
+#define LIFT_RELEASE_POS 17000
+
+// Deploy
+#define TRAY_SLIDE_POS 4000         // When to pause to let tray slide
+#define TRAY_SLIDE_TIME 0           // Time to wait for the tray to slide out
+#define LIFT_DEPLOYED_POS 9000      // When to drive forward
+#define DEPLOY_ACCEPT_POS 14000     // When to be done
+#define LIFT_DEPLOY_POS 15000       // Where lift to seek to
+#define DEPLOY_UNFOLD_TIME 500      // How long to wait after deploy
 
 // Intake tuning params
 #define INTAKE_IN_SPEED 127
 #define INTAKE_OUT_SPEED -60
 
-#define INTAKE_DEPOSIT_SPEED -40
-
 // Intake arm params
 #define INTAKE_ARM_SEEK_RATE 1
-
-
-#define DEPOSIT_WAIT_TIME 1500
-
-#define DEPOSIT_BACKOFF_SPEED 50
 
 //////////////////////////////////////////
 // Motor Ports
@@ -112,8 +114,8 @@ void runLift(void* params) {
         if (liftSeek != -1) {
             liftSpeed = (liftSeek - liftPos) * LIFT_SEEK_RATE;
             // Stop seeking when close
-//            if (liftSpeed * liftSpeed < 100)
-//                liftSeek = -1;
+            //            if (liftSpeed * liftSpeed < 100)
+            //                liftSeek = -1;
         }
         if (intakeArmSeekRight != -1) {
             intakeArmSpeedRight = (intakeArmSeekRight - intakeArmPosRight) * INTAKE_ARM_SEEK_RATE;
@@ -194,7 +196,8 @@ void runLift(void* params) {
                 
             case 1:     // Move lift up until tray slides out
                 doneDeploy = true;
-                liftSeek = LIFT_DEPOSIT_POS;
+                
+                liftSeek = LIFT_DEPLOY_POS;
                 intakeArmSeekRight = INTAKE_ARM_OUT_POS;
                 intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
                 depositTime = millis();
@@ -204,16 +207,16 @@ void runLift(void* params) {
                 break;
                 
             case 2:     // Wait until tray has slid
-                liftSeek = TRAY_SLIDE_POS;
+                //liftSeek = TRAY_SLIDE_POS;
                 intakeArmSeekRight = INTAKE_ARM_OUT_POS;
                 intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
                 
-                if (millis() - depositTime > TRAY_SLIDE_TIME)
+                //if (millis() - depositTime > TRAY_SLIDE_TIME)
                     deployStep++;
                 break;
                 
             case 3:     // Move lift up until middle section clicks
-                liftSeek = LIFT_DEPOSIT_POS;
+                liftSeek = LIFT_DEPLOY_POS;
                 intakeArmSeekRight = INTAKE_ARM_OUT_POS;
                 intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
                 depositTime = millis();
@@ -223,7 +226,7 @@ void runLift(void* params) {
                 break;
                 
             case 4:     // Drive forward slowly and keep the lift up
-                liftSeek = LIFT_DEPOSIT_POS;
+                liftSeek = LIFT_DEPLOY_POS;
                 driveMode = DRIVE_DEPLOY;
                 driveSpeed = 60;
                 driveDir = globalDirection;
@@ -237,16 +240,25 @@ void runLift(void* params) {
                 
             case 5:
                 if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
-                    faceDir = -1;
-                    driveSpeed = 0;
                     driveMode = USER;
+                    driveSpeed = 0;
+                    driveDir = -1;
+                    faceDir = -1;
                 }
                 
-                if (liftPos > DEPLOY_ACCEPT_POS)
+                if (driveMode == USER && liftPos > DEPLOY_ACCEPT_POS) {
+                    depositTime = millis();
+                    deployStep++;
+                }
+                break;
+                
+            case 6:
+                
+                if (millis() - depositTime > DEPLOY_UNFOLD_TIME)
                     deployStep++;
                 break;
                 
-            case 6:     // Deploy is done
+            case 7:     // Deploy is done
                 liftSeek = LIFT_HOLD_POS;
                 driveMode = USER;
                 driveSpeed = 0;
@@ -255,7 +267,7 @@ void runLift(void* params) {
                 
                 deployStep = -1;
                 break;
-   
+                
                 
             default:
                 deployStep = -1;
@@ -284,22 +296,33 @@ void runLift(void* params) {
                 
             case 2:     // Stop moving the outer intake, and move inner intake out
                 outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 depositTime = millis();
                 
                 if (liftPos > DEPOSIT_ACCEPT_POS)
                     depositStep++;
-                    
+                
                 break;
                 
-            case 3:
+            case 3:         // Wait with tray up for wobble
                 outIntakeSpeed = 0;
                 inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                if (millis() - depositTime > DEPOSIT_WAIT_TIME)
+                if (millis() - depositTime > DEPOSIT_WAIT_TIME) {
+                    depositTime = millis();
                     depositStep++;
+                }
                 break;
                 
-            case 4:     // Move lift back to intake position and drive backwards
+            case 4:             // Move lift down a little
+                liftSeek = LIFT_HOLD_POS;
+                outIntakeSpeed = 0;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+                if (liftPos < LIFT_RELEASE_POS) {
+                    depositStep++;
+                }
+                break;
+                
+            case 5:     // Move lift back to intake position and drive backwards
                 outIntakeSpeed = 0;
                 inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 liftSeek = LIFT_HOLD_POS;
@@ -320,7 +343,7 @@ void runLift(void* params) {
                 
                 break;
                 
-            case 5:     // Drive back until drive is done
+            case 6:     // Drive back until drive is done
                 outIntakeSpeed = 0;
                 inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 liftSeek = LIFT_HOLD_POS;
@@ -335,7 +358,7 @@ void runLift(void* params) {
                     depositStep++;
                 break;
                 
-            case 6:     // We are clear so we can stop now
+            case 7:     // We are clear so we can stop now
                 driveMode = USER;
                 driveSpeed = 0;
                 driveDir = -1;

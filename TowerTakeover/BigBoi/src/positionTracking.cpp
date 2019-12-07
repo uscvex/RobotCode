@@ -116,6 +116,6 @@ void trackPosition() {
     globalY += changeY;
     
     // Print position info to screen
-    pros::lcd::print(1, "(x,y,theta) = (%f, %f, %f)", globalX, globalY, globalDirection);
+    pros::lcd::print(1, "(%.2f, %.2f, %.2f)", globalX, globalY, globalDirection);
     
 }

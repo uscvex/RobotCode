@@ -304,6 +304,10 @@ void runDrive(void* params)
             driveMag = 40;
             driveAngle = 3*M_PI/2;
         }
+        if (driveMode == DRIVE_DEPOSIT) {
+            driveAngle = 3*M_PI/2;
+            turn = 0;
+        }
         
         // Button to reset position info
         if (controller.get_digital(DIGITAL_X)) {
