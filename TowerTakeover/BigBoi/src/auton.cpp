@@ -48,39 +48,23 @@ int numAutons = 3;
 double lastAutonTime = 0;
 
 double redAuton[] = {
-    -60,-21,270,
+    -60,-21,270,                        // START POS (X,Y,THETA)
     
-    DEPLOY,
+    DEPLOY,                             // DEPLOY
     INTAKESPEED,-30,                    // RUN INTAKE OUT
-    WAIT,DEPLOYDONE,15,
-    WAIT,LIFTBELOW,12000,5,
-    PAUSE,1,
-    
-//    LIFTPOS,100,                        // HOLD LIFT IN PLACE               REMOVE THIS ONCE DEPLOY!
-    
-    INTAKEPOS,INTAKE_ARM_OUT_POS,
-    WAIT,INTAKEARMLEFTABOVE,600,1,
-//    INTAKESPEED,-60,                    // RUN INTAKE
-//    PAUSE,1.5,
+    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
+    INTAKESPEED,-30,                    // RUN INTAKE OUT
+    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
+    PAUSE,1,                            // WAIT A BIT LONGER
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
+    WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
     DRIVETO,120,270,-60,-21,1,          // DRIVE BACK TO START POS
     INTAKESPEED,127,                    // RUN INTAKE
     
-    
     DRIVETO,60,270,-16,-21,5,           // DRIVE TO GET FIRST ROW               ROW OF THREE
-    PAUSE,0.75,
-    
-    
-//    DRIVETO,80,270,-28,-21,4,           // DRIVE TO LINE UP FOR ORANGE          ORANGE CUBE
-//    TURN,230,1,
-//    DRIVETO,60,230,-23,-23,3,           // DRIVE TO GET ORANGE
-//    PAUSE,0.5,
-//    DRIVETO,80,230,-29,-23,3,           // DRIVE AWAY FROM ORANGE
-    
-    DRIVETO,80,0,-29,-23,3,           // DRIVE TO LINE UP FOR PURPLE    WAS 270
-//    TURN,0,1,                           // TURN TO FACE PURPLE
-    
-    
-    
+    PAUSE,0.75,                         // PAUSE FOR LAST CUBE
+
+    DRIVETO,80,0,-29,-23,3,             // DRIVE TO LINE UP FOR PURPLE
     DRIVETO,60,0,-29,-15,3,             // DRIVE TO GET PURPLE                  PURPLE CUBE
     PAUSE,0.5,
     DRIVETO,80,0,-29,-18,3,             // DRIVE AWAY FROM PURPLE
@@ -89,51 +73,95 @@ double redAuton[] = {
     DRIVETO,60,0,-24,-10,3,             // DRIVE TO GET GREEN                   GREEN CUBE
     PAUSE,0.5,
 
-//    DRIVETO,100,0,-24,-21,3,             // DRIVE AWAY FROM GREEN
-//    TURN,315,1,                         // TURN TO FACE ORANGE
-
-    DRIVETO,100,315,-28,-15,3,             // DRIVE AWAY FROM GREEN      WAS FACE 0, X=24,Y=21
+    DRIVETO,100,315,-28,-15,3,          // DRIVE AWAY FROM GREEN
     DRIVETO,60,315,-22,-11,3,           // DRIVE TO GET ORANGE                  ORANGE CUBE
     PAUSE,0.5,
-    DRIVETO,120,315,-24,-25,3,           // DRIVE AWAY FROM ORANGE
+    DRIVETO,120,315,-24,-25,3,          // DRIVE AWAY FROM ORANGE
     
-    
-    DRIVETO,120,270,-54,-32,3,           // DRIVE TO LINE UP FOR PURPLE
+    DRIVETO,120,270,-54,-32,3,          // DRIVE TO LINE UP FOR PURPLE
     TURN,345,1,                         // TURN TO FACE PURPLE
     DRIVETO,60,345,-54,-22,3,           // DRIVE TO GET PURPLE                  PURPLE CUBE
     PAUSE,0.5,
-    DRIVETO,120,345,-54,-32,3,           // DRIVE AWAY FROM PURPLE
+    DRIVETO,120,345,-54,-32,3,          // DRIVE AWAY FROM PURPLE
     
     INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
-    DRIVETO,80,270,-58,-45, 3,           // DRIVE TO LINE UP FOR ROW OF FOUR
+    DRIVETO,80,270,-58,-45, 3,          // DRIVE TO LINE UP FOR ROW OF FOUR
 
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT INTAKE ARMS OUT
     DRIVETO,80,270,-60,-45,1,           // DRIVE TO LINE UP FOR ROW OF FOUR
-    WAIT,INTAKEARMLEFTABOVE,600,1,
+    WAIT,INTAKEARMLEFTABOVE,600,1,      // PUT ARMS OUT
     PAUSE,0.25,
-    
     DRIVETO,40,270,-32,-45,6,           // DRIVE GET ROW OF FOUR                ROW OF FOUR
-//    PAUSE,0.5,
     DRIVETO,40,290,-22,-40,6,           // DRIVE GET ORANGE                     ORANGE CUBE
     
     
     DRIVETO,60,290,-26,-45,3,           // DRIVE BACK FROM ORANGE
-    
     INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
-//    TURN,180,0.5,
-//    TURN,135,1,
     DRIVETO,90,135,-55,-55,4,           // DRIVE TO CORNER
     DRIVETO,90,135,-58,-58,1,           // DRIVE TO CORNER
     
     DEPOSIT,                            // DROP OFF STACK
-    WAIT,DEPOSITDONE,13,
+    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
     
     END
 };
 
 
 double blueAuton[] = {
-    180,
+    60,-21,90,                          // START POS (X,Y,THETA)
+    
+    DEPLOY,                             // DEPLOY
+    INTAKESPEED,-30,                    // RUN INTAKE OUT
+    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
+    INTAKESPEED,-30,                    // RUN INTAKE OUT
+    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
+    PAUSE,1,                            // WAIT A BIT LONGER
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
+    WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
+    DRIVETO,120,90,60,-21,1,            // DRIVE BACK TO START POS
+    INTAKESPEED,127,                    // RUN INTAKE
+    
+    DRIVETO,60,90,16,-21,5,             // DRIVE TO GET FIRST ROW               ROW OF THREE
+    PAUSE,0.75,                         // PAUSE FOR LAST CUBE
+    
+    DRIVETO,80,0,29,-23,3,              // DRIVE TO LINE UP FOR PURPLE
+    DRIVETO,60,0,29,-15,3,              // DRIVE TO GET PURPLE                  PURPLE CUBE
+    PAUSE,0.5,
+    DRIVETO,80,0,29,-18,3,              // DRIVE AWAY FROM PURPLE
+    
+    DRIVETO,80,0,24,-18,3,              // DRIVE TO LINE UP FOR GREEN
+    DRIVETO,60,0,24,-10,3,              // DRIVE TO GET GREEN                   GREEN CUBE
+    PAUSE,0.5,
+    
+    DRIVETO,100,45,28,-15,3,            // DRIVE AWAY FROM GREEN
+    DRIVETO,60,45,22,-11,3,             // DRIVE TO GET ORANGE                  ORANGE CUBE
+    PAUSE,0.5,
+    DRIVETO,120,45,24,-25,3,            // DRIVE AWAY FROM ORANGE
+    
+    DRIVETO,120,90,54,-32,3,            // DRIVE TO LINE UP FOR PURPLE
+    TURN,345,1,                         // TURN TO FACE PURPLE
+    DRIVETO,60,15,54,-22,3,             // DRIVE TO GET PURPLE                  PURPLE CUBE
+    PAUSE,0.5,
+    DRIVETO,120,15,54,-32,3,            // DRIVE AWAY FROM PURPLE
+    
+    INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
+    DRIVETO,80,90,58,-45, 3,            // DRIVE TO LINE UP FOR ROW OF FOUR
+    
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT INTAKE ARMS OUT
+    DRIVETO,80,90,60,-45,1,             // DRIVE TO LINE UP FOR ROW OF FOUR
+    WAIT,INTAKEARMLEFTABOVE,600,1,      // PUT ARMS OUT
+    PAUSE,0.25,
+    DRIVETO,40,90,32,-45,6,             // DRIVE GET ROW OF FOUR                ROW OF FOUR
+    DRIVETO,40,90,22,-40,6,             // DRIVE GET ORANGE                     ORANGE CUBE
+    
+    
+    DRIVETO,60,70,26,-45,3,             // DRIVE BACK FROM ORANGE
+    INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
+    DRIVETO,90,225,55,-55,4,            // DRIVE TO CORNER
+    DRIVETO,90,225,58,-58,1,            // DRIVE TO CORNER
+    
+    DEPOSIT,                            // DROP OFF STACK
+    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
     
     END
 };

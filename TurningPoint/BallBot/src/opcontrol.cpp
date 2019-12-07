@@ -113,13 +113,13 @@ using namespace pros;
 
 // Gyro Correction Values
 #ifdef USE_SERIAL_GYRO
-    #define CSCALE 1                // Clockwise scale adjustments to counteract rotation errors
-    #define ASCALE 1                // Anti-clockwise scale adjustments to counteract rotation errors
+#define CSCALE 1                // Clockwise scale adjustments to counteract rotation errors
+#define ASCALE 1                // Anti-clockwise scale adjustments to counteract rotation errors
 #else
-    #define CSCALE 0.9876           // Red Bot Clockwise scale adjustments to counteract rotation errors
-    #define ASCALE 0.9486           // Red Bot Anti-clockwise scale adjustments to counteract rotation errors
-    #define CSCALEBLUE 0.9264//0.9293       // Blue Bot Clockwise scale adjustments to counteract rotation error
-    #define ASCALEBLUE 0.9279//0.9293       // Blue Bot Anti-clockwise scale adjustments to counteract rotation errors
+#define CSCALE 0.9876           // Red Bot Clockwise scale adjustments to counteract rotation errors
+#define ASCALE 0.9486           // Red Bot Anti-clockwise scale adjustments to counteract rotation errors
+#define CSCALEBLUE 0.9264//0.9293       // Blue Bot Clockwise scale adjustments to counteract rotation error
+#define ASCALEBLUE 0.9279//0.9293       // Blue Bot Anti-clockwise scale adjustments to counteract rotation errors
 #endif
 
 #define GYRO_PORT 1
@@ -561,7 +561,7 @@ double redBackAuton[] = {
     
     // 359 WAS 1
     TURN,359,2,                           // TURN TO FACE FLAGS
-
+    
     DRIVE,127,359,WHITE_L,2,              // DRIVE TO TILE
     
     //FASTDRIVE,
@@ -690,7 +690,7 @@ double blueBackAuton[] = {
     DRIVE,-100,270,0.2,                                     // BREAK
     
     TURN,359,2,                           // TURN TO FACE FLAGS
-
+    
     
     DRIVE,127,2,WHITE_R,2,              // DRIVE TO TILE
     
@@ -712,9 +712,9 @@ double blueBackAuton[] = {
     
     DRIVE,127,CDIR,DISTANCE,            // CONTINUED ON NEXT LINE
     MIDDLE_FLAG_DIST,2,             // DRIVE TO MIDDLE FLAG DIST
-   // IF, GOTBALL,
-        FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
-        PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
+    // IF, GOTBALL,
+    FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
+    PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
     //ENDIF,
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
@@ -742,7 +742,7 @@ double skills[] = {
     DRIVE,127,270,BLACK_B,0.5,          // DRIVE OFF TILE
     DRIVE,90,270,DISTANCE,1.25,2,      // DRIVE TO FLIP CAP                        FLIP CAP 1
     WRISTSEEK,WRIST_VERTICAL_POS,       // STOP DEPLOY
-
+    
     FLIPSEEK,FLIP_POS1,
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER
     TURN,45,2,                          // TURN TO FACE CAP
@@ -770,7 +770,7 @@ double skills[] = {
     /////////////////////////////////////////////////////////////
     
     START_COAST,                        // LET FLYWHEEL SPIN UP TO SPEED
-
+    
     TURN,90,1.5,                        // TURN TO FACE START TILE
     FLIPSEEK,FLIP_POS2,                 // FLIP                                     FLIP CAP 3
     WRISTSEEK,-1,
@@ -792,7 +792,7 @@ double skills[] = {
     PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
     PAUSE,0.1,                          // SHORT PAUSE
     STOP_FIRE,                          // STOP FLYWHEEL
-
+    
     DRIVE,127,CDIR,DISTANCE,            // CONTINUED ON NEXT LINE
     MIDDLE_FLAG_DIST-0.05,2,            // DRIVE TO MIDDLE FLAG DIST
     FIRE_AIM,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE LEFT FLAG
@@ -865,7 +865,7 @@ double skills[] = {
     
     INTAKE_OFF,                         // TURN INTAKE OFF
     DRIVE,127,0,0.5,                    // DRIVE TO TOGGLE BOTTOM FLAG              BOTTOM MIDDLE FLAG
-   // SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER SO IT DOESN'T CATCH THE FLAG
+    // SCRAPER,SCRAPER_DOWN_POS,           // LOWER SCRAPER SO IT DOESN'T CATCH THE FLAG
     DRIVE,-127,0,0.5,                   // DRIVE AWAY FROM FLAG
     INTAKE_ON,                          // TURN INTAKE BACK ON
     SCRAPER,SCRAPER_UP_POS,             // RAISE SCRAPER AGAIN
@@ -911,13 +911,13 @@ double skills[] = {
     DRIVE,-90,0,WHITE_E,2,              // DRIVE ONTO TILE
     DRIVE,-80,0,DISTANCE,0.1,1,         // DRIVE TO BREAK
     
-//
-//    DRIVE,127,90,DISTANCE,0.75,2,       // DRIVE TO LINE UP
-//    SCRAPER,SCRAPER_UP_POS,             // LIFT SCRAPER TO SAFETY
-//    TURN,0,1,                           // TURN TO FACE FLAGS
-//    DRIVE,60,0,SONAR,                   // CONTINUED ON NEXT LINE
-//    FAR_FLAG_DIST+0.5,2,                // LINE UP FOR SHOT
-//    TURN,335,1,                         // TURN ROUGHLY TO FACE FLAG
+    //
+    //    DRIVE,127,90,DISTANCE,0.75,2,       // DRIVE TO LINE UP
+    //    SCRAPER,SCRAPER_UP_POS,             // LIFT SCRAPER TO SAFETY
+    //    TURN,0,1,                           // TURN TO FACE FLAGS
+    //    DRIVE,60,0,SONAR,                   // CONTINUED ON NEXT LINE
+    //    FAR_FLAG_DIST+0.5,2,                // LINE UP FOR SHOT
+    //    TURN,335,1,                         // TURN ROUGHLY TO FACE FLAG
     
     FIRE_AIM,TOP,                       // SHOOT TOP FLAG                           TOP RIGHT FLAG
     PAUSE,FIRED,FIRE_TRY_TIME,          // WAIT TILL SHOT
@@ -927,9 +927,9 @@ double skills[] = {
     DRIVE,127,CDIR,DISTANCE,            // CONTINUED ON NEXT LINE
     MIDDLE_FLAG_DIST,2,                 // DRIVE TO MIDDLE FLAG DIST
     IF,GOTBALL,                         // IF WE'VE GOT A BALL
-        FIRE,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE RIGHT FLAG
-        PAUSE,FIRED,FIRE_TRY_TIME,      // WAIT TILL SHOT
-        PAUSE,0.1,                      // SHORT PAUSE
+    FIRE,TOP,                       // SHOOT MIDDLE FLAG                       MIDDLE RIGHT FLAG
+    PAUSE,FIRED,FIRE_TRY_TIME,      // WAIT TILL SHOT
+    PAUSE,0.1,                      // SHORT PAUSE
     ENDIF,
     STOP_FIRE,                          // STOP FLYWHEEL
     
@@ -1094,7 +1094,7 @@ void calibrateVision() {
     if (autonSelect == BLUEBACKAUTON || autonSelect == REDBACKAUTON) {
         
         // Create signatures for calibration
-
+        
         
         // Set our flags to 0 for matches
         if (autonSelect == BLUEBACKAUTON) {
@@ -1370,7 +1370,7 @@ void checkGyro(gyros *gyro) {
         else {tempAngle=tempAngle+3600;}                // ...into account wrap
     }
     // tempAngle now holds correct delta change between old and new gyro angles
-
+    
     if (tempAngle>0) {  // Anti-clockwise rotation
         gyro->truedir=gyro->truedir+(tempAngle*gyro->ascale);           // Multiply difference by correction value
         if (gyro->truedir<0) {gyro->truedir=gyro->truedir+3600;}        // Wrap
@@ -1726,19 +1726,19 @@ void run_drive(void* params) {
                 
                 // We want to slow down when approaching desired position to avoid overshoot
                 double slowDown = abs((targetDistance - currentDist) / (0.35 * cmPerTile));
-
+                
                 if (slowDown > 1) slowDown = 1;     // Don't want to speed up before then
-
+                
                 forward *= slowDown;                // Apply slow down speed
-
+                
                 // Clamp speed above minimum threshold
                 if (autoSpeed > 0 && forward < minForward) forward = minForward;
                 if (autoSpeed < 0 && forward > -minForward) forward = -minForward;
-
+                
                 // Cap max and min speed
                 if (forward > 127) forward = 127;
                 if (forward < -127) forward = -127;
-
+                
                 // Terminate contition for distance
                 if (autoSpeed > 0) {
                     if (currentDist < targetDistance) autonComplete = true;
@@ -2249,7 +2249,7 @@ void run_flywheel(void* params) {
         else {
             ballLight.set_value(1);
         }
-
+        
         
         // Check controller buttons...
         // Set flags for preset flywheel speeds & auto-aim-fire
@@ -2418,8 +2418,8 @@ void run_flywheel(void* params) {
         double flywheelSpeed = 0;
         flywheelCurrSpeed = ( flywheel_1.get_actual_velocity() + flywheel_2.get_actual_velocity() ) / 2;
         
-//        if (autonSelect == SKILLSAUTON)
-//            targetSpeed = 450;
+        //        if (autonSelect == SKILLSAUTON)
+        //            targetSpeed = 450;
         
         
         if (targetSpeed != 0 && (autonSelect == REDBACKAUTON || autonSelect == BLUEBACKAUTON)) {
@@ -2428,7 +2428,7 @@ void run_flywheel(void* params) {
                 targetSpeed = 600;
         }
         
-
+        
         if (targetSpeed > 0) {
             if (flywheelCurrSpeed > targetSpeed) {  // Too fast
                 flywheelSpeed = flywheelSlowSpeed;  // So run slow
@@ -2438,9 +2438,9 @@ void run_flywheel(void* params) {
             }
         }
         
-//        if (targetSpeed == flyWheelDefaultSpeed && autonSelect != SKILLSAUTON) {
-//            flywheelSpeed = flyWheelDefaultSpeed;
-//        }
+        //        if (targetSpeed == flyWheelDefaultSpeed && autonSelect != SKILLSAUTON) {
+        //            flywheelSpeed = flyWheelDefaultSpeed;
+        //        }
         
         
         ///////////////////////////////
@@ -2641,10 +2641,10 @@ void run_arm(void* params) {
         }
         
         
-      
+        
         
         // Flip in either mode
-            
+        
         if (controller.get_digital(BTN_FLIP)) {     // Auto flip (180°)
             if (!justFlipped) {
                 if (false) {    //autonSelect == SKILLSAUTON) {
@@ -2955,7 +2955,7 @@ void run_auton() {
                     break;
                 case TURN_TO:
                     turnToPoint(processEntry(),processEntry(),processEntry());
-                        std::cout << "Turn To Point" << std::endl;
+                    std::cout << "Turn To Point" << std::endl;
                     break;
                 case TURN:
                     turnTo(processEntry(), processEntry());
@@ -3325,7 +3325,7 @@ void run_screen(void* params) {
             controller.print(0,0, "RED BACK  ");
         else if (autonSelect == BLUEBACKAUTON)
             controller.print(0,0, "BLUE BACK ");
-
+        
         delay(200);
     }
 }
@@ -3347,7 +3347,7 @@ void run_screen(void* params) {
 void opcontrol() {
     
     // Start task
-   
+    
     calibrateVision();
     
     int lastBlinkTime = millis();
