@@ -105,6 +105,13 @@ void opcontrol() {
     // Stop auton drive
     driveMode = USER;
     
+    if (autonSelect == RED_AUTON) {
+        setDirection(globalDirection + 90);
+    }
+    if (autonSelect == BLUE_AUTON) {
+        setDirection(globalDirection + 270);
+    }
+    
     while (true) {
         
         pros::lcd::print(0, "lastAutonTime: %f", lastAutonTime);

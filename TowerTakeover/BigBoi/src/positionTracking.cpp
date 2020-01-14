@@ -41,6 +41,9 @@ double lastBackEncoder = 0;
 
 void setDirection(double dir) {
     globalDirection = dir;
+    if (globalDirection > 360) {
+        globalDirection-=360;
+    }
 }
 
 void setPosition(double x, double y, double d) {
