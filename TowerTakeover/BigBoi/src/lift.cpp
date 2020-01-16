@@ -13,13 +13,17 @@
 #define LIFT_SEEK_RATE 1
 
 // Stack deposit
-#define LIFT_DEPOSIT_POS 19000
-#define DEPOSIT_ACCEPT_POS 16000
-#define DEPOSIT_OUTTAKE_POS 13000
-#define INTAKE_DEPOSIT_SPEED -60
-#define DEPOSIT_WAIT_TIME 2500
-#define DEPOSIT_BACKOFF_SPEED 40
-#define LIFT_RELEASE_POS 17000
+#define LIFT_SLOW_POS 14000         // Where to start moving lift slower
+#define LIFT_SLOW_SPEED 80          // How fast to move lift slowly
+#define LIFT_OUTTAKE_POS 15000      // Where to start outtaking cube
+#define LIFT_DEPOSIT_POS 21000      // Where to move lift to
+#define DEPOSIT_ACCEPT_POS 19000    // Where is close enough
+#define DEPOSIT_OUTTAKE_POS 13000   // When to start outtaking cubes
+#define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
+#define DEPOSIT_WAIT_TIME 2500      // How long (ms) to wait at top
+#define LIFT_RELEASE_POS 17000      // Where to move lift to before driving back
+#define DEPOSIT_BACKOFF_SPEED 40    // How fast to drive backwards
+
 
 // Deploy
 #define TRAY_SLIDE_POS 4000         // When to pause to let tray slide
@@ -287,7 +291,9 @@ void runLift(void* params) {
                 intakeArmSeekLeft = INTAKE_ARM_IN_POS;
                 outIntakeSpeed = 0;
                 //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                liftSeek = LIFT_DEPOSIT_POS;
+                //liftSeek = LIFT_DEPOSIT_POS;
+                liftSeek = -1;
+                liftSpeed = 127;    // Run lift at full speed up
                 
                 if (liftPos > DEPOSIT_OUTTAKE_POS)
                     depositStep++;
@@ -298,6 +304,14 @@ void runLift(void* params) {
                 outIntakeSpeed = 0;
                 //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 depositTime = millis();
+                
+                liftSeek = -1;
+                liftSpeed = 127;    // Run lift at full speed up
+                if (liftPos > LIFT_SLOW_POS)    // If lift is high enough, run slower
+                    liftSpeed = LIFT_SLOW_SPEED;
+                
+                if (liftPos > LIFT_OUTTAKE_POS)
+                    inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
                 
                 if (liftPos > DEPOSIT_ACCEPT_POS)
                     depositStep++;
@@ -313,13 +327,14 @@ void runLift(void* params) {
                 }
                 break;
                 
+                // Skip #4 ... move back before lowering lift
             case 4:             // Move lift down a little
-                liftSeek = LIFT_HOLD_POS;
-                outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                if (liftPos < LIFT_RELEASE_POS) {
+//                liftSeek = LIFT_HOLD_POS;
+//                outIntakeSpeed = 0;
+//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+//                if (liftPos < LIFT_RELEASE_POS) {
                     depositStep++;
-                }
+//                }
                 break;
                 
             case 5:     // Move lift back to intake position and drive backwards
