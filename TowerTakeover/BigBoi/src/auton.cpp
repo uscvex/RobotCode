@@ -7,13 +7,6 @@
 using namespace pros;
 using namespace std;
 
-#define LOW_TOWER_POS_A 1800
-#define MID_TOWER_POS_A 2250
-#define HIGH_TOWER_POS_A 3600
-#define CLAW_OPEN_POS_A 1
-#define CLAW_CLOSE_POS_A 180
-
-
                             // FIRST LINE: <X>, <Y>, <DIRECTION>
 // Auton commands
 #define TURN 1              // TURN, <FACEDIR>, <TIMEOUT>
@@ -47,7 +40,7 @@ int autonSelect = RED_AUTON;
 int numAutons = 3;
 double lastAutonTime = 0;
 
-double redAuton[] = {
+double redAuton[] = {                   // ONE STACK OF 13 CUBES
     -60,-45,270,                        // START POS (X,Y,THETA)
 
     DEPLOY,                             // DEPLOY
@@ -55,6 +48,104 @@ double redAuton[] = {
     WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
     PAUSE,1,                            // WAIT A BIT LONGER
     
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
+    WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
+    DRIVETO,120,270,-60,-45,0.5,        // DRIVE BACK TO START POS
+    INTAKESPEED,127,                    // RUN INTAKE
+    
+    DRIVETO,50,270,-28,-45,4,           // DRIVE TO GET FIRST ROW               ROW OF FOUR
+    PAUSE,0.5,                          // PAUSE FOR LAST CUBE
+    DRIVETO,70,270,-36,-45,4,           // DRIVE BACK FROM ROW
+    
+    DRIVETO,70,270,-36,-37,3,           // SLIDE TO LINE UP FOR TOWER CUBE
+    DRIVETO,60,270,-26,-37,3,           // DRIVE TO GET CUBE
+    PAUSE,0.5,                          // PAUSE TO INTAKE                      FIRST TOWER CUBE
+    DRIVETO,80,270,-59,-37,3,           // DRIVE BACK TO WALL
+    
+    DRIVETO,80,0,-49,-37,3,             // DRIVE AND TURN TO LINE UP FOR CUBE
+    DRIVETO,50,0,-49,-25,3,             // DRIVE TO GET CUBE                    SECOND TOWER CUBE
+    PAUSE,0.5,                          // PAUSE TO INTAKE
+    DRIVETO,70,0,-49,-31,3,             // DRIVE BACK FROM CUBE
+    DRIVETO,70,0,-58,-31,3,             // SLIDE TO WALL TO MAKE ROOM FOR TURN
+    
+    DRIVETO,70,270,-59,-21,3,           // DRIVE AND TURN TO LINE UP FOR 3
+    DRIVETO,40,270,-24,-21,3,           // DRIVE TO GET 3                       ROW OF THREE
+    DRIVETO,70,270,-29,-22,3,           // DRIVE BACK FROM CUBE
+    
+    TURN,0,1,                           // TURN READY TOWER
+    DRIVETO,50,0,-29,-14,3,             // DRIVE TO GET CUBE                    TOWER OF THREE
+    DRIVETO,70,0,-29,-20,3,             // DRIVE BACK
+    DRIVETO,70,0,-22,-20,2,             // SLIDE TO LINE UP FOR NEXT
+    DRIVETO,50,0,-21,30,5,              // DRIVE IINTO PILE TO GET SOME MORE    BONUS CUBES
+    
+    DRIVETO,90,0,-22,-30,5,             // DIVE BACK FROM PILE
+    
+    INTAKEPOS,INTAKE_ARM_IN_POS,        // PUT ARMS IN
+    DRIVETO,90,135,-54,-64,3,           // DRIVE TO CORNER
+
+    DEPOSIT,                            // DROP OFF STACK
+    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
+    
+    END                                 // END OF ROUTINE
+};
+
+
+double blueAuton[] = {                  // ONE STACK OF 13 CUBES
+    60,-45,90,                          // START POS (X,Y,THETA)
+    
+    DEPLOY,                             // DEPLOY
+    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
+    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
+    PAUSE,1,                            // WAIT A BIT LONGER
+    
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
+    WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
+    DRIVETO,120,90,60,-45,0.5,          // DRIVE BACK TO START POS
+    INTAKESPEED,127,                    // RUN INTAKE
+    
+    DRIVETO,50,90,28,-45,4,             // DRIVE TO GET FIRST ROW               ROW OF FOUR
+    PAUSE,0.5,                          // PAUSE FOR LAST CUBE
+    DRIVETO,70,90,36,-45,4,             // DRIVE BACK FROM ROW
+    
+    DRIVETO,70,90,36,-37,3,             // SLIDE TO LINE UP FOR TOWER CUBE
+    DRIVETO,60,90,26,-37,3,             // DRIVE TO GET CUBE
+    PAUSE,0.5,                          // PAUSE TO INTAKE                      FIRST TOWER CUBE
+    DRIVETO,80,90,59,-37,3,             // DRIVE BACK TO WALL
+    
+    DRIVETO,80,0,49,-37,3,              // DRIVE AND TURN TO LINE UP FOR CUBE
+    DRIVETO,50,0,49,-25,3,              // DRIVE TO GET CUBE                    SECOND TOWER CUBE
+    PAUSE,0.5,                          // PAUSE TO INTAKE
+    DRIVETO,70,0,49,-31,3,              // DRIVE BACK FROM CUBE
+    DRIVETO,70,0,58,-31,3,              // SLIDE TO WALL TO MAKE ROOM FOR TURN
+    
+    DRIVETO,70,90,59,-21,3,             // DRIVE AND TURN TO LINE UP FOR 3
+    DRIVETO,40,90,24,-21,3,             // DRIVE TO GET 3                       ROW OF THREE
+    DRIVETO,70,90,29,-22,3,             // DRIVE BACK FROM CUBE
+    
+    TURN,0,1,                           // TURN READY TOWER
+    DRIVETO,50,0,29,-14,3,              // DRIVE TO GET CUBE                    TOWER OF THREE
+    DRIVETO,70,0,29,-20,3,              // DRIVE BACK
+    DRIVETO,70,0,22,-20,2,              // SLIDE TO LINE UP FOR NEXT
+    DRIVETO,50,0,21,30,5,               // DRIVE IINTO PILE TO GET SOME MORE    BONUS CUBES
+    
+    DRIVETO,90,0,22,-30,5,              // DIVE BACK FROM PILE
+    
+    INTAKEPOS,INTAKE_ARM_IN_POS,        // PUT ARMS IN
+    DRIVETO,90,225,54,-64,3,            // DRIVE TO CORNER
+    
+    DEPOSIT,                            // DROP OFF STACK
+    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
+    
+    END                                 // END OF ROUTINE
+};
+
+double programmingSkills[] = {          // STACK OF 11, STACK OF 8
+    -60,-45,270,                        // START POS (X,Y,THETA)
+    
+//    DEPLOY,                             // DEPLOY
+//    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
+//    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
+//    PAUSE,1,                            // WAIT A BIT LONGER
     
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
     WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
@@ -62,201 +153,15 @@ double redAuton[] = {
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,50,270,-28,-45,4,           // DRIVE TO GET FIRST ROW               ROW OF FOUR
-    PAUSE,0.5,                         // PAUSE FOR LAST CUBE
+    PAUSE,0.5,                          // PAUSE FOR LAST CUBE
     DRIVETO,70,270,-36,-45,4,           // DRIVE BACK FROM ROW
     
-    DRIVETO,70,270,-36,-37,3,            // DRIVE TO LINE UP FOR TOWER CUBE
-    DRIVETO,60,270,-26,-37,3,            // DRIVE TO GET CUBE
-    PAUSE,0.5,
+    DRIVETO,70,270,-36,-58,2,           // SLIDE TO LINE UP FOR SIDE CUBES
+    DRIVETO,50,270,-10,-58,2,           // DRIVE TO GET SIDE CUBES              SQUARE OF FOUR
+    PAUSE,0.5,                          // PAUSE TO INTAKE
+    DRIVETO,70,270,-36,-58,2,           // DRIVE BACK
     
-    
-    DRIVETO,80,270,-59,-37,3,            // DRIVE BACK TO WALL
-    DRIVETO,80,0,-49,-37,3,                 // DRIVE TO LINE UP FOR CUBE
-    DRIVETO,50,0,-49,-25,3,                 // DRIVE TO GET CUBE
-    PAUSE,0.5,
-    DRIVETO,70,0,-49,-31,3,                 // DRIVE BACK FROM CUBE
-    DRIVETO,70,0,-58,-31,3,
-    
-    DRIVETO,70,270,-59,-21,3,            // DRIVE TO LINE UP FOR 3
-
-    DRIVETO,40,270,-24,-21,3,            // DRIVE TO GET 3                      ROW OF THREE
-    
-    DRIVETO,70,270,-29,-22,3,             // DRIVE TO LINE UP FOR CUBE
-    TURN,0,1,
-    DRIVETO,50,0,-29,-14,3,             // DRIVE TO GET CUBE
-    DRIVETO,70,0,-29,-20,3,             // DRIVE BACK
-    DRIVETO,70,0,-22,-20,2,             // DRIVE TO LINE UP FOR NEXT
-    DRIVETO,50,0,-21,30,5,             // DRIVE TO GET NEXT CUBE
-    
-    DRIVETO,90,0,-22,-30,5,             // DRIVE TO GET NEXT CUBE
-    
-    INTAKEPOS,INTAKE_ARM_IN_POS,       // PUT ARMS IN
-    
-    DRIVETO,90,135,-54,-64,3,             // DRIVE TO CORNER
-//    LIFTPOS,9000,
-//    WAIT,LIFTABOVE,8000,5,
-//    DRIVEDIST,50,315,135,10,2,
-
-    DEPOSIT,                            // DROP OFF STACK
-    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
-    
-    END
-};
-
-
-double blueAuton[] = {
-    60,-21,90,                          // START POS (X,Y,THETA)
-    
-    DEPLOY,                             // DEPLOY
-    INTAKESPEED,-30,                    // RUN INTAKE OUT
-    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
-    INTAKESPEED,-30,                    // RUN INTAKE OUT
-    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
-    PAUSE,1,                            // WAIT A BIT LONGER
-    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
-    WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
-    DRIVETO,120,90,60,-21,0.5,          // DRIVE BACK TO START POS
-    INTAKESPEED,127,                    // RUN INTAKE
-    
-    DRIVETO,60,90,16,-21,5,             // DRIVE TO GET FIRST ROW               ROW OF THREE
-    PAUSE,0.75,                         // PAUSE FOR LAST CUBE
-    
-    DRIVETO,80,0,29,-23,3,              // DRIVE TO LINE UP FOR PURPLE
-    DRIVETO,60,0,29,-13,3,              // DRIVE TO GET PURPLE                  PURPLE CUBE
-    PAUSE,0.5,
-    DRIVETO,80,0,29,-18,3,              // DRIVE AWAY FROM PURPLE
-    
-    DRIVETO,80,0,28,-18,3,              // DRIVE TO LINE UP FOR GREEN
-    DRIVETO,60,0,24,-8,3,              // DRIVE TO GET GREEN                   GREEN CUBE
-    PAUSE,0.5,
-    
-    DRIVETO,100,25,28,-15,3,            // DRIVE AWAY FROM GREEN        WAS 45
-    DRIVETO,60,45,22,-11,3,             // DRIVE TO GET ORANGE                  ORANGE CUBE
-    PAUSE,0.5,
-    DRIVETO,120,45,24,-20,3,            // DRIVE AWAY FROM ORANGE
-    
-    DRIVETO,120,90,54,-25,3,            // DRIVE TO LINE UP FOR PURPLE      Y=-32
-    TURN,345,1,                         // TURN TO FACE PURPLE
-    DRIVETO,60,15,54,-22,3,             // DRIVE TO GET PURPLE                  PURPLE CUBE
-    PAUSE,0.5,
-    DRIVETO,120,15,56,-28,3,            // DRIVE AWAY FROM PURPLE   Y=-32
-    
-    INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
-    DRIVETO,80,90,58,-43, 3,            // DRIVE TO LINE UP FOR ROW OF FOUR     Y=-45
-    
-    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT INTAKE ARMS OUT
-    DRIVETO,80,90,60,-43,1,             // DRIVE TO LINE UP FOR ROW OF FOUR     Y=-45
-    WAIT,INTAKEARMLEFTABOVE,600,1,      // PUT ARMS OUT
-    PAUSE,0.25,
-    DRIVETO,40,90,32,-43,6,             // DRIVE GET ROW OF FOUR                ROW OF FOUR Y=-45
-    DRIVETO,40,70,22,-37,6,             // DRIVE GET ORANGE                     ORANGE CUBE Y=-40
-    
-    
-    DRIVETO,60,70,26,-40,3,             // DRIVE BACK FROM ORANGE   Y=-45
-    INTAKEPOS,INTAKE_ARM_IN_POS,        // MOVE INTAKE ARMS IN
-    DRIVETO,90,225,55,-48,4,            // DRIVE TO CORNER  Y=-55
-    DRIVETO,90,225,65,-52,1,            // DRIVE TO CORNER  Y=-60
-    
-    DEPOSIT,                            // DROP OFF STACK
-    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
-    
-    END
-};
-
-double programmingSkills[] = {
-    -60,-45,270,
-
-    END,    // REMOVE THIS, YA DINGUS
-    
-    DEPLOY,
-    WAIT,DEPLOYDONE,15,
-    WAIT,LIFTBELOW,12000,5,
-    PAUSE,1,
-    INTAKESPEED,-60,                    // RUN INTAKE OUT
-    //DRIVETO,60,270,-60,-45,1,           // DRIVE BACK TO START AFTER DEPLOY
-
-    INTAKEPOS,INTAKE_ARM_OUT_POS,       // For safety
-    WAIT,INTAKEARMLEFTABOVE,600,1,
-    INTAKESPEED,127,                    // RUN INTAKE
-
-    DRIVETO,60,270,-38,-45,9,           // ROW OF FOUR
-
-    DRIVETO,40,270,-28,-58,3,           // DRIVE READY FOR SQUARE
-    PAUSE,0.25,
-    DRIVETO,80,270,0,-60,3,             // TURN TO GET FOUR IN A SQUARE
-    DRIVETO,40,270,-12,-60,1,           // DRIVE BACK
-
-    DRIVETO,40,290,12,-50,4,            // DRIVE TO START OF ROW
-    DRIVETO,40,270,44,-50,9,            // DRIVE THROUGH REST OF ROW
-    PAUSE,0.25,
-
-    
-    TURN,180,0.5,
-    TURN,135,0.5,
-    //TURN,225,0.5,
-    
-    INTAKEPOS,INTAKE_ARM_IN_POS,        // PULL ARMS IN
-    DRIVETO,70,225,60,-60,3,            // DRIVE TO CORNER
-    
-    DRIVE,127,180,225,0.75,               // DRIVE SOUTH HARD
-    //DRIVE,127,270,225,0.75,               // DRIVE EAST HARD
-    
-    //DRIVE,60,45,225,0.05,                // BREAK
-
-    SETPOS,54,-54,                      // SET POSITION
-
-    //END,    //////////////////////////////////////////////////////////////////////////////////// END
-
-    DEPOSIT,                            // DROP OFF STACK
-    WAIT,DEPOSITDONE,13,
-    
-//    54,-54,225,                         /////////////////////// REMOVE WHEN DEPOSIT
-//    DRIVEDIST,40,45,225,20,2,           /////////////////////// REMOVE WHEN DEPOSIT
-    
-    //DRIVETO,60,225,55,-36,3,            // Drive away from stack
-    
-    
-    DRIVETO,90,90,54,-18,3,             // LINE UP FOR 3 ROW
-    
-    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
-    INTAKESPEED,90,                    // RUN INTAKE SLOW
-    WAIT,INTAKEARMLEFTABOVE,600,1,
-    
-    INTAKESPEED,127,                    // RUN INTAKE FAST
-    PAUSE,0.5,
-    DRIVETO,80,90,12,-16,6,             // GET 1ST 3 ROW
-    
-    
-    DRIVETO,80,90,0,-14,6,             // LINE UP FOR NEXT ROW
-
-    
-    DRIVETO,80,90,-50,-15,6,             // GET 2ND 3 ROW
-    
-    //TURN,135,1,                         // TURN TO FACE SOUTH
-    DRIVETO,80,135,-50,-46,5,           // DRIVE NEAR ZONE
-   
-    PAUSE,0.5,
-    
-    DRIVEDIST,80,315,135,10,2,
-    DRIVEDIST,80,135,135,20,2,
-    DRIVEDIST,80,315,135,15,2,
-    INTAKEPOS,INTAKE_ARM_IN_POS,        // PUT ARMS IN
-    PAUSE,0.5,
-    DRIVEDIST,80,135,135,10,2,
-    
-    //TURN,90,1,                          // SWEEP CUBE
-    
-    //TURN,135,1,                         // AIM FOR ZONE
-    DRIVEDIST,60,135,135,10,2,
-    //DRIVE,60,90,135,0.5,
-    
-    DRIVE,127,180,135,0.75,              // DRIVE SOUTH HARD
-    DRIVE,127,90,135,0.75,               // DRIVE WEST HARD
-    
-    DEPOSIT,                            // Drop off stack
-    WAIT,DEPOSITDONE,13,
-    
-    END
+    END                                 // END OF ROUTINE
 };
 
 
