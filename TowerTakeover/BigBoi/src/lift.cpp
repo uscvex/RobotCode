@@ -20,7 +20,7 @@
 #define DEPOSIT_ACCEPT_POS 19000    // Where is close enough
 #define DEPOSIT_OUTTAKE_POS 13000   // When to start outtaking cubes
 #define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
-#define DEPOSIT_WAIT_TIME 2500      // How long (ms) to wait at top
+#define DEPOSIT_WAIT_TIME 1000      // How long (ms) to wait at top
 #define LIFT_RELEASE_POS 17000      // Where to move lift to before driving back
 #define DEPOSIT_BACKOFF_SPEED 40    // How fast to drive backwards
 
