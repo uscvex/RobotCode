@@ -36,7 +36,7 @@ using namespace std;
 #define DEPOSITDONE 8
 #define DEPLOYDONE 9
 
-int autonSelect = RED_AUTON;
+int autonSelect = BLUE_AUTON;
 int numAutons = 3;
 double lastAutonTime = 0;
 
@@ -83,7 +83,7 @@ double redAuton[] = {                   // ONE STACK OF 13 CUBES
     INTAKEPOS,INTAKE_ARM_IN_POS,        // PUT ARMS IN
     DRIVETO,90,135,-54,-64,3,           // DRIVE TO CORNER
 
-    DEPOSIT,                            // DROP OFF STACK
+    DEPOSIT,                            // DROP OFF STACK                       DROP OFF
     WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
     
     END                                 // END OF ROUTINE
@@ -131,9 +131,9 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
     DRIVETO,90,0,22,-30,5,              // DIVE BACK FROM PILE
     
     INTAKEPOS,INTAKE_ARM_IN_POS,        // PUT ARMS IN
-    DRIVETO,90,225,54,-64,3,            // DRIVE TO CORNER
+    DRIVETO,90,225,62,-57,3,            // DRIVE TO CORNER
     
-    DEPOSIT,                            // DROP OFF STACK
+    DEPOSIT,                            // DROP OFF STACK                       DROP OFF
     WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
     
     END                                 // END OF ROUTINE
