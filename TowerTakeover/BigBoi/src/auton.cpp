@@ -36,7 +36,7 @@ using namespace std;
 #define DEPOSITDONE 8
 #define DEPLOYDONE 9
 
-int autonSelect = BLUE_AUTON;
+int autonSelect = PROGRAMMING_SKILLS;
 int numAutons = 3;
 double lastAutonTime = 0;
 
@@ -142,24 +142,72 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
 double programmingSkills[] = {          // STACK OF 11, STACK OF 8
     -60,-45,270,                        // START POS (X,Y,THETA)
     
-//    DEPLOY,                             // DEPLOY
-//    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
-//    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
-//    PAUSE,1,                            // WAIT A BIT LONGER
+    DEPLOY,                             // DEPLOY
+    WAIT,DEPLOYDONE,15,                 // WAIT TILL DEPLOYED
+    WAIT,LIFTBELOW,12000,5,             // WAIT UNTIL LIFT DOWN
+    PAUSE,1,                            // WAIT A BIT LONGER
     
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
     WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
     DRIVETO,120,270,-60,-45,0.5,        // DRIVE BACK TO START POS
     INTAKESPEED,127,                    // RUN INTAKE
     
-    DRIVETO,50,270,-28,-45,4,           // DRIVE TO GET FIRST ROW               ROW OF FOUR
+    DRIVETO,50,270,-28,-47,4,           // DRIVE TO GET FIRST ROW               ROW OF FOUR
     PAUSE,0.5,                          // PAUSE FOR LAST CUBE
-    DRIVETO,70,270,-36,-45,4,           // DRIVE BACK FROM ROW
+    DRIVETO,70,270,-32,-47,4,           // DRIVE BACK FROM ROW
     
-    DRIVETO,70,270,-36,-58,2,           // SLIDE TO LINE UP FOR SIDE CUBES
-    DRIVETO,50,270,-10,-58,2,           // DRIVE TO GET SIDE CUBES              SQUARE OF FOUR
+    DRIVETO,70,260,-36,-58,2,           // SLIDE TO LINE UP FOR SIDE CUBES
+    DRIVETO,50,260,-6,-58,4,           // DRIVE TO GET SIDE CUBES              SQUARE OF FOUR
     PAUSE,0.5,                          // PAUSE TO INTAKE
-    DRIVETO,70,270,-36,-58,2,           // DRIVE BACK
+    TURN,290,1,                           // TURN READY FOR NEXT ROW
+    DRIVETO,60,290,10,-50,3,            // DRIVE TO START OF NEXT ROW
+    DRIVETO,60,270,45,-50,4,            // DRIVE TO GET ROW                     ROW OF FOUR
+    PAUSE,1,
+    INTAKEPOS,INTAKE_ARM_IN_POS,       // PUT ARMS IN
+    WAIT,INTAKEARMLEFTBELOW,400,1,      // WAIT UNTIL THEY ARE IN
+    PAUSE,0.5,
+    
+    DRIVETO,60,225,56,-58,3,            // DRIVE TO CORNER
+    
+//    ///////////
+//    LIFTPOS,9000,                       // HACK PLACE
+//    PAUSE,4,
+//    DRIVEDIST,50,45,225,12,2,
+//    LIFTPOS,1,
+//    PAUSE,2,
+//    ///////////
+    
+    DEPOSIT,                            // DROP OFF STACK                       DROP OFF
+    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
+    
+    DRIVETO,80,270,57,-33,2,            // DRIVE BACK TO WALL
+    
+    INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT INTAKE ARMS OUT
+    DRIVETO,80,0,46,-33,3,              // DRIVE AND TURN TO LINE UP FOR CUBE
+    DRIVETO,50,0,46,-24,3,              // DRIVE TO GET CUBE                    TOWER CUBE
+    PAUSE,0.5,                          // PAUSE TO INTAKE
+    DRIVETO,70,0,49,-25,3,              // DRIVE BACK FROM CUBE
+    //DRIVETO,70,90,58,-31,3,              // SLIDE TO WALL TO MAKE ROOM FOR TURN
+    
+    DRIVETO,70,90,59,-23,2,             // DRIVE AND TURN TO LINE UP FOR 3
+    DRIVETO,50,90,-45,-30,10,            // DRIVE TO GET 3s                      ROWS OF THREE
+    
+    DRIVETO,60,135,-45,-55,4,            // DRIVE NEAR CORNER
+    INTAKEPOS,INTAKE_ARM_IN_POS,       // PUT ARMS IN
+    PAUSE,1,
+    
+    DRIVETO,90,135,-50,-68,3,            // DRIVE INTO CORNER
+    
+//    ///////////
+//    LIFTPOS,9000,                       // HACK PLACE
+//    PAUSE,4,
+//    DRIVEDIST,50,315,135,12,2,
+//    LIFTPOS,1,
+//    PAUSE,2,
+//    ///////////
+
+    DEPOSIT,                            // DROP OFF STACK                       DROP OFF
+    WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
     
     END                                 // END OF ROUTINE
 };
