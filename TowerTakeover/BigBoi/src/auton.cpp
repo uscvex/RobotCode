@@ -54,17 +54,17 @@ double redAuton[] = {                   // ONE STACK OF 13 CUBES
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,50,270,-28,-45,4,           // DRIVE TO GET FIRST ROW               ROW OF FOUR
-    PAUSE,0.5,                          // PAUSE FOR LAST CUBE
+    PAUSE,0.25,                          // PAUSE FOR LAST CUBE
     DRIVETO,70,270,-36,-45,4,           // DRIVE BACK FROM ROW
     
     DRIVETO,70,270,-36,-37,3,           // SLIDE TO LINE UP FOR TOWER CUBE
     DRIVETO,60,270,-26,-37,3,           // DRIVE TO GET CUBE
-    PAUSE,0.5,                          // PAUSE TO INTAKE                      FIRST TOWER CUBE
+    PAUSE,0.25,                          // PAUSE TO INTAKE                      FIRST TOWER CUBE
     DRIVETO,80,270,-59,-37,3,           // DRIVE BACK TO WALL
     
     DRIVETO,80,0,-49,-37,3,             // DRIVE AND TURN TO LINE UP FOR CUBE
     DRIVETO,50,0,-49,-25,3,             // DRIVE TO GET CUBE                    SECOND TOWER CUBE
-    PAUSE,0.5,                          // PAUSE TO INTAKE
+    PAUSE,0.25,                          // PAUSE TO INTAKE
     DRIVETO,70,0,-49,-31,3,             // DRIVE BACK FROM CUBE
     DRIVETO,70,0,-58,-31,3,             // SLIDE TO WALL TO MAKE ROOM FOR TURN
     
@@ -76,7 +76,7 @@ double redAuton[] = {                   // ONE STACK OF 13 CUBES
     DRIVETO,50,0,-29,-14,3,             // DRIVE TO GET CUBE                    TOWER OF THREE
     DRIVETO,70,0,-29,-20,3,             // DRIVE BACK
     DRIVETO,70,0,-22,-20,2,             // SLIDE TO LINE UP FOR NEXT
-    DRIVETO,50,0,-21,30,5,              // DRIVE IINTO PILE TO GET SOME MORE    BONUS CUBES
+    DRIVETO,70,0,-21,30,3,              // DRIVE IINTO PILE TO GET SOME MORE    BONUS CUBES
     
     DRIVETO,90,0,-22,-30,5,             // DIVE BACK FROM PILE
     
@@ -104,17 +104,17 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,50,90,28,-45,4,             // DRIVE TO GET FIRST ROW               ROW OF FOUR
-    PAUSE,0.5,                          // PAUSE FOR LAST CUBE
+    PAUSE,0.25,                          // PAUSE FOR LAST CUBE
     DRIVETO,70,90,36,-45,4,             // DRIVE BACK FROM ROW
     
     DRIVETO,70,90,36,-37,3,             // SLIDE TO LINE UP FOR TOWER CUBE
     DRIVETO,60,90,26,-37,3,             // DRIVE TO GET CUBE
-    PAUSE,0.5,                          // PAUSE TO INTAKE                      FIRST TOWER CUBE
+    PAUSE,0.25,                          // PAUSE TO INTAKE                      FIRST TOWER CUBE
     DRIVETO,80,90,59,-37,3,             // DRIVE BACK TO WALL
     
     DRIVETO,80,0,49,-37,3,              // DRIVE AND TURN TO LINE UP FOR CUBE
     DRIVETO,50,0,49,-25,3,              // DRIVE TO GET CUBE                    SECOND TOWER CUBE
-    PAUSE,0.5,                          // PAUSE TO INTAKE
+    PAUSE,0.25,                          // PAUSE TO INTAKE
     DRIVETO,70,0,49,-31,3,              // DRIVE BACK FROM CUBE
     DRIVETO,70,0,58,-31,3,              // SLIDE TO WALL TO MAKE ROOM FOR TURN
     
@@ -126,7 +126,7 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
     DRIVETO,50,0,29,-14,3,              // DRIVE TO GET CUBE                    TOWER OF THREE
     DRIVETO,70,0,29,-20,3,              // DRIVE BACK
     DRIVETO,70,0,22,-20,2,              // SLIDE TO LINE UP FOR NEXT
-    DRIVETO,50,0,21,30,5,               // DRIVE IINTO PILE TO GET SOME MORE    BONUS CUBES
+    DRIVETO,70,0,21,30,3,               // DRIVE INTO PILE TO GET SOME MORE    BONUS CUBES
     
     DRIVETO,90,0,22,-30,5,              // DIVE BACK FROM PILE
     

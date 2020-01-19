@@ -16,13 +16,13 @@
 #define LIFT_SLOW_POS 14000         // Where to start moving lift slower
 #define LIFT_SLOW_SPEED 80          // How fast to move lift slowly
 #define LIFT_OUTTAKE_POS 15000      // Where to start outtaking cube
-#define LIFT_DEPOSIT_POS 21000      // Where to move lift to
-#define DEPOSIT_ACCEPT_POS 19000    // Where is close enough
+#define LIFT_DEPOSIT_POS 22000      // Where to move lift to
+#define DEPOSIT_ACCEPT_POS 20000    // Where is close enough
 #define DEPOSIT_OUTTAKE_POS 13000   // When to start outtaking cubes
 #define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
-#define DEPOSIT_WAIT_TIME 1000      // How long (ms) to wait at top
-#define LIFT_RELEASE_POS 17000      // Where to move lift to before driving back
-#define DEPOSIT_BACKOFF_SPEED 40    // How fast to drive backwards
+#define DEPOSIT_WAIT_TIME 2000      // How long (ms) to wait at top
+#define LIFT_RELEASE_POS 18000      // Where to move lift to before driving back
+#define DEPOSIT_BACKOFF_SPEED 30    // How fast to drive backwards
 
 
 // Deploy
@@ -329,12 +329,12 @@ void runLift(void* params) {
                 
                 // Skip #4 ... move back before lowering lift
             case 4:             // Move lift down a little
-//                liftSeek = LIFT_HOLD_POS;
-//                outIntakeSpeed = 0;
-//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-//                if (liftPos < LIFT_RELEASE_POS) {
+                liftSeek = LIFT_HOLD_POS;
+                outIntakeSpeed = 0;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+                if (liftPos < LIFT_RELEASE_POS) {
                     depositStep++;
-//                }
+                }
                 break;
                 
             case 5:     // Move lift back to intake position and drive backwards
@@ -350,7 +350,7 @@ void runLift(void* params) {
                     driveDir -= 360;
                 faceDir = globalDirection;
                 
-                distanceToDrive = 20;
+                distanceToDrive = 12;                           // WAS 20   /////
                 startingDrivePosX = globalX;
                 startingDrivePosY = globalY;
                 
