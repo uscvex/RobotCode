@@ -34,6 +34,7 @@
 #define DRIVE_DEPOSIT 4
 #define DRIVE_DEPLOY 5
 #define DRIVE_TO 6
+#define DRIVE_PLACE 7
 
 #define RED_AUTON 0
 #define BLUE_AUTON 1

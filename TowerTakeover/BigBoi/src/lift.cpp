@@ -8,21 +8,33 @@
 //////////////////////////////////////////
 // Lift tuning params
 //
+
+#define LIFT_OFFSET 10500
+
 #define LIFT_HOLD_POS 10500 //11000
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
 // Stack deposit
-#define LIFT_SLOW_POS 14000         // Where to start moving lift slower
-#define LIFT_SLOW_SPEED 80          // How fast to move lift slowly
-#define LIFT_OUTTAKE_POS 15000      // Where to start outtaking cube
-#define LIFT_DEPOSIT_POS 22000      // Where to move lift to
-#define DEPOSIT_ACCEPT_POS 20000    // Where is close enough
-#define DEPOSIT_OUTTAKE_POS 13000   // When to start outtaking cubes
-#define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
-#define DEPOSIT_WAIT_TIME 2000      // How long (ms) to wait at top
-#define LIFT_RELEASE_POS 18000      // Where to move lift to before driving back
+
+
+//#define LIFT_OUTTAKE_POS 15000      // Where to start outtaking cube
+#define LIFT_DEPOSIT_POS 21000      // Where to move lift to
+//
+//#define DEPOSIT_OUTTAKE_POS 13000   // When to start outtaking cubes
+
+//#define DEPOSIT_WAIT_TIME 1000      // How long (ms) to wait at top
+//#define LIFT_RELEASE_POS 18000      // Where to move lift to before driving back
 #define DEPOSIT_BACKOFF_SPEED 30    // How fast to drive backwards
+
+
+
+#define LIFT_SLOW_POS 14000         // Where to start moving lift slower
+#define LIFT_BACKUP_POS 17000
+#define LIFT_DOWN_SPEED -40
+#define DEPOSIT_ACCEPT_POS 19000    // Where is close enough
+#define LIFT_SLOW_SPEED 60          // How fast to move lift slowly
+#define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
 
 
 // Deploy
@@ -109,7 +121,7 @@ void runLift(void* params) {
         double intakeArmSpeedRight = 0;
         
         // Calculate mechanism positions
-        liftPos = (mLiftL.get_position() + mLiftR.get_position())/2;
+        liftPos = LIFT_OFFSET + (mLiftL.get_position() + mLiftR.get_position())/2;
         intakeArmPosLeft = mIntakeArmL.get_position();
         intakeArmPosRight = mIntakeArmR.get_position();
         
@@ -189,6 +201,71 @@ void runLift(void* params) {
                 deployStep = 0;
             }
         }
+        
+        
+        switch (depositStep) {
+                
+            case 0:     // Wait until controller button released
+                if (!controller.get_digital(DIGITAL_R2))
+                    depositStep++;
+                break;
+
+            case 1:     // First, start moving intake and lift up
+                intakeArmSeekRight = INTAKE_ARM_IN_POS;
+                intakeArmSeekLeft = INTAKE_ARM_IN_POS;
+                outIntakeSpeed = 0;
+                liftSeek = -1;
+                inIntakeSpeed = INTAKE_IN_SPEED;
+                
+                liftSpeed = 127;    // Run lift at full speed up
+                if (liftPos > LIFT_SLOW_POS) {      // Go slow past a certain point
+                    liftSpeed = LIFT_SLOW_SPEED;
+                }
+                
+                if (liftPos > DEPOSIT_ACCEPT_POS) { // Stop when lift is up
+                    depositStep++;
+                }
+
+                break;
+
+            case 2:
+                
+                liftSpeed = LIFT_DOWN_SPEED;
+                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;    // How fast to outtake cubes
+                
+                if (liftPos < LIFT_BACKUP_POS) { // Stop moving lift at position
+                    depositStep++;
+                }
+                
+                break;
+                
+            case 3:
+                // Drive back slowly
+                driveMode = DRIVE_DEPOSIT;
+                driveSpeed = DEPOSIT_BACKOFF_SPEED;
+
+                distanceToDrive = 7;                           // WAS 20   /////
+                startingDrivePosX = globalX;
+                startingDrivePosY = globalY;
+                depositStep++;
+                break;
+                
+            case 4:
+                if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
+                    faceDir = -1;
+                    driveSpeed = 0;
+                    driveMode = USER;
+                    liftSeek = LIFT_HOLD_POS;
+                    depositStep++;
+                }
+                break;
+                
+            default:
+                depositStep = -1;
+                break;
+                
+        }
+        
         
         
         // Auto deploy tower
@@ -279,113 +356,125 @@ void runLift(void* params) {
         }
         
         
-        // Auto deposit stack
-        switch (depositStep) {
-            case 0:
-                if (!controller.get_digital(DIGITAL_R2))
-                    depositStep++;
-                break;
-                
-            case 1:     // First, start moving intake and lift up
-                intakeArmSeekRight = INTAKE_ARM_IN_POS;
-                intakeArmSeekLeft = INTAKE_ARM_IN_POS;
-                outIntakeSpeed = 0;
-                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                //liftSeek = LIFT_DEPOSIT_POS;
-                liftSeek = -1;
-                liftSpeed = 127;    // Run lift at full speed up
-                
-                if (liftPos > DEPOSIT_OUTTAKE_POS)
-                    depositStep++;
-                
-                break;
-                
-            case 2:     // Stop moving the outer intake, and move inner intake out
-                outIntakeSpeed = 0;
-                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                depositTime = millis();
-                
-                liftSeek = -1;
-                liftSpeed = 127;    // Run lift at full speed up
-                if (liftPos > LIFT_SLOW_POS)    // If lift is high enough, run slower
-                    liftSpeed = LIFT_SLOW_SPEED;
-                
-                if (liftPos > LIFT_OUTTAKE_POS)
-                    inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                
-                if (liftPos > DEPOSIT_ACCEPT_POS)
-                    depositStep++;
-                
-                break;
-                
-            case 3:         // Wait with tray up for wobble
-                outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                if (millis() - depositTime > DEPOSIT_WAIT_TIME) {
-                    depositTime = millis();
-                    depositStep++;
-                }
-                break;
-                
-                // Skip #4 ... move back before lowering lift
-            case 4:             // Move lift down a little
-                liftSeek = LIFT_HOLD_POS;
-                outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                if (liftPos < LIFT_RELEASE_POS) {
-                    depositStep++;
-                }
-                break;
-                
-            case 5:     // Move lift back to intake position and drive backwards
-                outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                liftSeek = LIFT_HOLD_POS;
-                
-                // Drive back slowly
-                driveMode = DRIVE_DEPOSIT;
-                driveSpeed = DEPOSIT_BACKOFF_SPEED;
-                driveDir = globalDirection + 180;
-                if (driveDir > 360)
-                    driveDir -= 360;
-                faceDir = globalDirection;
-                
-                distanceToDrive = 12;                           // WAS 20   /////
-                startingDrivePosX = globalX;
-                startingDrivePosY = globalY;
-                
-                depositStep++;
-                
-                break;
-                
-            case 6:     // Drive back until drive is done
-                outIntakeSpeed = 0;
-                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-                liftSeek = LIFT_HOLD_POS;
-                
-                if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
-                    faceDir = -1;
-                    driveSpeed = 0;
-                    driveMode = USER;
-                }
-                
-                if (liftPos < LIFT_HOLD_POS + 500)
-                    depositStep++;
-                break;
-                
-            case 7:     // We are clear so we can stop now
-                driveMode = USER;
-                driveSpeed = 0;
-                driveDir = -1;
-                faceDir = -1;
-                
-                depositStep = -1;
-                break;
-                
-            default:    // If we have any illegal value here, make it -1
-                depositStep = -1;
-                break;
-        }
+//        OLD
+//        // Auto deposit stack
+//        switch (depositStep) {
+//            case 0:
+//                if (!controller.get_digital(DIGITAL_R2))
+//                    depositStep++;
+//                break;
+//
+//            case 1:     // First, start moving intake and lift up
+//                intakeArmSeekRight = INTAKE_ARM_IN_POS;
+//                intakeArmSeekLeft = INTAKE_ARM_IN_POS;
+//                outIntakeSpeed = 0;
+//                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+//                //liftSeek = LIFT_DEPOSIT_POS;
+//                liftSeek = -1;
+//                liftSpeed = 127;    // Run lift at full speed up
+//
+//                if (liftPos > DEPOSIT_OUTTAKE_POS)
+//                    depositStep++;
+//
+//                break;
+//
+//            case 2:     // Stop moving the outer intake, and move inner intake out
+//                outIntakeSpeed = 0;
+//                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+//                depositTime = millis();
+//
+//                liftSeek = -1;
+//                liftSpeed = 127;    // Run lift at full speed up
+//                if (liftPos > LIFT_SLOW_POS)    // If lift is high enough, run slower
+//                    liftSpeed = LIFT_SLOW_SPEED;
+//
+//                if (liftPos > LIFT_OUTTAKE_POS)
+//                    inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+//
+//                if (liftPos > DEPOSIT_ACCEPT_POS)
+//                    depositStep++;
+//
+//                break;
+//
+//            case 3:         // Wait with tray up for wobble
+//                outIntakeSpeed = 0;
+//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+//
+//                // Drive forward slowly
+//                driveMode = DRIVE_PLACE;
+//
+//                if (millis() - depositTime > DEPOSIT_WAIT_TIME) {
+//                    if ((millis() - depositTime > DEPOSIT_WAIT_TIME*2)) {
+//                        depositTime = millis();
+//                        depositStep++;
+//                    }
+//                    driveMode = USER;
+//                    driveSpeed = 0;
+//                    driveDir = -1;
+//                    faceDir = -1;
+//                }
+//                break;
+//
+//                // Skip #4 ... move back before lowering lift
+//            case 4:             // Move lift down a little
+////                liftSeek = LIFT_HOLD_POS;
+////                outIntakeSpeed = 0;
+////                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+////                if (liftPos < LIFT_RELEASE_POS) {
+//                    depositStep++;
+////                }
+//                break;
+//
+//            case 5:     // Move lift back to intake position and drive backwards
+//                outIntakeSpeed = 0;
+//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+////                liftSeek = LIFT_HOLD_POS;
+//
+//                // Drive back slowly
+//                driveMode = DRIVE_DEPOSIT;
+//                driveSpeed = DEPOSIT_BACKOFF_SPEED;
+//                driveDir = globalDirection + 180;
+//                if (driveDir > 360)
+//                    driveDir -= 360;
+//                faceDir = globalDirection;
+//
+//                distanceToDrive = 7;                           // WAS 20   /////
+//                startingDrivePosX = globalX;
+//                startingDrivePosY = globalY;
+//
+//                depositStep++;
+//
+//                break;
+//
+//            case 6:     // Drive back until drive is done
+//                outIntakeSpeed = 0;
+//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
+//                //liftSeek = LIFT_HOLD_POS;
+//                liftSpeed = LIFT_DOWN_SPEED;
+//
+//                if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
+//                    faceDir = -1;
+//                    driveSpeed = 0;
+//                    driveMode = USER;
+//                }
+//
+//                if (liftPos < LIFT_HOLD_POS + 500)
+//                    depositStep++;
+//                break;
+//
+//            case 7:     // We are clear so we can stop now
+//                driveMode = USER;
+//                driveSpeed = 0;
+//                driveDir = -1;
+//                faceDir = -1;
+//
+//                depositStep = -1;
+//                break;
+//
+//            default:    // If we have any illegal value here, make it -1
+//                depositStep = -1;
+//                break;
+//        }
         
         
         

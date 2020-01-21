@@ -27,6 +27,8 @@
 
 #define AUTON_DRIVE_SLEW 16      // Bigger = slower
 
+#define DEPOSIT_PLACE_SPEED 20
+
 
 // Drive motors
 Motor mFRA(M_FRA_P,SPEED,0);
@@ -306,6 +308,12 @@ void runDrive(void* params)
         }
         if (driveMode == DRIVE_DEPOSIT) {
             driveAngle = 3*M_PI/2;
+//            driveMag = DEPOSIT_BACKOFF_SPEED;
+            turn = 0;
+        }
+        if (driveMode == DRIVE_PLACE) {
+            driveAngle = M_PI/2;
+            driveMag = DEPOSIT_PLACE_SPEED;
             turn = 0;
         }
         
