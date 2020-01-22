@@ -6,39 +6,45 @@
 
 using namespace pros;
 
+// Deploy values
+#define LIFT_DEPLOY_POS 1800
+#define LIFT_DEPLOY_POS_ACCEPT 1750
+#define DEPLOY_DONE_POS 750
+
+// Lift values
+#define LIFT_DOWN_POS 650
 #define LOW_TOWER_POS 1800
 #define MID_TOWER_POS 2250
+#define LIFT_SEEK_RATE 1
+#define LIFT_DOWN_INCREMENT 100
+#define BUTTON_HOLD_TIME 250
 
+// Intake speeds
 #define INTAKE_IN_SPEED 127
 #define INTAKE_OUT_SPEED -60
 
-#define LIFT_DOWN_POS 650
-
-#define LIFT_SEEK_RATE 1
-
-#define LIFT_DOWN_INCREMENT 100
-
+// Tray values
 #define TRAY_DOWN_POS 1
 #define TRAY_UP_POS 700
 #define TRAY_SEEK_RATE 0.5
 
-#define BUTTON_HOLD_TIME 250
 
 Motor liftR(1,TORQUE,1);
 Motor liftL(10,TORQUE,0);
 
-Motor intakeL(9,TORQUE,1);
 Motor intakeR(2,TORQUE,1);
+Motor intakeL(9,TORQUE,0);
 
-Motor trayL(6,TORQUE,1);
 Motor trayR(5,TORQUE,1);
+Motor trayL(6,TORQUE,0);
 
-
+// Values read/writeable by other tasks
 double liftPos = 0;
 double liftSeek = -1;
 double trayPos = 0;
 double traySeek = -1;
 double runIntake = 0;
+int deployStep = -1;
 
 
 void runLift(void* params) {
@@ -76,6 +82,25 @@ void runLift(void* params) {
             liftSpeed = (liftSeek - liftPos) / LIFT_SEEK_RATE;
         }
         
+        
+        switch (deployStep) {
+                
+            case 1:
+                liftSeek = LIFT_DEPLOY_POS;
+                if (liftSeek > LIFT_DEPLOY_POS_ACCEPT)
+                    deployStep++;
+                break;
+                
+            case 2:
+                liftSeek = LIFT_DOWN_POS;
+                if (liftSeek < DEPLOY_DONE_POS)
+                    deployStep++;
+                break;
+                
+            default:
+                deployStep = -1;
+                break;
+        }
 
         
         // Semi auto controls

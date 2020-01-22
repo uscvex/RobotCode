@@ -72,9 +72,11 @@ extern Controller controller;
 
 // Global variables
 extern double liftPos;
+extern double liftSeek;
 extern double trayPos;
 extern double traySeek;
-extern double liftSeek;
+extern double runIntake;
+extern int deployStep;
 
 extern double direction;
 
