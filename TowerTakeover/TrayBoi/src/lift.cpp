@@ -48,7 +48,6 @@ void runLift(void* params) {
     bool justLiftedUp = false;
     bool justToggledTray = false;
     bool justLiftedDown = false;
-    double intakeSpeed = 0;
     
     // Var to measure how long button held
     double lastReleasedTime = millis();
@@ -67,6 +66,7 @@ void runLift(void* params) {
         // Start speeds at 0 for safety
         double liftSpeed = 0;
         double traySpeed = 0;
+        double intakeSpeed = 0;
         
         // If we are asking to seek to position, perform the seek
         if (traySeek >= 0) {
@@ -191,6 +191,7 @@ void runLift(void* params) {
         if (controller.get_digital(DIGITAL_UP)) {
             traySeek = -1;
             liftSeek = -1;
+            runIntake = 0;
         }
         
         intakeSpeed = runIntake;
