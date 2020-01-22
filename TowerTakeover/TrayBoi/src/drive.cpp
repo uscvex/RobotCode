@@ -28,12 +28,12 @@ using namespace std;
 #define TURN_PULSE_OFF 16        // Bigger = longer wait between pulses
 
 // Drive motor declarations
-Motor driveR1(11,SPEED,0);
-Motor driveR2(13,SPEED,1);
-Motor driveR3(14,SPEED,0);
+Motor driveR1(11,SPEED,1);
+Motor driveR2(13,SPEED,0);
+Motor driveR3(14,SPEED,1);
 Motor driveR4(15,SPEED,1);
 
-Motor driveL1(16,SPEED,1);
+Motor driveL1(16,SPEED,0);
 Motor driveL2(17,SPEED,0);
 Motor driveL3(18,SPEED,1);
 Motor driveL4(20,SPEED,0);

@@ -12,9 +12,9 @@ using namespace pros;
 #define DEPLOY_DONE_POS 750
 
 // Lift values
-#define LIFT_DOWN_POS 650
-#define LOW_TOWER_POS 1800
-#define MID_TOWER_POS 2250
+#define LIFT_DOWN_POS 700
+#define LOW_TOWER_POS 2750
+#define MID_TOWER_POS 3400
 #define LIFT_SEEK_RATE 1
 #define LIFT_DOWN_INCREMENT 100
 #define BUTTON_HOLD_TIME 250
@@ -25,8 +25,8 @@ using namespace pros;
 
 // Tray values
 #define TRAY_DOWN_POS 1
-#define TRAY_UP_POS 700
-#define TRAY_SEEK_RATE 0.5
+#define TRAY_UP_POS 2000
+#define TRAY_SEEK_RATE 3
 
 
 Motor liftR(1,TORQUE,1);
@@ -35,8 +35,8 @@ Motor liftL(10,TORQUE,0);
 Motor intakeR(2,TORQUE,1);
 Motor intakeL(9,TORQUE,0);
 
-Motor trayR(5,TORQUE,1);
-Motor trayL(6,TORQUE,0);
+Motor trayR(5,TORQUE,0);
+Motor trayL(6,TORQUE,1);
 
 // Values read/writeable by other tasks
 double liftPos = 0;
@@ -83,17 +83,18 @@ void runLift(void* params) {
         }
         
         
+        // Auto deploy
         switch (deployStep) {
                 
-            case 1:
+            case 1:         // Move arms up to push open tray
                 liftSeek = LIFT_DEPLOY_POS;
-                if (liftSeek > LIFT_DEPLOY_POS_ACCEPT)
+                if (liftPos > LIFT_DEPLOY_POS_ACCEPT)
                     deployStep++;
                 break;
                 
-            case 2:
+            case 2:         // Move arms back down
                 liftSeek = LIFT_DOWN_POS;
-                if (liftSeek < DEPLOY_DONE_POS)
+                if (liftPos < DEPLOY_DONE_POS)
                     deployStep++;
                 break;
                 
@@ -106,7 +107,7 @@ void runLift(void* params) {
         // Semi auto controls
         
         // Toggle intake
-        if (controller.get_digital(DIGITAL_B)) {
+        if (controller.get_digital(DIGITAL_L1)) {
             
             if (!justToggleIntake) {
                 if (runIntake != INTAKE_IN_SPEED)
@@ -120,12 +121,9 @@ void runLift(void* params) {
         else {
             justToggleIntake = false;
         }
-        if (controller.get_digital(DIGITAL_X)) {
-            runIntake = INTAKE_OUT_SPEED;
-        }
         
         // Toggle claw open/close
-        if (controller.get_digital(DIGITAL_L1)) {
+        if (controller.get_digital(DIGITAL_B)) {
             if (!justToggledTray) {
                 if (traySeek != TRAY_DOWN_POS)
                     traySeek = TRAY_DOWN_POS;
@@ -138,7 +136,7 @@ void runLift(void* params) {
             justToggledTray = false;
         }
         
-        if (controller.get_digital(DIGITAL_L2))
+        if (controller.get_digital(DIGITAL_X))
             traySeek = TRAY_DOWN_POS;
         
         // Move lift up
@@ -220,6 +218,11 @@ void runLift(void* params) {
         }
         
         intakeSpeed = runIntake;
+        
+        if (controller.get_digital(DIGITAL_L2)) {
+            intakeSpeed = INTAKE_OUT_SPEED;
+            runIntake = 0;
+        }
         
         // Finally set motor voltages based on speed
         liftR.move_voltage(12000 * liftSpeed / 127);
