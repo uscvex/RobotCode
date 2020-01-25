@@ -156,9 +156,10 @@ double programmingSkills[] = {
     DRIVEDIST,70,270,2.5,2,             // DRIVE FORWARD
     CLAWPOS,CLAW_CLOSE_POS_A,         // GRAB CUBE                        FIRST CUBE
     PAUSE,0.25,
+    DRIVEDIST,-70,270,1.5,2,             // DRIVE BACK
     LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
     WAIT,LIFTABOVE,MID_TOWER_ACCEPT,3,
-    DRIVEDIST,60,270,7,2,
+    DRIVEDIST,60,270,8,2,
     CLAWPOS,CLAW_OPEN_POS_A,            //                                    FIRST TOWER
     PAUSE,0.25,
     DRIVEDIST,-60,270,7,2,
@@ -208,6 +209,12 @@ double programmingSkills[] = {
     DRIVEDIST,40,10,6,3,
     TURN,270,1,
     
+    
+    DRIVE,-80,270,1,                     // DRIVE INTO WALL
+    PAUSE,0.25,
+    SETDIR,270,
+    PAUSE,0.25,
+    
     CLAWPOS,CLAW_OPEN_POS_A,            // OPEN CLAW
     LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
     DRIVEDIST,100,270,40,5,             // DRIVE FORWARD
@@ -239,7 +246,7 @@ double programmingSkills[] = {
     
     DRIVEDIST,-100,90,9,2,            // DRIVE AWAY FROM WALL
     DRIVEWHITE,-100,90,RIGHT_W,2,
-    DRIVEDIST,-100,90,21,3,
+    DRIVEDIST,-100,90,20,3,         // DRIVE TO LINE UP FOR NEXT CUBE
     DRIVE,60,90,0.05,
     
     LIFTPOS,LIFT_GRAB_POS,
@@ -253,11 +260,12 @@ double programmingSkills[] = {
     PAUSE,0.75,                         // PAUSE TO GET CUBE
     DRIVEDIST,70,190,3,1,               // DRIVE MORE
     
-    DRIVEDIST,70,180,15,3,              // DRIVE TO TOWER
-    DRIVEDIST,-60,180,5,3,              // DRIVE AWAY TOWER
+    DRIVEDIST,70,190,15,3,              // DRIVE TO TOWER
+    DRIVEDIST,-60,190,5,3,              // DRIVE AWAY TOWER
     LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
+    TURN,200,1,
     WAIT,LIFTABOVE,2000,2,              // WAIT FOR LIFT TO GO UP
-    DRIVEDIST,60,180,8,3,               // DRIVE TO TOWER
+    DRIVEDIST,60,200,8,3,               // DRIVE TO TOWER
     PAUSE,0.25,                         // PAUSE FOR STABLE
     CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        FOURTH TOWER
     PAUSE,0.25,                         // WAIT FOR CUBE TO FALL
@@ -265,25 +273,26 @@ double programmingSkills[] = {
     
     LIFTPOS,LIFT_GRAB_POS,
     DRIVEWHITE,-50,180,LEFT_W,2,
-    DRIVE,50,80,0.05,
+    DRIVE,50,180,0.05,
     TURN,270,1,
-    DRIVEDIST,-60,270,24,3,
+    DRIVEDIST,-60,270,22,3,
     TURN,180,1,
     
-    PAUSE,6,                            // PAUSE TO LET BIG BOT CLEAR OUT
+    PAUSE,5,                            // PAUSE TO LET BIG BOT CLEAR OUT
     
     DRIVEDIST,70,180,29,3,
     LIFTPOS,1,
-    DRIVEDIST,70,180,36,5,
+    DRIVEDIST,70,180,37,5,
     CLAWPOS,CLAW_CLOSE_POS_A,
     PAUSE,0.5,
     
-    TURN,90,1,
-    DRIVEDIST,70,90,18,3,
-    DRIVEDIST,-70,90,5,3,
+    TURN,100,1,
+    DRIVEDIST,70,100,18,3,
+    DRIVEDIST,-70,100,5,3,
+    TURN,100,0.5,
     LIFTPOS,LOW_TOWER_POS_A,
     WAIT,LIFTABOVE,LOW_TOWER_ACCEPT,2,
-    DRIVEDIST,70,90,17,4,
+    DRIVEDIST,70,100,17,4,
     PAUSE,0.5,
     CLAWPOS,CLAW_OPEN_POS_A,
     PAUSE,0.5,
