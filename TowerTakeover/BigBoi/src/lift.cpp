@@ -8,27 +8,15 @@
 //////////////////////////////////////////
 // Lift tuning params
 //
-
-#define LIFT_OFFSET 10500
+#define LIFT_OFFSET 0//10500           // offset for if we skip deploy
 
 #define LIFT_HOLD_POS 10500 //11000
 #define LIFT_DOWN_POS 1
 #define LIFT_SEEK_RATE 1
 
 // Stack deposit
-
-
-//#define LIFT_OUTTAKE_POS 15000      // Where to start outtaking cube
 #define LIFT_DEPOSIT_POS 21000      // Where to move lift to
-//
-//#define DEPOSIT_OUTTAKE_POS 13000   // When to start outtaking cubes
-
-//#define DEPOSIT_WAIT_TIME 1000      // How long (ms) to wait at top
-//#define LIFT_RELEASE_POS 18000      // Where to move lift to before driving back
 #define DEPOSIT_BACKOFF_SPEED 30    // How fast to drive backwards
-
-
-
 #define LIFT_SLOW_POS 14000         // Where to start moving lift slower
 #define LIFT_BACKUP_POS 17000
 #define LIFT_DOWN_SPEED -40
@@ -36,11 +24,10 @@
 #define LIFT_SLOW_SPEED 60          // How fast to move lift slowly
 #define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
 
-
 // Deploy
 #define TRAY_SLIDE_POS 4000         // When to pause to let tray slide
 #define TRAY_SLIDE_TIME 0           // Time to wait for the tray to slide out
-#define LIFT_DEPLOYED_POS 9000      // When to drive forward
+#define LIFT_DEPLOYED_POS 10000      // When to drive forward
 #define DEPLOY_ACCEPT_POS 14000     // When to be done
 #define LIFT_DEPLOY_POS 15000       // Where lift to seek to
 #define DEPLOY_UNFOLD_TIME 500      // How long to wait after deploy
@@ -191,6 +178,10 @@ void runLift(void* params) {
         // Set intake motor speed based on toggle/auton
         inIntakeSpeed = runIntake;
         outIntakeSpeed = runIntake;
+        
+//        if (intakeArmSeekLeft == INTAKE_ARM_OUT_POS) {
+//            inIntakeSpeed = INTAKE_IN_SPEED;
+//        }
         
         
         if (controller.get_digital(DIGITAL_R2)) {

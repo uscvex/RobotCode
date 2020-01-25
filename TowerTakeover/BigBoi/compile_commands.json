@@ -59,11 +59,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/auton.cpp.o",
-            "src/auton.cpp"
+            "bin/drive.cpp.o",
+            "src/drive.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/auton.cpp"
+        "file": "src/drive.cpp"
     },
     {
         "arguments": [
@@ -125,11 +125,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/drive.cpp.o",
-            "src/drive.cpp"
+            "bin/lift.cpp.o",
+            "src/lift.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/drive.cpp"
+        "file": "src/lift.cpp"
     },
     {
         "arguments": [
@@ -158,10 +158,10 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/lift.cpp.o",
-            "src/lift.cpp"
+            "bin/auton.cpp.o",
+            "src/auton.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/lift.cpp"
+        "file": "src/auton.cpp"
     }
 ]

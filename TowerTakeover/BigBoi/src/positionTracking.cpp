@@ -15,7 +15,7 @@
 
 // Physical Constants
 #define INCHES_PER_TICK 0.02836160034
-#define TRACKING_DIAMETER 19
+#define TRACKING_DIAMETER 19      //19
 
 // Fudge Factors
 #define FORWARD_FUDGE_FACTOR 1
