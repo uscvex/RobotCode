@@ -28,8 +28,8 @@
 #define TRAY_SLIDE_POS 4000         // When to pause to let tray slide
 #define TRAY_SLIDE_TIME 0           // Time to wait for the tray to slide out
 #define LIFT_DEPLOYED_POS 10000      // When to drive forward
-#define DEPLOY_ACCEPT_POS 14000     // When to be done
-#define LIFT_DEPLOY_POS 15000       // Where lift to seek to
+#define DEPLOY_ACCEPT_POS 14500     // When to be done          14000
+#define LIFT_DEPLOY_POS 15500       // Where lift to seek to    15000
 #define DEPLOY_UNFOLD_TIME 500      // How long to wait after deploy
 
 // Intake tuning params
