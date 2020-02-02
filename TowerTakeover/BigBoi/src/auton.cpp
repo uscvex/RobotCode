@@ -50,7 +50,7 @@ double redAuton[] = {                   // ONE STACK OF 13 CUBES
     
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
     WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
-    DRIVETO,120,270,-60,-45,0.5,        // DRIVE BACK TO START POS
+//    DRIVETO,120,270,-60,-45,0.5,        // DRIVE BACK TO START POS     -- Removed to save time
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,50,270,-28,-45,4,           // DRIVE TO GET FIRST ROW               ROW OF FOUR
@@ -69,14 +69,14 @@ double redAuton[] = {                   // ONE STACK OF 13 CUBES
     DRIVETO,70,0,-58,-31,3,             // SLIDE TO WALL TO MAKE ROOM FOR TURN
     
     DRIVETO,70,270,-59,-21,3,           // DRIVE AND TURN TO LINE UP FOR 3
-    DRIVETO,40,270,-24,-21,3,           // DRIVE TO GET 3                       ROW OF THREE
-    DRIVETO,70,270,-29,-22,3,           // DRIVE BACK FROM CUBE
+    DRIVETO,40,270,-22,-21,3,           // DRIVE TO GET 3                       ROW OF THREE Xwas-24
+    DRIVETO,70,270,-23,-22,3,           // DRIVE BACK FROM CUBE                     Xwas-29
     
-    TURN,0,1,                           // TURN READY TOWER
+//    TURN,0,1,                           // TURN READY TOWER
     //DRIVETO,50,0,-29,-14,3,             // DRIVE TO GET CUBE                    TOWER OF THREE
     //DRIVETO,70,0,-29,-20,3,             // DRIVE BACK
-    DRIVETO,70,0,-22,-20,2,             // SLIDE TO LINE UP FOR NEXT
-    DRIVETO,70,0,-21,30,3,              // DRIVE INTO PILE TO GET SOME MORE    BONUS CUBES
+//    DRIVETO,70,0,-22,-20,2,             // SLIDE TO LINE UP FOR NEXT
+//    DRIVETO,70,0,-21,30,3,              // DRIVE INTO PILE TO GET SOME MORE    BONUS CUBES
     
     DRIVETO,90,0,-22,-30,5,             // DIVE BACK FROM PILE
     
@@ -85,7 +85,7 @@ double redAuton[] = {                   // ONE STACK OF 13 CUBES
     //DRIVEDIST,60,315,135,0.5,1,           // DRIVE OUT A LITTLE
     
     DRIVE,100,180,135,0.5,
-    DRIVE,100,90,135,0.25,
+    DRIVE,100,90,135,0.5,
 
     DEPOSIT,                            // DROP OFF STACK                       DROP OFF
     WAIT,DEPOSITDONE,13,                // WAIT FOR DEPOSIT DONE
@@ -104,7 +104,7 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
     
     INTAKEPOS,INTAKE_ARM_OUT_POS,       // PUT ARMS OUT
     WAIT,INTAKEARMLEFTABOVE,600,1,      // WAIT UNTIL THEY ARE OUT
-    DRIVETO,120,90,60,-45,0.5,          // DRIVE BACK TO START POS
+//    DRIVETO,120,90,60,-45,0.5,          // DRIVE BACK TO START POS    -- removed to save time
     INTAKESPEED,127,                    // RUN INTAKE
     
     DRIVETO,50,90,28,-45,4,             // DRIVE TO GET FIRST ROW               ROW OF FOUR
@@ -123,14 +123,14 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
     DRIVETO,70,0,58,-31,3,              // SLIDE TO WALL TO MAKE ROOM FOR TURN
     
     DRIVETO,70,90,59,-21,3,             // DRIVE AND TURN TO LINE UP FOR 3
-    DRIVETO,40,90,24,-21,3,             // DRIVE TO GET 3                       ROW OF THREE
-    DRIVETO,70,90,29,-22,3,             // DRIVE BACK FROM CUBE
+    DRIVETO,40,90,22,-21,3,             // DRIVE TO GET 3                       ROW OF THREE Xwas 24
+    DRIVETO,70,90,23,-22,3,             // DRIVE BACK FROM CUBE                         Xwas 29
     
-    TURN,0,1,                           // TURN READY TOWER
+//    TURN,0,1,                           // TURN READY TOWER
     //DRIVETO,50,0,29,-14,3,              // DRIVE TO GET CUBE                    TOWER OF THREE
     //DRIVETO,70,0,29,-20,3,              // DRIVE BACK
-    DRIVETO,70,0,22,-20,2,              // SLIDE TO LINE UP FOR NEXT
-    DRIVETO,70,0,21,30,3,               // DRIVE INTO PILE TO GET SOME MORE    BONUS CUBES
+//    DRIVETO,70,0,22,-20,2,              // SLIDE TO LINE UP FOR NEXT
+//    DRIVETO,70,0,21,30,3,               // DRIVE INTO PILE TO GET SOME MORE    BONUS CUBES
     
     DRIVETO,90,0,22,-30,5,              // DIVE BACK FROM PILE
     
@@ -138,7 +138,7 @@ double blueAuton[] = {                  // ONE STACK OF 13 CUBES
     DRIVETO,80,225,64,-60,3,            // DRIVE TO CORNER
     
     DRIVE,100,180,225,0.5,
-    DRIVE,100,270,225,0.25,
+    DRIVE,100,270,225,0.5,
     
     //DRIVEDIST,60,45,225,0.5,1,           // DRIVE OUT A LITTLE
     

@@ -15,12 +15,12 @@
 #define LIFT_SEEK_RATE 1
 
 // Stack deposit
-#define LIFT_DEPOSIT_POS 21000      // Where to move lift to
+#define LIFT_DEPOSIT_POS 21000      // Where to move lift to driver toggle only
 #define DEPOSIT_BACKOFF_SPEED 30    // How fast to drive backwards
 #define LIFT_SLOW_POS 14000         // Where to start moving lift slower
-#define LIFT_BACKUP_POS 17000
+#define LIFT_BACKUP_POS 17000       // Where to lower lift to autostack, was17000
 #define LIFT_DOWN_SPEED -40
-#define DEPOSIT_ACCEPT_POS 19000    // Where is close enough
+#define DEPOSIT_ACCEPT_POS 19000    // Where is close enough - auto stack   was 19000
 #define LIFT_SLOW_SPEED 60          // How fast to move lift slowly
 #define INTAKE_DEPOSIT_SPEED -60    // How fast to outtake cubes
 
@@ -211,6 +211,7 @@ void runLift(void* params) {
                 liftSpeed = 127;    // Run lift at full speed up
                 if (liftPos > LIFT_SLOW_POS) {      // Go slow past a certain point
                     liftSpeed = LIFT_SLOW_SPEED;
+                    //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;    // How fast to outtake cubes
                 }
                 
                 if (liftPos > DEPOSIT_ACCEPT_POS) { // Stop when lift is up
