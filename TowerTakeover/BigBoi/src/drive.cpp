@@ -9,7 +9,7 @@
 #define M_FRB_P 7
 #define M_BRA_P 9
 #define M_BRB_P 10
-#define M_FLA_P 13
+#define M_FLA_P 18
 #define M_FLB_P 17
 #define M_BLA_P 19
 #define M_BLB_P 20

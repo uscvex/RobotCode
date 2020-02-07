@@ -27,10 +27,10 @@
 // Deploy
 #define TRAY_SLIDE_POS 4000         // When to pause to let tray slide
 #define TRAY_SLIDE_TIME 0           // Time to wait for the tray to slide out
-#define LIFT_DEPLOYED_POS 10000      // When to drive forward
-#define DEPLOY_ACCEPT_POS 14500     // When to be done          14000
-#define LIFT_DEPLOY_POS 15500       // Where lift to seek to    15000
-#define DEPLOY_UNFOLD_TIME 500      // How long to wait after deploy
+#define LIFT_DEPLOYED_POS 10500      // When to drive forward
+#define DEPLOY_ACCEPT_POS 12000     // When to be done          14000
+#define LIFT_DEPLOY_POS 15000       // Where lift to seek to    15000
+#define DEPLOY_UNFOLD_TIME 100      // How long to wait after deploy
 
 // Intake tuning params
 #define INTAKE_IN_SPEED 127
@@ -279,16 +279,7 @@ void runLift(void* params) {
                     deployStep++;
                 break;
                 
-            case 2:     // Wait until tray has slid
-                //liftSeek = TRAY_SLIDE_POS;
-                intakeArmSeekRight = INTAKE_ARM_OUT_POS;
-                intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
-                
-                //if (millis() - depositTime > TRAY_SLIDE_TIME)
-                    deployStep++;
-                break;
-                
-            case 3:     // Move lift up until middle section clicks
+            case 2:     // Move lift up until middle section clicks
                 liftSeek = LIFT_DEPLOY_POS;
                 intakeArmSeekRight = INTAKE_ARM_OUT_POS;
                 intakeArmSeekLeft = INTAKE_ARM_OUT_POS;
@@ -298,7 +289,7 @@ void runLift(void* params) {
                     deployStep++;
                 break;
                 
-            case 4:     // Drive forward slowly and keep the lift up
+            case 3:     // Drive forward slowly and keep the lift up
                 liftSeek = LIFT_DEPLOY_POS;
                 driveMode = DRIVE_DEPLOY;
                 driveSpeed = 60;
@@ -311,7 +302,7 @@ void runLift(void* params) {
                 deployStep++;
                 break;
                 
-            case 5:
+            case 4:
                 if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
                     driveMode = USER;
                     driveSpeed = 0;
@@ -325,13 +316,13 @@ void runLift(void* params) {
                 }
                 break;
                 
-            case 6:
+            case 5:
                 
                 if (millis() - depositTime > DEPLOY_UNFOLD_TIME)
                     deployStep++;
                 break;
                 
-            case 7:     // Deploy is done
+            case 6:     // Deploy is done
                 liftSeek = LIFT_HOLD_POS;
                 driveMode = USER;
                 driveSpeed = 0;
