@@ -68,6 +68,16 @@ void mapField() {
 void strategyTask(void* params) {
     AI_ACTIVE = true;
     
+    // Initialise field map
+    for (int i = 0; i < MAP_RESOLUTION; i++) {
+        for (int j = 0; j < MAP_RESOLUTION; j++) {
+            fieldMap[i][j] = 0;
+        }
+    }
+    
+    // Fill in field map with permanent features
+    // Towers, opponent goal & protected zones
+    
     while (true) {
         
         mapField();
