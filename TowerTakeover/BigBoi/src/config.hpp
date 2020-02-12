@@ -134,4 +134,17 @@ extern double driveToY;
 extern double lastAutonTime;
 
 
+
+struct Cube {
+    int id;
+    double xPos;
+    double yPos;
+    double zPos;
+    double theta;
+    char color;     // 'o', 'p', 'g'
+    double stackBenefit;
+    double towerBenefit;
+};
+
+
 #endif

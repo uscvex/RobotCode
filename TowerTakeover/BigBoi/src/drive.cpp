@@ -55,8 +55,7 @@ double driveToY = 0;
 
 
 // Drive task (xDrive)
-void runDrive(void* params)
-{
+void runDrive(void* params) {
     
     double turnSeek = -1;
     
@@ -80,13 +79,13 @@ void runDrive(void* params)
         }
         
         // Get forward/backward component of desired velocity
-        double upDrive=controller.get_analog(ANALOG_LEFT_Y);
+        double upDrive = controller.get_analog(ANALOG_LEFT_Y);
         // Get left/right component of desired velocity
-        double rightDrive=controller.get_analog(ANALOG_LEFT_X);
+        double rightDrive = controller.get_analog(ANALOG_LEFT_X);
         
         // Prevent div/0 error for next step
-        if (rightDrive==0)
-            rightDrive=0.1;
+        if (rightDrive == 0)
+            rightDrive = 0.1;
         
         // Now convert components of desired velocity into angle
         double driveAngle = atan((upDrive) / (rightDrive));
