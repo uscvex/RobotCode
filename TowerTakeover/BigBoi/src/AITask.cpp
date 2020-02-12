@@ -52,41 +52,25 @@ int numOurStacks = 0;       // Number of stacks in our goals
 int cubesInTray = 0;        // Number of cubes in tray
 
 // Task to generate accurate field maps
-void mappingTask(void* params) {
+void mapField() {
+
+    // Read data from vex software & little bot - put into cubes set
+        // For each cube, also calculate its benefit
+        // I.e. how much we gain stacking it, how much we gain placing it in tower
     
-    // Initialise field map
-    for (int i = 0; i < MAP_RESOLUTION; i++) {
-        for (int j = 0; j < MAP_RESOLUTION; j++) {
-            fieldMap[i][j] = 0;
-        }
-    }
+    // Regenerate map of field based on cubes & little bot position
     
-    // Fill in field map with permanent features
-        // Towers, opponent goal & protected zones
-    
-    
-    
-    while (true) {
-        
-        // Read data from vex software & little bot - put into cubes set
-            // For each cube, also calculate its benefit
-            // I.e. how much we gain stacking it, how much we gain placing it in tower
-        
-        // Regenerate map of field based on cubes & little bot position
-        
-        // Transmit data to little bot
-        
-        delay(20);
-    }
+    // Transmit data to little bot
     
 }
 
 // Task to monitor robot process & decide strategy
 void strategyTask(void* params) {
     AI_ACTIVE = true;
-    pros::Task mapping_Task (mappingTask,(void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Map task");
     
     while (true) {
+        
+        mapField();
         
         // Variables to be set based on best objective
         int bestObjective = NO_OBJECTIVE;
