@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include <set>
+#include <cmath>
 using namespace std;
 
 // Are we in AI mode?
@@ -45,24 +46,62 @@ int AI_Status = SUCESS;
 
 // Field Info
 #define MAP_RESOLUTION 1000
-set<Cube> cubes;            // Set of cube objects read from VEX software
+#define SCORE_WEIGHT 0.1
+           // Set of cube objects read from VEX software
 // Field map for navigation
 int fieldMap[MAP_RESOLUTION][MAP_RESOLUTION];
 int numOurStacks = 0;       // Number of stacks in our goals
 int cubesInTray = 0;        // Number of cubes in tray
 
+double calculateDistance(Cube a, Cube b){
+    xDif = a.xPos - b.xPos;
+    yDif = a.yPos - b.yPos;
+    zDif = a.zPos - b.zPos;
+    double dist = sqrt (xDif*xDif + yDif*yDif + zDif*zDif);
+    return dist;
+}
+
 // Task to generate accurate field maps
 void mapField() {
-
+    int id = 0;
     // Read data from vex software & little bot - put into cubes set
         // For each cube, also calculate its benefit
         // I.e. how much we gain stacking it, how much we gain placing it in tower
-    
+    bool allCubes = false;
+    set<Cube> cubes; 
+    while (!allCubes){
+        double xPos;
+        double yPos;
+        double theta;
+        double zPos = tan(theta) / sqrt(x*x + y*y);
+        char color;     // 'o', 'p', 'g'
+        Cube c(id++, xPos, yPos, theta, zPos, color);
+        cubes.insert(c);
+        allCubes = (id == 65);
+    }
+
+    set<Cube>::iterator me, others;
+    for (me = cubes.begin(); me != cubes.end(); ++me){
+        Node curr(*me);
+        for (others = cubes.begin(); others != cubes.end(); ++others){
+            if (others == me){
+                continue;
+            }
+            Node otherNode(*others);
+            double distance = calculateDistance(*me, *others);
+
+        }
+    }
+
+    double stackBenefit;
+    double towerBenefit;
     // Regenerate map of field based on cubes & little bot position
     
     // Transmit data to little bot
     
 }
+
+
 
 // Task to monitor robot process & decide strategy
 void strategyTask(void* params) {

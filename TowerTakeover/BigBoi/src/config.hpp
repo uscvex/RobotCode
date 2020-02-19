@@ -11,7 +11,7 @@
 // Please put all in here with extern prefix, then also in file they are used in
 // All #defines should be in this file too
 //
-
+#include <set>
 
 //////////////////////////////////////////
 // Controls
@@ -139,12 +139,27 @@ struct Cube {
     int id;
     double xPos;
     double yPos;
-    double zPos;
     double theta;
+    double zPos;
     char color;     // 'o', 'p', 'g'
     double stackBenefit;
     double towerBenefit;
+    Cube(double id_, double xPos_, double yPos_, double theta_,
+    	double zPos_, char color_) :
+    	id(id_), xPos(xPos_), yPos(yPos_), theta(theta_),
+    	zPos(zPos_), color(color_) {}
 };
 
+struct Node {
+	Cube cube;
+	std::set<Edge> edges;
+	Node(Cube myself) : cube(myself) {}
+}
+
+struct Edge {
+	Node* next;
+	double edge_weight;
+	Edge(Node* n, double weight) : next(n), edge_weight(weight) {}
+}
 
 #endif
