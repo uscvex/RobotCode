@@ -9,13 +9,10 @@ using namespace std;
 
 // Drive dampening parameters (anti-tip)
 #define DRIVE_DAMPEN 1
-#define TURN_DAMPEN 8
-#define FORWARD_DAMPEN 8
-#define LIFT_DAMPEN_THRESHOLD 500
-#define LIFT_SLOWDOWN 0.0001
+#define TURN_DAMPEN 1
 
 // Joystick deadzone
-#define DEADZONE 15
+#define DEADZONE 10
 
 // Auton tuning parameters
 #define TURN_RATE 0.5           // Bigger = slower
@@ -92,27 +89,18 @@ void runDrive(void* params) {
         if (turnSpeedUser * turnSpeedUser < DEADZONE * DEADZONE)
             turnSpeedUser = 0;
         
-        // Limit max speed based on lift height
-        double speedDampen = (LIFT_ABS_TOP_POS - liftPos) / (LIFT_ABS_TOP_POS * LIFT_SLOWDOWN);
-        if (speedDampen > 1)
-            speedDampen = 1;
-        if (speedDampen < 0.5)
-            speedDampen = 0.5;
-        
-        forwardSpeedUser *= speedDampen;
-        turnSpeedUser *= speedDampen;
-        
-        // Variable dampening based on lift height
-        double forwardDampen = DRIVE_DAMPEN + FORWARD_DAMPEN * (liftPos / LIFT_ABS_TOP_POS);
-        double turnDampen = DRIVE_DAMPEN + TURN_DAMPEN * (liftPos / LIFT_ABS_TOP_POS);
-        
-        if (liftPos < LIFT_DAMPEN_THRESHOLD) {
-            forwardDampen = 1;
-            turnDampen = 1;
-        }
         
         turnSpeed = turnSpeed + (turnSpeedUser - turnSpeed) / turnDampen;
+        if (turnSpeed >= 0)
+            turnSpeed = (turnSpeed*turnSpeed) / 127;
+        else
+            turnSpeed = -(turnSpeed*turnSpeed) / 127;
+        
         forwardSpeed = forwardSpeed + (forwardSpeedUser - forwardSpeed) / forwardDampen;
+        if (forwardSpeed >= 0)
+            forwardSpeed = (forwardSpeed*forwardSpeed) / 127;
+        else
+            forwardSpeed = -(forwardSpeed*forwardSpeed) / 127;
         
         // Auton control code
         if (driveMode != USER) {

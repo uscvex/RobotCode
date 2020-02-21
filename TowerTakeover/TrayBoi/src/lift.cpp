@@ -12,7 +12,7 @@ using namespace pros;
 #define DEPLOY_DONE_POS 750
 
 // Lift values
-#define LIFT_DOWN_POS 700
+#define LIFT_DOWN_POS 200
 #define LOW_TOWER_POS 2750
 #define MID_TOWER_POS 3400
 #define LIFT_SEEK_RATE 1
@@ -21,7 +21,7 @@ using namespace pros;
 
 // Intake speeds
 #define INTAKE_IN_SPEED 127
-#define INTAKE_OUT_SPEED -60
+#define INTAKE_OUT_SPEED -127
 
 // Tray values
 #define TRAY_DOWN_POS 1
@@ -45,7 +45,7 @@ double trayPos = 0;
 double traySeek = -1;
 double runIntake = 0;
 int deployStep = -1;
-
+int depositStep = -1;
 
 void runLift(void* params) {
     
@@ -103,6 +103,17 @@ void runLift(void* params) {
                 break;
         }
 
+        // Auto deposit
+        switch (depositStep) {
+                
+            case 1:
+               
+                break;
+                
+            default:
+                depositStep = -1;
+                break;
+        }
         
         // Semi auto controls
         
@@ -183,10 +194,6 @@ void runLift(void* params) {
             lastReleasedTime = millis();
         }
         
-        // Button to lift to claw push height
-        if (controller.get_digital(DIGITAL_DOWN)) {
-            liftSeek = LIFT_DOWN_POS;
-        }
         
         // Manual overrides
         // Lift up

@@ -77,6 +77,7 @@ extern double trayPos;
 extern double traySeek;
 extern double runIntake;
 extern int deployStep;
+extern int depositStep;
 
 extern double direction;
 
