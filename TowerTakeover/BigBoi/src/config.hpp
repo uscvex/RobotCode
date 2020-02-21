@@ -150,16 +150,20 @@ struct Cube {
     	zPos(zPos_), color(color_) {}
 };
 
+struct Node;
+
+struct Edge {
+    Node* next;
+    double edge_weight;
+    Edge(Node* n, double weight) : next(n), edge_weight(weight) {}
+};
+
 struct Node {
 	Cube cube;
 	std::set<Edge> edges;
 	Node(Cube myself) : cube(myself) {}
-}
+};
 
-struct Edge {
-	Node* next;
-	double edge_weight;
-	Edge(Node* n, double weight) : next(n), edge_weight(weight) {}
-}
+
 
 #endif
