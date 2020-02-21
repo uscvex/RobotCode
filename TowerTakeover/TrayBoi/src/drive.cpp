@@ -18,7 +18,7 @@ using namespace std;
 #define TURN_RATE 0.5           // Bigger = slower
 #define MAX_TURN_SPEED 127      // Bigger = faster
 #define MIN_TURN_SPEED 30       // Bigger = faster
-#define MIN_DRIVE_SPEED 40      // Bigger = faster
+#define MIN_DRIVE_SPEED 25      // Bigger = faster
 #define DRIVE_DIST_RATE 16       // Bigger = slower
 
 #define TURN_PULSE_ON 1         // Bigger = longer pulse
@@ -90,13 +90,13 @@ void runDrive(void* params) {
             turnSpeedUser = 0;
         
         
-        turnSpeed = turnSpeed + (turnSpeedUser - turnSpeed) / turnDampen;
+        turnSpeed = turnSpeed + (turnSpeedUser - turnSpeed) / TURN_DAMPEN;
         if (turnSpeed >= 0)
             turnSpeed = (turnSpeed*turnSpeed) / 127;
         else
             turnSpeed = -(turnSpeed*turnSpeed) / 127;
         
-        forwardSpeed = forwardSpeed + (forwardSpeedUser - forwardSpeed) / forwardDampen;
+        forwardSpeed = forwardSpeed + (forwardSpeedUser - forwardSpeed) / DRIVE_DAMPEN;
         if (forwardSpeed >= 0)
             forwardSpeed = (forwardSpeed*forwardSpeed) / 127;
         else

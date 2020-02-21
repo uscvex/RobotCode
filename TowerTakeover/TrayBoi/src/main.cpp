@@ -29,11 +29,11 @@ void initialize() {
     
     sensor_gyro = ADIGyro(1, GYRO_PORT);
     
-    delay(1000);
-    controller.print(0,14,"4");
-    delay(1000);
-    controller.print(0,14,"3");
-    delay(1000);
+//    delay(1000);
+//    controller.print(0,14,"4");
+//    delay(1000);
+//    controller.print(0,14,"3");
+//    delay(1000);
     
 
     // Calibrate motor positions (and gyro)

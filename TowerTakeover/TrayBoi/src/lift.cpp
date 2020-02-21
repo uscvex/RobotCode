@@ -7,17 +7,19 @@
 using namespace pros;
 
 // Deploy values
-#define LIFT_DEPLOY_POS 1800
-#define LIFT_DEPLOY_POS_ACCEPT 1750
+#define LIFT_DEPLOY_POS 3400
+#define LIFT_DEPLOY_POS_ACCEPT 3300
 #define DEPLOY_DONE_POS 750
 
 // Lift values
-#define LIFT_DOWN_POS 200
+#define LIFT_DOWN_POS 300
 #define LOW_TOWER_POS 2750
 #define MID_TOWER_POS 3400
 #define LIFT_SEEK_RATE 1
 #define LIFT_DOWN_INCREMENT 100
 #define BUTTON_HOLD_TIME 250
+
+#define LIFT_DEPOSIT_POS -1
 
 // Intake speeds
 #define INTAKE_IN_SPEED 127
@@ -25,8 +27,10 @@ using namespace pros;
 
 // Tray values
 #define TRAY_DOWN_POS 1
-#define TRAY_UP_POS 2000
-#define TRAY_SEEK_RATE 3
+#define TRAY_UP_POS 1800
+#define TRAY_SEEK_RATE 30
+#define TRAY_SLOW_POS 400
+#define TRAY_SLOW_SPEED 30
 
 
 Motor liftR(1,TORQUE,1);
@@ -46,6 +50,7 @@ double traySeek = -1;
 double runIntake = 0;
 int deployStep = -1;
 int depositStep = -1;
+bool doneDeploy = false;
 
 void runLift(void* params) {
     
@@ -54,6 +59,7 @@ void runLift(void* params) {
     bool justLiftedUp = false;
     bool justToggledTray = false;
     bool justLiftedDown = false;
+    double currTime = 0;
     
     // Var to measure how long button held
     double lastReleasedTime = millis();
@@ -65,14 +71,14 @@ void runLift(void* params) {
         trayPos = (trayL.get_position() + trayR.get_position()) / 2;
         
         // Print to screen
-        pros::lcd::print(3, "Lift pos: %f", liftPos);
-        pros::lcd::print(4, "Tray pos: %f", trayPos);
+        pros::lcd::print(6, "Lift pos: %f", liftPos);
+        pros::lcd::print(7, "Tray pos: %f", trayPos);
         
         
         // Start speeds at 0 for safety
         double liftSpeed = 0;
         double traySpeed = 0;
-        double intakeSpeed = 0;
+        double intakeSpeed = runIntake;
         
         // If we are asking to seek to position, perform the seek
         if (traySeek >= 0) {
@@ -86,16 +92,38 @@ void runLift(void* params) {
         // Auto deploy
         switch (deployStep) {
                 
-            case 1:         // Move arms up to push open tray
-                liftSeek = LIFT_DEPLOY_POS;
-                if (liftPos > LIFT_DEPLOY_POS_ACCEPT)
+            case 1:         // Wait until release
+                if (!controller.get_digital(DIGITAL_B))
                     deployStep++;
                 break;
                 
-            case 2:         // Move arms back down
+            case 2:         // Move arms up to push open tray
+//                doneDeploy = true;
+                liftSeek = LIFT_DEPLOY_POS;
+                intakeSpeed = -127;
+                if (liftPos > LIFT_DEPLOY_POS_ACCEPT)
+                    deployStep++;
+                currTime = millis();
+                break;
+                
+            case 3:
+                doneDeploy = true;
+                intakeSpeed = -127;
+                if (millis() - currTime > 500)
+                    deployStep++;
+                break;
+                
+            case 4:         // Move arms back down
                 liftSeek = LIFT_DOWN_POS;
                 if (liftPos < DEPLOY_DONE_POS)
                     deployStep++;
+                break;
+                
+            case 5:         // Deploy is done
+                intakeSpeed = 0;
+                traySeek = TRAY_DOWN_POS;
+                deployStep++;
+                doneDeploy = true;
                 break;
                 
             default:
@@ -107,7 +135,49 @@ void runLift(void* params) {
         switch (depositStep) {
                 
             case 1:
-               
+                traySeek = -1;
+                
+                liftSeek = LIFT_DEPOSIT_POS;
+                intakeSpeed = 0;
+                if (trayPos > TRAY_SLOW_POS) {
+                    traySeek = TRAY_UP_POS+200;
+                    intakeSpeed = -30;
+                }
+                else
+                    traySpeed = 127;
+                
+                if (trayPos > TRAY_UP_POS)
+                    depositStep++;
+                currTime = millis();
+                break;
+                
+            case 2:
+                traySpeed = TRAY_SLOW_SPEED;
+//                driveMode = DRIVE_TIME;
+//                driveSpeed = 40;
+//                faceDir = -1;
+                if (millis() - currTime > 1000)
+                    depositStep++;
+                break;
+                
+            case 3:
+                traySpeed = TRAY_SLOW_SPEED;
+                driveMode = DRIVE_TIME;
+                driveSpeed = -127;
+                faceDir = -1;
+                currTime = millis();
+                depositStep++;
+                break;
+                
+            case 4:
+                if (millis() - currTime > 500)
+                    depositStep++;
+                break;
+
+            case 5:
+                driveMode = USER;
+//                traySeek = TRAY_DOWN_POS;
+                depositStep++;
                 break;
                 
             default:
@@ -117,34 +187,15 @@ void runLift(void* params) {
         
         // Semi auto controls
         
-        // Toggle intake
-        if (controller.get_digital(DIGITAL_L1)) {
-            
-            if (!justToggleIntake) {
-                if (runIntake != INTAKE_IN_SPEED)
-                    runIntake = INTAKE_IN_SPEED;
-                else
-                    runIntake = 0;
-            }
-            
-            justToggleIntake = true;
-        }
-        else {
-            justToggleIntake = false;
-        }
+       
         
-        // Toggle claw open/close
+        // Deposit stack
         if (controller.get_digital(DIGITAL_B)) {
-            if (!justToggledTray) {
-                if (traySeek != TRAY_DOWN_POS)
-                    traySeek = TRAY_DOWN_POS;
-                else
-                    traySeek = TRAY_UP_POS;
-            }
-            justToggledTray = true;
-        }
-        else {
-            justToggledTray = false;
+            if (!doneDeploy)
+                deployStep = 1;
+            else
+                depositStep = 1;
+            
         }
         
         if (controller.get_digital(DIGITAL_X))
@@ -208,13 +259,17 @@ void runLift(void* params) {
         }
         // Claw close
         if (controller.get_digital(DIGITAL_LEFT)) {
-            traySpeed = 127;
+            traySpeed = -127;
             traySeek = -1;
+            deployStep = -1;
+            depositStep = -1;
         }
         // Claw open
         if (controller.get_digital(DIGITAL_RIGHT)) {
-            traySpeed = -127;
+            traySpeed = 127;
             traySeek = -1;
+            deployStep = -1;
+            depositStep = -1;
         }
         
         // Abort!
@@ -222,12 +277,18 @@ void runLift(void* params) {
             traySeek = -1;
             liftSeek = -1;
             runIntake = 0;
+            deployStep = -1;
+            depositStep = -1;
         }
         
-        intakeSpeed = runIntake;
+        
         
         if (controller.get_digital(DIGITAL_L2)) {
             intakeSpeed = INTAKE_OUT_SPEED;
+            runIntake = 0;
+        }
+        if (controller.get_digital(DIGITAL_L1)) {
+            intakeSpeed = INTAKE_IN_SPEED;
             runIntake = 0;
         }
         
