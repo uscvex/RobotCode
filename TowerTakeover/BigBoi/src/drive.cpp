@@ -260,6 +260,10 @@ void runDrive(void* params) {
             // Finally set turn speed
             turn = turnPower;
             
+            // Don't drive faster than we ask for
+            if (driveSpeed <= driveMagSlew)
+                driveMagSlew = driveSpeed;
+            
             // Calculate driveMag based on slew
             driveMagSlewRunning += (driveMagSlew - driveMagSlewRunning) / AUTON_DRIVE_SLEW;
             driveMag = driveMagSlewRunning;
