@@ -181,6 +181,10 @@ void runDrive(void* params) {
                     forwardSpeed = -MIN_DRIVE_SPEED;
             }
             
+            if (faceDir == -1) {
+                turnPower = 0;
+            }
+            
             // Finally set turn speed
             turnSpeed = turnPower;
         }

@@ -7,8 +7,8 @@
 using namespace pros;
 
 // Gyro tuning values
-#define CCW_SCALE 0.9562
-#define CW_SCALE 0.9677
+#define CCW_SCALE 1
+#define CW_SCALE 1
 
 // Sensor declaration
 ADIGyro sensor_gyro(1, GYRO_PORT);

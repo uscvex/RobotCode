@@ -31,6 +31,7 @@ using namespace pros;
 #define TRAY_SEEK_RATE 30
 #define TRAY_SLOW_POS 400
 #define TRAY_SLOW_SPEED 30
+#define TRAY_ARM_POS 600
 
 
 Motor liftR(1,TORQUE,1);
@@ -60,6 +61,7 @@ void runLift(void* params) {
     bool justToggledTray = false;
     bool justLiftedDown = false;
     double currTime = 0;
+    bool justDeploy = false;
     
     // Var to measure how long button held
     double lastReleasedTime = millis();
@@ -83,6 +85,9 @@ void runLift(void* params) {
         // If we are asking to seek to position, perform the seek
         if (traySeek >= 0) {
             traySpeed = (traySeek - trayPos) / TRAY_SEEK_RATE;
+            if (traySeek == 1) {
+                traySpeed = (traySeek - trayPos);
+            }
         }
         if (liftSeek >= 0) {
             liftSpeed = (liftSeek - liftPos) / LIFT_SEEK_RATE;
@@ -95,15 +100,22 @@ void runLift(void* params) {
             case 1:         // Wait until release
                 if (!controller.get_digital(DIGITAL_B))
                     deployStep++;
+                currTime = millis();
                 break;
                 
             case 2:         // Move arms up to push open tray
 //                doneDeploy = true;
-                liftSeek = LIFT_DEPLOY_POS;
+                traySeek = 1;
                 intakeSpeed = -127;
-                if (liftPos > LIFT_DEPLOY_POS_ACCEPT)
-                    deployStep++;
-                currTime = millis();
+                liftSeek = LIFT_DEPLOY_POS;
+                if (millis() - currTime >= 250) {
+                    liftSeek = LIFT_DEPLOY_POS;
+                    if (liftPos > LIFT_DEPLOY_POS_ACCEPT) {
+                        traySeek = -1;
+                        deployStep++;
+                        currTime = millis();
+                    }
+                }
                 break;
                 
             case 3:
@@ -134,47 +146,54 @@ void runLift(void* params) {
         // Auto deposit
         switch (depositStep) {
                 
-            case 1:
-                traySeek = -1;
+            case 1:         // Wait until release
+                if (!controller.get_digital(DIGITAL_B))
+                    depositStep++;
+                break;
                 
+            case 2:
+                traySeek = -1;
                 liftSeek = LIFT_DEPOSIT_POS;
                 intakeSpeed = 0;
+                currTime = millis();
+                
                 if (trayPos > TRAY_SLOW_POS) {
                     traySeek = TRAY_UP_POS+200;
                     intakeSpeed = -30;
                 }
-                else
+                else {
                     traySpeed = 127;
+                }
                 
                 if (trayPos > TRAY_UP_POS)
                     depositStep++;
-                currTime = millis();
+                
                 break;
                 
-            case 2:
+            case 3:
                 traySpeed = TRAY_SLOW_SPEED;
-//                driveMode = DRIVE_TIME;
+//                driveMode = DRIVE_TIME;   // Drive forward
 //                driveSpeed = 40;
 //                faceDir = -1;
                 if (millis() - currTime > 1000)
                     depositStep++;
                 break;
                 
-            case 3:
+            case 4:
                 traySpeed = TRAY_SLOW_SPEED;
                 driveMode = DRIVE_TIME;
-                driveSpeed = -127;
+                driveSpeed = -127;      // YEET Backwards
                 faceDir = -1;
                 currTime = millis();
                 depositStep++;
                 break;
                 
-            case 4:
+            case 5:
                 if (millis() - currTime > 500)
                     depositStep++;
                 break;
 
-            case 5:
+            case 6:
                 driveMode = USER;
 //                traySeek = TRAY_DOWN_POS;
                 depositStep++;
@@ -185,24 +204,30 @@ void runLift(void* params) {
                 break;
         }
         
-        // Semi auto controls
         
-       
+        
+        // Semi auto controls
         
         // Deposit stack
         if (controller.get_digital(DIGITAL_B)) {
-            if (!doneDeploy)
-                deployStep = 1;
-            else
-                depositStep = 1;
-            
+            if (!justDeploy) {
+                if (!doneDeploy)
+                    deployStep = 1;
+                else
+                    depositStep = 1;
+            }
+            justDeploy = true;
+        }
+        else {
+            justDeploy = false;
         }
         
-        if (controller.get_digital(DIGITAL_X))
-            traySeek = TRAY_DOWN_POS;
+//        if (controller.get_digital(DIGITAL_X))
+//            traySeek = TRAY_DOWN_POS;
         
         // Move lift up
         if (controller.get_digital(DIGITAL_R1)) {
+            traySeek = TRAY_ARM_POS;
             // If this is a new press
             if (!justLiftedUp) {
                 // Then move lift up to next position
@@ -235,6 +260,7 @@ void runLift(void* params) {
                 }
                 else {
                     liftSeek = LIFT_DOWN_POS;
+                    traySeek = TRAY_DOWN_POS;
                 }
             }
             // Don't let us repeat until we've let go
@@ -282,7 +308,7 @@ void runLift(void* params) {
         }
         
         
-        
+        // Intake in/out
         if (controller.get_digital(DIGITAL_L2)) {
             intakeSpeed = INTAKE_OUT_SPEED;
             runIntake = 0;
@@ -291,6 +317,7 @@ void runLift(void* params) {
             intakeSpeed = INTAKE_IN_SPEED;
             runIntake = 0;
         }
+        
         
         // Finally set motor voltages based on speed
         liftR.move_voltage(12000 * liftSpeed / 127);

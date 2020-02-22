@@ -27,6 +27,7 @@ using namespace std;
 #define SETDIR 11       // SETDIR, <ANGLE>
 #define SETINTAKE 12    // SETINTAKE, <SPEED>
 #define DEPLOY 13       // DEPLOY
+#define DEPOSIT 14       // DEPOSIT
 
 #define BOTH_W 1
 #define BOTH_B 2
@@ -42,6 +43,7 @@ using namespace std;
 #define TRAYABOVE 4
 #define TIME 5
 #define DEPLOYDONE 6
+#define DEPOSITDONE 7
 
 #define WHITE_THRESHOLD_R 1000
 #define WHITE_THRESHOLD_L 1000
@@ -52,7 +54,27 @@ int numAutons = 3;
 
 double redAuton[] = {
     270,
-    DEPLOY,
+    DEPLOY,                         // DEPLOY
+    WAIT,DEPLOYDONE,7,              // WAIT UNTIL DONE
+    PAUSE,0.5,
+    
+    DRIVEDIST,60,270,41,8,          // DRIVE LEVEL WITH 4 STACK
+    TURN,180,1,                     // TURN TO FACE STACK
+    
+    SETINTAKE,-127,                 // RUN INTAKE OUT FOR TRAY
+    TRAYPOS,5000,                   // LIFT TRAY TO OPEN INTAKE
+    PAUSE,1,
+    TRAYPOS,2000,
+    SETINTAKE,0,                    // STOP INTAKE
+    
+    DRIVEDIST,20,180,10,5,          // DRIVE TO FOURSTACK
+    SETINTAKE,127,                  // RUN INTAKE IN
+    TRAYPOS,1,                      // LOWER TRAY
+    DRIVEDIST,127,180,10,3,         // DRIVE INTO FOURSTACK
+    PAUSE,3,                        // WAIT TO INTAKE CUBES
+    
+    
+    
     END
 };
 
@@ -206,6 +228,12 @@ void autonomous() {
                     nextCommand = true;
                     break;
                     
+                case DEPOSIT:
+                    cout << "DEPOSIT" << endl;
+                    depositStep = 1;
+                    nextCommand = true;
+                    break;
+                    
                 case END:       // Do nothing, we are finished
                     cout << "END" << endl;
                     break;
@@ -267,6 +295,13 @@ void autonomous() {
                     if (deployStep == -1) {
                         finishedWait = true;
                         cout << "Deploy done\n";
+                    }
+                    break;
+                    
+                case DEPOSITDONE:     // Deposit to be done
+                    if (depositStep == -1) {
+                        finishedWait = true;
+                        cout << "Deposit done\n";
                     }
                     break;
                     
