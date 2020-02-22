@@ -27,7 +27,7 @@ using namespace std;
 #define SETDIR 11       // SETDIR, <ANGLE>
 #define SETINTAKE 12    // SETINTAKE, <SPEED>
 #define DEPLOY 13       // DEPLOY
-#define DEPOSIT 14       // DEPOSIT
+#define DEPOSIT 14      // DEPOSIT
 
 #define BOTH_W 1
 #define BOTH_B 2
@@ -49,17 +49,19 @@ using namespace std;
 #define WHITE_THRESHOLD_L 1000
 
 
-int autonSelect = PROGRAMMING_SKILLS;
+int autonSelect = BLUE_AUTON;
 int numAutons = 3;
 
 double redAuton[] = {
     270,
     DEPLOY,                         // DEPLOY
-    WAIT,DEPLOYDONE,7,              // WAIT UNTIL DONE
-    PAUSE,0.5,
-    
-    DRIVEDIST,60,270,41,8,          // DRIVE LEVEL WITH 4 STACK
-    TURN,180,1,                     // TURN TO FACE STACK
+    WAIT,DEPLOYDONE,1,7,              // WAIT UNTIL DONE
+    PAUSE,1,
+    SETINTAKE,-127,
+    DRIVEDIST,60,270,56,12,          // DRIVE LEVEL WITH 4 STACK
+    // DRIVEDIST,-60,270,4,3,          // DRIVE LEVEL WITH 4 STACK
+    DRIVE,-30,270,0.1,               // DRIVE TO BREAK
+    TURN,180,2,                     // TURN TO FACE STACK
     
     SETINTAKE,-127,                 // RUN INTAKE OUT FOR TRAY
     TRAYPOS,5000,                   // LIFT TRAY TO OPEN INTAKE
@@ -67,11 +69,42 @@ double redAuton[] = {
     TRAYPOS,2000,
     SETINTAKE,0,                    // STOP INTAKE
     
-    DRIVEDIST,20,180,10,5,          // DRIVE TO FOURSTACK
+    DRIVEDIST,20,180,11,5,          // DRIVE TO FOURSTACK
     SETINTAKE,127,                  // RUN INTAKE IN
     TRAYPOS,1,                      // LOWER TRAY
-    DRIVEDIST,127,180,10,3,         // DRIVE INTO FOURSTACK
-    PAUSE,3,                        // WAIT TO INTAKE CUBES
+    DRIVEDIST,120,180,9,3,          // DRIVE INTO FOURSTACK
+    PAUSE,0.5,                        // WAIT TO INTAKE CUBES
+
+    DRIVEDIST,-20,180,5,5,         // BACK FROM FOUR
+    TURN,90,2,
+    DRIVEDIST,60,90,45,4,          // DRIVE TO GET CUBE
+    
+    DRIVEDIST,-60,90,10.5,5,
+    TURN,180,2,
+    
+    DRIVEDIST,20,180,20,3,         // GET TOWER CUBE
+    
+    DRIVEDIST,-50,180,30,5,         // BACK UP TO ALIGN FOR NEXT
+    
+    TURN,270,2,
+    DRIVEDIST,60,270,35,5,         // GET NEXT CUBE
+    PAUSE,0.25,
+    DRIVEDIST,-60,270,25,5,         // DRIVE BACK
+    TURN,0,2,
+    SETINTAKE,0,
+    DRIVEDIST,60,0,50,3,            // DRIVE INTO WALL
+    SETINTAKE,0,
+    DRIVEDIST,-30,0,2,5,            // DRIVE AWAY FROM WALL
+    TURN,80,2,
+    DRIVEDIST,60,80,30,4,
+    DRIVEDIST,-60,80,1,0.5,
+    SETINTAKE,-100,                  // GET CUBES TO CORRECT POS
+    PAUSE,0.1,
+    SETINTAKE,0,                  // STOP INTAKE
+    
+    DEPOSIT,
+    DRIVE,40,80,1,
+    WAIT,DEPOSITDONE,15,
     
     
     
@@ -80,8 +113,57 @@ double redAuton[] = {
 
 double blueAuton[] = {
     90,
-    DEPLOY,
-    END
+    DEPLOY,                         // DEPLOY
+    WAIT,DEPLOYDONE,1,7,              // WAIT UNTIL DONE
+    PAUSE,1,
+    SETINTAKE,-127,
+    DRIVEDIST,60,90,54,12,          // DRIVE LEVEL WITH 4 STACK
+    // DRIVEDIST,-60,270,4,3,          // DRIVE LEVEL WITH 4 STACK
+    DRIVE,-30,90,0.1,               // DRIVE TO BREAK
+    TURN,180,2,                     // TURN TO FACE STACK
+    
+    SETINTAKE,-127,                 // RUN INTAKE OUT FOR TRAY
+    TRAYPOS,5000,                   // LIFT TRAY TO OPEN INTAKE
+    PAUSE,1,
+    TRAYPOS,2000,
+    SETINTAKE,0,                    // STOP INTAKE
+    
+    DRIVEDIST,20,180,11,5,          // DRIVE TO FOURSTACK
+    SETINTAKE,127,                  // RUN INTAKE IN
+    TRAYPOS,1,                      // LOWER TRAY
+    DRIVEDIST,120,180,9,3,          // DRIVE INTO FOURSTACK
+    PAUSE,0.5,                        // WAIT TO INTAKE CUBES
+    
+    DRIVEDIST,-20,180,7,5,         // BACK FROM FOUR
+    TURN,270,2,
+    DRIVEDIST,60,270,45,4,          // DRIVE TO GET CUBE
+    
+    DRIVEDIST,-60,270,8,5,
+    TURN,180,2,
+    
+    DRIVEDIST,20,180,20,3,         // GET TOWER CUBE
+    
+    DRIVEDIST,-50,180,23,5,         // BACK UP TO ALIGN FOR NEXT
+    
+    TURN,90,2,
+    DRIVEDIST,60,90,35,5,         // GET NEXT CUBE
+    PAUSE,0.25,
+    DRIVEDIST,-60,90,25,5,         // DRIVE BACK
+    TURN,0,2,
+    SETINTAKE,0,
+    DRIVEDIST,60,0,50,3,            // DRIVE INTO WALL
+    SETINTAKE,0,
+    DRIVEDIST,-30,0,2,5,            // DRIVE AWAY FROM WALL
+    TURN,290,2,
+    DRIVEDIST,60,290,30,4,
+    DRIVEDIST,-60,290,1,0.5,
+    SETINTAKE,-100,                  // GET CUBES TO CORRECT POS
+    PAUSE,0.1,
+    SETINTAKE,0,                  // STOP INTAKE
+    
+    DEPOSIT,
+    DRIVE,40,290,1,
+    WAIT,DEPOSITDONE,15,
 };
 
 double programmingSkills[] = {
@@ -126,14 +208,14 @@ void autonomous() {
     setDirection(processEntry());
     
     nextCommand = true;
-    
+    int numCommands = 0;
     while (true) {
         
         // If we are ready for the next command
         if (nextCommand) {
-            
+            numCommands++;
             autonTime = (millis() - autonStartTime) / 1000;
-            controller.print(0,0,"T: %f", autonTime);
+            controller.print(0,0,"T: %f, %d", autonTime, numCommands);
             
             nextCommand = false;            // We are not ready for next command any more
             commandStartTime = millis();    // Record the time the command was started
@@ -240,6 +322,7 @@ void autonomous() {
                     
                 default:        // Command not recognised
                     cout << "BAD COMMAND" << endl;
+                    controller.print(0,0,"DINGUS");
                     break;
                     
             }

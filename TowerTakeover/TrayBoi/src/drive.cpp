@@ -16,7 +16,7 @@ using namespace std;
 
 // Auton tuning parameters
 #define TURN_RATE 0.5           // Bigger = slower
-#define MAX_TURN_SPEED 127      // Bigger = faster
+#define MAX_TURN_SPEED 40      // Bigger = faster
 #define MIN_TURN_SPEED 30       // Bigger = faster
 #define MIN_DRIVE_SPEED 25      // Bigger = faster
 #define DRIVE_DIST_RATE 16       // Bigger = slower

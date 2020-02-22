@@ -7,7 +7,7 @@
 using namespace pros;
 
 // Deploy values
-#define LIFT_DEPLOY_POS 3400
+#define LIFT_DEPLOY_POS 3200
 #define LIFT_DEPLOY_POS_ACCEPT 3300
 #define DEPLOY_DONE_POS 750
 
@@ -100,38 +100,44 @@ void runLift(void* params) {
             case 1:         // Wait until release
                 if (!controller.get_digital(DIGITAL_B))
                     deployStep++;
-                currTime = millis();
                 break;
                 
             case 2:         // Move arms up to push open tray
-//                doneDeploy = true;
-                traySeek = 1;
-                intakeSpeed = -127;
-                liftSeek = LIFT_DEPLOY_POS;
-                if (millis() - currTime >= 250) {
-                    liftSeek = LIFT_DEPLOY_POS;
-                    if (liftPos > LIFT_DEPLOY_POS_ACCEPT) {
-                        traySeek = -1;
-                        deployStep++;
-                        currTime = millis();
-                    }
-                }
-                break;
-                
-            case 3:
-                doneDeploy = true;
-                intakeSpeed = -127;
-                if (millis() - currTime > 500)
+                liftSeek = -1;
+                traySeek = -1;
+                liftSpeed = 127;
+                currTime = millis();
+                if (liftPos > LIFT_DEPLOY_POS)
                     deployStep++;
                 break;
                 
-            case 4:         // Move arms back down
-                liftSeek = LIFT_DOWN_POS;
+            case 3:
+                liftSpeed = 0;
+                if (millis() - currTime >= 250)
+                    deployStep++;
+                break;
+                
+            case 4:
+                liftSpeed = -127;
                 if (liftPos < DEPLOY_DONE_POS)
                     deployStep++;
                 break;
                 
-            case 5:         // Deploy is done
+            case 5:
+                liftSpeed = 0;
+                traySpeed = 127;
+                if (trayPos > 1500)
+                    deployStep++;
+                break;
+                
+            case 6:
+                traySeek = 1;
+                liftSeek = LIFT_DOWN_POS;
+                if (trayPos < 500)
+                    deployStep++;
+                break;
+                
+            case 7:         // Deploy is done
                 intakeSpeed = 0;
                 traySeek = TRAY_DOWN_POS;
                 deployStep++;
@@ -183,7 +189,7 @@ void runLift(void* params) {
                 traySpeed = TRAY_SLOW_SPEED;
                 driveMode = DRIVE_TIME;
                 driveSpeed = -127;      // YEET Backwards
-                faceDir = -1;
+                faceDir = -1;//direction;
                 currTime = millis();
                 depositStep++;
                 break;
@@ -250,6 +256,10 @@ void runLift(void* params) {
                 liftSeek = -1;
                 if (liftPos > LOW_TOWER_POS/2)
                     liftSpeed = -127;
+                else {
+                    liftSeek = LIFT_DOWN_POS;
+                    traySeek = TRAY_DOWN_POS;
+                }
             }
             // Otherwise move down by a set amount
             else if (!justLiftedDown) {
