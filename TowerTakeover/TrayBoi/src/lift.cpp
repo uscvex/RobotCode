@@ -112,32 +112,40 @@ void runLift(void* params) {
                 break;
                 
             case 3:
+                liftSpeed = 127;
+                if (millis() - currTime >= 500) {
+                    deployStep++;
+                    currTime = millis();
+                }
+                break;
+                
+            case 4:
                 liftSpeed = 0;
                 if (millis() - currTime >= 250)
                     deployStep++;
                 break;
                 
-            case 4:
+            case 5:
                 liftSpeed = -127;
                 if (liftPos < DEPLOY_DONE_POS)
                     deployStep++;
                 break;
                 
-            case 5:
+            case 6:
                 liftSpeed = 0;
                 traySpeed = 127;
                 if (trayPos > 1500)
                     deployStep++;
                 break;
                 
-            case 6:
+            case 7:
                 traySeek = 1;
                 liftSeek = LIFT_DOWN_POS;
                 if (trayPos < 500)
                     deployStep++;
                 break;
                 
-            case 7:         // Deploy is done
+            case 8:         // Deploy is done
                 intakeSpeed = 0;
                 traySeek = TRAY_DOWN_POS;
                 deployStep++;
@@ -260,7 +268,7 @@ void runLift(void* params) {
                     liftSeek = LIFT_DOWN_POS;
                     traySeek = TRAY_DOWN_POS;
                 }
-            }
+            }\
             // Otherwise move down by a set amount
             else if (!justLiftedDown) {
                 if (liftSeek > LOW_TOWER_POS - 500) {
