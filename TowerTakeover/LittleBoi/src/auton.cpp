@@ -14,7 +14,7 @@ using namespace std;
 #define HIGH_TOWER_POS_A 3600
 #define HIGH_TOWER_ACCEPT 3400
 #define CLAW_OPEN_POS_A 1
-#define CLAW_CLOSE_POS_A 300
+#define CLAW_CLOSE_POS_A 600
 #define CLOSE CLAW_CLOSE_POS_A
 #define OPEN CLAW_OPEN_POS_A
 #define LIFT_GRAB_POS 650
@@ -22,13 +22,13 @@ using namespace std;
 // Auton commands
 #define TURN 1          // TURN, <FACEDIR>, <TIMEOUT>
 #define DRIVE 2         // DRIVE, <DRIVESPEED>, <FACEDIR>, <TIMEOUT>
-#define DRIVEDIST 3     // DRIVE, <DRIVESPEED>, <FACEDIR>, <DISTANCE>, <TIMEOUT>
+#define DRIVEDIST 3     // DRIVEDIST, <DRIVESPEED>, <FACEDIR>, <DISTANCE>, <TIMEOUT>
 #define LIFTPOS 4       // LIFTPOS, <POSITION>
 #define CLAWPOS 5       // CLASPOS, <POSITION>
 #define END 7           // END
 #define PAUSE 8         // PAUSE, <TIMEOUT>
 #define WAIT 9          // WAIT, <CONDITION>, <PARAMETER>, <TIMEOUT>
-#define DRIVEUNTIL 10   // DRIVE, <DRIVESPEED>, <FACEDIR>, <TYPE>, <TIMEOUT>
+#define DRIVEUNTIL 10   // DRIVEUNTIL, <DRIVESPEED>, <FACEDIR>, <TYPE>, <TIMEOUT>
 #define SETDIR 11       // SETDIR, <ANGLE>
 
 #define BOTH_W 1
@@ -55,50 +55,6 @@ double redAuton[] = {
     180,
     DRIVEDIST,-80,180,12,3,             // PUSH PRELOAD IN
     DRIVEDIST,70,180,3,3,               // DRIVE AWAY
-//    LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
-    
-//    TURN,270,1,                          // TURN FOR NEXT CUBE
-//    DRIVEDIST,60,270,15,4,               // DRIVE TO NEXT CUBE
-//    LIFTPOS,1,                          // LOWER LIFT
-//    DRIVEDIST,60,270,10,4,               // DRIVE INTO NEXT CUBE
-//
-//
-//    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        FIRST CUBE
-//    PAUSE,0.25,
-//    LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
-//    DRIVEDIST,-70,270,33,3,              // DRIVE BACK FROM NEXT CUBE
-//    TURN,0,1,                           // TURN TO FACE ZONE
-//
-//    DRIVEDIST,70,0,6,3,                 // DRIVE FORWARD TO THROW
-//    CLAWPOS,CLAW_OPEN_POS_A,            // THROW
-//    DRIVEDIST,-70,350,27,3,               // DRIVE BACK TO THROW
-//
-//    TURN,90,1,                          // TURN FOR NEXT CUBE
-//    DRIVEDIST,-80,90,10,3,               // DRIVE TO NEXT CUBE
-//
-//    TURN,180,1,
-//    DRIVEDIST,60,180,18,3,
-//    LIFTPOS,1,
-//    PAUSE,0.5,
-//    CLAWPOS,CLAW_CLOSE_POS_A,
-//    PAUSE,0.5,
-//    DRIVEDIST,-40,180,5,3,
-//
-//    LIFTPOS,MID_TOWER_POS_A,
-//    WAIT,LIFTABOVE,2000,2,
-//    PAUSE,1,
-//    DRIVEDIST,40,180,14,4,
-//    CLAWPOS,CLAW_OPEN_POS_A,
-//    PAUSE,2,
-//    DRIVEDIST,-40,180,14,4,
-//    LIFTPOS,-1,
-//
-//    TURN,270,1,
-//    DRIVEDIST,-80,270,15,2,
-//    TURN,180,1,
-//    DRIVEDIST,-80,180,40,4,
-//    DRIVEDIST,80,180,10,4,
-    
     END
 };
 
@@ -106,50 +62,6 @@ double blueAuton[] = {
     180,
     DRIVEDIST,-80,180,12,3,             // PUSH PRELOAD IN
     DRIVEDIST,70,180,3,3,               // DRIVE AWAY
-//    LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
-//
-//    TURN,90,1,                          // TURN FOR NEXT CUBE
-//    DRIVEDIST,60,90,15,4,               // DRIVE TO NEXT CUBE
-//    LIFTPOS,1,                          // LOWER LIFT
-//    DRIVEDIST,60,90,10,4,               // DRIVE INTO NEXT CUBE
-//
-//
-//    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        FIRST CUBE
-//    PAUSE,0.25,
-//    LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
-//    DRIVEDIST,-70,90,33,3,              // DRIVE BACK FROM NEXT CUBE
-//    TURN,0,1,                           // TURN TO FACE ZONE
-//
-//    DRIVEDIST,70,0,6,3,                 // DRIVE FORWARD TO THROW
-//    CLAWPOS,CLAW_OPEN_POS_A,            // THROW
-//    DRIVEDIST,-70,10,27,3,               // DRIVE BACK TO THROW
-//
-//    TURN,270,1,                          // TURN FOR NEXT CUBE
-//    DRIVEDIST,-80,270,10,3,               // DRIVE TO NEXT CUBE
-//
-//    TURN,180,1,
-//    DRIVEDIST,60,180,18,3,
-//    LIFTPOS,1,
-//    PAUSE,0.5,
-//    CLAWPOS,CLAW_CLOSE_POS_A,
-//    PAUSE,0.5,
-//    DRIVEDIST,-40,180,5,3,
-//
-//    LIFTPOS,MID_TOWER_POS_A,
-//    WAIT,LIFTABOVE,2000,2,
-//    PAUSE,1,
-//    DRIVEDIST,40,180,14,4,
-//    CLAWPOS,CLAW_OPEN_POS_A,
-//    PAUSE,2,
-//    DRIVEDIST,-40,180,14,4,
-//    LIFTPOS,-1,
-//
-//    TURN,90,1,
-//    DRIVEDIST,-80,90,15,2,
-//    TURN,180,1,
-//    DRIVEDIST,-80,180,40,4,
-//    DRIVEDIST,80,180,10,4,
-//
     END
 };
 
@@ -175,12 +87,11 @@ double programmingSkills[] = {
     TURN,270,1,
     
     DRIVEDIST,50,270,12,2,
-    CLAWPOS,CLOSE,                              // GRAB STACK OF FOUR
+    CLAWPOS,CLOSE,                              // GRAB 1ST STACK OF FOUR
     DRIVEDIST,70,270,4,0.5,
     PAUSE,0.5,
     
-    
-    TURN,300,0.2,
+    TURN,300,0.2,                               // SLOW TURN
     TURN,330,0.2,
     TURN,0,0.2,
     TURN,25,0.2,
@@ -190,14 +101,14 @@ double programmingSkills[] = {
     DRIVEDIST,60,55,32,5,
     TURN,45,0.25,
     DRIVEDIST,60,45,2,1,
-    CLAWPOS,OPEN,                               // PLACE STACK OF FOUR
+    CLAWPOS,OPEN,                               // PLACE 1ST STACK OF FOUR
     PAUSE,0.5,
     DRIVEDIST,-60,45,15,5,
     
     TURN,180,1,
     DRIVEDIST,-60,180,25,2.5,                   // DRIVE TO HIT WALL
     DRIVE,-60,180,0.25,
-    DRIVEDIST,60,180,25,2,
+    DRIVEDIST,60,180,26.5,2,
     
     TURN,270,1,
     
@@ -220,6 +131,7 @@ double programmingSkills[] = {
     TURN,90,1,
     
     DRIVEDIST,80,90,25,2,
+    DRIVE,80,90,0.25,
     CLAWPOS,CLOSE,                              // THIRD CUBE
     PAUSE,0.25,
     DRIVEDIST,-60,90,10,2,
@@ -247,7 +159,34 @@ double programmingSkills[] = {
     DRIVEDIST,-40,225,10,2,
     
     TURN,180,1,
-    DRIVEDIST,-70,180,40,4,                     // DRIVE TO HIT WALL
+    DRIVEDIST,-80,180,55,4.5,                     // DRIVE TO HIT WALL
+    DRIVE,-80,180,0.5,
+    PAUSE,0.25,
+    SETDIR,180,
+    DRIVEDIST,70,180,4,1,
+    
+    TURN,90,1,
+    DRIVEDIST,-70,90,45,4,
+    TURN,180,1,
+    
+    DRIVEDIST,50,180,20,4,
+    CLAWPOS,CLOSE,                              // GRAB 2ND STACK OF FOUR
+    DRIVEDIST,70,180,4,0.5,
+    PAUSE,0.5,
+    
+    
+    TURN,210,0.2,                               // SLOW TURN
+    TURN,240,0.2,
+    TURN,270,0.2,
+    TURN,300,0.2,
+    TURN,330,0.2,
+    
+    DRIVEDIST,70,330,45,5,
+    DRIVEDIST,70,315,10,2,
+    PAUSE,0.25,
+    CLAWPOS,OPEN,
+    PAUSE,0.25,
+    DRIVEDIST,-70,315,10,2,
     
     END,
 };
