@@ -76,6 +76,11 @@ void opcontrol() {
     
 	while (true) {
         
+        if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
+            while (controller.get_digital(DIGITAL_X)) {delay(20);}
+            autonomous();
+        }
+        
         if (controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_X)) {
             if (!justSwitchedAuton) {
                 autonSelect++;

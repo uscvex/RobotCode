@@ -37,6 +37,7 @@ using namespace pros;
 extern ADIGyro sensor_gyro;
 extern ADILineSensor whiteLineR;
 extern ADILineSensor whiteLineL;
+extern ADIDigitalIn clawLimit;
 
 // Function prototypes
 void runDrive(void* params);

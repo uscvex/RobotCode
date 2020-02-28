@@ -7,14 +7,16 @@
 using namespace pros;
 using namespace std;
 
-#define LOW_TOWER_POS_A 1800
-#define LOW_TOWER_ACCEPT 1600
+#define LOW_TOWER_POS_A 1900
+#define LOW_TOWER_ACCEPT 1700
 #define MID_TOWER_POS_A 2250
 #define MID_TOWER_ACCEPT 2000
 #define HIGH_TOWER_POS_A 3600
 #define HIGH_TOWER_ACCEPT 3400
 #define CLAW_OPEN_POS_A 1
-#define CLAW_CLOSE_POS_A 180
+#define CLAW_CLOSE_POS_A 300
+#define CLOSE CLAW_CLOSE_POS_A
+#define OPEN CLAW_OPEN_POS_A
 #define LIFT_GRAB_POS 650
 
 // Auton commands
@@ -26,7 +28,7 @@ using namespace std;
 #define END 7           // END
 #define PAUSE 8         // PAUSE, <TIMEOUT>
 #define WAIT 9          // WAIT, <CONDITION>, <PARAMETER>, <TIMEOUT>
-#define DRIVEWHITE 10   // DRIVE, <DRIVESPEED>, <FACEDIR>, <TYPE>, <TIMEOUT>
+#define DRIVEUNTIL 10   // DRIVE, <DRIVESPEED>, <FACEDIR>, <TYPE>, <TIMEOUT>
 #define SETDIR 11       // SETDIR, <ANGLE>
 
 #define BOTH_W 1
@@ -35,6 +37,7 @@ using namespace std;
 #define RIGHT_B 4
 #define LEFT_W 5
 #define LEFT_B 6
+#define CUBE_PRESENT 7
 
 // Wait conditions
 #define LIFTBELOW 1
@@ -153,349 +156,100 @@ double blueAuton[] = {
 double programmingSkills[] = {
     270,
     
-    DRIVEDIST,70,270,2.5,2,             // DRIVE FORWARD
-    CLAWPOS,CLAW_CLOSE_POS_A,         // GRAB CUBE                        FIRST CUBE
-    PAUSE,0.25,
-    DRIVEDIST,-70,270,1.5,2,             // DRIVE BACK
-    LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,MID_TOWER_ACCEPT,3,
-    DRIVEDIST,60,270,8,2,
-    CLAWPOS,CLAW_OPEN_POS_A,            //                                    FIRST TOWER
-    PAUSE,0.25,
-    DRIVEDIST,-60,270,7,2,
-    LIFTPOS,LIFT_GRAB_POS,
-    TURN,0,1,
-    
-    DRIVEWHITE,70,5,LEFT_W,5,          // DRIVE TO TILE
-    DRIVEDIST,80,10,4,1,                // DRIVE A BIT FURTHER
-    LIFTPOS,LIFT_GRAB_POS,              // GET LIFT READY
-    DRIVE,-60,0,0.05,                   // BREAK
-    
-    TURN,270,1,                         // TURN FOR NEXT CUBE
-    DRIVE,-90,270,0.5,                  // DRIVE INTO WALL
-    DRIVEDIST,90,270,40,3,              // DRIVE TO NEXT CUBE
-    LIFTPOS,1,                          // MOVE LIFT DOWN
-    DRIVEDIST,40,270,12,3,              // DRIVE A LITTLE MORE
-    PAUSE,0.25,                         // PAUSE FOR GRAB
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        SECOND CUBE
-    PAUSE,0.25,                         // PAUSE FOR GRAB
-    TURN,225,1,                         // TURN FOR TOWER
-    
-    CLAWPOS,CLAW_OPEN_POS_A,            // OPEN CLAW
-    DRIVEDIST,60,225,2,1,               // DRIVE FORWARD
-    DRIVEDIST,70,225,10,2,              // DRIVE CLOSE TO TOWER
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB
-    PAUSE,0.5,                          // PAUSE FOR GRAB
-    
-    LIFTPOS,HIGH_TOWER_POS_A,           // RAISE LIFT
-    WAIT,LIFTABOVE,3500,4,              // WAIT FOR LIFT
-    DRIVEDIST,60,220,8,4,               // DRIVE TO TOWER
-    PAUSE,0.25,                          // PAUSE FOR DROP
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        SECOND TOWER
-    PAUSE,0.5,                          // PAUSE FOR DROP
-    DRIVE,-60,225,0.05,                  // DRIVE TO BREAK
-    DRIVEDIST,-50,220,6,4,               // DRIVE AWAY FROM TOWER
-    
-    LIFTPOS,LIFT_GRAB_POS,
-    PAUSE,1,
-    
-    DRIVEDIST,-50,225,20,4,               // DRIVE AWAY FROM TOWER MORE
-    
-    TURN,270,1,
-    DRIVEDIST,-80,270,60,2,
-    TURN,10,1,
-    DRIVEWHITE,40,10,RIGHT_W,5,          // DRIVE TO TILE
-    DRIVEWHITE,40,10,RIGHT_B,5,          // DRIVE OFF TILE
-    DRIVEDIST,40,10,6,3,
-    TURN,270,1,
-    
-    
-    DRIVE,-80,270,1,                     // DRIVE INTO WALL
-    PAUSE,0.25,
-    SETDIR,270,
-    PAUSE,0.25,
-    
-    CLAWPOS,CLAW_OPEN_POS_A,            // OPEN CLAW
-    LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
-    DRIVEDIST,100,270,40,5,             // DRIVE FORWARD
-    LIFTPOS,1,                          // LOWER LIFT
-    DRIVEDIST,100,280,20,3,             // DRIVE FORWARD MORE
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        THIRD CUBE
-    
-    DRIVEWHITE,100,280,RIGHT_W,2,       // DRIVE TO CENTER LINE
-    DRIVE,-60,270,0.05,                 // BREAK
-    PAUSE,0.25,                         // PAUSE TO HOLD CUBE
-    TURN,180,1,                         // TURN TO FACE TOWER
-    DRIVEDIST,-60,180,2,1,              // DRIVE BACK
-    LIFTPOS,LOW_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,1600,2,              // WAIT FOR LIFT TO GO UP
-    
-    DRIVEDIST,40,180,15,5,              // DRIVE TO TOWER
-    //PAUSE,0.25,                         // PAUSE FOR STABLE
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        THIRD TOWER
-    PAUSE,0.5,                          // WAIT FOR CUBE TO FALL
-    
-    DRIVEDIST,-50,180,10,3,             // DRIVE AWAY FROM TOWER
-    
-    LIFTPOS,-1,                         // LOWER LIFT
-    
-    DRIVE,-60,180,0.5,                  // DRIVE INTO WALL
-    DRIVEDIST,100,180,7,0.5,            // DRIVE AWAY FROM WALL
-    DRIVE,-40,180,0.05,                 // BREAK
-    TURN,90,1,                          // TURN FOR NEXT CUBE
-    
-    DRIVEDIST,-100,90,9,2,            // DRIVE AWAY FROM WALL
-    DRIVEWHITE,-100,90,RIGHT_W,2,
-    DRIVEDIST,-100,90,20,3,         // DRIVE TO LINE UP FOR NEXT CUBE
-    DRIVE,60,90,0.05,
-    
-    LIFTPOS,LIFT_GRAB_POS,
+    DRIVEDIST,80,270,8,2,
+    CLAWPOS,CLOSE,                              // FIRST CUBE
+    PAUSE,0.125,
     TURN,180,1,
+    LIFTPOS,MID_TOWER_POS_A,
+    DRIVEDIST,60,180,4,2,
+    WAIT,LIFTABOVE,MID_TOWER_ACCEPT,2,
+    DRIVEDIST,50,180,12,2,
+    PAUSE,0.375,
+    CLAWPOS,OPEN,                               // FIRST TOWER
+    PAUSE,0.25,
+    DRIVEDIST,-40,180,8,2,
+    LIFTPOS,-1,
+    PAUSE,0.5,
+    DRIVEDIST,-60,180,5,2,
     
-    DRIVEDIST,70,180,26,2,              // DRIVE TO CUBE
-    LIFTPOS,1,                          // LOWER LIFT
-    PAUSE,0.5,                          // PAUSE TO GET CUBE
-    DRIVEDIST,60,190,3,1,               // DRIVE MORE
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        FOURTH CUBE
-    PAUSE,0.75,                         // PAUSE TO GET CUBE
-    DRIVEDIST,70,190,3,1,               // DRIVE MORE
-    
-    DRIVEDIST,70,190,15,3,              // DRIVE TO TOWER
-    DRIVEDIST,-60,190,5,3,              // DRIVE AWAY TOWER
-    LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
-    TURN,200,1,
-    WAIT,LIFTABOVE,2000,2,              // WAIT FOR LIFT TO GO UP
-    DRIVEDIST,60,200,8,3,               // DRIVE TO TOWER
-    PAUSE,0.25,                         // PAUSE FOR STABLE
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        FOURTH TOWER
-    PAUSE,0.25,                         // WAIT FOR CUBE TO FALL
-    DRIVEDIST,-50,180,8,1,
-    
-    LIFTPOS,LIFT_GRAB_POS,
-    DRIVEWHITE,-50,180,LEFT_W,2,
-    DRIVE,50,180,0.05,
     TURN,270,1,
-    DRIVEDIST,-60,270,22,3,
-    TURN,180,1,
     
-    PAUSE,5,                            // PAUSE TO LET BIG BOT CLEAR OUT
-    
-    DRIVEDIST,70,180,29,3,
-    LIFTPOS,1,
-    DRIVEDIST,70,180,37,5,
-    CLAWPOS,CLAW_CLOSE_POS_A,
+    DRIVEDIST,50,270,12,2,
+    CLAWPOS,CLOSE,                              // GRAB STACK OF FOUR
+    DRIVEDIST,70,270,4,0.5,
     PAUSE,0.5,
     
-    TURN,100,1,
-    DRIVEDIST,70,100,18,3,
-    DRIVEDIST,-70,100,5,3,
-    TURN,100,0.5,
+    
+    TURN,300,0.2,
+    TURN,330,0.2,
+    TURN,0,0.2,
+    TURN,25,0.2,
+    TURN,30,0.2,
+    
+    DRIVEDIST,60,30,24,5,
+    DRIVEDIST,60,55,32,5,
+    TURN,45,0.25,
+    DRIVEDIST,60,45,2,1,
+    CLAWPOS,OPEN,                               // PLACE STACK OF FOUR
+    PAUSE,0.5,
+    DRIVEDIST,-60,45,15,5,
+    
+    TURN,180,1,
+    DRIVEDIST,-60,180,25,2.5,                   // DRIVE TO HIT WALL
+    DRIVE,-60,180,0.25,
+    DRIVEDIST,60,180,25,2,
+    
+    TURN,270,1,
+    
+    DRIVEDIST,60,270,30,3,
+    CLAWPOS,CLOSE,                              // SECOND CUBE
+    PAUSE,0.25,
     LIFTPOS,LOW_TOWER_POS_A,
+    DRIVEDIST,-30,270,3,2,
     WAIT,LIFTABOVE,LOW_TOWER_ACCEPT,2,
-    DRIVEDIST,70,100,17,4,
+    DRIVEDIST,40,270,10,2,
+    PAUSE,0.25,
+    CLAWPOS,OPEN,                               // SECOND TOWER
     PAUSE,0.5,
-    CLAWPOS,CLAW_OPEN_POS_A,
+    
+    DRIVEDIST,-40,270,6,2,
+    LIFTPOS,-1,
+    PAUSE,0.25,
+    
+    DRIVEDIST,-80,270,10,2,
+    TURN,90,1,
+    
+    DRIVEDIST,80,90,25,2,
+    CLAWPOS,CLOSE,                              // THIRD CUBE
+    PAUSE,0.25,
+    DRIVEDIST,-60,90,10,2,
+    CLAWPOS,OPEN,
+    PAUSE,0.25,
+    DRIVEDIST,60,90,5,2,
+    
+    CLAWPOS,CLOSE,                              // RE-GRAB THIRD CUBE
+    PAUSE,0.25,
+    
+    DRIVEDIST,-60,90,21,2,
+    TURN,225,1,
+    DRIVEDIST,60,225,28,2,
+    
+    LIFTPOS,HIGH_TOWER_POS_A,
+    WAIT,LIFTABOVE,HIGH_TOWER_ACCEPT,2,
+    DRIVEDIST,40,225,10,2,
+    
+    PAUSE,0.25,
+    CLAWPOS,OPEN,                               // THIRD TOWER
     PAUSE,0.5,
-    DRIVEDIST,-70,90,8,1,
+    
+    DRIVEDIST,-40,225,10,2,
+    LIFTPOS,-1,
+    DRIVEDIST,-40,225,10,2,
+    
+    TURN,180,1,
+    DRIVEDIST,-70,180,40,4,                     // DRIVE TO HIT WALL
     
     END,
-};
-
-
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-double programmingSkills2[] = {
-    270,
-    
-    CLAWPOS,CLAW_OPEN_POS_A,            // OPEN CLAW
-    LIFTPOS,LIFT_GRAB_POS,              // RAISE LIFT
-    DRIVEDIST,100,270,40,5,             // DRIVE FORWARD
-    LIFTPOS,1,                          // LOWER LIFT
-    DRIVEDIST,100,280,20,3,             // DRIVE FORWARD MORE
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        FIRST CUBE
-
-    DRIVEWHITE,100,280,RIGHT_W,2,       // DRIVE TO CENTER LINE
-    DRIVE,-60,270,0.05,                 // BREAK
-    PAUSE,0.25,                         // PAUSE TO HOLD CUBE
-    TURN,180,1,                         // TURN TO FACE TOWER
-    DRIVEDIST,-60,180,2,1,              // DRIVE BACK
-    LIFTPOS,LOW_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,1600,2,              // WAIT FOR LIFT TO GO UP
-
-    DRIVEDIST,40,180,15,5,              // DRIVE TO TOWER
-    //PAUSE,0.25,                         // PAUSE FOR STABLE
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        FIRST TOWER
-    PAUSE,0.5,                          // WAIT FOR CUBE TO FALL
-
-    LIFTPOS,-1,                         // LOWER LIFT
-    DRIVEDIST,-60,180,10,3,             // DRIVE AWAY FROM TOWER
-    
-    DRIVE,-100,180,0.5,                  // DRIVE INTO WALL
-    DRIVEDIST,100,180,9,0.5,            // DRIVE AWAY FROM WALL
-    DRIVE,-40,180,0.05,                 // BREAK
-    
-    LIFTPOS,LIFT_GRAB_POS,              // LOWER LIFT HARD
-    //PAUSE,0.25,                         // WAIT FOR LIFT TO GO DOWN
-    TURN,270,1,                         // TURN FOR NEXT DRIVE
-    DRIVEDIST,-127,270,12,1,            // DRIVE AWAY FROM CENTER
-    DRIVEWHITE,-100,270,LEFT_W,2,        // DRIVE TO TILE
-    DRIVEDIST,-100,270,20,2,            // DRIVE TO LINE UP FOR NEXT CUBE
-    DRIVE,60,270,0.05,                  // BREAK
-    PAUSE,0.25,                         // PAUSE FOR STABLE
-
-    TURN,180,1,                         // TURN FOR NEXT CUBE
-    DRIVEDIST,70,180,26,2,              // DRIVE TO CUBE
-    LIFTPOS,1,                          // LOWER LIFT
-    PAUSE,0.5,                          // PAUSE TO GET CUBE
-    DRIVEDIST,60,180,3,1,               // DRIVE MORE
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        SECOND CUBE
-    PAUSE,0.75,                         // PAUSE TO GET CUBE
-    DRIVEDIST,70,180,3,1,               // DRIVE MORE
-
-    DRIVEDIST,70,180,15,3,              // DRIVE TO TOWER
-    DRIVEDIST,-60,180,5,3,              // DRIVE AWAY TOWER
-    LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,2000,2,              // WAIT FOR LIFT TO GO UP
-    DRIVEDIST,60,180,8,3,               // DRIVE TO TOWER
-    PAUSE,0.25,                         // PAUSE FOR STABLE
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        SECOND TOWER
-    PAUSE,0.25,                         // WAIT FOR CUBE TO FALL
-
-    DRIVEDIST,-40,180,10,3,             // DRIVE AWAY FROM TOWER
-    LIFTPOS,LIFT_GRAB_POS,              // LOWER LIFT HARD
-    PAUSE,0.25,                         // WAIT FOR LIFT TO GO DOWN
-
-    DRIVEWHITE,-100,180,RIGHT_W,2,      // DRIVE TO TILE
-    DRIVEDIST,-100,180,15,2,            // DRIVE TO LINE UP FOR CUBE
-    DRIVE,60,180,0.05,                  // BREAK
-    TURN,90,1,                          // TURN TO FACE CUBE
-
-    DRIVEDIST,80,90,15,1,               // DRIVE TO NEXT CUBE
-    LIFTPOS,1,                          // LOWER LIFT
-    PAUSE,0.5,                          // WAIT FOR LIFT
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        THIRD CUBE
-    PAUSE,0.5,                          // WAIT FOR GRAB
-    DRIVEDIST,-100,90,2,2,              // DRIVE AWAY FROM WALL
-
-    TURN,180,1,                         // TURN FOR NEXT DRIVE
-    CLAWPOS,CLAW_OPEN_POS_A,            // OPEN CLAW
-    
-    DRIVEDIST,127,180,40,8,             // DRIVE ACROSS FIELD               LONG DRIVE SOUTH
-    CLAWPOS,CLAW_CLOSE_POS_A,           // CLOSE CLAW
-    DRIVEDIST,127,185,52,8,             // DRIVE ACROSS FIELD
-    DRIVE,-60,180,0.05,                 // BREAK
-    
-    TURN,270,1,                         // TURN FOR NEXT MOVE
-    DRIVE,-100,270,0.5,                 // DRIVE INTO WALL
-    
-    SETDIR,270,                         // SET GYRO WHILE AGAINST WALL
-    
-    DRIVEDIST,100,270,29,3,             // DRIVE TO LINE UP FOR NEXT TOWER
-    TURN,180,1,                         // TURN TO FACE NEXT TOWER
-    
-    DRIVEDIST,100,180,5,3,              // DRIVE NEAR TOWER
-    LIFTPOS,LOW_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,1600,2,              // WAIT FOR LIFT
-    DRIVEDIST,35,180,20,2.5,              // DRIVE TO TOWER
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        THIRD TOWER
-    //PAUSE,0.5,                          // WAIT FOR DROP
-    
-    DRIVEDIST,-40,180,10,3,             // DRIVE AWAY FROM TOWER
-    LIFTPOS,LIFT_GRAB_POS,              // LOWER LIFT
-    DRIVEDIST,-40,180,18,3,             // DRIVE TO LINE UP FOR NEXT CUBE
-    TURN,270,1,                         // TURN TO FACE NEXT CUBE
-    
-    DRIVEDIST,70,270,19,3,              // DRIVE TO CUBE
-    LIFTPOS,1,                          // MOVE LIFT DOWN
-    PAUSE,0.5,                          // WAIT FOR LIFT DOWN
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        FOURTH CUBE
-    PAUSE,0.5,                          // WAIT FOR GRAB
-    DRIVEDIST,-60,270,5,2,              // DRIVE BACK
-    LIFTPOS,LOW_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,1600,2,              // WAIT FOR LIFT
-    DRIVEDIST,40,270,14,2,              // DRIVE TO TOWER
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        FOURTH TOWER
-    //PAUSE,0.5,                          // WAIT FOR DROP
-    DRIVEDIST,-40,270,5,2,              // DRIVE BACK
-    LIFTPOS,-1,                         // LOWER LIFT
-    DRIVEDIST,-70,270,10,2,             // DRIVE AWAY FROM TOWER
-    LIFTPOS,1,                          // LOWER LIFT HARD
-    DRIVEDIST,-127,270,51,3,            // DRIVE TO WALL
-    
-//    TURN,0,0.5,                         // WIGGLE TO DISLODGE CUBE
-//    TURN,270,0.5,                       // WIGGLE BACK
-//    DRIVE,-100,270,0.5,                 // DRIVE INTO WALL
-    
-    PAUSE,0.125,                        // SHORT PAUSE
-    SETDIR,270,                         // SET GYRO
-    
-    DRIVEDIST,100,270,3,2,              // DRIVE AWAY FROM WALL
-    DRIVE,-60,270,0.05,                 // BREAK
-    TURN,0,1,                           // TURN FOR NEXT DRIVE
-    DRIVEWHITE,100,0,LEFT_W,5,          // DRIVE TO TILE                    LONG DRIVE NORTH
-    DRIVEDIST,100,0,2,1,                // DRIVE A BIT FURTHER
-    LIFTPOS,LIFT_GRAB_POS,              // GET LIFT READY
-    DRIVE,-60,0,0.05,                   // BREAK
-    
-    TURN,270,1,                         // TURN FOR NEXT CUBE
-    DRIVE,-90,270,0.5,                  // DRIVE INTO WALL
-    DRIVEDIST,90,270,40,3,              // DRIVE TO NEXT CUBE
-    LIFTPOS,1,                          // MOVE LIFT DOWN
-    DRIVEDIST,40,270,10,3,              // DRIVE A LITTLE MORE
-    PAUSE,0.25,                         // PAUSE FOR GRAB
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB CUBE                        FIFTH CUBE
-    PAUSE,0.25,                         // PAUSE FOR GRAB
-    TURN,225,1,                         // TURN FOR TOWER
-    
-    CLAWPOS,CLAW_OPEN_POS_A,            // OPEN CLAW
-    DRIVEDIST,60,225,2,1,               // DRIVE FORWARD
-    DRIVEDIST,70,225,10,2,              // DRIVE CLOSE TO TOWER
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB
-    PAUSE,0.5,                          // PAUSE FOR GRAB
-    
-    LIFTPOS,HIGH_TOWER_POS_A,           // RAISE LIFT
-    WAIT,LIFTABOVE,3400,4,              // WAIT FOR LIFT
-    DRIVEDIST,50,225,15,4,              // DRIVE TO TOWER
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        FIFTH TOWER
-    DRIVEDIST,40,225,1,4,               // DRIVE INTO TOWER
-    PAUSE,0.5,                          // PAUSE FOR DROP
-    
-    DRIVEDIST,-40,225,5,4,              // DRIVE AWAY FROM TOWER
-    LIFTPOS,-1,                         // LOWER LIFT
-    DRIVEDIST,-40,225,5,4,              // DRIVE AWAY FROM TOWER
-    LIFTPOS,LIFT_GRAB_POS,              // LOWER LIFT HARD
-    WAIT,LIFTBELOW,400,2,               // WAIT UNTIL LIFT DOWN
-    
-    TURN,270,1,                         // TURN FOR NEXT CUBE
-    
-    DRIVEDIST,100,270,42,5,             // DRIVE TO TOWER
-    LIFTPOS,1,                          // LOWER LIFT
-    DRIVEDIST,100,270,8,5,              // DRIVE TO TOWER
-    CLAWPOS,CLAW_CLOSE_POS_A,           // GRAB
-    DRIVE,-60,270,0.05,                 // BREAK
-    PAUSE,0.5,                          // PAUSE FOR GRAB
-    
-    TURN,225,1,                         // TURN TO FACE TOWER
-    LIFTPOS,MID_TOWER_POS_A,            // RAISE LIFT
-    WAIT,LIFTABOVE,2000,2,              // WAIT FOR LIFT
-    DRIVEDIST,60,225,12,2,              // DRIVE TO TOWER
-    CLAWPOS,CLAW_OPEN_POS_A,            // DROP CUBE                        SIXTH TOWER
-    
-    END
 };
 
 
@@ -537,6 +291,10 @@ void autonomous() {
     nextCommand = true;
     
     while (true) {
+        
+        if (controller.get_digital(DIGITAL_UP)) {
+            return;
+        }
         
         // If we are ready for the next command
         if (nextCommand) {
@@ -588,8 +346,8 @@ void autonomous() {
                     commandTimeOut = processEntry() * 1000;
                     break;
                     
-                case DRIVEWHITE: // Drive until sensors see white/black
-                    cout << "DRIVEWHITE" << endl;
+                case DRIVEUNTIL: // Drive until sensors see white/black
+                    cout << "DRIVEUNTIL" << endl;
                     driveMode = DRIVE_WHITE;
                     driveSpeed = processEntry();
                     faceDir = processEntry();
@@ -742,6 +500,11 @@ void autonomous() {
                     break;
                 case LEFT_B:
                     if (!whiteL) {
+                        finishedDrive = true;
+                    }
+                    break;
+                case CUBE_PRESENT:
+                    if (clawLimit.get_value() == 1) {
                         finishedDrive = true;
                     }
                     break;

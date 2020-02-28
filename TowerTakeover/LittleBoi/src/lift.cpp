@@ -20,7 +20,7 @@ using namespace pros;
 
 
 #define CLAW_OPEN_POS 1
-#define CLAW_CLOSE_POS 180
+#define CLAW_CLOSE_POS 250
 #define CLAW_SEEK_RATE 0.5
 
 #define BUTTON_HOLD_TIME 250
