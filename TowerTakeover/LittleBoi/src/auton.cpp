@@ -44,8 +44,8 @@ using namespace std;
 #define LIFTABOVE 2
 #define TIME 3
 
-#define WHITE_THRESHOLD_R 1000
-#define WHITE_THRESHOLD_L 1000
+#define WHITE_THRESHOLD_R 2000
+#define WHITE_THRESHOLD_L 2000
 
 
 int autonSelect = PROGRAMMING_SKILLS;
@@ -67,7 +67,7 @@ double blueAuton[] = {
 
 double programmingSkills[] = {
     270,
-    
+
     DRIVEDIST,80,270,8,2,
     CLAWPOS,CLOSE,                              // FIRST CUBE
     PAUSE,0.125,
@@ -83,20 +83,20 @@ double programmingSkills[] = {
     LIFTPOS,-1,
     PAUSE,0.5,
     DRIVEDIST,-60,180,5,2,
-    
+
     TURN,270,1,
-    
+
     DRIVEDIST,50,270,12,2,
     CLAWPOS,CLOSE,                              // GRAB 1ST STACK OF FOUR
     DRIVEDIST,70,270,4,0.5,
     PAUSE,0.5,
-    
+
     TURN,300,0.2,                               // SLOW TURN
     TURN,330,0.2,
     TURN,0,0.2,
     TURN,25,0.2,
     TURN,30,0.2,
-    
+
     DRIVEDIST,60,30,24,5,
     DRIVEDIST,60,55,32,5,
     TURN,45,0.25,
@@ -104,74 +104,53 @@ double programmingSkills[] = {
     CLAWPOS,OPEN,                               // PLACE 1ST STACK OF FOUR
     PAUSE,0.5,
     DRIVEDIST,-60,45,15,5,
-    
+
     TURN,180,1,
     DRIVEDIST,-60,180,25,2.5,                   // DRIVE TO HIT WALL
     DRIVE,-60,180,0.25,
     DRIVEDIST,60,180,26.5,2,
-    
+
     TURN,270,1,
-    
+
     DRIVEDIST,60,270,30,3,
     CLAWPOS,CLOSE,                              // SECOND CUBE
     PAUSE,0.25,
     LIFTPOS,LOW_TOWER_POS_A,
     DRIVEDIST,-30,270,3,2,
     WAIT,LIFTABOVE,LOW_TOWER_ACCEPT,2,
-    DRIVEDIST,40,270,10,2,
+    DRIVEDIST,40,270,11,2,
     PAUSE,0.25,
     CLAWPOS,OPEN,                               // SECOND TOWER
     PAUSE,0.5,
-    
-    DRIVEDIST,-40,270,6,2,
+
+    DRIVEDIST,-40,270,4,2,
     LIFTPOS,-1,
-    PAUSE,0.25,
-    
-    DRIVEDIST,-80,270,10,2,
-    TURN,90,1,
-    
-    DRIVEDIST,80,90,25,2,
-    DRIVE,80,90,0.25,
-    CLAWPOS,CLOSE,                              // THIRD CUBE
-    PAUSE,0.25,
-    DRIVEDIST,-60,90,10,2,
-    CLAWPOS,OPEN,
-    PAUSE,0.25,
-    DRIVEDIST,60,90,5,2,
-    
-    CLAWPOS,CLOSE,                              // RE-GRAB THIRD CUBE
-    PAUSE,0.25,
-    
-    DRIVEDIST,-60,90,21,2,
-    TURN,225,1,
-    DRIVEDIST,60,225,28,2,
-    
-    LIFTPOS,HIGH_TOWER_POS_A,
-    WAIT,LIFTABOVE,HIGH_TOWER_ACCEPT,2,
-    DRIVEDIST,40,225,10,2,
-    
-    PAUSE,0.25,
-    CLAWPOS,OPEN,                               // THIRD TOWER
-    PAUSE,0.5,
-    
-    DRIVEDIST,-40,225,10,2,
-    LIFTPOS,-1,
-    DRIVEDIST,-40,225,10,2,
-    
+    PAUSE,0.75,
+
+    //DRIVEDIST,-80,270,1,2,
+
+
     TURN,180,1,
-    DRIVEDIST,-80,180,55,4.5,                     // DRIVE TO HIT WALL
-    DRIVE,-80,180,0.5,
+    DRIVEDIST,-80,180,24,4,                     // DRIVE TO HIT WALL
+    
+//    ///////////////
+//    // START HERE
+//    180,
+//    ///////////////
+    
+    DRIVE,-80,180,0.75,
     PAUSE,0.25,
     SETDIR,180,
-    DRIVEDIST,70,180,4,1,
+    DRIVEDIST,70,180,3,1,
     
     TURN,90,1,
-    DRIVEDIST,-70,90,45,4,
+    DRIVEUNTIL,-70,90,LEFT_W,2,
+    DRIVEDIST,-70,90,17.5,4,
     TURN,180,1,
     
-    DRIVEDIST,50,180,20,4,
+    DRIVEDIST,40,180,15,4,
     CLAWPOS,CLOSE,                              // GRAB 2ND STACK OF FOUR
-    DRIVEDIST,70,180,4,0.5,
+    DRIVEDIST,70,180,5,0.5,
     PAUSE,0.5,
     
     
@@ -181,12 +160,69 @@ double programmingSkills[] = {
     TURN,300,0.2,
     TURN,330,0.2,
     
-    DRIVEDIST,70,330,45,5,
-    DRIVEDIST,70,315,10,2,
+    DRIVEDIST,70,325,10,5,
+    DRIVEDIST,70,315,32,2,
+    TURN,310,0.25,
+    DRIVEDIST,70,310,13,2,
     PAUSE,0.25,
     CLAWPOS,OPEN,                               // PLACE 2ND STACK OF FOUR
     PAUSE,0.25,
-    DRIVEDIST,-70,315,10,2,
+    DRIVEDIST,-70,315,12,2,
+    
+    TURN,270,1,
+    DRIVEUNTIL,70,270,RIGHT_W,2,
+    DRIVEDIST,-60,270,2,0.5,
+
+    TURN,180,1,
+    DRIVEUNTIL,40,180,CUBE_PRESENT,2,
+    CLAWPOS,CLOSE,                              // THIRD CUBE
+    DRIVEDIST,70,180,5,1,
+    PAUSE,0.25,
+    
+    TURN,280,1,
+    DRIVEUNTIL,-70,280,RIGHT_W,4,
+    DRIVEDIST,-60,280,2.5,1,
+    DRIVEDIST,60,280,0.1,0.5,
+    TURN,180,1,
+    
+    DRIVEDIST,-60,180,1,0.5,
+    
+    LIFTPOS,HIGH_TOWER_POS_A,
+    WAIT,LIFTABOVE,HIGH_TOWER_ACCEPT,5,
+    PAUSE,0.25,
+    
+    DRIVEDIST,40,180,15,2,
+    //PAUSE,0.225,
+    CLAWPOS,OPEN,                               // THIRD TOWER
+    PAUSE,0.25,
+    
+    DRIVEDIST,-60,180,3,2,
+    LIFTPOS,-1,
+    PAUSE,0.5,
+    DRIVE,60,180,0.25,
+    DRIVEDIST,-60,180,1,0.25,
+    PAUSE,1,
+    
+    DRIVEDIST,-70,180,10,1,
+    TURN,300,1,
+    DRIVEDIST,70,300,10,1,
+    DRIVEUNTIL,70,300,LEFT_W,2,
+    DRIVEDIST,70,300,16,3,
+    DRIVEDIST,-60,300,0.1,1,    // BREAK
+    
+    TURN,180,1,
+    PAUSE,0.5,
+    DRIVEUNTIL,40,180,CUBE_PRESENT,4,
+    CLAWPOS,CLOSE,                              // FOURTH CUBE
+    PAUSE,0.125,
+    DRIVEDIST,-60,180,2,1,
+    LIFTPOS,MID_TOWER_POS_A,
+    WAIT,LIFTABOVE,MID_TOWER_ACCEPT,2,
+    DRIVEDIST,50,180,10,1.25,
+    PAUSE,0.25,
+    CLAWPOS,OPEN,                               // FOURTH TOWER
+    PAUSE,0.25,
+    CLAWPOS,-1,
     
     END,
 };
