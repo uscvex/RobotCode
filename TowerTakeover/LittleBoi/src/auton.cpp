@@ -184,7 +184,7 @@ double programmingSkills[] = {
     DRIVEDIST,70,330,45,5,
     DRIVEDIST,70,315,10,2,
     PAUSE,0.25,
-    CLAWPOS,OPEN,
+    CLAWPOS,OPEN,                               // PLACE 2ND STACK OF FOUR
     PAUSE,0.25,
     DRIVEDIST,-70,315,10,2,
     

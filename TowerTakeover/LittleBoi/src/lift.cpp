@@ -26,7 +26,7 @@ using namespace pros;
 #define BUTTON_HOLD_TIME 250
 
 Motor liftR(5,TORQUE,1);
-Motor liftL(6,TORQUE,0);
+Motor liftL(11,TORQUE,0);
 
 Motor claw(16,SPEED,1);
 
