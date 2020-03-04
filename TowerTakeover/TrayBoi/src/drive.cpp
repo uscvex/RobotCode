@@ -16,7 +16,8 @@ using namespace std;
 
 // Auton tuning parameters
 #define TURN_RATE 0.5           // Bigger = slower
-#define MAX_TURN_SPEED 40      // Bigger = faster
+#define MAX_TURN_SPEED 80      // Bigger = faster
+#define MAX_SLOW_TURN_SPEED 40      // Bigger = faster
 #define MIN_TURN_SPEED 30       // Bigger = faster
 #define MIN_DRIVE_SPEED 25      // Bigger = faster
 #define DRIVE_DIST_RATE 16       // Bigger = slower
@@ -42,6 +43,7 @@ int driveMode = USER;
 double faceDir = -1;
 double driveSpeed = 0;
 double targetDrivePos = 0;
+bool slowTurn = false;
 
 // Returns average encoder position of drive
 double getDriveEncoderAvg() {
@@ -119,8 +121,14 @@ void runDrive(void* params) {
             turnPower /= TURN_RATE;
             
             // Clamp max speed
-            if (turnPower > MAX_TURN_SPEED) turnPower = MAX_TURN_SPEED;
-            if (turnPower < -MAX_TURN_SPEED) turnPower = -MAX_TURN_SPEED;
+            if (slowTurn) {
+                if (turnPower > MAX_SLOW_TURN_SPEED) turnPower = MAX_SLOW_TURN_SPEED;
+                if (turnPower < -MAX_SLOW_TURN_SPEED) turnPower = -MAX_SLOW_TURN_SPEED;
+            }
+            else {
+                if (turnPower > MAX_TURN_SPEED) turnPower = MAX_TURN_SPEED;
+                if (turnPower < -MAX_TURN_SPEED) turnPower = -MAX_TURN_SPEED;
+            }
             
             
             // Record sign

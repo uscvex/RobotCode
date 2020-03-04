@@ -85,6 +85,7 @@ extern int driveMode;
 extern double faceDir;
 extern double driveSpeed;
 extern double targetDrivePos;
+extern bool slowTurn;
 
 extern int autonSelect;
 extern int numAutons;

@@ -29,7 +29,7 @@ using namespace pros;
 #define TRAY_DOWN_POS 1
 #define TRAY_UP_POS 1800
 #define TRAY_SEEK_RATE 30
-#define TRAY_SLOW_POS 400
+#define TRAY_SLOW_POS 600
 #define TRAY_SLOW_SPEED 30
 #define TRAY_ARM_POS 600
 
@@ -140,6 +140,7 @@ void runLift(void* params) {
                 
             case 7:
                 traySeek = 1;
+                intakeSpeed = 0;
                 liftSeek = LIFT_DOWN_POS;
                 if (trayPos < 500)
                     deployStep++;
@@ -186,9 +187,9 @@ void runLift(void* params) {
                 
             case 3:
                 traySpeed = TRAY_SLOW_SPEED;
-//                driveMode = DRIVE_TIME;   // Drive forward
-//                driveSpeed = 40;
-//                faceDir = -1;
+                driveMode = DRIVE_TIME;   // Drive forward
+                driveSpeed = 25;
+                faceDir = -1;
                 if (millis() - currTime > 1000)
                     depositStep++;
                 break;
@@ -196,7 +197,10 @@ void runLift(void* params) {
             case 4:
                 traySpeed = TRAY_SLOW_SPEED;
                 driveMode = DRIVE_TIME;
-                driveSpeed = -127;      // YEET Backwards
+                if (autonSelect == PROGRAMMING_SKILLS)
+                    driveSpeed = -40;      // YEET Backwards
+                else
+                    driveSpeed = -127;      // YEET Backwards
                 faceDir = -1;//direction;
                 currTime = millis();
                 depositStep++;

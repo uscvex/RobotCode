@@ -9,10 +9,10 @@ using namespace std;
 
 #define LIFT_DOWN_POS_A 650
 #define LIFT_DOWN_POS_ACCEPT 800
-#define LOW_TOWER_POS_A 1800
-#define LOW_TOWER_POS_ACCEPT 1700
-#define MID_TOWER_POS_A 2250
-#define MID_TOWER_POS_ACCEPT 2150
+#define LOW_TOWER_POS_A 2750
+#define LOW_TOWER_POS_ACCEPT 2600
+#define MID_TOWER_POS_A 3400
+#define MID_TOWER_POS_ACCEPT 3200
 
 // Auton commands
 #define TURN 1          // TURN, <FACEDIR>, <TIMEOUT>
@@ -28,6 +28,7 @@ using namespace std;
 #define SETINTAKE 12    // SETINTAKE, <SPEED>
 #define DEPLOY 13       // DEPLOY
 #define DEPOSIT 14      // DEPOSIT
+#define SLOW_TURN 15    // TURN, <FACEDIR>, <TIMEOUT>
 
 #define BOTH_W 1
 #define BOTH_B 2
@@ -49,8 +50,49 @@ using namespace std;
 #define WHITE_THRESHOLD_L 1000
 
 
-int autonSelect = BLUE_AUTON;
+int autonSelect = PROGRAMMING_SKILLS;
 int numAutons = 3;
+
+
+double programmingSkills[] = {
+    270,
+    //    DEPLOY,
+    TRAYPOS,1,
+    LIFTPOS,1,
+    SETINTAKE,127,                          // FIRST ROW OF FOUR
+    DRIVEDIST,40,270,55,10,
+    SETINTAKE,127,
+    DRIVEDIST,40,270,10,10,
+    SETINTAKE,127,
+    DRIVEDIST,40,270,75,10,                 // SECOND ROW OF FOUR
+    DRIVE,40,270,2,                 // SECOND ROW OF FOUR
+    PAUSE,0.25,
+    DRIVEDIST,-40,270,5,1,
+    
+    SLOW_TURN,225,1,
+    DRIVEDIST,40,225,15,2,
+    
+    SETINTAKE,0,
+    DEPOSIT,                                    // FIRST STACK
+    WAIT,DEPOSITDONE,15,15,
+    SETINTAKE,0,
+    
+    DRIVEDIST,-80,225,4,1,
+    TURN,270,1,
+    DRIVEDIST,40,225,4,1,
+    
+    
+    
+    END,
+};
+
+
+
+
+
+
+
+
 
 double redAuton[] = {
     270,
@@ -86,16 +128,16 @@ double redAuton[] = {
     
     DRIVEDIST,-50,180,30,5,         // BACK UP TO ALIGN FOR NEXT
     
-    TURN,270,2,
+    SLOW_TURN,270,2,
     DRIVEDIST,60,270,35,5,         // GET NEXT CUBE
     PAUSE,0.25,
     DRIVEDIST,-60,270,25,5,         // DRIVE BACK
-    TURN,0,2,
+    SLOW_TURN,0,2,
     SETINTAKE,0,
     DRIVEDIST,60,0,50,3,            // DRIVE INTO WALL
     SETINTAKE,0,
     DRIVEDIST,-30,0,2,5,            // DRIVE AWAY FROM WALL
-    TURN,80,2,
+    SLOW_TURN,80,2,
     DRIVEDIST,60,80,30,4,
     DRIVEDIST,-60,80,1,0.5,
     SETINTAKE,-100,                  // GET CUBES TO CORRECT POS
@@ -104,7 +146,7 @@ double redAuton[] = {
     
     DEPOSIT,
     DRIVE,40,80,1,
-    WAIT,DEPOSITDONE,15,
+    WAIT,DEPOSITDONE,15,15,
     
     
     
@@ -145,16 +187,16 @@ double blueAuton[] = {
     
     DRIVEDIST,-50,180,23,5,         // BACK UP TO ALIGN FOR NEXT
     
-    TURN,90,2,
+    SLOW_TURN,90,2,
     DRIVEDIST,60,90,35,5,         // GET NEXT CUBE
     PAUSE,0.25,
     DRIVEDIST,-60,90,25,5,         // DRIVE BACK
-    TURN,0,2,
+    SLOW_TURN,0,2,
     SETINTAKE,0,
     DRIVEDIST,60,0,50,3,            // DRIVE INTO WALL
     SETINTAKE,0,
     DRIVEDIST,-30,0,2,5,            // DRIVE AWAY FROM WALL
-    TURN,290,2,
+    SLOW_TURN,290,2,
     DRIVEDIST,60,290,30,4,
     DRIVEDIST,-60,290,1,0.5,
     SETINTAKE,-100,                  // GET CUBES TO CORRECT POS
@@ -163,14 +205,9 @@ double blueAuton[] = {
     
     DEPOSIT,
     DRIVE,40,290,1,
-    WAIT,DEPOSITDONE,15,
+    WAIT,DEPOSITDONE,15,15,
 };
 
-double programmingSkills[] = {
-    270,
-    DEPLOY,
-    END,
-};
 
 bool nextCommand = true;
 double* nextEntry = NULL;
@@ -211,6 +248,10 @@ void autonomous() {
     int numCommands = 0;
     while (true) {
         
+        if (controller.get_digital(DIGITAL_UP)) {
+            return;
+        }
+        
         // If we are ready for the next command
         if (nextCommand) {
             numCommands++;
@@ -247,6 +288,16 @@ void autonomous() {
                     
                 case TURN:      // Turn to face angle
                     cout << "TURN" << endl;
+                    slowTurn = false;
+                    driveMode = TURN;
+                    driveSpeed = 0;
+                    faceDir = processEntry();
+                    commandTimeOut = processEntry() * 1000;
+                    break;
+                    
+                case SLOW_TURN:
+                    cout << "SLOW_TURN" << endl;
+                    slowTurn = true;
                     driveMode = TURN;
                     driveSpeed = 0;
                     faceDir = processEntry();
@@ -254,6 +305,7 @@ void autonomous() {
                     break;
                     
                 case DRIVE: // Drive for a time
+                    slowTurn = false;
                     cout << "DRIVETIME" << endl;
                     driveMode = DRIVE_TIME;
                     driveSpeed = processEntry();
@@ -262,6 +314,7 @@ void autonomous() {
                     break;
                     
                 case DRIVEWHITE: // Drive until sensors see white/black
+                    slowTurn = false;
                     cout << "DRIVEWHITE" << endl;
                     driveMode = DRIVE_WHITE;
                     driveSpeed = processEntry();
@@ -271,6 +324,7 @@ void autonomous() {
                     break;
                     
                 case DRIVEDIST: // Drive for a distance
+                    slowTurn = false;
                     cout << "DRIVEDIST" << endl;
                     driveMode = DRIVE_DIST;
                     driveSpeed = processEntry();
