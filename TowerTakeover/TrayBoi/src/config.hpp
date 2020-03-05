@@ -66,6 +66,7 @@ extern Motor trayL;
 
 extern Motor intakeR;
 extern Motor intakeL;
+extern Motor cubeLock;
 
 // Controller
 extern Controller controller;
@@ -75,6 +76,8 @@ extern double liftPos;
 extern double liftSeek;
 extern double trayPos;
 extern double traySeek;
+extern double lockPos;
+extern double lockSeek;
 extern double runIntake;
 extern int deployStep;
 extern int depositStep;

@@ -41,6 +41,7 @@ void initialize() {
     liftL.move_voltage(-2000);
     trayL.move_voltage(-2000);
     trayR.move_voltage(-2000);
+    cubeLock.move_voltage(-2000);
     
     controller.print(0,14,"2");
     delay(1000);
@@ -51,6 +52,7 @@ void initialize() {
     liftL.tare_position();
     trayR.tare_position();
     trayL.tare_position();
+    cubeLock.tare_position();
 
     // Start the drive and lift task
     pros::Task drive_task (runDrive, (void*)"PROS", TASK_PRIORITY_DEFAULT,

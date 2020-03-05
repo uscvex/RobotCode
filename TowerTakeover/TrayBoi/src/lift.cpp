@@ -29,19 +29,27 @@ using namespace pros;
 #define TRAY_DOWN_POS 1
 #define TRAY_UP_POS 1800
 #define TRAY_SEEK_RATE 30
-#define TRAY_SLOW_POS 600
+#define TRAY_SLOW_POS 500
 #define TRAY_SLOW_SPEED 30
 #define TRAY_ARM_POS 600
+
+// Lock values
+#define LOCK_OPEN_POS 1
+#define LOCK_CLOSE_POS 250
+#define LOCK_SEEK_RATE 1
 
 
 Motor liftR(1,TORQUE,1);
 Motor liftL(10,TORQUE,0);
 
-Motor intakeR(2,TORQUE,1);
-Motor intakeL(9,TORQUE,0);
+Motor intakeR(2,TORQUE,0);
+Motor intakeL(9,TORQUE,1);
 
 Motor trayR(5,TORQUE,0);
 Motor trayL(6,TORQUE,1);
+
+Motor cubeLock(19,SPEED,1);
+
 
 // Values read/writeable by other tasks
 double liftPos = 0;
@@ -49,6 +57,8 @@ double liftSeek = -1;
 double trayPos = 0;
 double traySeek = -1;
 double runIntake = 0;
+double lockPos = 0;
+double lockSeek = -1;
 int deployStep = -1;
 int depositStep = -1;
 bool doneDeploy = false;
@@ -62,6 +72,7 @@ void runLift(void* params) {
     bool justLiftedDown = false;
     double currTime = 0;
     bool justDeploy = false;
+    bool justLockToggle = false;
     
     // Var to measure how long button held
     double lastReleasedTime = millis();
@@ -71,15 +82,18 @@ void runLift(void* params) {
         // Calculate positions
         liftPos = (liftR.get_position() + liftL.get_position()) / 2;
         trayPos = (trayL.get_position() + trayR.get_position()) / 2;
+        lockPos = cubeLock.get_position();
         
         // Print to screen
         pros::lcd::print(6, "Lift pos: %f", liftPos);
         pros::lcd::print(7, "Tray pos: %f", trayPos);
+        pros::lcd::print(8, "Lock pos: %f", lockPos);
         
         
         // Start speeds at 0 for safety
         double liftSpeed = 0;
         double traySpeed = 0;
+        double lockSpeed = 0;
         double intakeSpeed = runIntake;
         
         // If we are asking to seek to position, perform the seek
@@ -91,6 +105,9 @@ void runLift(void* params) {
         }
         if (liftSeek >= 0) {
             liftSpeed = (liftSeek - liftPos) / LIFT_SEEK_RATE;
+        }
+        if (lockSeek >= 0) {
+            lockSpeed = (lockSeek - lockPos) / LOCK_SEEK_RATE;
         }
         
         
@@ -293,6 +310,19 @@ void runLift(void* params) {
             lastReleasedTime = millis();
         }
         
+        // Toggle cube lock
+        if (controller.get_digital(DIGITAL_DOWN)) {
+            if (!justLockToggle) {
+                if (lockSeek != LOCK_OPEN_POS)
+                    lockSeek = LOCK_OPEN_POS;
+                else
+                    lockSeek = LOCK_CLOSE_POS;
+            }
+            justLockToggle = true;
+        }
+        else {
+            justLockToggle = false;
+        }
         
         // Manual overrides
         // Lift up
@@ -326,6 +356,7 @@ void runLift(void* params) {
             liftSeek = -1;
             runIntake = 0;
             deployStep = -1;
+            lockSeek = -1;
             depositStep = -1;
         }
         
@@ -350,6 +381,8 @@ void runLift(void* params) {
         
         intakeR.move_voltage(12000 * intakeSpeed / 127);
         intakeL.move_voltage(12000 * intakeSpeed / 127);
+        
+        cubeLock.move_voltage(12000 * lockSpeed / 127);
         
         
         // Let other tasks have a turn

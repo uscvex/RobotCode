@@ -9,10 +9,11 @@ using namespace std;
 
 #define LIFT_DOWN_POS_A 650
 #define LIFT_DOWN_POS_ACCEPT 800
-#define LOW_TOWER_POS_A 2750
+#define LOW_TOWER_POS_A 2800
 #define LOW_TOWER_POS_ACCEPT 2600
 #define MID_TOWER_POS_A 3400
 #define MID_TOWER_POS_ACCEPT 3200
+#define TRAY_ARM_POS_A 600
 
 // Auton commands
 #define TURN 1          // TURN, <FACEDIR>, <TIMEOUT>
@@ -29,6 +30,7 @@ using namespace std;
 #define DEPLOY 13       // DEPLOY
 #define DEPOSIT 14      // DEPOSIT
 #define SLOW_TURN 15    // TURN, <FACEDIR>, <TIMEOUT>
+#define LOCKPOS 16      // LOCKPOS, <POSITION>
 
 #define BOTH_W 1
 #define BOTH_B 2
@@ -45,6 +47,8 @@ using namespace std;
 #define TIME 5
 #define DEPLOYDONE 6
 #define DEPOSITDONE 7
+#define LOCKBELOW 8
+#define LOCKABOVE 9
 
 #define WHITE_THRESHOLD_R 1000
 #define WHITE_THRESHOLD_L 1000
@@ -59,29 +63,127 @@ double programmingSkills[] = {
     //    DEPLOY,
     TRAYPOS,1,
     LIFTPOS,1,
+    LOCKPOS,1,
     SETINTAKE,127,                          // FIRST ROW OF FOUR
     DRIVEDIST,40,270,55,10,
     SETINTAKE,127,
     DRIVEDIST,40,270,10,10,
     SETINTAKE,127,
-    DRIVEDIST,40,270,75,10,                 // SECOND ROW OF FOUR
-    DRIVE,40,270,2,                 // SECOND ROW OF FOUR
+    DRIVEDIST,40,270,76,10,                 // SECOND ROW OF FOUR
     PAUSE,0.25,
-    DRIVEDIST,-40,270,5,1,
+    DRIVEDIST,-40,270,3,1,
     
     SLOW_TURN,225,1,
-    DRIVEDIST,40,225,15,2,
+    DRIVEDIST,40,225,15.5,2,
     
     SETINTAKE,0,
     DEPOSIT,                                    // FIRST STACK
     WAIT,DEPOSITDONE,15,15,
     SETINTAKE,0,
     
-    DRIVEDIST,-80,225,4,1,
+    DRIVEDIST,-50,225,6,1,
+    TRAYPOS,1,
+    LIFTPOS,400,
     TURN,270,1,
-    DRIVEDIST,40,225,4,1,
+    LIFTPOS,1,
+    LOCKPOS,250,
+    PAUSE,0.5,
+    SETINTAKE,127,
+    DRIVEDIST,50,270,12,1,                      // FIRST CUBE
+    PAUSE,0.5,
+    DRIVEDIST,-50,270,22,2,
     
+    SETINTAKE,0,
+    TURN,180,1,
     
+    TRAYPOS,TRAY_ARM_POS_A,
+    LIFTPOS,LOW_TOWER_POS_A,
+    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,
+    PAUSE,1,
+    DRIVEDIST,60,180,15,1.5,
+    DRIVEDIST,-40,180,1,1.5,
+    LIFTPOS,2200,
+    SETINTAKE,-40,
+    PAUSE,0.25,
+    DRIVEDIST,-40,180,26,3,
+    LIFTPOS,600,
+    TRAYPOS,1,
+    
+    SETINTAKE,0,
+    TURN,90,1,
+    LIFTPOS,1,
+    SETINTAKE,127,
+    DRIVEDIST,50,90,20,2,
+    PAUSE,0.5,
+    DRIVEDIST,-50,90,12,2,
+    
+    SETINTAKE,0,
+    TRAYPOS,TRAY_ARM_POS_A,
+    LIFTPOS,LOW_TOWER_POS_A,
+    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,
+    PAUSE,1,
+    DRIVEDIST,50,90,23,2,
+    DRIVEDIST,-40,90,1,2,
+    LIFTPOS,2200,
+    SETINTAKE,-70,
+    PAUSE,0.25,
+    DRIVEDIST,-40,90,12,3,
+    LIFTPOS,600,
+    TRAYPOS,1,
+    DRIVEDIST,-40,90,20,3,
+    
+    TURN,135,1,
+    DRIVEDIST,-60,135,24,1,
+    TURN,90,1,
+    DRIVEDIST,-60,90,10,1,
+    LIFTPOS,1,
+    SETINTAKE,127,
+    LOCKPOS,1,
+    
+    DRIVEDIST,40,90,140,12,
+    DRIVEDIST,-40,90,10,2,
+    
+    SLOW_TURN,180,1,
+    DRIVEDIST,50,180,30,3,
+    SLOW_TURN,135,1,
+    
+    DRIVEDIST,50,135,20,3,
+    
+    SETINTAKE,-100,
+    PAUSE,0.25,
+    SETINTAKE,0,
+    
+    DEPOSIT,                                    // SECOND STACK
+    WAIT,DEPOSITDONE,15,15,
+    SETINTAKE,0,
+    
+    DRIVEDIST,-40,135,6,1,
+    LIFTPOS,600,
+    TURN,0,1,
+    LIFTPOS,1,
+    TRAYPOS,1,
+    LOCKPOS,250,
+    
+    DRIVEDIST,60,0,20,2,
+    SETINTAKE,127,
+    DRIVEDIST,60,0,25,2,
+    PAUSE,0.5,                                  // LAST CUBE
+    DRIVEDIST,-60,0,10,2,
+    TURN,45,0.75,
+    DRIVEDIST,-60,45,25,2,
+    
+    TURN,180,1,
+    SETINTAKE,0,
+    TRAYPOS,TRAY_ARM_POS_A,
+    LIFTPOS,LOW_TOWER_POS_A,
+    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,
+    DRIVEDIST,60,180,25,2,
+    
+    DRIVEDIST,-40,180,1,1.5,
+    LIFTPOS,2200,
+    SETINTAKE,-40,
+    PAUSE,0.25,
+    DRIVEDIST,-40,180,26,3,
     
     END,
 };
@@ -346,9 +448,15 @@ void autonomous() {
                     nextCommand = true;
                     break;
                     
-                case TRAYPOS:   // Move claw to specified position
+                case TRAYPOS:   // Move tray to specified position
                     cout << "TRAYPOS" << endl;
                     traySeek = processEntry();
+                    nextCommand = true;
+                    break;
+                    
+                case LOCKPOS:   // Move lock to specified position
+                    cout << "LOCKPOS" << endl;
+                    lockSeek = processEntry();
                     nextCommand = true;
                     break;
                     
@@ -439,6 +547,20 @@ void autonomous() {
                     if (depositStep == -1) {
                         finishedWait = true;
                         cout << "Deposit done\n";
+                    }
+                    break;
+                    
+                case LOCKBELOW:
+                    if (lockPos < waitParameter) {
+                        finishedWait = true;
+                        cout << "Lock below done\n";
+                    }
+                    break;
+                    
+                case LOCKABOVE:
+                    if (lockPos >= waitParameter) {
+                        finishedWait = true;
+                        cout << "Lock above done\n";
                     }
                     break;
                     
