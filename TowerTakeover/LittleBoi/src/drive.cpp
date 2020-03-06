@@ -41,6 +41,7 @@ Motor driveL4(7,SPEED,0);
 ADILineSensor whiteLineR(2);
 ADILineSensor whiteLineL(3);
 ADIDigitalIn clawLimit(4);
+ADIDigitalIn towerLimit(5);
 
 int driveMode = USER;
 double faceDir = -1;

@@ -38,6 +38,7 @@ using namespace std;
 #define LEFT_W 5
 #define LEFT_B 6
 #define CUBE_PRESENT 7
+#define HIT_TOWER 8
 
 // Wait conditions
 #define LIFTBELOW 1
@@ -97,10 +98,13 @@ double programmingSkills[] = {
     TURN,25,0.2,
     TURN,30,0.2,
 
-    DRIVEDIST,60,30,24,5,
-    DRIVEDIST,60,55,32,5,
+    DRIVEDIST,60,30,20,5,
+    LIFTPOS,LIFT_GRAB_POS,
+    DRIVEDIST,60,55,36,5,
     TURN,45,0.25,
     DRIVEDIST,60,45,2,1,
+    LIFTPOS,1,
+    PAUSE,0.25,
     CLAWPOS,OPEN,                               // PLACE 1ST STACK OF FOUR
     PAUSE,0.5,
     DRIVEDIST,-60,45,15,5,
@@ -108,6 +112,7 @@ double programmingSkills[] = {
     TURN,180,1,
     DRIVEDIST,-60,180,25,2.5,                   // DRIVE TO HIT WALL
     DRIVE,-60,180,0.25,
+    SETDIR,180,
     DRIVEDIST,60,180,26.5,2,
 
     TURN,270,1,
@@ -132,6 +137,9 @@ double programmingSkills[] = {
 
     TURN,180,1,
     DRIVEDIST,-80,180,24,4,                     // DRIVE TO HIT WALL
+    DRIVE,-80,180,0.25,
+    PAUSE,0.25,
+    SETDIR,180,
     
 //    ///////////////
 //    // START HERE
@@ -141,14 +149,14 @@ double programmingSkills[] = {
     DRIVE,-80,180,0.75,
     PAUSE,0.25,
     SETDIR,180,
-    DRIVEDIST,70,180,3,1,
+    DRIVEDIST,70,180,2,1,
     
     TURN,90,1,
     DRIVEUNTIL,-70,90,LEFT_W,2,
     DRIVEDIST,-70,90,17.5,4,
     TURN,180,1,
     
-    DRIVEDIST,40,180,15,4,
+    DRIVEDIST,40,180,16,4,
     CLAWPOS,CLOSE,                              // GRAB 2ND STACK OF FOUR
     DRIVEDIST,70,180,5,0.5,
     PAUSE,0.5,
@@ -161,9 +169,11 @@ double programmingSkills[] = {
     TURN,330,0.2,
     
     DRIVEDIST,70,325,10,5,
+    LIFTPOS,LIFT_GRAB_POS,
     DRIVEDIST,70,315,32,2,
     TURN,310,0.25,
     DRIVEDIST,70,310,13,2,
+    LIFTPOS,1,
     PAUSE,0.25,
     CLAWPOS,OPEN,                               // PLACE 2ND STACK OF FOUR
     PAUSE,0.25,
@@ -174,6 +184,7 @@ double programmingSkills[] = {
     DRIVEDIST,-60,270,2,0.5,
 
     TURN,180,1,
+    PAUSE,0.25,
     DRIVEUNTIL,40,180,CUBE_PRESENT,2,
     CLAWPOS,CLOSE,                              // THIRD CUBE
     DRIVEDIST,70,180,5,1,
@@ -185,13 +196,16 @@ double programmingSkills[] = {
     DRIVEDIST,60,280,0.1,0.5,
     TURN,180,1,
     
-    DRIVEDIST,-60,180,1,0.5,
+    DRIVEDIST,-60,180,10,0.5,
+    DRIVEDIST,60,180,2,0.5,
     
     LIFTPOS,HIGH_TOWER_POS_A,
-    WAIT,LIFTABOVE,HIGH_TOWER_ACCEPT,5,
+    DRIVEDIST,60,180,1,0.5,
+    WAIT,LIFTABOVE,HIGH_TOWER_ACCEPT,3,
     PAUSE,0.25,
     
-    DRIVEDIST,40,180,15,2,
+    DRIVEDIST,40,180,11,2,
+    //DRIVEUNTIL,40,180,HIT_TOWER,2,
     //PAUSE,0.225,
     CLAWPOS,OPEN,                               // THIRD TOWER
     PAUSE,0.25,
@@ -480,6 +494,12 @@ void autonomous() {
                     break;
                 case CUBE_PRESENT:
                     if (clawLimit.get_value() == 1) {
+                        finishedDrive = true;
+                    }
+                    break;
+                    
+                case HIT_TOWER:
+                    if (towerLimit.get_value() == 1) {
                         finishedDrive = true;
                     }
                     break;

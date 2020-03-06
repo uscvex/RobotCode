@@ -38,6 +38,7 @@ extern ADIGyro sensor_gyro;
 extern ADILineSensor whiteLineR;
 extern ADILineSensor whiteLineL;
 extern ADIDigitalIn clawLimit;
+extern ADIDigitalIn towerLimit;
 
 // Function prototypes
 void runDrive(void* params);
