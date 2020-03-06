@@ -114,6 +114,11 @@ void opcontrol() {
     
     while (true) {
         
+        if (!doneDeploy && controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
+            while (controller.get_digital(DIGITAL_X)) {delay(20);}
+            autonomous();
+        }
+        
         pros::lcd::print(0, "lastAutonTime: %f", lastAutonTime);
         
         // Just chill out

@@ -26,11 +26,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/AITask.cpp.o",
-            "src/AITask.cpp"
+            "bin/auton.cpp.o",
+            "src/auton.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/AITask.cpp"
+        "file": "src/auton.cpp"
     },
     {
         "arguments": [
@@ -92,11 +92,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/lift.cpp.o",
-            "src/lift.cpp"
+            "bin/positionTracking.cpp.o",
+            "src/positionTracking.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/lift.cpp"
+        "file": "src/positionTracking.cpp"
     },
     {
         "arguments": [
@@ -125,11 +125,11 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/positionTracking.cpp.o",
-            "src/positionTracking.cpp"
+            "bin/AITask.cpp.o",
+            "src/AITask.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/positionTracking.cpp"
+        "file": "src/AITask.cpp"
     },
     {
         "arguments": [
@@ -191,10 +191,10 @@
             "-funwind-tables",
             "--std=gnu++17",
             "-o",
-            "bin/auton.cpp.o",
-            "src/auton.cpp"
+            "bin/lift.cpp.o",
+            "src/lift.cpp"
         ],
         "directory": "/Users/Sophia/Desktop/RobotCode/TowerTakeover/BigBoi",
-        "file": "src/auton.cpp"
+        "file": "src/lift.cpp"
     }
 ]

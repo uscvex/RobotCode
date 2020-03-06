@@ -95,6 +95,7 @@ extern double liftSeek;
 extern double intakeArmSeekLeft;
 extern double intakeArmSeekRight;
 extern double runIntake;
+extern bool onlyInner;
 
 // Have we initialized yet?
 extern bool haveInitialized;
@@ -127,6 +128,7 @@ extern int numAutons;
 
 extern int depositStep;
 extern int deployStep;
+extern bool doneDeploy;
 
 extern double driveToX;
 extern double driveToY;

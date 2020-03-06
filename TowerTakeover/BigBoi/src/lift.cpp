@@ -88,6 +88,7 @@ double intakeArmPosRight = 0;
 int depositStep = -1;
 int deployStep = -1;
 bool doneDeploy = false;
+bool onlyInner = false;
 
 
 // Task to run lift, etc.
@@ -164,10 +165,16 @@ void runLift(void* params) {
         // Toggle intake
         if (controller.get_digital(DIGITAL_L1)) {
             if (!justToggledIntake) {
-                if (runIntake == INTAKE_IN_SPEED)
-                    runIntake = 0;
-                else
+                if (runIntake != INTAKE_IN_SPEED) { // If neither on, turn on
+                    onlyInner = false;
                     runIntake = INTAKE_IN_SPEED;
+                }
+                else if (onlyInner) {               // If outer already off, turn inner off
+                    runIntake = 0;
+                }
+                else {                              // If if outer on, turn only outer off
+                    onlyInner = true;
+                }
             }
             justToggledIntake = true;
         }
@@ -175,9 +182,17 @@ void runLift(void* params) {
             justToggledIntake = false;
         }
         
+        if (runIntake <= 0) {   // Only inner true iff intaking in
+            onlyInner = false;
+        }
+        
         // Set intake motor speed based on toggle/auton
         inIntakeSpeed = runIntake;
         outIntakeSpeed = runIntake;
+        
+        if (onlyInner) {
+            outIntakeSpeed = 0;
+        }
         
 //        if (intakeArmSeekLeft == INTAKE_ARM_OUT_POS) {
 //            inIntakeSpeed = INTAKE_IN_SPEED;
@@ -337,127 +352,6 @@ void runLift(void* params) {
                 deployStep = -1;
                 break;
         }
-        
-        
-//        OLD
-//        // Auto deposit stack
-//        switch (depositStep) {
-//            case 0:
-//                if (!controller.get_digital(DIGITAL_R2))
-//                    depositStep++;
-//                break;
-//
-//            case 1:     // First, start moving intake and lift up
-//                intakeArmSeekRight = INTAKE_ARM_IN_POS;
-//                intakeArmSeekLeft = INTAKE_ARM_IN_POS;
-//                outIntakeSpeed = 0;
-//                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-//                //liftSeek = LIFT_DEPOSIT_POS;
-//                liftSeek = -1;
-//                liftSpeed = 127;    // Run lift at full speed up
-//
-//                if (liftPos > DEPOSIT_OUTTAKE_POS)
-//                    depositStep++;
-//
-//                break;
-//
-//            case 2:     // Stop moving the outer intake, and move inner intake out
-//                outIntakeSpeed = 0;
-//                //inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-//                depositTime = millis();
-//
-//                liftSeek = -1;
-//                liftSpeed = 127;    // Run lift at full speed up
-//                if (liftPos > LIFT_SLOW_POS)    // If lift is high enough, run slower
-//                    liftSpeed = LIFT_SLOW_SPEED;
-//
-//                if (liftPos > LIFT_OUTTAKE_POS)
-//                    inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-//
-//                if (liftPos > DEPOSIT_ACCEPT_POS)
-//                    depositStep++;
-//
-//                break;
-//
-//            case 3:         // Wait with tray up for wobble
-//                outIntakeSpeed = 0;
-//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-//
-//                // Drive forward slowly
-//                driveMode = DRIVE_PLACE;
-//
-//                if (millis() - depositTime > DEPOSIT_WAIT_TIME) {
-//                    if ((millis() - depositTime > DEPOSIT_WAIT_TIME*2)) {
-//                        depositTime = millis();
-//                        depositStep++;
-//                    }
-//                    driveMode = USER;
-//                    driveSpeed = 0;
-//                    driveDir = -1;
-//                    faceDir = -1;
-//                }
-//                break;
-//
-//                // Skip #4 ... move back before lowering lift
-//            case 4:             // Move lift down a little
-////                liftSeek = LIFT_HOLD_POS;
-////                outIntakeSpeed = 0;
-////                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-////                if (liftPos < LIFT_RELEASE_POS) {
-//                    depositStep++;
-////                }
-//                break;
-//
-//            case 5:     // Move lift back to intake position and drive backwards
-//                outIntakeSpeed = 0;
-//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-////                liftSeek = LIFT_HOLD_POS;
-//
-//                // Drive back slowly
-//                driveMode = DRIVE_DEPOSIT;
-//                driveSpeed = DEPOSIT_BACKOFF_SPEED;
-//                driveDir = globalDirection + 180;
-//                if (driveDir > 360)
-//                    driveDir -= 360;
-//                faceDir = globalDirection;
-//
-//                distanceToDrive = 7;                           // WAS 20   /////
-//                startingDrivePosX = globalX;
-//                startingDrivePosY = globalY;
-//
-//                depositStep++;
-//
-//                break;
-//
-//            case 6:     // Drive back until drive is done
-//                outIntakeSpeed = 0;
-//                inIntakeSpeed = INTAKE_DEPOSIT_SPEED;
-//                //liftSeek = LIFT_HOLD_POS;
-//                liftSpeed = LIFT_DOWN_SPEED;
-//
-//                if (distanceToDrive < pythag(startingDrivePosX, startingDrivePosY, globalX, globalY)) {
-//                    faceDir = -1;
-//                    driveSpeed = 0;
-//                    driveMode = USER;
-//                }
-//
-//                if (liftPos < LIFT_HOLD_POS + 500)
-//                    depositStep++;
-//                break;
-//
-//            case 7:     // We are clear so we can stop now
-//                driveMode = USER;
-//                driveSpeed = 0;
-//                driveDir = -1;
-//                faceDir = -1;
-//
-//                depositStep = -1;
-//                break;
-//
-//            default:    // If we have any illegal value here, make it -1
-//                depositStep = -1;
-//                break;
-//        }
         
         
         
