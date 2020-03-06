@@ -41,10 +41,11 @@ void initialize() {
     liftL.move_voltage(-2000);
     trayL.move_voltage(-2000);
     trayR.move_voltage(-2000);
-    cubeLock.move_voltage(-2000);
+    cubeLock.move_voltage(-12000);
     
     controller.print(0,14,"2");
     delay(1000);
+    cubeLock.move_voltage(-2000);
     controller.print(0,14,"1");
     delay(1000);
     

@@ -59,133 +59,170 @@ int numAutons = 3;
 
 
 double programmingSkills[] = {
-    270,
-    //    DEPLOY,
-    TRAYPOS,1,
-    LIFTPOS,1,
+    270,                                    // START FACING 270
+    
+    DEPLOY,                                 // DEPLOY
+    WAIT,DEPLOYDONE,1,7,                    // WAIT UNTIL DONE
+    
+    DRIVE,-50,270,0.25,
+    SETDIR,270,
+    
+    TRAYPOS,1,                              // LOWER TRAY
+    LIFTPOS,1,                              // LOWER ARMS
+    LOCKPOS,1,                              // OPEN CUBE LOCK
+    
+    SETINTAKE,127,                          // START INTAKING
+    DRIVEDIST,40,270,55,12,                 // DRIVE TO END OF 1ST FOUR ROW
+    DRIVEDIST,40,265,10,12,                 // DRIVE TO MIDDLE CUBE
+    DRIVEDIST,40,270,76,12,                 // DRIVE TO END OF 2ND FOUR ROW
+    //DRIVE,40,270,0.5,                       // DRIVE TO WALL
+    //PAUSE,0.25,                             // PAUSE FOR INTAKE
+    DRIVEDIST,-50,270,3,1,                  // DRIVE BACK FROM WALL
+    
+    SLOW_TURN,225,1,                        // TURN TO FACE ZONE
+    DRIVEDIST,40,225,16.5,2,                  // DRIVE INTO ZONE
+//    DRIVEDIST,-40,225,2,2,                  // DRIVE OUT OF ZONE
+    
+    SETINTAKE,0,                            // STOP INTAKING                // FIRST STACK
+    DEPOSIT,                                // PLACE FIRST STACK
+    WAIT,DEPOSITDONE,15,15,                 // WAIT UNTIL DONE
+    SETINTAKE,0,                            // TURN OFF INTAKE
+    
+    DRIVEDIST,-100,225,6,1,                  // DRIVE AWAY FROM ZONE
+    TRAYPOS,1,                              // LOWER TRAY
+    LIFTPOS,600,                            // KEEP ARMS UP FOR TURN
+    TURN,270,1,                             // TURN FOR NEXT CUBE
+    
+    LIFTPOS,1,                              // LOWER ARMS
+    LOCKPOS,250,                            // RAISE CUBE LOCK
+    
+    PAUSE,0.25,                              // PAUSE FOR ARM MOVE
+    SETINTAKE,127,                          // INTAKE ON FOR CUBE
+    DRIVEDIST,70,270,12,1,                  // FIRST TOWER CUBE
+    PAUSE,0.25,                              // WAIT TO INTAKE
+    DRIVEDIST,-100,270,22,2,                 // DRIVE AWAY FROM WALL
+    DRIVE,60,270,0.05,                      // BREAK
+    
+    SETINTAKE,0,                            // TURN INTAKE OFF
+    TURN,180,1,                             // TURN READY FOR TOWER
+    
+    TRAYPOS,TRAY_ARM_POS_A,                 // RAISE TRAY FOR LIFT
+    LIFTPOS,LOW_TOWER_POS_A,                // RAISE ARMS
+    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,  // WAIT TILL UP
+    //PAUSE,1,                                // WAIT A BIT LONGER
     LOCKPOS,1,
-    SETINTAKE,127,                          // FIRST ROW OF FOUR
-    DRIVEDIST,40,270,55,10,
-    SETINTAKE,127,
-    DRIVEDIST,40,270,10,10,
-    SETINTAKE,127,
-    DRIVEDIST,40,270,76,10,                 // SECOND ROW OF FOUR
-    PAUSE,0.25,
-    DRIVEDIST,-40,270,3,1,
+    DRIVEDIST,60,180,20,1.5,                // DRIVE INTO WALL              // FIRST TOWER
     
-    SLOW_TURN,225,1,
-    DRIVEDIST,40,225,15.5,2,
     
-    SETINTAKE,0,
-    DEPOSIT,                                    // FIRST STACK
-    WAIT,DEPOSITDONE,15,15,
-    SETINTAKE,0,
+    DRIVE,60,180,0.5,
+    SETDIR,180,                             // HIGH RISK SET DIR
     
-    DRIVEDIST,-50,225,6,1,
-    TRAYPOS,1,
-    LIFTPOS,400,
-    TURN,270,1,
-    LIFTPOS,1,
+    DRIVEDIST,-40,180,1,1.5,                // DRIVE BACK A LITTLE
     LOCKPOS,250,
-    PAUSE,0.5,
-    SETINTAKE,127,
-    DRIVEDIST,50,270,12,1,                      // FIRST CUBE
-    PAUSE,0.5,
-    DRIVEDIST,-50,270,22,2,
+    LIFTPOS,2200,                           // LOWER ARMS
+    SETINTAKE,-40,                          // INTAKE OUT TO PLACE
+    PAUSE,0.25,                             // SHORT PAUSE
+    DRIVEDIST,-40,180,10,3,                 // DRIVE BACK FROM BUCKET
+    DRIVEDIST,-100,180,16,3,                // DRIVE BACK FROM BUCKET
+    DRIVE,60,180,0.05,                      // BREAK
     
-    SETINTAKE,0,
-    TURN,180,1,
+    LIFTPOS,1000,                            // LOWER ARMS HALF WAY
+    TRAYPOS,1,                              // LOWER TRAY
+    SETINTAKE,0,                            // TURN INTAKE OFF
     
-    TRAYPOS,TRAY_ARM_POS_A,
-    LIFTPOS,LOW_TOWER_POS_A,
-    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,
-    PAUSE,1,
-    DRIVEDIST,60,180,15,1.5,
-    DRIVEDIST,-40,180,1,1.5,
-    LIFTPOS,2200,
-    SETINTAKE,-40,
+    TURN,90,1,                              // TURN FOR NEXT CUBE
+    //DRIVEDIST,-70,90,10,1,
+    LIFTPOS,1,                              // LOWER ARMS
     PAUSE,0.25,
-    DRIVEDIST,-40,180,26,3,
-    LIFTPOS,600,
-    TRAYPOS,1,
+    SETINTAKE,127,                          // INTAKE ON
+    DRIVEDIST,50,90,25,3,                   // DRIVE TO GET CUBE
+    PAUSE,0.5,                              // PAUSE FOR INTAKE
+    DRIVEDIST,-70,90,12,2,                  // DRIVE BACK
     
-    SETINTAKE,0,
-    TURN,90,1,
-    LIFTPOS,1,
-    SETINTAKE,127,
-    DRIVEDIST,50,90,20,2,
-    PAUSE,0.5,
-    DRIVEDIST,-50,90,12,2,
+    SETINTAKE,0,                            // INTAKE OFF
+    TRAYPOS,TRAY_ARM_POS_A,                 // RAISE TRAY
+    LIFTPOS,LOW_TOWER_POS_A,                // RAISE ARMS
+    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,  // WAIT TILL UP
+    //PAUSE,1,                                // WAIT A BIT LONGER
     
-    SETINTAKE,0,
-    TRAYPOS,TRAY_ARM_POS_A,
-    LIFTPOS,LOW_TOWER_POS_A,
-    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,
-    PAUSE,1,
-    DRIVEDIST,50,90,23,2,
-    DRIVEDIST,-40,90,1,2,
-    LIFTPOS,2200,
-    SETINTAKE,-70,
-    PAUSE,0.25,
-    DRIVEDIST,-40,90,12,3,
-    LIFTPOS,600,
-    TRAYPOS,1,
-    DRIVEDIST,-40,90,20,3,
+    DRIVEDIST,70,90,30,2,                   // DRIVE TO BUCKET              // SECOND TOWER
+    DRIVEDIST,-40,90,1,2,                   // DRIVE BACK A LITTLE
+    LIFTPOS,2200,                           // LOWER ARMS
+    SETINTAKE,-70,                          // INTAKE OUT
+    PAUSE,0.25,                             // SHORT PAUSE
+    DRIVEDIST,-40,90,12,3,                  // DRIVE BACK FROM TOWER
     
-    TURN,135,1,
-    DRIVEDIST,-60,135,24,1,
-    TURN,90,1,
-    DRIVEDIST,-60,90,10,1,
-    LIFTPOS,1,
-    SETINTAKE,127,
-    LOCKPOS,1,
+    LIFTPOS,600,                            // LOWER ARMS HALF WAY
+    TRAYPOS,1,                              // LOWER TRAY
+    DRIVEDIST,-100,90,20,3,                  // DRIVE BACK MORE
     
-    DRIVEDIST,40,90,140,12,
-    DRIVEDIST,-40,90,10,2,
+    TURN,135,1,                             // TURN READY TO LINE UP FOR THREE ROW
+    DRIVEDIST,-100,135,24,1,                 // DRIVE TO LINE UP
+    TURN,90,1,                              // TURN TO LINE UP
+    //DRIVEDIST,-100,90,10,1,                  // DRIVE BACK TO HIT WALL
+    LIFTPOS,1,                              // LOWER ARMS
+    SETINTAKE,127,                          // INTAKE ON
+    LOCKPOS,1,                              // OPEN CUBE LOCK
     
-    SLOW_TURN,180,1,
-    DRIVEDIST,50,180,30,3,
-    SLOW_TURN,135,1,
+    DRIVEDIST,50,90,60,12,                  // DRIVE TO GET 2 ROWS OF 3
+    DRIVEDIST,35,90,70,12,                  // DRIVE TO GET 2 ROWS OF 3
+    DRIVEDIST,-40,90,10,2,                  // DRIVE BACK FROM WALL
     
-    DRIVEDIST,50,135,20,3,
+    SLOW_TURN,180,1,                        // TURN FOR DRIVE TO ZONE
+    DRIVEDIST,50,180,26,4,                  // DRIVE READY FOR ZONE
+//    DRIVEDIST,-70,180,15,2,                  // DRIVE READY FOR ZONE
+    SLOW_TURN,135,1,                        // TURN TO FACE ZONE
     
-    SETINTAKE,-100,
-    PAUSE,0.25,
-    SETINTAKE,0,
+    DRIVEDIST,50,135,24,2,                  // DRIVE INTO ZONE
+    //DRIVE,80,135,0.5,                       // DRIVE INTO ZONE
+    //DRIVEDIST,-50,135,5,1,                  // DRIVE OUT OF ZONE
     
-    DEPOSIT,                                    // SECOND STACK
-    WAIT,DEPOSITDONE,15,15,
-    SETINTAKE,0,
+    SETINTAKE,-100,                         // INTAKE OUT FOR BOTTOM CUBE
+    PAUSE,0.375,                             // PAUSE TO LET SLIDE
+    SETINTAKE,0,                            // INTAKE OFF
+    PAUSE,0.25,                             // PAUSE TO LET SLIDE
     
-    DRIVEDIST,-40,135,6,1,
-    LIFTPOS,600,
-    TURN,0,1,
-    LIFTPOS,1,
-    TRAYPOS,1,
-    LOCKPOS,250,
+    DEPOSIT,                                // PLACE STACK                  // SECOND STACK
+    WAIT,DEPOSITDONE,15,15,                 // WAIT TILL DONE
+    SETINTAKE,0,                            // INTAKE OFF
     
-    DRIVEDIST,60,0,20,2,
-    SETINTAKE,127,
-    DRIVEDIST,60,0,25,2,
-    PAUSE,0.5,                                  // LAST CUBE
-    DRIVEDIST,-60,0,10,2,
-    TURN,45,0.75,
-    DRIVEDIST,-60,45,25,2,
     
-    TURN,180,1,
-    SETINTAKE,0,
-    TRAYPOS,TRAY_ARM_POS_A,
-    LIFTPOS,LOW_TOWER_POS_A,
-    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,
-    DRIVEDIST,60,180,25,2,
     
-    DRIVEDIST,-40,180,1,1.5,
-    LIFTPOS,2200,
-    SETINTAKE,-40,
-    PAUSE,0.25,
-    DRIVEDIST,-40,180,26,3,
+    END,                                    ////////////////////// END OF ROUTINE
     
-    END,
+    
+    
+    
+    
+    DRIVEDIST,-70,135,6,1,                  // DRIVE AWAY FROM ZONE
+    LIFTPOS,600,                            // RAISE ARMS FOR TURN
+    TURN,0,1,                               // TURN READY FOR CUBE
+    LIFTPOS,1,                              // LOWER ARMS
+    TRAYPOS,1,                              // LOWER TRAY
+    LOCKPOS,250,                            // CLOSE CUBE LOCK
+    
+    DRIVEDIST,100,0,20,2,                    // DRIVE NEAR CUBE
+    SETINTAKE,127,                          // INTAKE ON
+    DRIVEDIST,100,0,25,2,                    // DRIVE TO CUBE
+    PAUSE,0.5,                              // PAUSE FOR INTAKE
+    DRIVEDIST,-100,0,5,2,                    // DRIVE BACK FROM CUBE
+    TURN,45,0.75,                           // TURN FOR LINE UP
+    DRIVEDIST,-100,45,25,2,                  // DRIVE TO LINE UP
+    
+    TURN,180,1,                             // TURN TO FACE BUCKET
+    SETINTAKE,0,                            // TURN INTAKE OFF
+    TRAYPOS,TRAY_ARM_POS_A,                 // RAISE TRAY
+    LIFTPOS,LOW_TOWER_POS_A,                // RAISE ARMS
+    WAIT,LIFTABOVE,LOW_TOWER_POS_ACCEPT,2,  // WAIT TILL ARMS UP
+    DRIVEDIST,100,180,25,2,                  // DRIVE INTO WALL
+    
+    DRIVEDIST,-40,180,1,1.5,                // DRIVE BACK A LITTLE
+    LIFTPOS,2200,                           // LOWER ARMS FOR PLACE
+    SETINTAKE,-40,                          // INTAKE OUT
+    PAUSE,0.25,                             // SHORT PAUSE
+    DRIVEDIST,-40,180,26,3,                 // DRIVE BACK
+    
+    END,                                    // END OF ROUTINE
 };
 
 
