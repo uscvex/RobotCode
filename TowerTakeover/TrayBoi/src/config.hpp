@@ -81,6 +81,7 @@ extern double lockSeek;
 extern double runIntake;
 extern int deployStep;
 extern int depositStep;
+extern bool doneDeploy;
 
 extern double direction;
 

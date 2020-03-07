@@ -129,6 +129,7 @@ void runLift(void* params) {
                 break;
                 
             case 3:
+                //runIntake = -127;
                 liftSpeed = 127;
                 if (millis() - currTime >= 500) {
                     deployStep++;
@@ -137,6 +138,7 @@ void runLift(void* params) {
                 break;
                 
             case 4:
+                //runIntake = -127;
                 liftSpeed = 0;
                 if (millis() - currTime >= 250)
                     deployStep++;
@@ -144,12 +146,14 @@ void runLift(void* params) {
                 
             case 5:
                 liftSpeed = -127;
+                //runIntake = -127;
                 if (liftPos < DEPLOY_DONE_POS)
                     deployStep++;
                 break;
                 
             case 6:
                 liftSpeed = 0;
+                //runIntake = 0;
                 traySpeed = 127;
                 if (trayPos > 1500)
                     deployStep++;

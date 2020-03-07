@@ -238,8 +238,9 @@ double redAuton[] = {
     DEPLOY,                         // DEPLOY
     WAIT,DEPLOYDONE,1,7,              // WAIT UNTIL DONE
     PAUSE,1,
+    LOCKPOS,1,
     SETINTAKE,-127,
-    DRIVEDIST,60,270,56,12,          // DRIVE LEVEL WITH 4 STACK
+    DRIVEDIST,60,270,57,12,          // DRIVE LEVEL WITH 4 STACK
     // DRIVEDIST,-60,270,4,3,          // DRIVE LEVEL WITH 4 STACK
     DRIVE,-30,270,0.1,               // DRIVE TO BREAK
     TURN,180,2,                     // TURN TO FACE STACK
@@ -297,8 +298,9 @@ double blueAuton[] = {
     DEPLOY,                         // DEPLOY
     WAIT,DEPLOYDONE,1,7,              // WAIT UNTIL DONE
     PAUSE,1,
+    LOCKPOS,1,
     SETINTAKE,-127,
-    DRIVEDIST,60,90,54,12,          // DRIVE LEVEL WITH 4 STACK
+    DRIVEDIST,60,90,56,12,          // DRIVE LEVEL WITH 4 STACK
     // DRIVEDIST,-60,270,4,3,          // DRIVE LEVEL WITH 4 STACK
     DRIVE,-30,90,0.1,               // DRIVE TO BREAK
     TURN,180,2,                     // TURN TO FACE STACK
@@ -309,10 +311,10 @@ double blueAuton[] = {
     TRAYPOS,2000,
     SETINTAKE,0,                    // STOP INTAKE
     
-    DRIVEDIST,20,180,11,5,          // DRIVE TO FOURSTACK
+    DRIVEDIST,20,180,12,5,          // DRIVE TO FOURSTACK
     SETINTAKE,127,                  // RUN INTAKE IN
     TRAYPOS,1,                      // LOWER TRAY
-    DRIVEDIST,120,180,9,3,          // DRIVE INTO FOURSTACK
+    DRIVEDIST,127,180,9,3,          // DRIVE INTO FOURSTACK
     PAUSE,0.5,                        // WAIT TO INTAKE CUBES
     
     DRIVEDIST,-20,180,7,5,         // BACK FROM FOUR
@@ -322,9 +324,9 @@ double blueAuton[] = {
     DRIVEDIST,-60,270,8,5,
     TURN,180,2,
     
-    DRIVEDIST,20,180,20,3,         // GET TOWER CUBE
+    DRIVEDIST,20,180,15,3,         // GET TOWER CUBE
     
-    DRIVEDIST,-50,180,23,5,         // BACK UP TO ALIGN FOR NEXT
+    DRIVEDIST,-50,180,22,5,         // BACK UP TO ALIGN FOR NEXT
     
     SLOW_TURN,90,2,
     DRIVEDIST,60,90,35,5,         // GET NEXT CUBE
@@ -338,8 +340,8 @@ double blueAuton[] = {
     SLOW_TURN,290,2,
     DRIVEDIST,60,290,30,4,
     DRIVEDIST,-60,290,1,0.5,
-    SETINTAKE,-100,                  // GET CUBES TO CORRECT POS
-    PAUSE,0.1,
+    SETINTAKE,-127,                  // GET CUBES TO CORRECT POS
+    PAUSE,0.375,
     SETINTAKE,0,                  // STOP INTAKE
     
     DEPOSIT,
