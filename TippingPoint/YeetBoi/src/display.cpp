@@ -1,0 +1,41 @@
+#include "main.h"
+
+using namespace pros;
+
+void run_display(void* params) {
+    int display_count = 0;
+    screen::erase();
+    controller.clear();
+    while (true) {
+
+        display_count++;
+
+        // Main screen
+        screen::erase();
+        // Print position info to screen
+        screen::print(TEXT_MEDIUM, 1, "(%d, %d, %d)", left_encoder.get_value(), middle_encoder.get_value(), right_encoder.get_value());
+        screen::print(TEXT_MEDIUM, 2, "(%.2f, %.2f, %.2f)", robot_x, robot_y, robot_theta);
+
+        screen::print(TEXT_MEDIUM, 3, "Belly Grab: %.2f %.2f", belly_grab_pos, belly_grab_target);
+        screen::print(TEXT_MEDIUM, 4, "Base Lift: %.2f %.2f", base_lift_pos, base_lift_target);
+        screen::print(TEXT_MEDIUM, 5, "Base Release: %.2f %.2f", base_release_pos, base_release_target);
+
+        screen::print(TEXT_MEDIUM, 6, "Spike Wrist: %.2f %.2f", spike_wrist_pos, spike_wrist_target);
+        screen::print(TEXT_MEDIUM, 7, "Spike Arm: %.2f %.2f", spike_arm_pos, spike_arm_target);
+
+        screen::print(TEXT_MEDIUM, 8, "Lift: %.2f %.2f", lift_pos, lift_target);
+
+        screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
+
+        // Controller display
+        if (display_count % 3 == 0)
+            controller.print(0, 0, "%.2f", robot_x);
+        if (display_count % 3 == 1)
+            controller.print(1, 0, "%.2f", robot_y);
+        if (display_count % 3 == 2)
+            controller.print(2, 0, "%.2f", robot_theta);
+
+        delay(60);
+    }
+
+}

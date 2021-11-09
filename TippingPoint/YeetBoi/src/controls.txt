@@ -1,0 +1,15 @@
+UP
+DOWN    Spike Drop Rings & Shake
+LEFT
+RIGHT
+
+X       Toggle Yeet [Ready, Yeet, Retract]
+Y       Rotate Base ACW
+A       Rotate Base CW
+B
+
+L1      Lift for deposit Toggle [Alliance, Low, High]
+L2      Spike Collect Toggle [Down Grab, Up Ready]
+
+R1      Belly Lift Toggle [Down Ready, Up Hold, Down Release]
+R2      Belly Grab Toggle [Neutral, Down, Up]
