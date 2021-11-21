@@ -2,15 +2,12 @@
 
 using namespace pros;
 
-#define SLEW_STEP_FORWARD 5
-#define SLEW_STEP_TURN 5
-
 Motor drive_right_1(17, SPEED, 0);
 Motor drive_right_2(15, SPEED, 0);
 Motor drive_right_3(14, SPEED, 0);
 
-Motor drive_left_1(13, SPEED, 1);
-Motor drive_left_2(12, SPEED, 1);
+Motor drive_left_1(16, SPEED, 1);
+Motor drive_left_2(6, SPEED, 1);
 Motor drive_left_3(11, SPEED, 1);
 
 int drive_mode = -1;
@@ -30,21 +27,21 @@ void run_drive(void* params) {
         double input_forward = controller.get_analog(ANALOG_LEFT_Y);
         double input_turn = controller.get_analog(ANALOG_RIGHT_X);
 
-        if (drive_slew_forward > input_forward + SLEW_STEP_FORWARD) {
-            drive_slew_forward -= SLEW_STEP_FORWARD;
+        if (drive_slew_forward > input_forward + this_robot.SLEW_STEP_FORWARD) {
+            drive_slew_forward -= this_robot.SLEW_STEP_FORWARD;
         } 
-        else if (drive_slew_forward < input_forward - SLEW_STEP_FORWARD) {
-            drive_slew_forward += SLEW_STEP_FORWARD;
+        else if (drive_slew_forward < input_forward - this_robot.SLEW_STEP_FORWARD) {
+            drive_slew_forward += this_robot.SLEW_STEP_FORWARD;
         }
         else {
             drive_slew_forward = input_forward;
         }
 
-        if (drive_slew_turn > input_turn + SLEW_STEP_TURN) {
-            drive_slew_turn -= SLEW_STEP_TURN;
+        if (drive_slew_turn > input_turn + this_robot.SLEW_STEP_TURN) {
+            drive_slew_turn -= this_robot.SLEW_STEP_TURN;
         } 
-        else if (drive_slew_turn < input_turn - SLEW_STEP_TURN) {
-            drive_slew_turn += SLEW_STEP_TURN;
+        else if (drive_slew_turn < input_turn - this_robot.SLEW_STEP_TURN) {
+            drive_slew_turn += this_robot.SLEW_STEP_TURN;
         }
         else {
             drive_slew_turn = input_turn;

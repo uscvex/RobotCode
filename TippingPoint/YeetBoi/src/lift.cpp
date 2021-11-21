@@ -2,40 +2,6 @@
 #include <math.h>
 #include <iostream>
 
-#define SPIKE_ARM_RATE 1.5
-#define SPIKE_WRIST_RATE 10
-
-#define SPIKE_WRIST_GRAB_POS 208
-#define SPIKE_WRIST_READY_POS 215
-#define SPIKE_ARM_READY_POS 1900
-#define SPIKE_ARM_GRAB_POS 600
-#define SPIKE_WRIST_RANGE 2740
-
-#define SPIKE_ARM_CHASSIS_CLEAR 2700
-#define SPIKE_WRIST_CHASSIS_CLEAR 200
-#define SPIKE_WRIST_CHASSIS_COLLIDE 130
-
-#define SPIKE_WRIST_STORE_POS 20
-#define SPIKE_ARM_STORE_POS 600
-
-#define SPIKE_DROP_SPEED 90
-#define SPIKE_RETURN_SPEED -60
-
-#define LIFT_RATE 1
-
-
-#define SPIKE_WRIST_ALLIANCE_GOAL_POS 250
-#define SPIKE_ARM_ALLIANCE_GOAL_POS 2860
-#define LIFT_ALLIANCE_GOAL_POS 0
-
-#define SPIKE_WRIST_LOW_GOAL_POS 136
-#define SPIKE_ARM_LOW_GOAL_POS 3200
-#define LIFT_LOW_GOAL_POS 1000
-
-#define SPIKE_WRIST_HIGH_GOAL_POS 134
-#define SPIKE_ARM_HIGH_GOAL_POS 4290
-#define LIFT_HIGH_GOAL_POS 3700
-
 
 Motor spike_wrist(7, SPEED, 1);
 Motor spike_arm(8, SPEED, 1);
@@ -75,6 +41,7 @@ void run_lift(void* params) {
         double spike_arm_speed = 0;
         double spike_wrist_speed = 0;
         double lift_speed = 0;
+        double spike_wrist_target_offset = 0;
 
         spike_arm_pos = spike_arm.get_position();
         spike_wrist_pos = 10 + ((spike_wrist.get_position() * 2 / 5) + (spike_arm_pos / 7)) / 5;
@@ -115,31 +82,31 @@ void run_lift(void* params) {
                 }
                 break;
             case 1:  // Move arm to score on forward alliance goals
-                spike_wrist_target = SPIKE_WRIST_ALLIANCE_GOAL_POS;
-                spike_arm_target = SPIKE_ARM_ALLIANCE_GOAL_POS;
-                lift_target = LIFT_ALLIANCE_GOAL_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS;
+                spike_arm_target = this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS;
+                lift_target = this_robot.LIFT_ALLIANCE_GOAL_POS;
                 if (next_lift_state) {
                     lift_state = 2;
                 }
                 break;
             case 2:  // Move arm to score on low neutral goals
-                spike_wrist_target = SPIKE_WRIST_LOW_GOAL_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_LOW_GOAL_POS;
                 if ( (lift_pos < 0.8 * lift_target) || (spike_arm_pos < 0.8 * spike_arm_target) ) {
-                    spike_wrist_target = SPIKE_WRIST_CHASSIS_CLEAR;
+                    spike_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR;
                 }
-                spike_arm_target = SPIKE_ARM_LOW_GOAL_POS;
-                lift_target = LIFT_LOW_GOAL_POS;
+                spike_arm_target = this_robot.SPIKE_ARM_LOW_GOAL_POS;
+                lift_target = this_robot.LIFT_LOW_GOAL_POS;
                 if (next_lift_state) {
                     lift_state = 3;
                 }
                 break;
             case 3:  // Move arm to score on high neutral goals
-                spike_wrist_target = SPIKE_WRIST_HIGH_GOAL_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_HIGH_GOAL_POS;
                 if ( (lift_pos < 0.8 * lift_target) || (spike_arm_pos < 0.8 * spike_arm_target) ) {
-                    spike_wrist_target = SPIKE_WRIST_CHASSIS_CLEAR;
+                    spike_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR;
                 }
-                spike_arm_target = SPIKE_ARM_HIGH_GOAL_POS;
-                lift_target = LIFT_HIGH_GOAL_POS;
+                spike_arm_target = this_robot.SPIKE_ARM_HIGH_GOAL_POS;
+                lift_target = this_robot.LIFT_HIGH_GOAL_POS;
                 if (next_lift_state) {
                     lift_state = 1;
                 }
@@ -157,8 +124,8 @@ void run_lift(void* params) {
                 break;
             case 1:  // Ready to pick up
                 lift_target = 0;
-                spike_arm_target = SPIKE_ARM_READY_POS;
-                spike_wrist_target = SPIKE_WRIST_READY_POS;
+                spike_arm_target = this_robot.SPIKE_ARM_READY_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_READY_POS;
                 if (next_collect_state) {
                     spike_arm_state = 2;
                     last_state_time = millis();
@@ -166,7 +133,7 @@ void run_lift(void* params) {
                 break;
             case 2:  // Stamp down hard for a time
                 lift_target = 0;
-                spike_wrist_target = SPIKE_WRIST_GRAB_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_GRAB_POS;
                 spike_arm_speed = -127;
                 spike_arm_target = -1;
                 if ((millis() - last_state_time > 500) && (!just_toggled_collect)) {
@@ -178,8 +145,8 @@ void run_lift(void* params) {
                 break;
             case 4:  // Hold down to pick up
                 lift_target = 0;
-                spike_arm_target = SPIKE_ARM_GRAB_POS;
-                spike_wrist_target = SPIKE_WRIST_GRAB_POS;
+                spike_arm_target = this_robot.SPIKE_ARM_GRAB_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_GRAB_POS;
                 if (next_collect_state) {
                     spike_arm_state = 1;
                 }
@@ -192,23 +159,30 @@ void run_lift(void* params) {
         if (controller.get_digital(DIGITAL_LEFT)) {
             spike_arm_state = -1;
             lift_state = -1;
-            spike_wrist_target = SPIKE_WRIST_STORE_POS;
-            spike_arm_target = SPIKE_ARM_STORE_POS;
+            spike_wrist_target = this_robot.SPIKE_WRIST_STORE_POS;
+            spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
+            lift_target = 0;
+        }
+        if (controller.get_digital(DIGITAL_RIGHT)) {
+            spike_arm_state = -1;
+            lift_state = -1;
+            spike_wrist_target = this_robot.ALLIANCE_HELD_WRIST_POS;
+            spike_arm_target = this_robot.ALLIANCE_HELD_ARM_POS;
             lift_target = 0;
         }
 
-        if (controller.get_digital(DIGITAL_DOWN)) {
+        if (!controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_DOWN)) {
             if (spike_wrist_target != -1) {
-                spike_wrist_target += 5 * (sin(millis() / 15) + sin(millis() / 18));
+                spike_wrist_target_offset = this_robot.SPIKE_SHAKE_AMPLITUDE * (sin(millis() / 15) + sin(millis() / 18));
             }
-            spike_speed = SPIKE_DROP_SPEED;
+            spike_speed = this_robot.SPIKE_DROP_SPEED;
             just_dropped_time = millis();
             just_toggled_drop = true;
         }
         else {
             if (just_toggled_drop) {
                 if (millis() - just_dropped_time < 500) {
-                    spike_speed = SPIKE_RETURN_SPEED;
+                    spike_speed = this_robot.SPIKE_RETURN_SPEED;
                 }
                 else {
                     just_toggled_drop = false;
@@ -222,11 +196,11 @@ void run_lift(void* params) {
         double new_wrist_target = spike_wrist_target;
 
         if (spike_wrist_target != -1) {
-            if ((spike_arm_pos <= SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos <= SPIKE_WRIST_CHASSIS_CLEAR) && (spike_wrist_target >= SPIKE_WRIST_CHASSIS_COLLIDE) && collision_avoid_state == -1) {
+            if ((spike_arm_pos <= this_robot.SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos <= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) && (spike_wrist_target >= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) && collision_avoid_state == -1) {
                 collision_avoid_state = 1;
                 initial_wrist_pos = spike_wrist_pos;
             }
-            if ((spike_arm_pos <= SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos >= SPIKE_WRIST_CHASSIS_COLLIDE) && (spike_wrist_target <= SPIKE_WRIST_CHASSIS_CLEAR) && collision_avoid_state == -1) {
+            if ((spike_arm_pos <= this_robot.SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos >= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) && (spike_wrist_target <= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) && collision_avoid_state == -1) {
                 collision_avoid_state = 9;
                 initial_wrist_pos = spike_wrist_pos;
             }
@@ -238,11 +212,11 @@ void run_lift(void* params) {
 
             case 1:     // Move arm up while holding wrist still
                 new_wrist_target = initial_wrist_pos;
-                new_arm_target = SPIKE_ARM_CHASSIS_CLEAR + 200;
-                if (spike_arm_pos > SPIKE_ARM_CHASSIS_CLEAR) {
+                new_arm_target = this_robot.SPIKE_ARM_CHASSIS_CLEAR + 200;
+                if (spike_arm_pos > this_robot.SPIKE_ARM_CHASSIS_CLEAR) {
                     
                     // If arm will keep moving up, we're done
-                    if (spike_arm_target >= SPIKE_ARM_CHASSIS_CLEAR + 200) {
+                    if (spike_arm_target >= this_robot.SPIKE_ARM_CHASSIS_CLEAR + 200) {
                         collision_avoid_state = -1;
                     }
                     else {
@@ -251,18 +225,18 @@ void run_lift(void* params) {
                 }
                 break;
             case 2:     // Hold arm and allow wrist to move
-                new_arm_target = SPIKE_ARM_CHASSIS_CLEAR + 200;
-                if (spike_wrist_pos >= SPIKE_WRIST_CHASSIS_CLEAR) {
+                new_arm_target = this_robot.SPIKE_ARM_CHASSIS_CLEAR + 200;
+                if (spike_wrist_pos >= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) {
                     collision_avoid_state = -1;
                 }
                 break;
 
             case 9:     // Move arm up while holding wrist still
-                new_wrist_target = SPIKE_WRIST_CHASSIS_CLEAR + 35;
-                new_arm_target = SPIKE_ARM_CHASSIS_CLEAR + 200;
-                if (spike_arm_pos > SPIKE_ARM_CHASSIS_CLEAR) {
+                new_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR + 35;
+                new_arm_target = this_robot.SPIKE_ARM_CHASSIS_CLEAR + 200;
+                if (spike_arm_pos > this_robot.SPIKE_ARM_CHASSIS_CLEAR) {
                     // If arm will keep moving up, we're done
-                    if (spike_arm_target >= SPIKE_ARM_CHASSIS_CLEAR + 200) {
+                    if (spike_arm_target >= this_robot.SPIKE_ARM_CHASSIS_CLEAR + 200) {
                         collision_avoid_state = -1;
                     }
                     else {
@@ -271,8 +245,8 @@ void run_lift(void* params) {
                 }
                 break;
             case 10:     // Hold arm and allow wrist to move
-                new_arm_target = SPIKE_ARM_CHASSIS_CLEAR + 200;
-                if (spike_wrist_pos <= SPIKE_WRIST_CHASSIS_COLLIDE) {
+                new_arm_target = this_robot.SPIKE_ARM_CHASSIS_CLEAR + 200;
+                if (spike_wrist_pos <= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) {
                     collision_avoid_state = -1;
                 }
                 break;
@@ -284,19 +258,20 @@ void run_lift(void* params) {
         }
 
         if (new_arm_target != -1) {
-            spike_arm_speed = (new_arm_target - spike_arm_pos) * SPIKE_ARM_RATE;
+            spike_arm_speed = (new_arm_target - spike_arm_pos) * this_robot.SPIKE_ARM_RATE;
         }
         if (new_wrist_target != -1) {
-            spike_wrist_speed = (new_wrist_target - spike_wrist_pos) * SPIKE_WRIST_RATE;
+            spike_wrist_speed = (new_wrist_target + spike_wrist_target_offset - spike_wrist_pos) * this_robot.SPIKE_WRIST_RATE;
         }
 
 
         double lift_speed_left = lift_speed;
         double lift_speed_right = lift_speed;
         if (lift_target != -1) {
-            lift_speed_left = (lift_target - lift_pos_left) * LIFT_RATE;
+            lift_speed_left = (lift_target - lift_pos_left) * this_robot.LIFT_RATE;
             // Try moving right lift to be the same as left is
-            lift_speed_right = (lift_pos_left - lift_pos_right) * LIFT_RATE;
+            // lift_speed_right = (lift_pos_left - lift_pos_right) * LIFT_RATE;
+            lift_speed_right = (lift_target - lift_pos_right + this_robot.LEFT_LIFT_OFFSET) * this_robot.LIFT_RATE;
         }
 
         if (controller.get_digital(DIGITAL_UP)) {

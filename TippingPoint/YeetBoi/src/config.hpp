@@ -5,6 +5,8 @@
 #ifndef __CONFIG_HPP__
 #define __CONFIG_HPP__
 
+#include <string>
+
 ////////////////////////////////////////////////////////////////
 // Anything that we will use in multiple files
 // must be declared as extern in this file.
@@ -14,6 +16,7 @@
 
 
 using namespace pros;
+using namespace std;
 
 #define DM_USER -1
 #define DM_YEET_FORWARD 1
@@ -22,6 +25,12 @@ using namespace pros;
 #define TURBO E_MOTOR_GEARSET_6
 #define SPEED E_MOTOR_GEARSET_18
 #define TORQUE E_MOTOR_GEARSET_36
+
+extern int which_robot;
+extern string robot_names[];
+
+extern int which_auton;
+extern string auton_names[];
 
 // Main task prototypes
 extern void run_drive(void* params);
@@ -38,6 +47,10 @@ extern double pythag(double x1, double y1, double x2, double y2);
 extern void set_position(double x, double y, double d);
 extern void set_position(double x, double y);
 extern void init_tracking();
+
+// Robot Config Functions
+extern void init_robot_white();
+extern void init_robot_black();
 
 // Controller
 extern Controller controller;
@@ -100,6 +113,81 @@ extern ADIEncoder right_encoder;
 extern ADIDigitalOut yeet_release;
 extern ADIDigitalOut yeet_retract;
 
+
+struct RobotParams {
+    string name;
+    double BASE_LIFT_YEET_POS;
+
+    double SPIKE_ARM_RATE;
+    double SPIKE_WRIST_RATE;
+    double SPIKE_SHAKE_AMPLITUDE;
+
+    double SPIKE_WRIST_GRAB_POS;
+    double SPIKE_WRIST_READY_POS;
+    double SPIKE_ARM_READY_POS;
+    double SPIKE_ARM_GRAB_POS;
+    double SPIKE_WRIST_RANGE;
+
+    double SPIKE_ARM_CHASSIS_CLEAR;
+    double SPIKE_WRIST_CHASSIS_CLEAR;
+    double SPIKE_WRIST_CHASSIS_COLLIDE;
+
+    double SPIKE_WRIST_STORE_POS;
+    double SPIKE_ARM_STORE_POS;
+
+    double ALLIANCE_HELD_ARM_POS;
+    double ALLIANCE_HELD_WRIST_POS;
+
+    double SPIKE_DROP_SPEED;
+    double SPIKE_RETURN_SPEED ;
+
+    double LIFT_RATE;
+
+    double LEFT_LIFT_OFFSET;
+    double SPIKE_WRIST_ALLIANCE_GOAL_POS;
+    double SPIKE_ARM_ALLIANCE_GOAL_POS;
+    double LIFT_ALLIANCE_GOAL_POS;
+
+    double SPIKE_WRIST_LOW_GOAL_POS;
+    double SPIKE_ARM_LOW_GOAL_POS;
+    double LIFT_LOW_GOAL_POS;
+
+    double SPIKE_WRIST_HIGH_GOAL_POS;
+    double SPIKE_ARM_HIGH_GOAL_POS;
+    double LIFT_HIGH_GOAL_POS;
+
+    double BASE_LIFT_RATE;
+    double BASE_RELEASE_RATE;
+
+    double BASE_LIFT_READY_POS;
+    double BASE_LIFT_HOLD_POS;
+    double BASE_RELEASE_DROP_POS;
+    double BASE_RELEASE_READY_POS;
+    double BASE_RELEASE_HOLD_POS;
+
+
+    double BELLY_GRAB_RATE_DOWN;
+    double BELLY_GRAB_RATE_UP;
+
+    double BELLY_GRAB_DOWN;
+    double BELLY_GRAB_UP;
+
+    double SLEW_STEP_FORWARD;
+    double SLEW_STEP_TURN;
+
+    // How many inches of travel does the robot move per tick of the encoder
+    double INCHES_PER_TICK;
+
+    // How far apart are the tracking wheels
+    double TRACKING_DIAMETER;
+
+    // Fudge Factors
+    double FORWARD_FUDGE_FACTOR;
+    double STRAFE_FUDGE_FACTOR;
+    double ROTATIONAL_FUDGE_FACTOR;
+};
+
+extern RobotParams this_robot;
 
 #endif
 

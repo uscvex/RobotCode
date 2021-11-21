@@ -1,16 +1,5 @@
 #include "main.h"
 
-// How many inches of travel does the robot move per tick of the encoder
-#define INCHES_PER_TICK 0.02836160034
-
-// How far apart are the tracking wheels
-#define TRACKING_DIAMETER 12
-
-// Fudge Factors
-#define FORWARD_FUDGE_FACTOR (24/23.5)
-#define STRAFE_FUDGE_FACTOR (24/23.3)
-#define ROTATIONAL_FUDGE_FACTOR 0.99699
-
 using namespace pros;
 
 // Define encoder ports and direction
@@ -87,16 +76,16 @@ void track_position() {
     middle_change -= angle_change / 2;
     
     // Convert ticks to inches
-    angle_change *= INCHES_PER_TICK;
+    angle_change *= this_robot.INCHES_PER_TICK;
     
     // Find actual angle change (rad) based on distance between encoders
-    angle_change /= TRACKING_DIAMETER;
+    angle_change /= this_robot.TRACKING_DIAMETER;
     
     // Convert to degrees
     angle_change = (180 * angle_change) / (double)M_PI;
     
     // Calculate new global direction
-    robot_theta += angle_change * ROTATIONAL_FUDGE_FACTOR;
+    robot_theta += angle_change * this_robot.ROTATIONAL_FUDGE_FACTOR;
     
     // Wrap to [0,360]
     if (robot_theta > 360) robot_theta -= 360;
@@ -106,8 +95,8 @@ void track_position() {
     double robot_theta_rad = ((double)M_PI * robot_theta) / 180;
     
     // Find change in forward position and sideways position
-    double forward_change = FORWARD_FUDGE_FACTOR * INCHES_PER_TICK * (left_change - right_change) / 2;
-    double strafe_change = STRAFE_FUDGE_FACTOR * middle_change * INCHES_PER_TICK;
+    double forward_change = this_robot.FORWARD_FUDGE_FACTOR * this_robot.INCHES_PER_TICK * (left_change - right_change) / 2;
+    double strafe_change = this_robot.STRAFE_FUDGE_FACTOR * middle_change * this_robot.INCHES_PER_TICK;
     
     // Calculate global change based on current angle
     double change_x = forward_change * sin(robot_theta_rad) + strafe_change * cos(robot_theta_rad);

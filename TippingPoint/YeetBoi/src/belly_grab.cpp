@@ -1,11 +1,5 @@
 #include "main.h"
 
-#define BELLY_GRAB_RATE_DOWN 0.1
-#define BELLY_GRAB_RATE_UP 0.5
-
-#define BELLY_GRAB_DOWN 0
-#define BELLY_GRAB_UP 2000
-
 Motor belly_grab(18, SPEED, 1);
 
 double belly_grab_pos = 0;
@@ -45,12 +39,12 @@ void run_belly_grab(void* params) {
                     belly_grab_state = 2;
                 break;
             case 2:
-                belly_grab_target = BELLY_GRAB_DOWN;
+                belly_grab_target = this_robot.BELLY_GRAB_DOWN;
                 if (next_state) 
                     belly_grab_state = 3;
                 break;
             case 3:
-                belly_grab_target = BELLY_GRAB_UP;
+                belly_grab_target = this_robot.BELLY_GRAB_UP;
                 if (next_state) 
                     belly_grab_state = 1;
                 break;
@@ -61,10 +55,10 @@ void run_belly_grab(void* params) {
         // P-controller
         if (belly_grab_target != -1) {
             if (belly_grab_target >= belly_grab_pos) {
-                belly_grab_speed = (belly_grab_target - belly_grab_pos) * BELLY_GRAB_RATE_UP;
+                belly_grab_speed = (belly_grab_target - belly_grab_pos) * this_robot.BELLY_GRAB_RATE_UP;
             }
             else {
-                belly_grab_speed = (belly_grab_target - belly_grab_pos) * BELLY_GRAB_RATE_DOWN;
+                belly_grab_speed = (belly_grab_target - belly_grab_pos) * this_robot.BELLY_GRAB_RATE_DOWN;
             }
         }
         if (belly_grab_target == -1234) {

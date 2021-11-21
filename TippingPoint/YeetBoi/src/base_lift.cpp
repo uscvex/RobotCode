@@ -1,14 +1,5 @@
 #include "main.h"
 
-#define BASE_LIFT_RATE 1
-#define BASE_RELEASE_RATE 1
-
-#define BASE_LIFT_READY_POS 1800
-#define BASE_LIFT_HOLD_POS 3100
-#define BASE_RELEASE_DROP_POS -675
-#define BASE_RELEASE_READY_POS 120
-#define BASE_RELEASE_HOLD_POS -1
-
 Motor base_lift(19, SPEED, 1);
 Motor base_release(10, SPEED, 1);
 Motor base_rotate(20, SPEED, 1);
@@ -50,20 +41,20 @@ void run_base_lift(void* params) {
                     base_lift_state = 1;
                 break;
             case 1:  // Ready to grab state
-                base_lift_target = BASE_LIFT_READY_POS;
-                base_release_target = BASE_RELEASE_READY_POS;
+                base_lift_target = this_robot.BASE_LIFT_READY_POS;
+                base_release_target = this_robot.BASE_RELEASE_READY_POS;
                 if (next_state)
                     base_lift_state = 2;
                 break;
             case 2:  // Hold base state
-                base_lift_target = BASE_LIFT_HOLD_POS;
-                base_release_target = BASE_RELEASE_HOLD_POS;
+                base_lift_target = this_robot.BASE_LIFT_HOLD_POS;
+                base_release_target = this_robot.BASE_RELEASE_HOLD_POS;
                 if (next_state)
                     base_lift_state = 3;
                 break;
             case 3:  // Drop base state
-                base_lift_target = BASE_LIFT_READY_POS;
-                base_release_target = BASE_RELEASE_DROP_POS;
+                base_lift_target = this_robot.BASE_LIFT_READY_POS;
+                base_release_target = this_robot.BASE_RELEASE_DROP_POS;
                 if (next_state)
                     base_lift_state = 1;
                 break;
@@ -73,10 +64,10 @@ void run_base_lift(void* params) {
 
         // P-controller
         if (base_lift_target != -1) {
-            base_lift_speed = (base_lift_target - base_lift_pos) * BASE_LIFT_RATE;
+            base_lift_speed = (base_lift_target - base_lift_pos) * this_robot.BASE_LIFT_RATE;
         }
         if (base_release_target != -1) {
-            base_release_speed = (base_release_target - base_release_pos) * BASE_RELEASE_RATE;
+            base_release_speed = (base_release_target - base_release_pos) * this_robot.BASE_RELEASE_RATE;
         }
 
         // Abort button

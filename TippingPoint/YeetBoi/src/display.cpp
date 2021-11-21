@@ -28,12 +28,10 @@ void run_display(void* params) {
         screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
 
         // Controller display
-        if (display_count % 3 == 0)
-            controller.print(0, 0, "%.2f", robot_x);
-        if (display_count % 3 == 1)
-            controller.print(1, 0, "%.2f", robot_y);
-        if (display_count % 3 == 2)
-            controller.print(2, 0, "%.2f", robot_theta);
+        if (display_count % 2 == 0)
+            controller.print(2, 0, "%.2f, %.2f, %.0f                     ", robot_x, robot_y, robot_theta);
+        if (display_count % 2 == 1)
+            controller.print(0, 0, "%s %s: %s    ", this_robot.name, robot_names[which_robot], auton_names[which_auton]);
 
         delay(60);
     }

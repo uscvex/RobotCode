@@ -1,9 +1,34 @@
 #include "main.h"
-
+#include <string>
 
 using namespace pros;
+using namespace std;
 
 Controller controller(E_CONTROLLER_MASTER);
+
+RobotParams this_robot;
+
+int which_robot = 1;
+int num_robots = 2;
+string robot_names[] = {"WHT", "BLK"};
+
+int which_auton = 0;
+int num_autons = 4;
+string auton_names[] = {"MID", "LEFT", "SK_LEFT", "SK_RGHT"};
+
+
+void calibrate_robot_params() {
+    switch(which_robot) {
+        default:
+            which_robot = 0;
+        case 0:
+            init_robot_white();
+            break;
+        case 1:
+            init_robot_black();
+            break;
+    }
+}
 
 
 void init_positions() {
@@ -37,6 +62,7 @@ void init_positions() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    calibrate_robot_params();
     yeet_release.set_value(0);
     yeet_retract.set_value(0);
     init_tracking();
@@ -73,96 +99,25 @@ void autonomous() {}
 
 
 void opcontrol() {
-//
-//    while (true) {
-//        double spikeSpeed = 0;
-//        double baseLiftSpeed = 0;
-//        double baseTurnSpeed = 0;
-//        double baseReleaseSpeed = 0;
-//        double mainLiftSpeed = 0;
-//        double spikeArmSpeed = 0;
-//        double spikeWristSpeed = 0;
-//        double bellyGrabSpeed = 0;
-//
-//
-//        if (controller.get_digital(DIGITAL_L1)) {
-//            baseLiftSpeed = 127;
-//        }
-//        if (controller.get_digital(DIGITAL_L2)) {
-//            baseLiftSpeed = -127;
-//        }
-//        if (controller.get_digital(DIGITAL_Y)) {
-//            mainLiftSpeed = 127;
-//        }
-//        if (controller.get_digital(DIGITAL_A)) {
-//            mainLiftSpeed = -127;
-//        }
-//        if (controller.get_digital(DIGITAL_LEFT)) {
-//            spikeArmSpeed = 127;
-//        }
-//        if (controller.get_digital(DIGITAL_RIGHT)) {
-//            spikeArmSpeed = -127;
-//        }
-//        if (controller.get_digital(DIGITAL_R2)) {
-//            bellyGrabSpeed = 127;
-//        }
-//        if (controller.get_digital(DIGITAL_R1)) {
-//            bellyGrabSpeed = -127;
-//        }
-//        if (controller.get_digital(DIGITAL_X)) {
-//            spikeWristSpeed = 127;
-//        }
-//        if (controller.get_digital(DIGITAL_B)) {
-//            spikeWristSpeed = -127;
-//        }
-//
-//        baseLift.move_voltage(12000 * baseLiftSpeed / 127);
-//
-//        bellyGrab.move_voltage(12000 * bellyGrabSpeed / 127);
-//
-//        mainLiftLeft.move_voltage(12000 * mainLiftSpeed / 127);
-//        mainLiftRight.move_voltage(12000 * mainLiftSpeed / 127);
-//
-//        spikeArm.move_voltage(12000 * spikeArmSpeed / 127);
-//
-//        spikeWrist.move_voltage(12000 * spikeWristSpeed / 127);
-//
-////      // Arcade
-//        double forwardSpeed = controller.get_analog(ANALOG_LEFT_Y);
-//        double turnSpeed = controller.get_analog(ANALOG_RIGHT_X);
-//
-//        // Drive Motors
-//        driveR1.move_voltage(12000 * (forwardSpeed - turnSpeed) / 127);
-//        driveR2.move_voltage(12000 * (forwardSpeed - turnSpeed) / 127);
-//        driveR3.move_voltage(12000 * (forwardSpeed - turnSpeed) / 127);
-//        driveL1.move_voltage(12000 * (forwardSpeed + turnSpeed) / 127);
-//        driveL2.move_voltage(12000 * (forwardSpeed + turnSpeed) / 127);
-//        driveL3.move_voltage(12000 * (forwardSpeed + turnSpeed) / 127);
-//
-////        // Tank
-////        double leftSpeed = controller.get_analog(ANALOG_LEFT_Y);
-////        double rightSpeed = controller.get_analog(ANALOG_RIGHT_Y);
-////
-////        // Drive Motors
-////        driveR1.move_voltage(12000 * (rightSpeed) / 127);
-////        driveR2.move_voltage(12000 * (rightSpeed) / 127);
-////        driveR3.move_voltage(12000 * (rightSpeed) / 127);
-////        driveL1.move_voltage(12000 * (leftSpeed) / 127);
-////        driveL2.move_voltage(12000 * (leftSpeed) / 127);
-////        driveL3.move_voltage(12000 * (leftSpeed) / 127);
-//
-//        // Print info to the screen
-//        double leftEncoderPos = leftEncoder.get_value();
-//        double rightEncoderPos = rightEncoder.get_value();
-//        double middleEncoderPos = middleEncoder.get_value();
-//
-//        lcd::print(0, "Left: %f\n", leftEncoderPos);
-//        lcd::print(1, "Middle: %f\n", middleEncoderPos);
-//        lcd::print(2, "Right: %f\n", rightEncoderPos);
-//
-//        pros::delay(20);
-//    }
+    bool just_toggled_auton = false;
     while (true) {
-        delay(100);
+
+        // Toggle between robots and autons
+        if (controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_X)) {
+            if (!just_toggled_auton) {
+                which_auton++;
+                if (which_auton >= num_autons) {
+                    which_auton = 0;
+                    which_robot = (which_robot + 1) % num_robots;
+                }
+                calibrate_robot_params();
+            }
+            just_toggled_auton = true;
+        }
+        else {
+            just_toggled_auton = false;
+        }
+
+        delay(50);
     }
 }
