@@ -1,6 +1,7 @@
 #include "main.h"
 
 using namespace pros;
+using namespace std;
 
 void run_display(void* params) {
     int display_count = 0;
@@ -26,6 +27,20 @@ void run_display(void* params) {
         screen::print(TEXT_MEDIUM, 8, "Lift: %.2f %.2f", lift_pos, lift_target);
 
         screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
+
+
+        if (!(display_count % 45)) {
+            cout << "==============================================" << endl;
+            // cout << "Encoders\t" << left_encoder.get_value() << mtiddle_encoder.get_value() << right_encoder.get_value() << endl;
+            cout << "Position\t" << robot_x << "\t" << robot_y << "\t" << robot_theta << endl;
+            cout << "Belly Grab:\t" << belly_grab_pos << " Seek:\t" << belly_grab_target << endl;
+            cout << "Base Lift:\t" << base_lift_pos << " Seek:\t" << base_lift_target << endl;
+            cout << "Base Release:\t" << base_release_pos << " Seek:\t" << base_release_target << endl;
+            cout << "Spike Wrist:\t" << spike_wrist_pos << " Seek:\t" << spike_wrist_target << endl;
+            cout << "Spike Arm:\t" << spike_arm_pos << " Seek:\t" << spike_arm_target << endl;
+            cout << "Lift:\t" << lift_pos << " Seek:\t" << lift_target << endl;
+            cout << "Yeet State:\t" << yeet_state << endl;
+        }
 
         // Controller display
         if (display_count % 2 == 0)

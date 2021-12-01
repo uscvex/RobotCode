@@ -23,8 +23,8 @@ void init_robot_white() {
     this_robot.SPIKE_WRIST_STORE_POS = 20;
     this_robot.SPIKE_ARM_STORE_POS = 600;
 
-    this_robot.ALLIANCE_HELD_ARM_POS = 5600;
-    this_robot.ALLIANCE_HELD_WRIST_POS = 190;
+    this_robot.ALLIANCE_HELD_ARM_POS = 5750;
+    this_robot.ALLIANCE_HELD_WRIST_POS = 195;
 
     this_robot.SPIKE_DROP_SPEED = 90;
     this_robot.SPIKE_RETURN_SPEED = -60;
@@ -32,16 +32,16 @@ void init_robot_white() {
     this_robot.LIFT_RATE = 1;
 
     this_robot.LEFT_LIFT_OFFSET = 120;
-    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 245;
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2780;
+    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 249; // 249
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2880;  // 2780
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
     this_robot.SPIKE_WRIST_LOW_GOAL_POS = 136;
     this_robot.SPIKE_ARM_LOW_GOAL_POS = 3200;
     this_robot.LIFT_LOW_GOAL_POS = 1000;
 
-    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 134;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4290;
+    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 138;
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4400; // 4710
     this_robot.LIFT_HIGH_GOAL_POS = 3700;
 
     this_robot.BASE_LIFT_RATE = 1;
@@ -49,8 +49,9 @@ void init_robot_white() {
 
     this_robot.BASE_LIFT_READY_POS = 1800;
     this_robot.BASE_LIFT_HOLD_POS = 3100;
-    this_robot.BASE_RELEASE_DROP_POS = -675;
-    this_robot.BASE_RELEASE_READY_POS = 120;
+    this_robot.BASE_SPIN_OFFSET = 0;
+    this_robot.BASE_RELEASE_DROP_POS = -800;
+    this_robot.BASE_RELEASE_READY_POS = 10;
     this_robot.BASE_RELEASE_HOLD_POS = -1;
 
 
@@ -70,8 +71,8 @@ void init_robot_white() {
     this_robot.TRACKING_DIAMETER = 12;
 
     // Fudge Factors
-    this_robot.FORWARD_FUDGE_FACTOR = (24/23.5);
-    this_robot.STRAFE_FUDGE_FACTOR = (24/23.3);
+    this_robot.FORWARD_FUDGE_FACTOR = (24.0/23.5);
+    this_robot.STRAFE_FUDGE_FACTOR = (24.0/23.3);
     this_robot.ROTATIONAL_FUDGE_FACTOR = 0.99699;
 
 }

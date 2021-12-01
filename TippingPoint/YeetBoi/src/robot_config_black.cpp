@@ -10,38 +10,38 @@ void init_robot_black() {
     this_robot.SPIKE_WRIST_RATE = 10;
     this_robot.SPIKE_SHAKE_AMPLITUDE = 3;
 
-    this_robot.SPIKE_WRIST_GRAB_POS = 200;
-    this_robot.SPIKE_WRIST_READY_POS = 205;
+    this_robot.SPIKE_WRIST_GRAB_POS = 203;
+    this_robot.SPIKE_WRIST_READY_POS = 208;
     this_robot.SPIKE_ARM_READY_POS = 1700;
     this_robot.SPIKE_ARM_GRAB_POS = 600;
     this_robot.SPIKE_WRIST_RANGE = 2740;
 
-    this_robot.SPIKE_ARM_CHASSIS_CLEAR = 2200;
+    this_robot.SPIKE_ARM_CHASSIS_CLEAR = 2300;
     this_robot.SPIKE_WRIST_CHASSIS_CLEAR = 190;
     this_robot.SPIKE_WRIST_CHASSIS_COLLIDE = 130;
 
     this_robot.SPIKE_WRIST_STORE_POS = 20;
-    this_robot.SPIKE_ARM_STORE_POS = 300;
+    this_robot.SPIKE_ARM_STORE_POS = 400;
 
     this_robot.ALLIANCE_HELD_ARM_POS = 5600;
     this_robot.ALLIANCE_HELD_WRIST_POS = 190;
 
-    this_robot.SPIKE_DROP_SPEED = 90;
-    this_robot.SPIKE_RETURN_SPEED = -60;
+    this_robot.SPIKE_DROP_SPEED = 110;
+    this_robot.SPIKE_RETURN_SPEED = -70;
 
     this_robot.LIFT_RATE = 1;
 
-    this_robot.LEFT_LIFT_OFFSET = 120;
-    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 235;
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2600;
+    this_robot.LEFT_LIFT_OFFSET = 80;
+    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 245;
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2750;
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
     this_robot.SPIKE_WRIST_LOW_GOAL_POS = 135;
     this_robot.SPIKE_ARM_LOW_GOAL_POS = 3100;
     this_robot.LIFT_LOW_GOAL_POS = 900;
 
-    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 130;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4110;
+    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 138;
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4410;
     this_robot.LIFT_HIGH_GOAL_POS = 3700;
 
     this_robot.BASE_LIFT_RATE = 1;
@@ -49,7 +49,8 @@ void init_robot_black() {
 
     this_robot.BASE_LIFT_READY_POS = 1800;
     this_robot.BASE_LIFT_HOLD_POS = 3100;
-    this_robot.BASE_RELEASE_DROP_POS = -700;
+    this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
+    this_robot.BASE_RELEASE_DROP_POS = -740;
     this_robot.BASE_RELEASE_READY_POS = 250;
     this_robot.BASE_RELEASE_HOLD_POS = -1;
 

@@ -34,9 +34,9 @@ void calibrate_robot_params() {
 void init_positions() {
 
     base_lift.move_voltage(-3000);
-    spike_arm.move_voltage(-3000);
-    spike_wrist.move_voltage(-3000);
-    base_release.move_voltage(5000);
+    spike_arm.move_voltage(-4000);
+    spike_wrist.move_voltage(-4000);
+    base_release.move_voltage(12000);
     lift_right.move_voltage(-2000);
     lift_left.move_voltage(-2000);
     delay(1000);
@@ -93,9 +93,6 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {}
-
-
-void autonomous() {}
 
 
 void opcontrol() {

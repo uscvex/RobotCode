@@ -13,18 +13,26 @@ void run_base_lift(void* params) {
 
     int base_lift_state = 0;
     bool just_toggled = false;
-
+    
     while (true) {
 
         double base_lift_speed = 0;
         double base_release_speed = 0;
         double base_rotate_speed = 0;
+        double base_spin_offset = 0;
 
         base_lift_pos = base_lift.get_position();
         base_release_pos = base_release.get_position();
 
         bool next_state = false;
-
+        if (controller.get_digital(DIGITAL_A)) {
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
+            base_rotate_speed = -127;
+        }
+        if (controller.get_digital(DIGITAL_Y)) {
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
+            base_rotate_speed = 127;
+        }
         if (controller.get_digital(DIGITAL_R1)) {
             if (!just_toggled) {
                 next_state = true;
@@ -47,7 +55,8 @@ void run_base_lift(void* params) {
                     base_lift_state = 2;
                 break;
             case 2:  // Hold base state
-                base_lift_target = this_robot.BASE_LIFT_HOLD_POS;
+                // will subtract an offset to lower to the ground if the base is high && being spun
+                base_lift_target = this_robot.BASE_LIFT_HOLD_POS - base_spin_offset;
                 base_release_target = this_robot.BASE_RELEASE_HOLD_POS;
                 if (next_state)
                     base_lift_state = 3;
@@ -78,17 +87,10 @@ void run_base_lift(void* params) {
             base_lift_state = 0;
         }
 
-        if (controller.get_digital(DIGITAL_A)) {
-            base_rotate_speed = -127;
-        }
-        if (controller.get_digital(DIGITAL_Y)) {
-            base_rotate_speed = 127;
-        }
-
         base_lift.move_voltage((12000 * base_lift_speed) / 127);
         base_release.move_voltage((12000 * base_release_speed) / 127);
         base_rotate.move_voltage((12000 * base_rotate_speed) / 127);
 
-        delay(20);
+        pros::delay(20);
     }
 }
