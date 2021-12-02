@@ -19,15 +19,16 @@ void run_yeet(void* params) {
     while (true) {
 
         bool next_yeet_state = false;
-        if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
-            if (!just_toggled) {
-                next_yeet_state = true;
-            }
-            just_toggled = true;
-        }
-        else {
-            just_toggled = false;
-        }
+        // Disable manual yeet for now
+        // if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
+        //     if (!just_toggled) {
+        //         next_yeet_state = true;
+        //     }
+        //     just_toggled = true;
+        // }
+        // else {
+        //     just_toggled = false;
+        // }
 
         switch (yeet_state) {
             case 0:
@@ -95,6 +96,7 @@ void run_yeet(void* params) {
             yeet_state = 0;
             if (controller.get_digital(DIGITAL_DOWN)) {
                 yeet_retract.set_value(1);
+                yeet_release.set_value(1);
             }
         }
 

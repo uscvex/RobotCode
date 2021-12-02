@@ -73,7 +73,7 @@ void track_position() {
     //angle_change /= 2;
     
     // Take out the rotational component from strafe wheel
-    middle_change -= angle_change / 2;
+    // middle_change -= angle_change / 2;
     
     // Convert ticks to inches
     angle_change *= this_robot.INCHES_PER_TICK;
@@ -99,8 +99,8 @@ void track_position() {
     double strafe_change = this_robot.STRAFE_FUDGE_FACTOR * middle_change * this_robot.INCHES_PER_TICK;
     
     // Calculate global change based on current angle
-    double change_x = forward_change * sin(robot_theta_rad) + strafe_change * cos(robot_theta_rad);
-    double change_y = strafe_change * sin(robot_theta_rad) - forward_change * cos(robot_theta_rad);
+    double change_x = -forward_change * sin(robot_theta_rad) + strafe_change * cos(robot_theta_rad);
+    double change_y = -strafe_change * sin(robot_theta_rad) - forward_change * cos(robot_theta_rad);
     
     // Calculate new global position
     robot_x += change_x;
