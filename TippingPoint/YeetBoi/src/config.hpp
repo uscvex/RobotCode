@@ -14,13 +14,17 @@
 // Then all files can view and use it
 //
 
-
 using namespace pros;
 using namespace std;
 
-#define DM_USER -1
+#define DM_USER -1      // Default user control
 #define DM_YEET_FORWARD 1
 #define DM_YEET_BACKWARD 2
+#define DM_DISTANCE 3   // Drive straight for distance
+#define DM_TIME 4       // Drive straight for time
+#define DM_GOTO 5      // Drive to a location
+#define DM_TURN 6       // Turn on spot to angle
+#define DM_FACE 7       // Turn on spot to face point
 
 #define TURBO E_MOTOR_GEARSET_6
 #define SPEED E_MOTOR_GEARSET_18
@@ -161,6 +165,7 @@ struct RobotParams {
 
     double BASE_LIFT_READY_POS;
     double BASE_LIFT_HOLD_POS;
+    double BASE_SPIN_OFFSET;
     double BASE_RELEASE_DROP_POS;
     double BASE_RELEASE_READY_POS;
     double BASE_RELEASE_HOLD_POS;
@@ -185,6 +190,18 @@ struct RobotParams {
     double FORWARD_FUDGE_FACTOR;
     double STRAFE_FUDGE_FACTOR;
     double ROTATIONAL_FUDGE_FACTOR;
+
+    // Auton drive stuff
+    double DRIVE_TURN_RATE;
+    double DRIVE_DRIVE_TURN_RATE;
+    double DRIVE_RATE;
+    double MIN_DRIVE_SPEED = 40.0;
+    double MAX_TURN_SPEED;
+    double MIN_TURN_SPEED;
+    int TURN_PULSE_ON;
+    int TURN_PULSE_OFF;
+    int TURN_PRECISION;
+    double DRIVE_PRECISION;
 };
 
 extern RobotParams this_robot;
