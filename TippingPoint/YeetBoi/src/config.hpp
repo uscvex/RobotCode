@@ -87,6 +87,7 @@ extern double robot_y;
 extern double belly_grab_pos;
 extern double belly_grab_target;
 
+extern int base_lift_state;
 extern double base_lift_pos;
 extern double base_lift_target;
 extern double base_release_pos;
@@ -125,6 +126,13 @@ struct RobotParams {
     double SPIKE_ARM_RATE;
     double SPIKE_WRIST_RATE;
     double SPIKE_SHAKE_AMPLITUDE;
+
+    double BASE_RIGHT_WRIST_POS_1;
+    double BASE_RIGHT_ARM_POS_1;
+    double BASE_RIGHT_WRIST_POS_2;
+    double BASE_RIGHT_ARM_POS_2;
+    double BASE_RIGHT_WRIST_POS_3;
+    double BASE_RIGHT_ARM_POS_3;
 
     double SPIKE_WRIST_GRAB_POS;
     double SPIKE_WRIST_READY_POS;

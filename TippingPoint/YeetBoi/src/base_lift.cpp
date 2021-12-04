@@ -4,6 +4,7 @@ Motor base_lift(19, SPEED, 1);
 Motor base_release(10, SPEED, 1);
 Motor base_rotate(20, SPEED, 1);
 
+int base_lift_state = -1;
 double base_lift_pos = 0;
 double base_lift_target = 0;
 double base_release_pos = 0;
@@ -11,7 +12,6 @@ double base_release_target = 0;
 
 void run_base_lift(void* params) {
 
-    int base_lift_state = 0;
     bool just_toggled = false;
     
     while (true) {

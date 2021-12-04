@@ -1,4 +1,5 @@
 #include "main.h"
+#include <string>
 
 using namespace pros;
 using namespace std;
@@ -43,10 +44,20 @@ void run_display(void* params) {
         }
 
         // Controller display
-        if (display_count % 2 == 0)
+        if (display_count % 3 == 0)
             controller.print(2, 0, "%.2f, %.2f, %.3f                     ", robot_x, robot_y, robot_theta);
-        if (display_count % 2 == 1)
-            controller.print(0, 0, "%s %s: %s    ", this_robot.name, robot_names[which_robot], auton_names[which_auton]);
+        if (display_count % 3 == 1)
+            controller.print(0, 0, "%s %s: %s           ", this_robot.name, robot_names[which_robot], auton_names[which_auton]);
+        if (display_count % 3 == 2) {
+            string grab_mode = "Not Ready";
+            if (base_lift_state == 1)
+                grab_mode = "Ready";
+            if (base_lift_state == 2)
+                grab_mode = "Holding";
+            if (base_lift_state == 3)
+                grab_mode = "Released";
+            controller.print(1, 0, "Grab %s         ", grab_mode);
+        }
 
         delay(60);
     }

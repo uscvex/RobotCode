@@ -40,6 +40,9 @@ void init_positions() {
     lift_right.move_voltage(-2000);
     lift_left.move_voltage(-2000);
     delay(1000);
+    while (controller.get_digital(DIGITAL_UP)) {
+        delay(10);
+    }
     lift_left.tare_position();
     lift_left.move_voltage(0);
     lift_right.tare_position();

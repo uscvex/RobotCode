@@ -29,12 +29,20 @@ void run_lift(void* params) {
 
     bool just_toggled_collect = false;
     bool just_toggled_drop = false;
+    bool just_toggled_right = false;
     bool just_toggled_lift = false;
     double just_dropped_time = millis();
     double last_state_time = millis();
 
     int collision_avoid_state = -1;
     double initial_wrist_pos = 0;
+    int base_right_state = -1;
+
+    this_robot.BASE_RIGHT_WRIST_POS_1 = 265;
+    this_robot.BASE_RIGHT_ARM_POS_1 = 2300;
+    this_robot.BASE_RIGHT_WRIST_POS_2 = 210;
+    this_robot.BASE_RIGHT_ARM_POS_2 = 2300;
+
 
     while (true) {
 
@@ -50,9 +58,23 @@ void run_lift(void* params) {
         double lift_pos_left = lift_left.get_position();
         lift_pos = (lift_pos_right + lift_pos_left) / 2;
 
+        bool next_right_state = false;
+        if (controller.get_digital(DIGITAL_B)) {
+            lift_state = -1;
+            spike_arm_state = -1;
+            if (!just_toggled_right) {
+                next_right_state = true;
+            }
+            just_toggled_right = true;
+        }
+        else {
+            just_toggled_right = false;
+        }
+
         bool next_collect_state = false;
         if (controller.get_digital(DIGITAL_L2)) {
             lift_state = -1;
+            base_right_state = -1;
             if (!just_toggled_collect) {
                 next_collect_state = true;
             }
@@ -66,6 +88,7 @@ void run_lift(void* params) {
         bool next_lift_state = false;
         if (controller.get_digital(DIGITAL_L1)) {
             spike_arm_state = -1;
+            base_right_state = -1;
             if (!just_toggled_lift) {
                 next_lift_state = true;
             }
@@ -73,6 +96,43 @@ void run_lift(void* params) {
         }
         else {
             just_toggled_lift = false;
+        }
+
+        switch (base_right_state) {
+            case -1:
+                if (next_right_state) {
+                    base_right_state = 1;
+                }
+                break;
+            case 1:
+                lift_target = 0;
+                spike_arm_target = this_robot.BASE_RIGHT_ARM_POS_1;
+                spike_wrist_target = this_robot.BASE_RIGHT_WRIST_POS_1;
+                if (next_right_state) {
+                    base_right_state = 2;
+                }
+                break;
+            case 2:
+                lift_target = 0;
+                // spike_arm_target = this_robot.BASE_RIGHT_ARM_POS_2;
+                // spike_wrist_target = this_robot.BASE_RIGHT_WRIST_POS_2;
+                spike_arm_target = this_robot.SPIKE_ARM_READY_POS;
+                spike_wrist_target = this_robot.SPIKE_WRIST_READY_POS;
+                if (next_right_state) {
+                    base_right_state = 3;
+                }
+                break;
+            case 3:
+                lift_target = 0;
+                spike_arm_target = this_robot.BASE_RIGHT_ARM_POS_3;
+                spike_wrist_target = this_robot.BASE_RIGHT_WRIST_POS_3;
+                if (next_right_state) {
+                    base_right_state = 1;
+                }
+                break;
+            default:
+                base_right_state = -1;
+                break;
         }
 
         switch (lift_state) {
@@ -136,7 +196,7 @@ void run_lift(void* params) {
                 spike_wrist_target = this_robot.SPIKE_WRIST_GRAB_POS;
                 spike_arm_speed = -127;
                 spike_arm_target = -1;
-                if ((millis() - last_state_time > 500) && (!just_toggled_collect)) {
+                if ((millis() - last_state_time > 250) && (!just_toggled_collect)) {
                     spike_arm_state = 1;
                 }
                 if (next_collect_state) {
@@ -158,6 +218,7 @@ void run_lift(void* params) {
 
         if (controller.get_digital(DIGITAL_LEFT)) {
             spike_arm_state = -1;
+            base_right_state = -1;
             lift_state = -1;
             spike_wrist_target = this_robot.SPIKE_WRIST_STORE_POS;
             spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
@@ -165,6 +226,7 @@ void run_lift(void* params) {
         }
         if (controller.get_digital(DIGITAL_RIGHT)) {
             spike_arm_state = -1;
+            base_right_state = -1;
             lift_state = -1;
             spike_wrist_target = this_robot.ALLIANCE_HELD_WRIST_POS;
             spike_arm_target = this_robot.ALLIANCE_HELD_ARM_POS;
@@ -250,7 +312,6 @@ void run_lift(void* params) {
                     collision_avoid_state = -1;
                 }
                 break;
-                break;
 
             default:
                 collision_avoid_state = -1;
@@ -275,6 +336,7 @@ void run_lift(void* params) {
         }
 
         if (controller.get_digital(DIGITAL_UP)) {
+            base_right_state = -1;
             spike_arm_target = -1;
             lift_target = -1;
             spike_wrist_target = -1;

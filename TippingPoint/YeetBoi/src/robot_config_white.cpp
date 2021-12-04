@@ -10,6 +10,13 @@ void init_robot_white() {
     this_robot.SPIKE_WRIST_RATE = 10;
     this_robot.SPIKE_SHAKE_AMPLITUDE = 3;
 
+    this_robot.BASE_RIGHT_WRIST_POS_1 = 275;
+    this_robot.BASE_RIGHT_ARM_POS_1 = 2350;
+    this_robot.BASE_RIGHT_WRIST_POS_2 = 208;
+    this_robot.BASE_RIGHT_ARM_POS_2 = 1700;
+    this_robot.BASE_RIGHT_WRIST_POS_3= 208;
+    this_robot.BASE_RIGHT_ARM_POS_3 = 2350;
+
     this_robot.SPIKE_WRIST_GRAB_POS = 208;
     this_robot.SPIKE_WRIST_READY_POS = 215;
     this_robot.SPIKE_ARM_READY_POS = 1870;

@@ -10,9 +10,16 @@ void init_robot_black() {
     this_robot.SPIKE_WRIST_RATE = 10;
     this_robot.SPIKE_SHAKE_AMPLITUDE = 3;
 
-    this_robot.SPIKE_WRIST_GRAB_POS = 203;
-    this_robot.SPIKE_WRIST_READY_POS = 208;
-    this_robot.SPIKE_ARM_READY_POS = 1700;
+    this_robot.BASE_RIGHT_WRIST_POS_1 = 275;
+    this_robot.BASE_RIGHT_ARM_POS_1 = 2450;
+    this_robot.BASE_RIGHT_WRIST_POS_2 = 208;
+    this_robot.BASE_RIGHT_ARM_POS_2 = 1700;
+    this_robot.BASE_RIGHT_WRIST_POS_3= 208;
+    this_robot.BASE_RIGHT_ARM_POS_3 = 2350;
+
+    this_robot.SPIKE_WRIST_GRAB_POS = 206;
+    this_robot.SPIKE_WRIST_READY_POS = 210;
+    this_robot.SPIKE_ARM_READY_POS = 1800;
     this_robot.SPIKE_ARM_GRAB_POS = 600;
     this_robot.SPIKE_WRIST_RANGE = 2740;
 
@@ -26,7 +33,7 @@ void init_robot_black() {
     this_robot.ALLIANCE_HELD_ARM_POS = 5600;
     this_robot.ALLIANCE_HELD_WRIST_POS = 190;
 
-    this_robot.SPIKE_DROP_SPEED = 110;
+    this_robot.SPIKE_DROP_SPEED = 115;
     this_robot.SPIKE_RETURN_SPEED = -70;
 
     this_robot.LIFT_RATE = 1;
@@ -50,7 +57,7 @@ void init_robot_black() {
     this_robot.BASE_LIFT_READY_POS = 1800;
     this_robot.BASE_LIFT_HOLD_POS = 3100;
     this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
-    this_robot.BASE_RELEASE_DROP_POS = -740;
+    this_robot.BASE_RELEASE_DROP_POS = -800;
     this_robot.BASE_RELEASE_READY_POS = 250;
     this_robot.BASE_RELEASE_HOLD_POS = -1;
 
