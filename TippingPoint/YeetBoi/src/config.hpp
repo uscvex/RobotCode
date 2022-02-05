@@ -30,11 +30,19 @@ using namespace std;
 #define SPEED E_MOTOR_GEARSET_18
 #define TORQUE E_MOTOR_GEARSET_36
 
+extern double* auton_ptr[];
+extern double mid_auton[];
+extern double left_auton[];
+extern double right_skills[];
+extern double left_skills[];
+
 extern int which_robot;
 extern string robot_names[];
 
+extern int num_autons;
 extern int which_auton;
 extern string auton_names[];
+extern double* auton_prt[];
 
 // Main task prototypes
 extern void run_drive(void* params);
@@ -103,11 +111,26 @@ extern double lift_target;
 
 extern double spike_speed;
 
+extern bool spike_drop;
+
+extern int spike_arm_state;
+extern int lift_state;
+extern int base_right_state;
+
 extern int yeet_state;
 extern int belly_grab_state;
 
 extern int drive_mode;
 
+extern double drive_speed_target;
+extern double drive_turn_target;
+extern double drive_target_x;
+extern double drive_target_y;
+extern double drive_starting_x;
+extern double drive_starting_y;
+extern double drive_distance_target;
+
+extern double last_auton_time;
 
 // Sensors
 extern ADIEncoder left_encoder;

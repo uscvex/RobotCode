@@ -23,7 +23,7 @@ void init_robot_black() {
     this_robot.SPIKE_ARM_GRAB_POS = 600;
     this_robot.SPIKE_WRIST_RANGE = 2740;
 
-    this_robot.SPIKE_ARM_CHASSIS_CLEAR = 2300;
+    this_robot.SPIKE_ARM_CHASSIS_CLEAR = 2500;
     this_robot.SPIKE_WRIST_CHASSIS_CLEAR = 190;
     this_robot.SPIKE_WRIST_CHASSIS_COLLIDE = 130;
 
@@ -92,7 +92,7 @@ void init_robot_black() {
     this_robot.TURN_PULSE_ON = 1;
     this_robot.TURN_PULSE_OFF = 10;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
-    this_robot.DRIVE_PRECISION = 2;  // +/- 1 inches precision
+    this_robot.DRIVE_PRECISION = 3;  // +/- 1 inches precision
 
 }
 

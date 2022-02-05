@@ -21,12 +21,16 @@ double spike_speed = 0;
 double lift_pos = 0;
 double lift_target = -1;
 
+bool spike_drop = false;
+
+int spike_arm_state = -1;
+int lift_state = -1;
+int base_right_state = -1;
+
 
 void run_lift(void* params) {
 
-    int spike_arm_state = -1;
-    int lift_state = -1;
-
+    bool just_manual_dropped = false;
     bool just_toggled_collect = false;
     bool just_toggled_drop = false;
     bool just_toggled_right = false;
@@ -36,7 +40,6 @@ void run_lift(void* params) {
 
     int collision_avoid_state = -1;
     double initial_wrist_pos = 0;
-    int base_right_state = -1;
 
     this_robot.BASE_RIGHT_WRIST_POS_1 = 265;
     this_robot.BASE_RIGHT_ARM_POS_1 = 2300;
@@ -191,6 +194,11 @@ void run_lift(void* params) {
                     last_state_time = millis();
                 }
                 break;
+            case 10:
+                last_state_time = millis();
+                spike_arm_state = 2;
+                break;
+
             case 2:  // Stamp down hard for a time
                 lift_target = 0;
                 spike_wrist_target = this_robot.SPIKE_WRIST_GRAB_POS;
@@ -233,7 +241,18 @@ void run_lift(void* params) {
             lift_target = 0;
         }
 
+
         if (!controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_DOWN)) {
+            spike_drop = true;
+            just_manual_dropped = true;
+        }
+        else {
+            if (just_manual_dropped) {
+                spike_drop = false;
+            }
+            just_manual_dropped = false;
+        }
+        if (spike_drop) {
             if (spike_wrist_target != -1) {
                 spike_wrist_target_offset = this_robot.SPIKE_SHAKE_AMPLITUDE * (sin(millis() / 15) + sin(millis() / 18));
             }
@@ -336,6 +355,7 @@ void run_lift(void* params) {
         }
 
         if (controller.get_digital(DIGITAL_UP)) {
+            spike_drop = false;
             base_right_state = -1;
             spike_arm_target = -1;
             lift_target = -1;

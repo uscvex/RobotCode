@@ -18,6 +18,7 @@ double drive_target_x = 0;
 double drive_target_y = 0;
 double drive_starting_x = 0;
 double drive_starting_y = 0;
+double drive_distance_target = 0;
 
 
 void run_drive(void* params) {
@@ -66,12 +67,12 @@ void run_drive(void* params) {
             drive_mode = DM_USER;
         }
 
-        if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
-            drive_mode = DM_GOTO;
-            drive_speed_target = 127;
-            drive_target_x = 0;
-            drive_target_y = 0;
-        }
+        // if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
+        //     drive_mode = DM_GOTO;
+        //     drive_speed_target = 127;
+        //     drive_target_x = 0;
+        //     drive_target_y = 0;
+        // }
 
 
         if (drive_mode != DM_USER) {
@@ -120,8 +121,8 @@ void run_drive(void* params) {
                     // Bound to [0,360]
                     while (drive_turn_target < 0) drive_turn_target += 360;
                     while (drive_turn_target > 360) drive_turn_target -= 360;
-                    if (!(counter % 50))
-                        std::cout << "drive_turn_target: " << drive_turn_target << endl;
+                    // if (!(counter % 50))
+                    //     std::cout << "drive_turn_target: " << drive_turn_target << endl;
 
                     // If we are very close to target, stop turning
                     if (pythag(drive_target_x, drive_target_y, robot_x, robot_y) <= this_robot.DRIVE_PRECISION) {
@@ -138,8 +139,8 @@ void run_drive(void* params) {
                     forward_power = 0;
                 }
                 else if (drive_mode == DM_DISTANCE) {
-                    double remaining_dist = pythag(drive_target_x, drive_target_y, drive_starting_x, drive_starting_y);
-                    forward_power = remaining_dist * this_robot.DRIVE_RATE * (drive_speed_target / (double)abs(drive_speed_target));
+                    double remaining_dist = drive_distance_target - pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
+                    forward_power = remaining_dist * this_robot.DRIVE_RATE * (drive_speed_target);
                     if (abs(forward_power) < this_robot.MIN_DRIVE_SPEED) {
                         if (forward_power > 0) {
                             forward_power = this_robot.MIN_DRIVE_SPEED;
@@ -148,9 +149,9 @@ void run_drive(void* params) {
                             forward_power = -this_robot.MIN_DRIVE_SPEED;
                         }
                     }
-                    if (remaining_dist <= this_robot.DRIVE_PRECISION) {
-                        forward_power = 0;
-                    }
+                    // if (remaining_dist <= this_robot.DRIVE_PRECISION) {
+                    //     forward_power = 0;
+                    // }
                 }
                 else if (drive_mode == DM_GOTO) {
                     double remaining_dist = pythag(drive_target_x, drive_target_y, robot_x, robot_y);
@@ -166,7 +167,10 @@ void run_drive(void* params) {
                     if (remaining_dist <= this_robot.DRIVE_PRECISION) {
                         forward_power = 0;
                     }
-                    if (abs(drive_turn_target - robot_theta) > 30) {
+                    double temp_error = drive_turn_target - robot_theta;
+                    if (temp_error < 0) temp_error += 360;
+                    if (temp_error > 180) temp_error -= 360;
+                    if (abs(temp_error) > 20) {
                         forward_power = 0;
                     }
                 }

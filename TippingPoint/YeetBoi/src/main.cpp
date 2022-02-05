@@ -12,11 +12,6 @@ int which_robot = 1;
 int num_robots = 2;
 string robot_names[] = {"WHT", "BLK"};
 
-int which_auton = 0;
-int num_autons = 4;
-string auton_names[] = {"MID", "LEFT", "SK_LEFT", "SK_RGHT"};
-
-
 void calibrate_robot_params() {
     switch(which_robot) {
         default:
