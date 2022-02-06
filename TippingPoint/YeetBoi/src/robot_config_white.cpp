@@ -34,7 +34,7 @@ void init_robot_white() {
     this_robot.ALLIANCE_HELD_WRIST_POS = 195;
 
     this_robot.SPIKE_DROP_SPEED = 90;
-    this_robot.SPIKE_RETURN_SPEED = -60;
+    this_robot.SPIKE_RETURN_SPEED = -80;
 
     this_robot.LIFT_RATE = 1;
 

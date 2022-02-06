@@ -62,11 +62,11 @@ double mid_auton[] = {
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
     // FIRST YEET
-    DRIVEDIST, -10000000, 234, 48, 3, 
+    DRIVEDIST, -10000000, 234, 50, 3, 
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYUP,
-    DRIVETO, 127, -36, -36, 2, 
+    DRIVETO, 127, -36, -36, 5, 
 
     // GET SECOND BASE
     FACE, -5, -36, 0.5,
@@ -74,64 +74,69 @@ double mid_auton[] = {
     FACE, -5, -36, 0.5,
     DRIVETO, 127, -5, -36, 3, 
     BELLYPOS, BELLYUP,
-    PAUSE, 1,
-    DRIVETO, -127, -40, -38, 2,
     PAUSE, 0.5,
+    DRIVETO, -127, -40, -38, 2,
+    // PAUSE, 0.5,
 
     // PLACE SECOND BASE
     FACE, -39, -12, 1,
     DRIVETO, 100, -40, -12, 2,
-    BELLYPOS, BELLYCOAST,
-    PAUSE, 0.5,
+    // BELLYPOS, BELLYCOAST,
+    // PAUSE, 0.5,
     BELLYPOS, BELLYDOWN,
-    PAUSE, 0.5,
+    // PAUSE, 0.5,
+    DROP, 0.1,
+    DEPOSITPOS, FORWARD,
     DRIVETO, -100, -40, -36, 2,
     
     // LINE UP FOR RINGS
     BELLYPOS, BELLYUP,
-    DRIVETO, -100, -48, -52, 2,
-    FACE, 0, -52, 1.5,
+    DRIVETO, -100, -48, -50, 2,
+    FACE, 100, -50, 1.5,
     BELLYPOS, BELLYDOWN,
-    DROP, 0.1,
+    PAUSE, 0.25, 
     READYSPIKE, 
-    PAUSE, 2, 
+    PAUSE, 0.25, 
 
     // COLLECT RINGS
-    DRIVEDIST, 100, 90, 5, 2,
+    DRIVEDIST, 100, 90, 5.5, 2,
     PAUSE, 0.2, 
     COLLECTRING, 0.5, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // RING #1 OF ROWS
 
-    DRIVEDIST, 100, 90, 2, 1, 
+    DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 2
 
-    DRIVEDIST, 100, 90, 2, 1, 
+    DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 3
 
-    DRIVEDIST, 100, 90, 2, 1, 
+    DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 4
 
-    DRIVEDIST, 100, 90, 2, 1, 
+    DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // LAST OF THE ROW
+
+    DRIVEDIST, 100, 90, 2.5, 1, 
+    PAUSE, 0.2,
+    COLLECTRING, 0.5,               // SPARE FOR GOOD LUCK
 
     // LINE UP TO ALLIANCE BASE
-    DRIVETO, -100, -36, -36, 2, 
-    FACE, -36, -60, 2, 
     DEPOSITPOS, FORWARD, 
-    PAUSE, 2, 
+    DRIVETO, -100, -37, -36, 3, 
+    FACE, -37, -72, 1.5, 
 
     // GO TO ALLIANCE BASE, DROP RINGS
-    DRIVETO, 100, -36, -72, 2, 
-    DROP, 0.5, 
+    DRIVETO, 100, -37, -72, 1.5, 
+    DROP, 0.75, 
+    PAUSE, 0.5, 
+    DROP, 0.75, 
     PAUSE, 0.25, 
-    DROP, 0.5, 
+    DROP, 0.375, 
     PAUSE, 0.25, 
-    DROP, 0.5, 
-
 
     ///////////////////////////
     // HACK FOR SKIPPING
@@ -141,60 +146,63 @@ double mid_auton[] = {
 
     // PUSH ALLIANCE BASE INTO CORNER
     DRIVETO, 127, -60, -60, 2, 
+    DROP, -1, 
     DRIVEDIST, 127, 235, 5, 0.2, 
     DRIVEDIST, -80, 235, 8, 2, 
     READYSPIKE,
 
-    TURN, 345, 2, 
+    TURN, 345, 1, 
     DRIVEDIST, -80, 345, 10, 2, 
     TURN, 315, 0.5, 
 
-    DRIVEDIST, 60, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    // AS MANY MATCH LOADS AS POSSIBLE
+
+    DRIVEDIST, 60, 315, 1, 2, 
+    COLLECTRING, 0.5,               // 1
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 2
     PAUSE, 0.5, 
     
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 3
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 4
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 5
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 6
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 7
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 8
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 9
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 10
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 11
     PAUSE, 0.5, 
 
     DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5, 
+    COLLECTRING, 0.5,               // 12
     PAUSE, 0.5, 
 
     END,
@@ -341,6 +349,9 @@ void autonomous() {
                     cout << "DROP" << endl;
                     spike_drop = true;
                     command_time_out = process_entry() * 1000;
+                    if (command_time_out < 0) {
+                        next_command = true;
+                    }
                     break;
 
                 case DEPLOY:
