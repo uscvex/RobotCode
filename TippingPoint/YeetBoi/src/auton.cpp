@@ -28,7 +28,9 @@
 #define DEPOSITPOS 23       // DEPOSITPOS, <LOCATION>
 
 #define SETDIR 24           // SETDIR, <DIRECTION>
-#define FACE 25           // TURNTO, <X>, <Y>, <TIMEOUT>
+#define FACE 25             // TURNTO, <X>, <Y>, <TIMEOUT>
+
+#define CHILLYEET 26        // CHILLYEET
 
 // Depost Locations
 #define FORWARD 1
@@ -49,7 +51,7 @@
 #define TIME 3
 
 
-int which_auton = 0;
+int which_auton = 1;
 int num_autons = 2;
 string auton_names[] = {"MID", "LEFT"};//, "SK_LEFT", "SK_RGHT"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0]};//, &right_skills[0], &left_skills[0]};
@@ -67,6 +69,7 @@ double mid_auton[] = {
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYUP,
     DRIVETO, 127, -36, -36, 5, 
+    CHILLYEET,
 
     // GET SECOND BASE
     FACE, -5, -36, 0.5,
@@ -85,9 +88,9 @@ double mid_auton[] = {
     // PAUSE, 0.5,
     BELLYPOS, BELLYDOWN,
     // PAUSE, 0.5,
-    DROP, 0.1,
-    DEPOSITPOS, FORWARD,
     DRIVETO, -100, -40, -36, 2,
+    DEPOSITPOS, FORWARD,
+    DROP, 0.1,
     
     // LINE UP FOR RINGS
     BELLYPOS, BELLYUP,
@@ -209,7 +212,108 @@ double mid_auton[] = {
 };
 
 double left_auton[] = {
-    -60,-45,270,   
+    -43, 49, 278,      // STARTING POS
+    DEPLOY, 
+    BASEPOS, BASEREADY,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+
+    // FIRST YEET
+    DRIVEDIST, -10000000, 278, 38, 3, 
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    BASEPOS, BASEHOLD,
+    BELLYPOS, BELLYUP,
+    DRIVETO, 127, -18, 50, 5,
+    TURN, 180, 1, 
+    DRIVETO, -127, -18, 60, 2,
+    CHILLYEET,
+
+    DROP, 0.1,
+    BELLYPOS, BELLYDOWN,
+    READYSPIKE,
+    TURN, 180, 1.5, 
+
+    DRIVEDIST, 60, 180, 11, 2, 
+    COLLECTRING, 0.5,               // 1
+    PAUSE, 0.2, 
+    COLLECTRING, 0.5,
+    PAUSE, 0.5, 
+
+
+    TURN, 200, 0.25, 
+    TURN, 180, 0.5, 
+    DRIVEDIST, 50, 180, 3, 4, 
+    COLLECTRING, 0.5,               // 2
+    PAUSE, 0.2, 
+    COLLECTRING, 0.5,
+    PAUSE, 0.5, 
+
+    TURN, 160, 0.25, 
+    TURN, 180, 0.5, 
+    DRIVEDIST, 50, 180, 4, 2, 
+    COLLECTRING, 0.5,               // 3
+    PAUSE, 0.2, 
+    COLLECTRING, 0.5,
+    PAUSE, 0.5, 
+
+    TURN, 200, 0.25, 
+    TURN, 180, 0.5, 
+    DRIVEDIST, 50, 180, 4, 2, 
+    COLLECTRING, 0.5,               // 4
+    PAUSE, 0.2, 
+    COLLECTRING, 0.5,
+    PAUSE, 0.5, 
+
+    TURN, 160, 0.25, 
+    TURN, 180, 0.5, 
+    DRIVEDIST, 50, 180, 4, 2, 
+    COLLECTRING, 0.5,               // 5
+    PAUSE, 0.2, 
+    COLLECTRING, 0.5,
+    PAUSE, 0.5, 
+
+    TURN, 200, 0.25, 
+    TURN, 180, 0.5, 
+    DRIVEDIST, 50, 180, 4, 2, 
+    COLLECTRING, 0.5,               // 6
+    PAUSE, 0.2, 
+    COLLECTRING, 0.5,
+    PAUSE, 0.5,
+
+
+    DRIVETO, -127, -20, 52, 3,
+    TURN, 90, 1,                    // LINE UP FOR ROW OF RINGS
+    DRIVEDIST, 60, 90, 12, 2,
+
+    PAUSE, 0.2,
+    COLLECTRING, 0.5,               // 1
+
+    DRIVEDIST, 100, 90, 1.5, 1, 
+    PAUSE, 0.2,
+    COLLECTRING, 0.5,               // 2
+
+    DRIVEDIST, 100, 90, 1.5, 1, 
+    PAUSE, 0.2,
+    COLLECTRING, 0.5,               // 4
+    PAUSE, 0.2,
+    COLLECTRING, 0.5,               // MAKE SURE NICE
+
+    DEPOSITPOS, FORWARD, 
+    DRIVETO, -127, -27, 52, 2, 
+    FACE, -60, 34, 1.5, 
+    DRIVETO, 80, -60, 34, 1.5, 
+    TURN, 270, 1.5, 
+    DRIVEDIST, -80, 270, 5, 1.5, 
+    DRIVEDIST, 50, 270, 7, 1.5, 
+
+    DROP, 0.75, 
+    PAUSE, 0.5, 
+    DROP, 0.75, 
+    PAUSE, 0.5, 
+    DROP, 0.75, 
+
+    DRIVETO, 127, -60, 60, 2, 
+    DRIVEDIST, -127, 315, 5, 1.5, 
+
     END,
 };
 
@@ -311,18 +415,27 @@ void autonomous() {
 
                 case LIFTPOS:
                     cout << "LIFTPOS" << endl;
+                    spike_arm_state = -1;
+                    base_right_state = -1;
+                    lift_state = -1;
                     lift_target = process_entry();
                     next_command = true;
                     break;
 
                 case WRISTPOS:
                     cout << "WRISTPOS" << endl;
+                    spike_arm_state = -1;
+                    base_right_state = -1;
+                    lift_state = -1;
                     spike_wrist_target = process_entry();
                     next_command = true;
                     break;
 
                 case ARMPOS:
                     cout << "ARMPOS" << endl;
+                    spike_arm_state = -1;
+                    base_right_state = -1;
+                    lift_state = -1;
                     spike_arm_target = process_entry();
                     next_command = true;
                     break;
@@ -359,6 +472,12 @@ void autonomous() {
                     yeet_state = 10;
                     belly_grab_state = BELLYDOWN;
                     spike_arm_target = 1600;
+                    next_command = true;
+                    break;
+
+                case CHILLYEET:
+                    cout << "CHILLYEET" << endl;
+                    yeet_state = 11;
                     next_command = true;
                     break;
 

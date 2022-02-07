@@ -242,6 +242,18 @@ void run_lift(void* params) {
         }
 
 
+        // Lock bellygrab
+        if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
+            spike_arm_state = -1;
+            base_right_state = -1;
+            lift_state = -1;
+            spike_wrist_target = this_robot.SPIKE_WRIST_LOCK_BELLY;
+            spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
+            lift_target = 0;
+            belly_grab_state = 1;
+        }
+
+
         if (!controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_DOWN)) {
             spike_drop = true;
             just_manual_dropped = true;

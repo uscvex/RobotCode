@@ -106,8 +106,8 @@ void track_position() {
     robot_x += change_x;
     robot_y += change_y;
 
-    if (controller.get_digital(DIGITAL_UP)) {
-        set_position(0, 0, 0);
-    }
+    // if (controller.get_digital(DIGITAL_UP)) {
+    //     set_position(0, 0, 0);
+    // }
 
 }

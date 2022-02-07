@@ -233,6 +233,8 @@ struct RobotParams {
     int TURN_PULSE_OFF;
     int TURN_PRECISION;
     double DRIVE_PRECISION;
+
+    double SPIKE_WRIST_LOCK_BELLY;
 };
 
 extern RobotParams this_robot;

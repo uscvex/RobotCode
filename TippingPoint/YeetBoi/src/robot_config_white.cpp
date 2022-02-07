@@ -93,5 +93,7 @@ void init_robot_white() {
     this_robot.TURN_PULSE_OFF = 10;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
     this_robot.DRIVE_PRECISION = 2;  // +/- 1 inches precision
+
+    this_robot.SPIKE_WRIST_LOCK_BELLY = 75;
 }
 

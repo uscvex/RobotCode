@@ -94,5 +94,7 @@ void init_robot_black() {
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
     this_robot.DRIVE_PRECISION = 3;  // +/- 1 inches precision
 
+    this_robot.SPIKE_WRIST_LOCK_BELLY = 75;
+
 }
 

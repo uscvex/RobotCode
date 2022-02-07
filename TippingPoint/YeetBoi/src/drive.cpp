@@ -67,13 +67,6 @@ void run_drive(void* params) {
             drive_mode = DM_USER;
         }
 
-        // if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
-        //     drive_mode = DM_GOTO;
-        //     drive_speed_target = 127;
-        //     drive_target_x = 0;
-        //     drive_target_y = 0;
-        // }
-
 
         if (drive_mode != DM_USER) {
             if (drive_mode == DM_YEET_FORWARD) {
