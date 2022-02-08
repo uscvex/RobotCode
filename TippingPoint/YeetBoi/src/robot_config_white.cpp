@@ -19,7 +19,7 @@ void init_robot_white() {
     this_robot.BASE_RIGHT_WRIST_POS_3= 208;
     this_robot.BASE_RIGHT_ARM_POS_3 = 2350;
 
-    this_robot.SPIKE_WRIST_GRAB_POS = 208;
+    this_robot.SPIKE_WRIST_GRAB_POS = 205;
     this_robot.SPIKE_WRIST_READY_POS = 215;
     this_robot.SPIKE_ARM_READY_POS = 1920;  // 1870
     this_robot.SPIKE_ARM_GRAB_POS = 600;

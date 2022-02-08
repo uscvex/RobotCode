@@ -33,6 +33,7 @@ using namespace std;
 extern double* auton_ptr[];
 extern double mid_auton[];
 extern double left_auton[];
+extern double ring_practice_auton[];
 extern double right_skills[];
 extern double left_skills[];
 

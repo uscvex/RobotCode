@@ -51,10 +51,10 @@
 #define TIME 3
 
 
-int which_auton = 1;
-int num_autons = 2;
-string auton_names[] = {"MID", "LEFT"};//, "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0]};//, &right_skills[0], &left_skills[0]};
+int which_auton = 0;
+int num_autons = 3;
+string auton_names[] = {"MID", "LEFT", "RING_P"};//, "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0]};//, &right_skills[0], &left_skills[0]};
 
 
 double mid_auton[] = {
@@ -328,6 +328,68 @@ double left_auton[] = {
 //     -60,-45,270,   
 //     END,
 // };
+
+
+double ring_practice_auton[] = {
+    0, 0, 315,      // STARTING POS
+    DEPLOY, 
+
+    READYSPIKE, 
+    PAUSE, 5, 
+    CHILLYEET,
+
+    // AS MANY MATCH LOADS AS POSSIBLE
+
+    DRIVEDIST, 60, 315, 1, 2, 
+    COLLECTRING, 0.75,               // 1
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 2
+    PAUSE, 0.5, 
+    
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 3
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 4
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 5
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 6
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 7
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 8
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 9
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 10
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 11
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 70, 315, 0.5, 2, 
+    COLLECTRING, 0.5,               // 12
+    PAUSE, 0.5, 
+
+    END,
+};
 
 
 
