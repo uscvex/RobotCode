@@ -235,6 +235,8 @@ struct RobotParams {
     double DRIVE_PRECISION;
 
     double SPIKE_WRIST_LOCK_BELLY;
+
+    double SPIKE_STAMP_TIME;
 };
 
 extern RobotParams this_robot;

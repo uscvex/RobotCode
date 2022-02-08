@@ -204,7 +204,7 @@ void run_lift(void* params) {
                 spike_wrist_target = this_robot.SPIKE_WRIST_GRAB_POS;
                 spike_arm_speed = -127;
                 spike_arm_target = -1;
-                if ((millis() - last_state_time > 250) && (!just_toggled_collect)) {
+                if ((millis() - last_state_time > this_robot.SPIKE_STAMP_TIME) && (!just_toggled_collect)) {
                     spike_arm_state = 1;
                 }
                 if (next_collect_state) {
@@ -249,7 +249,7 @@ void run_lift(void* params) {
             lift_state = -1;
             spike_wrist_target = this_robot.SPIKE_WRIST_LOCK_BELLY;
             spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
-            lift_target = 0;
+            lift_target = -50;
             belly_grab_state = 1;
         }
 

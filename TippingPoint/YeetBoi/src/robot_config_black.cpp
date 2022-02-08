@@ -10,6 +10,8 @@ void init_robot_black() {
     this_robot.SPIKE_WRIST_RATE = 10;
     this_robot.SPIKE_SHAKE_AMPLITUDE = 3;
 
+    this_robot.SPIKE_STAMP_TIME = 250;
+
     this_robot.BASE_RIGHT_WRIST_POS_1 = 275;
     this_robot.BASE_RIGHT_ARM_POS_1 = 2450;
     this_robot.BASE_RIGHT_WRIST_POS_2 = 208;
@@ -92,7 +94,7 @@ void init_robot_black() {
     this_robot.TURN_PULSE_ON = 1;
     this_robot.TURN_PULSE_OFF = 10;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
-    this_robot.DRIVE_PRECISION = 3;  // +/- 1 inches precision
+    this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision
 
     this_robot.SPIKE_WRIST_LOCK_BELLY = 75;
 

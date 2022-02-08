@@ -8,7 +8,9 @@ void init_robot_white() {
 
     this_robot.SPIKE_ARM_RATE = 1.5;
     this_robot.SPIKE_WRIST_RATE = 10;
-    this_robot.SPIKE_SHAKE_AMPLITUDE = 3;
+    this_robot.SPIKE_SHAKE_AMPLITUDE = 10;
+
+    this_robot.SPIKE_STAMP_TIME = 300;
 
     this_robot.BASE_RIGHT_WRIST_POS_1 = 275;
     this_robot.BASE_RIGHT_ARM_POS_1 = 2350;
@@ -19,7 +21,7 @@ void init_robot_white() {
 
     this_robot.SPIKE_WRIST_GRAB_POS = 208;
     this_robot.SPIKE_WRIST_READY_POS = 215;
-    this_robot.SPIKE_ARM_READY_POS = 1870;
+    this_robot.SPIKE_ARM_READY_POS = 1920;  // 1870
     this_robot.SPIKE_ARM_GRAB_POS = 600;
     this_robot.SPIKE_WRIST_RANGE = 2740;
 
@@ -48,7 +50,7 @@ void init_robot_white() {
     this_robot.LIFT_LOW_GOAL_POS = 1000;
 
     this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 138;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4400; // 4710
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4480; // 4710  // 4400
     this_robot.LIFT_HIGH_GOAL_POS = 3700;
 
     this_robot.BASE_LIFT_RATE = 1;
@@ -56,7 +58,7 @@ void init_robot_white() {
 
     this_robot.BASE_LIFT_READY_POS = 1800;
     this_robot.BASE_LIFT_HOLD_POS = 3100;
-    this_robot.BASE_SPIN_OFFSET = 0;
+    this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
     this_robot.BASE_RELEASE_DROP_POS = -800;
     this_robot.BASE_RELEASE_READY_POS = 10;
     this_robot.BASE_RELEASE_HOLD_POS = -1;
@@ -84,15 +86,15 @@ void init_robot_white() {
 
     // Auton drive stuff
     this_robot.DRIVE_TURN_RATE = 3.0;
-    this_robot.DRIVE_DRIVE_TURN_RATE = 10.0;
+    this_robot.DRIVE_DRIVE_TURN_RATE = 8.0;
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
     this_robot.MAX_TURN_SPEED = 127.0;
-    this_robot.MIN_TURN_SPEED = 50.0;
+    this_robot.MIN_TURN_SPEED = 40.0;
     this_robot.TURN_PULSE_ON = 1;
     this_robot.TURN_PULSE_OFF = 10;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
-    this_robot.DRIVE_PRECISION = 2;  // +/- 1 inches precision
+    this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision
 
     this_robot.SPIKE_WRIST_LOCK_BELLY = 75;
 }

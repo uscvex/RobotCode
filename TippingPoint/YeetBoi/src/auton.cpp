@@ -75,7 +75,8 @@ double mid_auton[] = {
     FACE, -5, -36, 0.5,
     BELLYPOS, BELLYDOWN,
     FACE, -5, -36, 0.5,
-    DRIVETO, 127, -5, -36, 3, 
+    // DRIVETO, 127, -5, -36, 3, 
+    DRIVEDIST, 127, 90, 14, 3, 
     BELLYPOS, BELLYUP,
     PAUSE, 0.5,
     DRIVETO, -127, -40, -38, 2,
@@ -90,12 +91,13 @@ double mid_auton[] = {
     // PAUSE, 0.5,
     DRIVETO, -100, -40, -36, 2,
     DEPOSITPOS, FORWARD,
+    PAUSE, 0.5,
     DROP, 0.1,
     
     // LINE UP FOR RINGS
     BELLYPOS, BELLYUP,
-    DRIVETO, -100, -48, -50, 2,
-    FACE, 100, -50, 1.5,
+    DRIVETO, -100, -48, -52.5, 3,
+    FACE, 100, -52.5, 1.5,
     BELLYPOS, BELLYDOWN,
     PAUSE, 0.25, 
     READYSPIKE, 
@@ -105,27 +107,27 @@ double mid_auton[] = {
     DRIVEDIST, 100, 90, 5.5, 2,
     PAUSE, 0.2, 
     COLLECTRING, 0.5, 
-    COLLECTRING, 0.5,               // RING #1 OF ROWS
+    COLLECTRING, 1,               // RING #1 OF ROWS
 
     DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5,               // 2
+    COLLECTRING, 1,               // 2
 
     DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5,               // 3
+    COLLECTRING, 1,               // 3
 
     DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5,               // 4
+    COLLECTRING, 1,               // 4
 
     DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5,               // LAST OF THE ROW
+    COLLECTRING, 1,               // LAST OF THE ROW
 
     DRIVEDIST, 100, 90, 2.5, 1, 
     PAUSE, 0.2,
-    COLLECTRING, 0.5,               // SPARE FOR GOOD LUCK
+    COLLECTRING, 1,               // SPARE FOR GOOD LUCK
 
     // LINE UP TO ALLIANCE BASE
     DEPOSITPOS, FORWARD, 
