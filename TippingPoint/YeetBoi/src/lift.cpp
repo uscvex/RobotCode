@@ -5,7 +5,7 @@
 
 Motor spike_wrist(7, SPEED, 1);
 Motor spike_arm(8, SPEED, 1);
-Motor spike(9, SPEED, 0);
+Motor spike(3, SPEED, 0);
 
 Motor lift_left(5, SPEED, 1);
 Motor lift_right(4, SPEED, 0);
@@ -353,7 +353,15 @@ void run_lift(void* params) {
             spike_arm_speed = (new_arm_target - spike_arm_pos) * this_robot.SPIKE_ARM_RATE;
         }
         if (new_wrist_target != -1) {
-            spike_wrist_speed = (new_wrist_target + spike_wrist_target_offset - spike_wrist_pos) * this_robot.SPIKE_WRIST_RATE;
+            double spike_wrist_get_out_way_spin = 0;
+            // If high scoring
+            if (lift_state == 3) {
+                // And spinning
+                if (controller.get_digital(DIGITAL_A) || controller.get_digital(DIGITAL_Y)) {
+                    spike_wrist_get_out_way_spin = 45;
+                }
+            }
+            spike_wrist_speed = (spike_wrist_get_out_way_spin + new_wrist_target + spike_wrist_target_offset - spike_wrist_pos) * this_robot.SPIKE_WRIST_RATE;
         }
 
 

@@ -8,7 +8,7 @@ void init_robot_white() {
 
     this_robot.SPIKE_ARM_RATE = 1.5;
     this_robot.SPIKE_WRIST_RATE = 10;
-    this_robot.SPIKE_SHAKE_AMPLITUDE = 10;
+    this_robot.SPIKE_SHAKE_AMPLITUDE = 7;
 
     this_robot.SPIKE_STAMP_TIME = 300;
 
@@ -42,15 +42,15 @@ void init_robot_white() {
 
     this_robot.LEFT_LIFT_OFFSET = 120;
     this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 249; // 249
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2880;  // 2780
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2880;  // 2780  
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
     this_robot.SPIKE_WRIST_LOW_GOAL_POS = 136;
     this_robot.SPIKE_ARM_LOW_GOAL_POS = 3200;
     this_robot.LIFT_LOW_GOAL_POS = 1000;
 
-    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 138;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4480; // 4710  // 4400
+    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 141;
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4550; // 4710  // 4400  // 4480
     this_robot.LIFT_HIGH_GOAL_POS = 3700;
 
     this_robot.BASE_LIFT_RATE = 1;
