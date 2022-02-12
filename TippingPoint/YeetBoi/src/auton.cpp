@@ -64,7 +64,7 @@ double mid_auton[] = {
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
     // FIRST YEET
-    DRIVEDIST, -10000000, 234, 50, 3, 
+    DRIVEDIST, -10000000, 234, 52, 3, 
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYUP,
@@ -84,9 +84,10 @@ double mid_auton[] = {
 
     // PLACE SECOND BASE
     FACE, -39, -12, 1,
-    DRIVETO, 100, -40, -12, 2,
+    // DRIVETO, 100, -40, -12, 2,
+    DRIVEDIST, 100, 0, 20, 3, 
     // BELLYPOS, BELLYCOAST,
-    // PAUSE, 0.5,
+    PAUSE, 0.5,
     BELLYPOS, BELLYDOWN,
     // PAUSE, 0.5,
     DRIVETO, -100, -40, -36, 2,
@@ -96,7 +97,7 @@ double mid_auton[] = {
     
     // LINE UP FOR RINGS
     BELLYPOS, BELLYUP,
-    DRIVETO, -100, -48, -52.5, 3,
+    DRIVETO, -100, -46, -49, 3,
     FACE, 100, -52.5, 1.5,
     BELLYPOS, BELLYDOWN,
     PAUSE, 0.25, 
@@ -104,29 +105,29 @@ double mid_auton[] = {
     PAUSE, 0.25, 
 
     // COLLECT RINGS
-    DRIVEDIST, 100, 90, 5.5, 2,
+    DRIVEDIST, 80, 90, 7.5, 2,
     PAUSE, 0.2, 
     COLLECTRING, 0.5, 
     COLLECTRING, 1,               // RING #1 OF ROWS
 
-    DRIVEDIST, 100, 90, 2.5, 1, 
-    PAUSE, 0.2,
+    DRIVEDIST, 80, 90, 3.5, 1, 
+    // PAUSE, 0.2,
     COLLECTRING, 1,               // 2
 
-    DRIVEDIST, 100, 90, 2.5, 1, 
-    PAUSE, 0.2,
+    DRIVEDIST, 80, 90, 3, 1, 
+    // PAUSE, 0.2,
     COLLECTRING, 1,               // 3
 
-    DRIVEDIST, 100, 90, 2.5, 1, 
-    PAUSE, 0.2,
+    DRIVEDIST, 80, 90, 3, 1, 
+    // PAUSE, 0.2,
     COLLECTRING, 1,               // 4
 
-    DRIVEDIST, 100, 90, 2.5, 1, 
-    PAUSE, 0.2,
+    DRIVEDIST, 80, 90, 3, 1, 
+    // PAUSE, 0.2,
     COLLECTRING, 1,               // LAST OF THE ROW
 
-    DRIVEDIST, 100, 90, 2.5, 1, 
-    PAUSE, 0.2,
+    DRIVEDIST, 80, 90, 3, 1, 
+    // PAUSE, 0.2,
     COLLECTRING, 1,               // SPARE FOR GOOD LUCK
 
     // LINE UP TO ALLIANCE BASE
