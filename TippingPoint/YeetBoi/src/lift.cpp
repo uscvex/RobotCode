@@ -46,6 +46,9 @@ void run_lift(void* params) {
     this_robot.BASE_RIGHT_WRIST_POS_2 = 210;
     this_robot.BASE_RIGHT_ARM_POS_2 = 2300;
 
+    bool just_toggled_spike_adj_up = false;
+    bool just_toggled_spike_adj_down = false;
+
 
     while (true) {
 
@@ -62,16 +65,18 @@ void run_lift(void* params) {
         lift_pos = (lift_pos_right + lift_pos_left) / 2;
 
         bool next_right_state = false;
-        if (controller.get_digital(DIGITAL_B)) {
-            lift_state = -1;
-            spike_arm_state = -1;
-            if (!just_toggled_right) {
-                next_right_state = true;
+        if ((lift_state != 1) && (lift_state != 2) && (lift_state != 3)) {
+            if (controller.get_digital(DIGITAL_B)) {
+                lift_state = -1;
+                spike_arm_state = -1;
+                if (!just_toggled_right) {
+                    next_right_state = true;
+                }
+                just_toggled_right = true;
             }
-            just_toggled_right = true;
-        }
-        else {
-            just_toggled_right = false;
+            else {
+                just_toggled_right = false;
+            }
         }
 
         bool next_collect_state = false;
@@ -138,6 +143,28 @@ void run_lift(void* params) {
                 break;
         }
 
+        double spike_adjust = 0;
+        if ((lift_state == 1) || (lift_state == 2) || (lift_state == 3)) {
+            if (controller.get_digital(DIGITAL_B)) {
+                if (!just_toggled_spike_adj_up) {
+                    spike_adjust = -0.6;
+                }
+                just_toggled_spike_adj_down = true;
+            }
+            else {
+                just_toggled_spike_adj_down = false;
+            }
+            if (controller.get_digital(DIGITAL_X)) {
+                if (!just_toggled_spike_adj_up) {
+                    spike_adjust = 1;
+                }
+                just_toggled_spike_adj_up = true;
+            }
+            else {
+                just_toggled_spike_adj_up = false;
+            }
+        }
+
         switch (lift_state) {
             case -1:
                 if (next_lift_state) {
@@ -148,6 +175,9 @@ void run_lift(void* params) {
                 spike_wrist_target = this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS;
                 spike_arm_target = this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS;
                 lift_target = this_robot.LIFT_ALLIANCE_GOAL_POS;
+                if (spike_adjust != 0) {
+                    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS += spike_adjust * this_robot.SPIKE_WRIST_ADJUST_AMOUNT;
+                }
                 if (next_lift_state) {
                     lift_state = 2;
                 }
@@ -156,6 +186,9 @@ void run_lift(void* params) {
                 spike_wrist_target = this_robot.SPIKE_WRIST_LOW_GOAL_POS;
                 if ( (lift_pos < 0.8 * lift_target) || (spike_arm_pos < 0.8 * spike_arm_target) ) {
                     spike_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR;
+                }
+                if (spike_adjust != 0) {
+                    this_robot.SPIKE_ARM_LOW_GOAL_POS += spike_adjust * this_robot.SPIKE_ARM_ADJUST_AMOUNT;
                 }
                 spike_arm_target = this_robot.SPIKE_ARM_LOW_GOAL_POS;
                 lift_target = this_robot.LIFT_LOW_GOAL_POS;
@@ -167,6 +200,9 @@ void run_lift(void* params) {
                 spike_wrist_target = this_robot.SPIKE_WRIST_HIGH_GOAL_POS;
                 if ( (lift_pos < 0.8 * lift_target) || (spike_arm_pos < 0.8 * spike_arm_target) ) {
                     spike_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR;
+                }
+                if (spike_adjust != 0) {
+                    this_robot.SPIKE_ARM_HIGH_GOAL_POS += spike_adjust * this_robot.SPIKE_ARM_ADJUST_AMOUNT;
                 }
                 spike_arm_target = this_robot.SPIKE_ARM_HIGH_GOAL_POS;
                 lift_target = this_robot.LIFT_HIGH_GOAL_POS;
@@ -243,14 +279,16 @@ void run_lift(void* params) {
 
 
         // Lock bellygrab
-        if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
-            spike_arm_state = -1;
-            base_right_state = -1;
-            lift_state = -1;
-            spike_wrist_target = this_robot.SPIKE_WRIST_LOCK_BELLY;
-            spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
-            lift_target = -50;
-            belly_grab_state = 1;
+        if ((lift_state != 1) && (lift_state != 2) && (lift_state != 3)) {
+            if (controller.get_digital(DIGITAL_X) && !controller.get_digital(DIGITAL_UP)) {
+                spike_arm_state = -1;
+                base_right_state = -1;
+                lift_state = -1;
+                spike_wrist_target = this_robot.SPIKE_WRIST_LOCK_BELLY;
+                spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
+                lift_target = -50;
+                belly_grab_state = 1;
+            }
         }
 
 
@@ -288,14 +326,16 @@ void run_lift(void* params) {
         double new_arm_target = spike_arm_target;
         double new_wrist_target = spike_wrist_target;
 
-        if (spike_wrist_target != -1) {
-            if ((spike_arm_pos <= this_robot.SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos <= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) && (spike_wrist_target >= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) && collision_avoid_state == -1) {
-                collision_avoid_state = 1;
-                initial_wrist_pos = spike_wrist_pos;
-            }
-            if ((spike_arm_pos <= this_robot.SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos >= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) && (spike_wrist_target <= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) && collision_avoid_state == -1) {
-                collision_avoid_state = 9;
-                initial_wrist_pos = spike_wrist_pos;
+        if (lift_pos < 800) {
+            if (spike_wrist_target != -1) {
+                if ((spike_arm_pos <= this_robot.SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos <= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) && (spike_wrist_target >= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) && collision_avoid_state == -1) {
+                    collision_avoid_state = 1;
+                    initial_wrist_pos = spike_wrist_pos;
+                }
+                if ((spike_arm_pos <= this_robot.SPIKE_ARM_CHASSIS_CLEAR) && (spike_wrist_pos >= this_robot.SPIKE_WRIST_CHASSIS_COLLIDE) && (spike_wrist_target <= this_robot.SPIKE_WRIST_CHASSIS_CLEAR) && collision_avoid_state == -1) {
+                    collision_avoid_state = 9;
+                    initial_wrist_pos = spike_wrist_pos;
+                }
             }
         }
 

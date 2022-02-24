@@ -195,6 +195,9 @@ struct RobotParams {
     double BASE_LIFT_RATE;
     double BASE_RELEASE_RATE;
 
+    double SPIKE_WRIST_ADJUST_AMOUNT;
+    double SPIKE_ARM_ADJUST_AMOUNT;
+
     double BASE_LIFT_READY_POS;
     double BASE_LIFT_HOLD_POS;
     double BASE_SPIN_OFFSET;

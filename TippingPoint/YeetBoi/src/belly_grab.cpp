@@ -72,6 +72,12 @@ void run_belly_grab(void* params) {
             belly_grab_state = -1;
         }
 
+        // if (controller.get_digital(DIGITAL_UP)) {
+        //     if (controller.get_digital(DIGITAL_DOWN)) {
+        //         belly_grab_speed = -40;
+        //     }
+        // }
+
         belly_grab.move_voltage((12000 * belly_grab_speed) / 127);
 
         delay(20);

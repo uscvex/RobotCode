@@ -56,6 +56,9 @@ void init_robot_black() {
     this_robot.BASE_LIFT_RATE = 1;
     this_robot.BASE_RELEASE_RATE = 1;
 
+    this_robot.SPIKE_WRIST_ADJUST_AMOUNT = 1;
+    this_robot.SPIKE_ARM_ADJUST_AMOUNT = 60;
+
     this_robot.BASE_LIFT_READY_POS = 1800;
     this_robot.BASE_LIFT_HOLD_POS = 3100;
     this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
