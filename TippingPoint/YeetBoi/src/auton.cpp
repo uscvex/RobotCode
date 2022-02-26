@@ -40,6 +40,7 @@
 #define BASEREADY 1
 #define BASEHOLD 2
 #define BASEDROP 3
+#define BASELOWLOW 119
 
 #define BELLYCOAST 1
 #define BELLYDOWN 2
@@ -68,36 +69,36 @@ double mid_auton[] = {
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYUP,
-    DRIVETO, 127, -36, -36, 5, 
+    DRIVETO, 127, -48, -36, 5, 
     CHILLYEET,
 
     // GET SECOND BASE
-    FACE, -5, -36, 0.5,
+    TURN, 95, 0.5,
     BELLYPOS, BELLYDOWN,
-    FACE, -5, -36, 0.5,
+    TURN, 95, 0.5,
     // DRIVETO, 127, -5, -36, 3, 
-    DRIVEDIST, 127, 90, 14, 3, 
+    DRIVEDIST, 127, 95, 16, 3, 
     BELLYPOS, BELLYUP,
     PAUSE, 0.5,
-    DRIVETO, -127, -40, -38, 2,
+    DRIVETO, -127, -42, -38, 2,
     // PAUSE, 0.5,
 
     // PLACE SECOND BASE
-    FACE, -39, -12, 1,
+    TURN, 0, 1,
     // DRIVETO, 100, -40, -12, 2,
     DRIVEDIST, 100, 0, 20, 3, 
     // BELLYPOS, BELLYCOAST,
     PAUSE, 0.5,
     BELLYPOS, BELLYDOWN,
     // PAUSE, 0.5,
-    DRIVETO, -100, -40, -36, 2,
+    DRIVETO, -100, -45, -33, 2,
     DEPOSITPOS, FORWARD,
     PAUSE, 0.5,
     DROP, 0.1,
     
     // LINE UP FOR RINGS
     BELLYPOS, BELLYUP,
-    DRIVETO, -100, -46, -49, 3,
+    DRIVETO, -100, -53, -49, 3,
     FACE, 100, -52.5, 1.5,
     BELLYPOS, BELLYDOWN,
     PAUSE, 0.25, 
@@ -132,11 +133,11 @@ double mid_auton[] = {
 
     // LINE UP TO ALLIANCE BASE
     DEPOSITPOS, FORWARD, 
-    DRIVETO, -100, -37, -36, 3, 
-    FACE, -37, -72, 1.5, 
+    DRIVETO, -100, -41, -36, 3, 
+    TURN, 185, 1.5, 
 
     // GO TO ALLIANCE BASE, DROP RINGS
-    DRIVETO, 100, -37, -72, 1.5, 
+    DRIVEDIST, 100, 185, 24, 1.5, 
     DROP, 0.75, 
     PAUSE, 0.5, 
     DROP, 0.75, 
@@ -154,7 +155,7 @@ double mid_auton[] = {
     DRIVETO, 127, -60, -60, 2, 
     DROP, -1, 
     DRIVEDIST, 127, 235, 5, 0.2, 
-    DRIVEDIST, -80, 235, 8, 2, 
+    DRIVEDIST, -80, 265, 8, 2, 
     READYSPIKE,
 
     TURN, 345, 1, 
@@ -162,6 +163,8 @@ double mid_auton[] = {
     TURN, 315, 0.5, 
 
     // AS MANY MATCH LOADS AS POSSIBLE
+
+    DRIVEDIST, 60, 315, 3, 2, 
 
     DRIVEDIST, 60, 315, 1, 2, 
     COLLECTRING, 0.5,               // 1
@@ -221,11 +224,13 @@ double left_auton[] = {
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
     // FIRST YEET
-    DRIVEDIST, -10000000, 278, 38, 3, 
+    DRIVEDIST, -10000000, 276, 39, 3, 
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
+    // BASEPOS, BASELOWLOW,
     BELLYPOS, BELLYUP,
-    DRIVETO, 127, -18, 50, 5,
+    DRIVETO, 127, -18, 50, 50,  // TO STOP US CONTINUING IF STUCK
+    BASEPOS, BASEHOLD,
     TURN, 180, 1, 
     DRIVETO, -127, -18, 60, 2,
     CHILLYEET,

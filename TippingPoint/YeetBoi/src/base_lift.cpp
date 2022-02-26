@@ -67,6 +67,13 @@ void run_base_lift(void* params) {
                 if (next_state)
                     base_lift_state = 1;
                 break;
+
+            case 119:   // hold tight
+                base_lift_target = 1;
+                base_release_target = this_robot.BASE_RELEASE_HOLD_POS;
+                if (next_state)
+                    base_lift_state = 3;
+                break;
             default:
                 base_lift_state = -1;
         }

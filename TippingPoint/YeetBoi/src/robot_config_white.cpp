@@ -85,7 +85,9 @@ void init_robot_white() {
     // Fudge Factors
     this_robot.FORWARD_FUDGE_FACTOR = -(24.0/23.5) / (3.25 / 2.75);
     this_robot.STRAFE_FUDGE_FACTOR = (24.0/23.3);
-    this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0);
+    this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1785.0);// * (1800.0 / 1804.6);
+
+    this_robot.CRINGE_ODOMETRY_CORRECT =  ((double)12.0 / (double)120.0);
 
     // Auton drive stuff
     this_robot.DRIVE_TURN_RATE = 3.0;
@@ -98,6 +100,18 @@ void init_robot_white() {
     this_robot.TURN_PULSE_OFF = 10;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
     this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision
+
+    // Auton drive stuff
+    // this_robot.DRIVE_TURN_RATE = 3.0;
+    // this_robot.DRIVE_DRIVE_TURN_RATE = 10.0;
+    // this_robot.DRIVE_RATE = 8.0;
+    // this_robot.MIN_DRIVE_SPEED = 30.0;
+    // this_robot.MAX_TURN_SPEED = 127.0;
+    // this_robot.MIN_TURN_SPEED = 50.0;
+    // this_robot.TURN_PULSE_ON = 1;
+    // this_robot.TURN_PULSE_OFF = 10;
+    // this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
+    // this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision
 
     this_robot.SPIKE_WRIST_LOCK_BELLY = 75;
 }
