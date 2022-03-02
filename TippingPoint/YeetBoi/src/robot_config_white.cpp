@@ -83,12 +83,10 @@ void init_robot_white() {
     this_robot.TRACKING_DIAMETER = 12;
 
     // Fudge Factors
-    this_robot.FORWARD_FUDGE_FACTOR = -(24.0/23.5) / (3.25 / 2.75);
-    this_robot.STRAFE_FUDGE_FACTOR = (24.0/23.3);
-    this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1785.0);// * (1800.0 / 1804.6);
-
-    this_robot.CRINGE_ODOMETRY_CORRECT =  ((double)12.0 / (double)120.0);
-
+    this_robot.FORWARD_FUDGE_FACTOR = -(24.0/23.5) / (3.25 / 2.75) * (24.0 / 24.25);
+    this_robot.STRAFE_FUDGE_FACTOR = (24.0 / 23.3) * (24.0 / 24.4);
+    this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1830.0) * (1800.0 / 1797.0) * (3600.0 / 3592.0) * (3600.0 / 3555.0);
+    
     // Auton drive stuff
     this_robot.DRIVE_TURN_RATE = 3.0;
     this_robot.DRIVE_DRIVE_TURN_RATE = 8.0;

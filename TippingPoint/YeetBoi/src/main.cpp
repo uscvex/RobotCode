@@ -79,7 +79,15 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void disabled() {
+    // This should let us start the match in a good
+    
+    base_lift_state = 1;        // Base lift in ready-to-grab position
+    belly_grab_state = 2;       // Bell grab in down state
+    yeet_state = 0;             // Retract the piston from yeet
+    drive_mode = DM_USER;       // Stop any unfinished drive move
+
+}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field

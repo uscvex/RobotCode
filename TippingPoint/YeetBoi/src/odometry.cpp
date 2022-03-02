@@ -82,24 +82,24 @@ void track_position() {
     angle_change /= this_robot.TRACKING_DIAMETER;
     
     // Convert to degrees
-    angle_change = (180 * angle_change) / (double)M_PI;
+    angle_change = (180.0 * angle_change) / (double)M_PI;
     
     // Calculate new global direction
     robot_theta += angle_change * this_robot.ROTATIONAL_FUDGE_FACTOR;
     
     // Wrap to [0,360]
-    if (robot_theta > 360) robot_theta -= 360;
-    if (robot_theta < 0) robot_theta += 360;
+    if (robot_theta > 360.0) robot_theta -= 360.0;
+    if (robot_theta < 0.0) robot_theta += 360.0;
     
     // Find change in forward position and sideways position
-    double forward_change = this_robot.FORWARD_FUDGE_FACTOR * this_robot.INCHES_PER_TICK * (left_change - right_change) / 2;
+    double forward_change = this_robot.FORWARD_FUDGE_FACTOR * this_robot.INCHES_PER_TICK * (left_change - right_change) / 2.0;
     double strafe_change = this_robot.STRAFE_FUDGE_FACTOR * middle_change * this_robot.INCHES_PER_TICK;
     
-    double cringe_correct = this_robot.CRINGE_ODOMETRY_CORRECT * forward_change;
-    robot_theta -= cringe_correct;
+    // double cringe_correct = this_robot.CRINGE_ODOMETRY_CORRECT * forward_change;
+    // robot_theta -= cringe_correct;
 
     // Get new global direction in degrees
-    double robot_theta_rad = ((double)M_PI * robot_theta) / 180;
+    double robot_theta_rad = ((double)M_PI * robot_theta) / 180.0;
 
     // Calculate global change based on current angle
     double change_x = -forward_change * sin(robot_theta_rad) + strafe_change * cos(robot_theta_rad);
@@ -109,8 +109,8 @@ void track_position() {
     robot_x += change_x;
     robot_y += change_y;
 
-    // if (controller.get_digital(DIGITAL_UP)) {
-    //     set_position(0, 0, 0);
-    // }
+    if (controller.get_digital(DIGITAL_UP)) {
+        set_position(0, 0, 0);
+    }
 
 }

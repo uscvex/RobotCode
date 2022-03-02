@@ -31,7 +31,7 @@ void run_belly_grab(void* params) {
         switch (belly_grab_state) {
             case -1:
                 if (next_state)
-                    belly_grab_state = 1;
+                    belly_grab_state = 3;
                 break;
             case 1:
                 belly_grab_target = -1;

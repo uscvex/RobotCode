@@ -102,6 +102,11 @@ void run_yeet(void* params) {
                 break;
         }
         
+        // Retract piston on 'special'
+        if (controller.get_digital(DIGITAL_LEFT)) {
+            yeet_state = 0;
+        }
+
         if (controller.get_digital(DIGITAL_UP)) {
             yeet_state = 0;
             if (controller.get_digital(DIGITAL_DOWN)) {

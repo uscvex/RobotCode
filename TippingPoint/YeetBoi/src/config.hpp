@@ -226,8 +226,6 @@ struct RobotParams {
     double STRAFE_FUDGE_FACTOR;
     double ROTATIONAL_FUDGE_FACTOR;
 
-    double CRINGE_ODOMETRY_CORRECT;
-
     // Auton drive stuff
     double DRIVE_TURN_RATE;
     double DRIVE_DRIVE_TURN_RATE;

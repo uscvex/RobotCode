@@ -1,5 +1,7 @@
 #include "main.h"
 
+#define USE_TANK_DRIVE false
+
 using namespace pros;
 
 Motor drive_right_1(17, SPEED, 0);
@@ -35,9 +37,15 @@ void run_drive(void* params) {
         // Call track_position to update the odometry
         track_position();
 
-        // Get user input for manual control of drive
+        // Get user input for manual control of drive (arcade-style)
         double input_forward = controller.get_analog(ANALOG_LEFT_Y);
         double input_turn = controller.get_analog(ANALOG_RIGHT_X);
+
+        // Quick fix to allow tank-style controls
+        if (USE_TANK_DRIVE) {
+            input_forward = (controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_Y)) / 2;
+            input_turn = (controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_Y)) / 2;
+        }
 
         if (drive_slew_forward > input_forward + this_robot.SLEW_STEP_FORWARD) {
             drive_slew_forward -= this_robot.SLEW_STEP_FORWARD;

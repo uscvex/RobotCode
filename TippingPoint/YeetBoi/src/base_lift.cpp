@@ -26,10 +26,12 @@ void run_base_lift(void* params) {
 
         bool next_state = false;
         if (controller.get_digital(DIGITAL_A)) {
+            base_lift_state = 2;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = -127;
         }
         if (controller.get_digital(DIGITAL_Y)) {
+            base_lift_state = 2;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = 127;
         }
