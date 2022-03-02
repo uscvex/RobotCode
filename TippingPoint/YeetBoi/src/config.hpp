@@ -137,6 +137,7 @@ extern double last_auton_time;
 extern ADIEncoder left_encoder;
 extern ADIEncoder middle_encoder;
 extern ADIEncoder right_encoder;
+extern Optical optical;
 
 // Pistons
 extern ADIDigitalOut yeet_release;

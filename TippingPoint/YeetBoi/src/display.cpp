@@ -25,9 +25,11 @@ void run_display(void* params) {
         screen::print(TEXT_MEDIUM, 6, "Spike Wrist: %.2f %.2f", spike_wrist_pos, spike_wrist_target);
         screen::print(TEXT_MEDIUM, 7, "Spike Arm: %.2f %.2f", spike_arm_pos, spike_arm_target);
 
-        screen::print(TEXT_MEDIUM, 8, "Lift: %.2f %.2f", lift_pos, lift_target);
+        // screen::print(TEXT_MEDIUM, 8, "Lift: %.2f %.2f", lift_pos, lift_target);
 
-        screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
+        // screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
+        screen::print(TEXT_MEDIUM, 8, "Brightness: %f", brightness);
+        screen::print(TEXT_MEDIUM, 9, "Hue: %f", hue);
 
 
         // if (!(display_count % 45)) {

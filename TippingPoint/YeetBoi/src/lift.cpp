@@ -10,6 +10,9 @@ Motor spike(3, SPEED, 0);
 Motor lift_left(5, SPEED, 1);
 Motor lift_right(4, SPEED, 0);
 
+int PORT(13);
+Optical optical(PORT);
+
 double spike_arm_pos = 0;
 double spike_arm_target = -1;
 
@@ -29,6 +32,8 @@ int base_right_state = -1;
 
 
 void run_lift(void* params) {
+
+    optical.disable_gesture();
 
     bool just_manual_dropped = false;
     bool just_toggled_collect = false;
@@ -397,6 +402,7 @@ void run_lift(void* params) {
             // If high scoring
             if (lift_state == 3) {
                 // And spinning
+
                 if (controller.get_digital(DIGITAL_A) || controller.get_digital(DIGITAL_Y)) {
                     spike_wrist_get_out_way_spin = 45;
                 }
