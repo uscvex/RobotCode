@@ -12,8 +12,8 @@ void init_robot_white() {
 
     this_robot.SPIKE_STAMP_TIME = 300;
 
-    this_robot.BASE_RIGHT_WRIST_POS_1 = 275;
-    this_robot.BASE_RIGHT_ARM_POS_1 = 2350;
+    this_robot.BASE_RIGHT_WRIST_POS_1 = 285;
+    this_robot.BASE_RIGHT_ARM_POS_1 = 2650;
     this_robot.BASE_RIGHT_WRIST_POS_2 = 208;
     this_robot.BASE_RIGHT_ARM_POS_2 = 1700;
     this_robot.BASE_RIGHT_WRIST_POS_3= 208;

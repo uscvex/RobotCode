@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-Motor spike_wrist(7, SPEED, 1);
+Motor spike_wrist(2, SPEED, 1);
 Motor spike_arm(8, SPEED, 1);
 Motor spike(3, SPEED, 0);
 
@@ -40,11 +40,6 @@ void run_lift(void* params) {
 
     int collision_avoid_state = -1;
     double initial_wrist_pos = 0;
-
-    this_robot.BASE_RIGHT_WRIST_POS_1 = 265;
-    this_robot.BASE_RIGHT_ARM_POS_1 = 2300;
-    this_robot.BASE_RIGHT_WRIST_POS_2 = 210;
-    this_robot.BASE_RIGHT_ARM_POS_2 = 2300;
 
     bool just_toggled_spike_adj_up = false;
     bool just_toggled_spike_adj_down = false;
@@ -264,6 +259,9 @@ void run_lift(void* params) {
             spike_arm_state = -1;
             base_right_state = -1;
             lift_state = -1;
+            if (spike_wrist_target != this_robot.SPIKE_WRIST_STORE_POS) {
+                collision_avoid_state = -1;
+            }
             spike_wrist_target = this_robot.SPIKE_WRIST_STORE_POS;
             spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
             lift_target = 0;
@@ -272,6 +270,9 @@ void run_lift(void* params) {
             spike_arm_state = -1;
             base_right_state = -1;
             lift_state = -1;
+            if (spike_wrist_target != this_robot.ALLIANCE_HELD_WRIST_POS) {
+                collision_avoid_state = -1;
+            }
             spike_wrist_target = this_robot.ALLIANCE_HELD_WRIST_POS;
             spike_arm_target = this_robot.ALLIANCE_HELD_ARM_POS;
             lift_target = 0;
@@ -398,7 +399,7 @@ void run_lift(void* params) {
             if (lift_state == 3) {
                 // And spinning
                 if (controller.get_digital(DIGITAL_A) || controller.get_digital(DIGITAL_Y)) {
-                    spike_wrist_get_out_way_spin = 45;
+                    spike_wrist_get_out_way_spin = 25;      // Spike move for goal spin
                 }
             }
             spike_wrist_speed = (spike_wrist_get_out_way_spin + new_wrist_target + spike_wrist_target_offset - spike_wrist_pos) * this_robot.SPIKE_WRIST_RATE;
