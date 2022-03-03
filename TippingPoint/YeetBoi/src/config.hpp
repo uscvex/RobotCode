@@ -137,7 +137,16 @@ extern double last_auton_time;
 extern ADIEncoder left_encoder;
 extern ADIEncoder middle_encoder;
 extern ADIEncoder right_encoder;
+
 extern Optical optical;
+extern double brightness;
+extern double hue;
+extern int32_t proximity;
+extern double saturation;
+extern bool yellow;
+extern bool sticker;
+extern bool close;
+
 
 // Pistons
 extern ADIDigitalOut yeet_release;
