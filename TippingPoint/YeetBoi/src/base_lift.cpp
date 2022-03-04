@@ -29,11 +29,25 @@ void run_base_lift(void* params) {
             base_lift_state = 2;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = -127;
+
+            if (which_auton == 4) {
+                spike_arm_state = -1;
+                base_right_state = -1;
+                lift_state = 3;
+            }
+
         }
         if (controller.get_digital(DIGITAL_Y)) {
             base_lift_state = 2;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = 127;
+
+            if (which_auton == 4) {
+                spike_arm_state = -1;
+                base_right_state = -1;
+                lift_state = 3;
+            }
+            
         }
         if (controller.get_digital(DIGITAL_R1)) {
             if (!just_toggled) {
@@ -43,6 +57,13 @@ void run_base_lift(void* params) {
         }
         else {
             just_toggled = false;
+        }
+
+        if (controller.get_digital(DIGITAL_RIGHT) && (which_auton == 4)) {
+            base_lift_state = 1;    // Ready to grab
+        }
+        if (controller.get_digital(DIGITAL_LEFT) && (which_auton == 4)) {
+            base_lift_state = 2;    // Hold base
         }
         
         switch (base_lift_state) {

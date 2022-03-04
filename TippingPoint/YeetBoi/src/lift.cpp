@@ -3,8 +3,8 @@
 #include <iostream>
 
 
-Motor spike_wrist(2, SPEED, 1);
-Motor spike_arm(8, SPEED, 1);
+Motor spike_wrist(7, SPEED, 1);
+Motor spike_arm(9, SPEED, 1);
 Motor spike(3, SPEED, 0);
 
 Motor lift_left(5, SPEED, 1);
@@ -64,6 +64,7 @@ void run_lift(void* params) {
             if (controller.get_digital(DIGITAL_B)) {
                 lift_state = -1;
                 spike_arm_state = -1;
+                base_lift_state = 1;    // put base lift in ready-to-grab
                 if (!just_toggled_right) {
                     next_right_state = true;
                 }
@@ -76,6 +77,10 @@ void run_lift(void* params) {
 
         bool next_collect_state = false;
         if (controller.get_digital(DIGITAL_L2)) {
+            // For skills, drop base when spike ready
+            if ((which_auton == 4) && (lift_state == 3)) {
+                base_lift_state = 3;
+            }
             lift_state = -1;
             base_right_state = -1;
             if (!just_toggled_collect) {

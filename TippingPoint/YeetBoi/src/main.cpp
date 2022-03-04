@@ -79,15 +79,7 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {
-    // This should let us start the match in a good
-    
-    base_lift_state = 1;        // Base lift in ready-to-grab position
-    belly_grab_state = 2;       // Bell grab in down state
-    yeet_state = 0;             // Retract the piston from yeet
-    drive_mode = DM_USER;       // Stop any unfinished drive move
-
-}
+void disabled() {}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -102,6 +94,19 @@ void competition_initialize() {}
 
 
 void opcontrol() {
+    base_lift_state = 1;        // Base lift in ready-to-grab position
+    belly_grab_state = 2;       // Bell grab in down state
+    yeet_state = 0;             // Retract the piston from yeet
+    drive_mode = DM_USER;       // Stop any unfinished drive move
+
+    // If this is a skills run, deploy and put robot into good state
+    if ((which_auton == 3) || (which_auton == 4)) {
+        yeet_state = 10;            // Yeet release (auto-deploy for driver skills)
+        lift_state = -1;            // Don't be scoring rings
+        base_right_state = -1;      // Don't be righting bases
+        spike_arm_state = 1;        // Do be ready to spike for match-loads
+    }
+
     bool just_toggled_auton = false;
     while (true) {
 

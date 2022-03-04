@@ -32,6 +32,8 @@
 
 #define CHILLYEET 26        // CHILLYEET
 
+#define SPIKEBACKWARDSCORE 27    // SPIKE_BACKWARDS_SCORE
+
 // Depost Locations
 #define FORWARD 1
 #define LOWER 2
@@ -53,9 +55,9 @@
 
 
 int which_auton = 0;
-int num_autons = 3;
-string auton_names[] = {"MID", "LEFT", "RING_P"};//, "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0]};//, &right_skills[0], &left_skills[0]};
+int num_autons = 5;
+string auton_names[] = {"MID", "LEFT", "RING_P", "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0], &left_skills[0], &right_skills[0]};
 
 
 double mid_auton[] = {
@@ -69,36 +71,36 @@ double mid_auton[] = {
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYUP,
-    DRIVETO, 127, -48, -36, 5, 
+    DRIVETO, 127, -36, -36, 5, 
     CHILLYEET,
 
     // GET SECOND BASE
-    TURN, 95, 0.5,
+    FACE, -5, -36, 0.5,
     BELLYPOS, BELLYDOWN,
-    TURN, 95, 0.5,
+    FACE, -5, -36, 0.5,
     // DRIVETO, 127, -5, -36, 3, 
-    DRIVEDIST, 127, 95, 16, 3, 
+    DRIVEDIST, 127, 93, 14, 3, 
     BELLYPOS, BELLYUP,
     PAUSE, 0.5,
-    DRIVETO, -127, -42, -38, 2,
+    DRIVETO, -127, -43, -38, 2,
     // PAUSE, 0.5,
 
     // PLACE SECOND BASE
-    TURN, 0, 1,
+    FACE, -43, -12, 1,
     // DRIVETO, 100, -40, -12, 2,
     DRIVEDIST, 100, 0, 20, 3, 
     // BELLYPOS, BELLYCOAST,
     PAUSE, 0.5,
     BELLYPOS, BELLYDOWN,
     // PAUSE, 0.5,
-    DRIVETO, -100, -45, -33, 2,
+    DRIVETO, -100, -40, -36, 2,
     DEPOSITPOS, FORWARD,
     PAUSE, 0.5,
     DROP, 0.1,
     
     // LINE UP FOR RINGS
     BELLYPOS, BELLYUP,
-    DRIVETO, -100, -53, -49, 3,
+    DRIVETO, -100, -46, -49, 3,
     FACE, 100, -52.5, 1.5,
     BELLYPOS, BELLYDOWN,
     PAUSE, 0.25, 
@@ -106,20 +108,20 @@ double mid_auton[] = {
     PAUSE, 0.25, 
 
     // COLLECT RINGS
-    DRIVEDIST, 80, 90, 7.5, 2,
+    DRIVEDIST, 60, 90, 7, 2,
     PAUSE, 0.2, 
     COLLECTRING, 0.5, 
     COLLECTRING, 1,               // RING #1 OF ROWS
 
-    DRIVEDIST, 80, 90, 3.5, 1, 
+    DRIVEDIST, 60, 90, 3, 1, 
     // PAUSE, 0.2,
     COLLECTRING, 1,               // 2
 
-    DRIVEDIST, 80, 90, 3, 1, 
+    DRIVEDIST, 60, 90, 3, 1, 
     // PAUSE, 0.2,
     COLLECTRING, 1,               // 3
 
-    DRIVEDIST, 80, 90, 3, 1, 
+    DRIVEDIST, 60, 90, 3, 1, 
     // PAUSE, 0.2,
     COLLECTRING, 1,               // 4
 
@@ -133,11 +135,11 @@ double mid_auton[] = {
 
     // LINE UP TO ALLIANCE BASE
     DEPOSITPOS, FORWARD, 
-    DRIVETO, -100, -41, -36, 3, 
-    TURN, 185, 1.5, 
+    DRIVETO, -100, -37, -36, 3, 
+    TURN, 180, 1.5, 
 
     // GO TO ALLIANCE BASE, DROP RINGS
-    DRIVEDIST, 100, 185, 24, 1.5, 
+    DRIVEDIST, 100, 180, 20, 1.5, 
     DROP, 0.75, 
     PAUSE, 0.5, 
     DROP, 0.75, 
@@ -155,7 +157,7 @@ double mid_auton[] = {
     DRIVETO, 127, -60, -60, 2, 
     DROP, -1, 
     DRIVEDIST, 127, 235, 5, 0.2, 
-    DRIVEDIST, -80, 265, 8, 2, 
+    DRIVEDIST, -80, 250, 8, 2, 
     READYSPIKE,
 
     TURN, 345, 1, 
@@ -164,9 +166,7 @@ double mid_auton[] = {
 
     // AS MANY MATCH LOADS AS POSSIBLE
 
-    DRIVEDIST, 60, 315, 3, 2, 
-
-    DRIVEDIST, 60, 315, 1, 2, 
+    DRIVEDIST, 60, 315, 6, 2, 
     COLLECTRING, 0.5,               // 1
     PAUSE, 0.5, 
 
@@ -306,7 +306,7 @@ double left_auton[] = {
     COLLECTRING, 0.5,               // MAKE SURE NICE
 
     DEPOSITPOS, FORWARD, 
-    DRIVETO, -127, -27, 52, 2, 
+    DRIVETO, -127, -27, 60, 2, 
     FACE, -60, 34, 1.5, 
     DRIVETO, 80, -60, 34, 1.5, 
     TURN, 270, 1.5, 
@@ -325,15 +325,39 @@ double left_auton[] = {
     END,
 };
 
-// double right_skills[] = {
-//     -60,-45,270,   
-//     END,
-// };
+double right_skills[] = {
+    0, 0, 0,
+    DEPLOY,
+    BASEPOS, BASEREADY,
+    PAUSE,0.5, 
 
-// double left_skills[] = {
-//     -60,-45,270,   
-//     END,
-// };
+    SPIKEBACKWARDSCORE, 
+    DRIVEDIST, -127, 0, 100, 2,
+    DROP, 1, 
+    DRIVEDIST, -127, 0, 100, 0.5,
+    DROP, 2,
+    DRIVEDIST, -127, 0, 100, 2,
+    DROP, 10,
+
+    END,
+};
+
+double left_skills[] = {
+    -60, 48, 0,
+    DEPLOY,
+    BASEPOS, BASEREADY,
+    PAUSE, 1, 
+
+    DRIVEDIST, -127, 0, 10, 2, 
+    DRIVEDIST, 127, 30, 10, 2,
+
+    FACE, 0, 36, 2,
+
+    DRIVETO, 127, 0, 36, 10,
+    DRIVEDIST, 127, 90, 100, 2,
+
+    END,
+};
 
 
 double ring_practice_auton[] = {
@@ -617,6 +641,17 @@ void autonomous() {
                     lift_state = (int)process_entry();
                     base_right_state = -1;
                     spike_arm_state = -1;
+                    next_command = true;
+                    break;
+
+                case SPIKEBACKWARDSCORE:
+                    cout << "SPIKEBACKWARDSCORE" << endl;
+                    spike_arm_state = -1;
+                    base_right_state = -1;
+                    lift_state = -1;
+                    spike_wrist_target = this_robot.ALLIANCE_HELD_WRIST_POS;
+                    spike_arm_target = this_robot.ALLIANCE_HELD_ARM_POS;
+                    lift_target = 0;
                     next_command = true;
                     break;
 

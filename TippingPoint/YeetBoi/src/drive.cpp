@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define USE_TANK_DRIVE false
+#define USE_TANK_DRIVE true
 
 using namespace pros;
 
