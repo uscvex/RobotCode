@@ -310,7 +310,11 @@ void run_lift(void* params) {
         }
         if (spike_drop) {
             if (spike_wrist_target != -1) {
-                spike_wrist_target_offset = this_robot.SPIKE_SHAKE_AMPLITUDE * (sin(millis() / 15) + sin(millis() / 18));
+                double skills_amplitude = 1.0;
+                if (which_auton == 4) {
+                    skills_amplitude = 1.35;
+                }
+                spike_wrist_target_offset = skills_amplitude * this_robot.SPIKE_SHAKE_AMPLITUDE * (sin(millis() / 15) + sin(millis() / 18));
             }
             spike_speed = this_robot.SPIKE_DROP_SPEED;
             just_dropped_time = millis();

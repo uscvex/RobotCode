@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define USE_TANK_DRIVE true
+#define USE_TANK_DRIVE false
 
 using namespace pros;
 
@@ -42,7 +42,7 @@ void run_drive(void* params) {
         double input_turn = controller.get_analog(ANALOG_RIGHT_X);
 
         // Quick fix to allow tank-style controls
-        if (USE_TANK_DRIVE) {
+        if (USE_TANK_DRIVE && (which_auton == 4)) {
             input_forward = (controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_Y)) / 2;
             input_turn = (controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_Y)) / 2;
         }
