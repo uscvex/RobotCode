@@ -52,6 +52,7 @@ extern void run_belly_grab(void* params);
 extern void run_base_lift(void* params);
 extern void run_lift(void* params);
 extern void run_yeet(void* params);
+extern void set_optical(void* params);
 
 // Global functions - Position tracking
 extern void track_position();
@@ -146,7 +147,7 @@ extern double saturation;
 extern bool yellow;
 extern bool sticker;
 extern bool close;
-
+extern pros::c::optical_rgb_s_t RGB_values;
 
 // Pistons
 extern ADIDigitalOut yeet_release;
