@@ -10,41 +10,14 @@ double base_lift_target = 0;
 double base_release_pos = 0;
 double base_release_target = 0;
 
-int PORT(13);
-Optical optical(PORT);
-double brightness = 0;
-double hue = 0;
-int32_t proximity = 0;
-double saturation = 0;
-bool close = false;
-bool yellow = false;
-bool sticker = false;
 
 
-// optical sensor readings and state changes
-void set_optical(){
-    brightness = optical.get_brightness();
-    hue = optical.get_hue();
-    saturation = optical.get_saturation();
-    proximity = optical.get_proximity();
-    if (hue <=41){
-        yellow = true;
-        sticker = false;
-    }
-    else{
-        sticker = true;
-        yellow = false;
-    }
-}
 void run_base_lift(void* params) {
 
-    optical.disable_gesture();
-    close = true;
     bool just_toggled = false;
-    
-    while (true) {
-        set_optical();
 
+    while (true) {
+        
         double base_lift_speed = 0;
         double base_release_speed = 0;
         double base_rotate_speed = 0;
@@ -84,8 +57,6 @@ void run_base_lift(void* params) {
                     base_lift_state = 2;
                 break;
             case 2:  // Hold base state
-                // optical sensor readings and state changes
-                set_optical();
                 // will subtract an offset to lower to the ground if the base is high && being spun
                 base_lift_target = this_robot.BASE_LIFT_HOLD_POS - base_spin_offset;
                 base_release_target = this_robot.BASE_RELEASE_HOLD_POS;
