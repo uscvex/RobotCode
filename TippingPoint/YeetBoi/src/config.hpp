@@ -200,6 +200,7 @@ struct RobotParams {
 
     double BASE_LIFT_READY_POS;
     double BASE_LIFT_HOLD_POS;
+    double BASE_LIFT_DROP_POS;
     double BASE_SPIN_OFFSET;
     double BASE_RELEASE_DROP_POS;
     double BASE_RELEASE_READY_POS;

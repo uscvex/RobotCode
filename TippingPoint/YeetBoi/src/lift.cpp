@@ -349,6 +349,10 @@ void run_lift(void* params) {
             }
         }
 
+        if (lift_pos > 800) {
+            collision_avoid_state = -1;
+        }
+
         switch (collision_avoid_state) {
             case -1:    // Default chill state
                 break;
@@ -400,18 +404,18 @@ void run_lift(void* params) {
         }
 
         if (new_arm_target != -1) {
-            spike_arm_speed = (new_arm_target - spike_arm_pos) * this_robot.SPIKE_ARM_RATE;
-        }
-        if (new_wrist_target != -1) {
             double spike_wrist_get_out_way_spin = 0;
             // If high scoring
-            if (lift_state == 3) {
+            if ((lift_state == 3) || (lift_state == 2)) {
                 // And spinning
                 if (controller.get_digital(DIGITAL_A) || controller.get_digital(DIGITAL_Y)) {
-                    spike_wrist_get_out_way_spin = 25;      // Spike move for goal spin
+                    spike_wrist_get_out_way_spin = -300;      // Spike move for goal spin
                 }
             }
-            spike_wrist_speed = (spike_wrist_get_out_way_spin + new_wrist_target + spike_wrist_target_offset - spike_wrist_pos) * this_robot.SPIKE_WRIST_RATE;
+            spike_arm_speed = (spike_wrist_get_out_way_spin + new_arm_target - spike_arm_pos) * this_robot.SPIKE_ARM_RATE;
+        }
+        if (new_wrist_target != -1) {
+            spike_wrist_speed = (new_wrist_target + spike_wrist_target_offset - spike_wrist_pos) * this_robot.SPIKE_WRIST_RATE;
         }
 
 

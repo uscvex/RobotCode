@@ -12,28 +12,36 @@ void init_robot_black() {
 
     this_robot.SPIKE_STAMP_TIME = 250;
 
-    this_robot.BASE_RIGHT_WRIST_POS_1 = 275;
-    this_robot.BASE_RIGHT_ARM_POS_1 = 2450;
-    this_robot.BASE_RIGHT_WRIST_POS_2 = 208;
-    this_robot.BASE_RIGHT_ARM_POS_2 = 1700;
-    this_robot.BASE_RIGHT_WRIST_POS_3= 208;
-    this_robot.BASE_RIGHT_ARM_POS_3 = 2350;
+    // Base righting
+    this_robot.BASE_RIGHT_WRIST_POS_1 = 265;
+    this_robot.BASE_RIGHT_ARM_POS_1 = 2050;
+    this_robot.BASE_RIGHT_WRIST_POS_2 = 204;
+    this_robot.BASE_RIGHT_ARM_POS_2 = 1300;
+    this_robot.BASE_RIGHT_WRIST_POS_3 = 204;
+    this_robot.BASE_RIGHT_ARM_POS_3 = 2200;
 
-    this_robot.SPIKE_WRIST_GRAB_POS = 206;
-    this_robot.SPIKE_WRIST_READY_POS = 210;
-    this_robot.SPIKE_ARM_READY_POS = 1800;
-    this_robot.SPIKE_ARM_GRAB_POS = 600;
+    // When plunging down on ring
+    this_robot.SPIKE_WRIST_GRAB_POS = 201;
+    this_robot.SPIKE_ARM_GRAB_POS = 0;
+
+    // Angle for when waiting to grab ring
+    this_robot.SPIKE_WRIST_READY_POS = 201;
+    this_robot.SPIKE_ARM_READY_POS = 1400;
+    
     this_robot.SPIKE_WRIST_RANGE = 2740;
 
+    // Collide protection
     this_robot.SPIKE_ARM_CHASSIS_CLEAR = 2500;
     this_robot.SPIKE_WRIST_CHASSIS_CLEAR = 190;
     this_robot.SPIKE_WRIST_CHASSIS_COLLIDE = 130;
 
+    // Safety
     this_robot.SPIKE_WRIST_STORE_POS = 20;
     this_robot.SPIKE_ARM_STORE_POS = 400;
 
-    this_robot.ALLIANCE_HELD_ARM_POS = 5600;
-    this_robot.ALLIANCE_HELD_WRIST_POS = 190;
+    // Back alliance goal
+    this_robot.ALLIANCE_HELD_ARM_POS = 5364.0;
+    this_robot.ALLIANCE_HELD_WRIST_POS = 187.34;
 
     this_robot.SPIKE_DROP_SPEED = 115;
     this_robot.SPIKE_RETURN_SPEED = -70;
@@ -41,17 +49,21 @@ void init_robot_black() {
     this_robot.LIFT_RATE = 1;
 
     this_robot.LEFT_LIFT_OFFSET = 80;
-    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 245;
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2750;
+
+    // Alliance goal forwards
+    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 236;
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2300;
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
-    this_robot.SPIKE_WRIST_LOW_GOAL_POS = 135;
-    this_robot.SPIKE_ARM_LOW_GOAL_POS = 3100;
-    this_robot.LIFT_LOW_GOAL_POS = 900;
+    // Scoring for middle branches
+    this_robot.SPIKE_WRIST_LOW_GOAL_POS = 131.97;
+    this_robot.SPIKE_ARM_LOW_GOAL_POS = 2910.0;
+    this_robot.LIFT_LOW_GOAL_POS = 1050.0;
 
-    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 138;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4410;
-    this_robot.LIFT_HIGH_GOAL_POS = 3700;
+    // Scoring for high branches
+    this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 129.0;
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4030.0;
+    this_robot.LIFT_HIGH_GOAL_POS = 3700.0;
 
     this_robot.BASE_LIFT_RATE = 1;
     this_robot.BASE_RELEASE_RATE = 1;
@@ -61,6 +73,7 @@ void init_robot_black() {
 
     this_robot.BASE_LIFT_READY_POS = 1800;
     this_robot.BASE_LIFT_HOLD_POS = 3100;
+    this_robot.BASE_LIFT_DROP_POS = 1800;
     this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
     this_robot.BASE_RELEASE_DROP_POS = -800;
     this_robot.BASE_RELEASE_READY_POS = 250;
