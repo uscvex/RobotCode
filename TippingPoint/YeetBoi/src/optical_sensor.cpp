@@ -1,4 +1,8 @@
 
+// to do: two modes: one for auton where we don't know we have the base.
+// the other is for driver control when we do know we have it
+
+
 #define PROXIMITY_THRESHOLD 244
 #define STICKER_THRESHOLD 41
 #include "main.h"
