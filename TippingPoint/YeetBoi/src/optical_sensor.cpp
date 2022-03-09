@@ -6,6 +6,7 @@
 #define PROXIMITY_THRESHOLD 244
 #define STICKER_THRESHOLD 41
 #include "main.h"
+// #include <opencv2/highgui/highgui.hpp>
 
 Optical optical(13);
 double brightness = 0;
