@@ -87,6 +87,7 @@ void run_base_lift(void* params) {
             case 3:  // Drop base state
                 base_lift_target = this_robot.BASE_LIFT_DROP_POS;
                 base_release_target = this_robot.BASE_RELEASE_DROP_POS;
+                base_rotate_speed = 127;
                 if (next_state)
                     base_lift_state = 1;
                 break;
