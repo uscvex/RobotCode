@@ -32,7 +32,11 @@
 
 #define CHILLYEET 26        // CHILLYEET
 
+<<<<<<< HEAD
 #define SPIKEBACKWARDSCORE 27    // SPIKE_BACKWARDS_SCORE
+=======
+#define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
+>>>>>>> e8e0440 (auton additions)
 
 // Depost Locations
 #define FORWARD 1
@@ -459,7 +463,7 @@ void autonomous() {
     
     int wait_condition = -1;                 // Condition type to wait until
     double wait_parameter = -1;              // Parameter to decide when wait is done
-    
+
     // Point to correct auton routine
     next_entry = auton_ptr[which_auton];
     cout << auton_names[which_auton] << " Auton Starting\n";
@@ -704,6 +708,9 @@ void autonomous() {
                     lift_target = 0;
                     next_command = true;
                     break;
+                case SPINOPTICAL:
+                    cout << "SPINOPTICAL" << endl;
+                    seek_sticker = true;
 
                 default:
                     // Command not recognised
@@ -775,6 +782,11 @@ void autonomous() {
             if (pythag(drive_target_x, drive_target_y, robot_x, robot_y) <= this_robot.DRIVE_PRECISION) {     // Drive within tolerance
                 finished_drive = true;
             }
+        }
+
+        if (seek_sticker && has_base && is_sticker){
+            seek_sticker = false;
+            next_command = true;
         }
 
         // If we timed out, make sure to stop whatever it was we were doing

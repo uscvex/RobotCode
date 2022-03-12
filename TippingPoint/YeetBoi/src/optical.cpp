@@ -18,6 +18,8 @@ pros::c::optical_rgb_s_t RGB_values;
 bool has_base = false;
 bool is_sticker = false;
 
+bool seek_sticker = false;
+
 // optical sensor readings and state changes
 void set_optical(void* params){
 
@@ -25,6 +27,9 @@ void set_optical(void* params){
     optical.set_led_pwm(100);
 
     while(true){
+        double base_rotate_speed = 0;
+        is_sticker = false;
+        has_base = false;
 
         brightness = optical.get_brightness();
         hue = optical.get_hue();
@@ -37,13 +42,19 @@ void set_optical(void* params){
         printf("Blue value: %f \n", RGB_values.blue);
         printf("Brightness value: %f \n", RGB_values.brightness);
         if (proximity > PROXIMITY_THRESHOLD) has_base = true;
-        else has_base = false;
-        if (hue <=STICKER_THRESHOLD){
-            is_sticker = false;
+        if (hue > STICKER_THRESHOLD) is_sticker = true;
+
+        // if we're looking for the sticker and haven't seen it yet
+        if (seek_sticker && has_base && !is_sticker){
+            base_rotate_speed = -127; //negative is arbitrary
         }
-        else{
-            is_sticker = true;
-        }
+        // we just saw the sticker -- stop (moved this to auton)
+        // else if (seek_sticker && has_base && is_sticker){
+        //     seek_sticker = false;
+        // }
+        // move the base lift spinner motor
+        base_rotate.move_voltage((12000 * base_rotate_speed) / 127);
+
         delay(20);
     }
 }

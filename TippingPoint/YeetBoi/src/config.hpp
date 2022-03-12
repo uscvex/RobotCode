@@ -148,6 +148,9 @@ extern pros::c::optical_rgb_s_t RGB_values;
 extern bool has_base;
 extern bool is_sticker;
 
+extern bool seek_sticker;
+extern bool found_sticker;
+
 // Pistons
 extern ADIDigitalOut yeet_release;
 extern ADIDigitalOut yeet_retract;
