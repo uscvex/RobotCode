@@ -36,6 +36,7 @@ extern double left_auton[];
 extern double ring_practice_auton[];
 extern double right_skills[];
 extern double left_skills[];
+extern double spinner[];
 
 extern int which_robot;
 extern string robot_names[];
@@ -149,7 +150,7 @@ extern bool has_base;
 extern bool is_sticker;
 
 extern bool seek_sticker;
-extern bool found_sticker;
+extern bool finished_autoscore;
 
 // Pistons
 extern ADIDigitalOut yeet_release;

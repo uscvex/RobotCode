@@ -32,12 +32,9 @@
 
 #define CHILLYEET 26        // CHILLYEET
 
-<<<<<<< HEAD
-#define SPIKEBACKWARDSCORE 27    // SPIKE_BACKWARDS_SCORE
-=======
-#define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
->>>>>>> e8e0440 (auton additions)
 
+#define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
+#define SPIKEBACKWARDSCORE 28    // SPIKE_BACKWARDS_SCORE
 // Depost Locations
 #define FORWARD 1
 #define LOWER 2
@@ -59,10 +56,15 @@
 
 
 int which_auton = 0;
-int num_autons = 5;
-string auton_names[] = {"MID", "LEFT", "RING_P", "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0], &left_skills[0], &right_skills[0]};
+int num_autons = 4;
+string auton_names[] = {"MID", "LEFT", "RING_P", "SPINNER"};//, "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0], &spinner[0]};//, &right_skills[0], &left_skills[0]};
 
+double spinner[] = {
+    BASEHOLD,
+    SPINOPTICAL,
+    END,
+};
 
 double mid_auton[] = {
     -52, -38, 234,      // STARTING POS
@@ -711,6 +713,7 @@ void autonomous() {
                 case SPINOPTICAL:
                     cout << "SPINOPTICAL" << endl;
                     seek_sticker = true;
+                    break;
 
                 default:
                     // Command not recognised
@@ -761,7 +764,7 @@ void autonomous() {
                     
             }
             
-            // If condition is met the we are done
+            // If condition is met then we are done
             if (finished_wait) {
                 wait_condition = -1;     // Stop waiting
                 wait_parameter = -1;     // Reset parameter
@@ -784,6 +787,7 @@ void autonomous() {
             }
         }
 
+        // we just saw the sticker -- stop
         if (seek_sticker && has_base && is_sticker){
             seek_sticker = false;
             next_command = true;
