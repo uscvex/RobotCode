@@ -67,7 +67,6 @@ void run_drive(void* params) {
             drive_slew_turn = input_turn;
         }
         
-
         double forward_speed = drive_slew_forward;
         double turn_speed = drive_slew_turn;
 
