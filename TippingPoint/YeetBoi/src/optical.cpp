@@ -19,7 +19,7 @@ bool has_base = false;
 bool is_sticker = false;
 
 bool seek_sticker = false;
-
+bool finished_autoscore = false;
 // optical sensor readings and state changes
 void set_optical(void* params){
 
@@ -48,10 +48,12 @@ void set_optical(void* params){
         if (seek_sticker && has_base && !is_sticker){
             base_rotate_speed = -127; //negative is arbitrary
         }
+
         // we just saw the sticker -- stop (moved this to auton)
         // else if (seek_sticker && has_base && is_sticker){
         //     seek_sticker = false;
         // }
+
         // move the base lift spinner motor
         base_rotate.move_voltage((12000 * base_rotate_speed) / 127);
 
