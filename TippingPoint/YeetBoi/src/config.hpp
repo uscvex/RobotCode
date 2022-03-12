@@ -145,8 +145,8 @@ extern int32_t proximity;
 extern double saturation;
 extern pros::c::optical_rgb_s_t RGB_values;
 
-bool has_base = false;
-bool is_sticker = false;
+extern bool has_base;
+extern bool is_sticker;
 
 // Pistons
 extern ADIDigitalOut yeet_release;

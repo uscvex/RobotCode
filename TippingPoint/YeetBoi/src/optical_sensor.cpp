@@ -8,7 +8,7 @@
 #include "main.h"
 // #include <opencv2/highgui/highgui.hpp>
 
-Optical optical(13);
+Optical optical(12);
 double brightness = 0;
 double hue = 0;
 int32_t proximity = 0;
@@ -37,6 +37,7 @@ void set_optical(void* params){
         printf("Blue value: %f \n", RGB_values.blue);
         printf("Brightness value: %f \n", RGB_values.brightness);
         if (proximity > PROXIMITY_THRESHOLD) has_base = true;
+        else has_base = false;
         if (hue <=STICKER_THRESHOLD){
             is_sticker = false;
         }
