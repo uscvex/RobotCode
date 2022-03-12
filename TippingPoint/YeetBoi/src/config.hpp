@@ -139,15 +139,14 @@ extern ADIEncoder left_encoder;
 extern ADIEncoder middle_encoder;
 extern ADIEncoder right_encoder;
 
-extern Optical optical;
 extern double brightness;
 extern double hue;
 extern int32_t proximity;
 extern double saturation;
-extern bool yellow;
-extern bool sticker;
-extern bool close;
 extern pros::c::optical_rgb_s_t RGB_values;
+
+bool has_base = false;
+bool is_sticker = false;
 
 // Pistons
 extern ADIDigitalOut yeet_release;

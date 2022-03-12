@@ -13,15 +13,10 @@ double brightness = 0;
 double hue = 0;
 int32_t proximity = 0;
 double saturation = 0;
-bool close = false;
-bool yellow = false;
-bool sticker = false;
 pros::c::optical_rgb_s_t RGB_values;
-
 
 bool has_base = false;
 bool is_sticker = false;
-
 
 // optical sensor readings and state changes
 void set_optical(void* params){
@@ -35,9 +30,7 @@ void set_optical(void* params){
         hue = optical.get_hue();
         saturation = optical.get_saturation();
         proximity = optical.get_proximity();
-        optical.set_led_pwm(100);
         RGB_values = optical.get_rgb();
-
 
         printf("Red value: %f \n", RGB_values.red);
         printf("Green value: %f \n", RGB_values.green);
@@ -52,5 +45,4 @@ void set_optical(void* params){
         }
         delay(20);
     }
-
 }
