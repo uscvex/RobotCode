@@ -61,9 +61,19 @@ string auton_names[] = {"MID", "LEFT", "RING_P", "SPINNER"};//, "SK_LEFT", "SK_R
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0], &spinner[0]};//, &right_skills[0], &left_skills[0]};
 
 double spinner[] = {
-    BASEHOLD,
+
+    0,0,0, // first line should always be robot position
+    
+    BASEPOS, BASEREADY, //get ready to grab the base
+    PAUSE, 5, //pause for 5seconds
+    BASEPOS, BASEHOLD, // basepos is command, basehold is argument 
+
     SPINOPTICAL,
+
+    BASEPOS, BASEDROP,
+
     END,
+
 };
 
 double mid_auton[] = {
@@ -791,6 +801,7 @@ void autonomous() {
         if (seek_sticker && has_base && is_sticker){
             seek_sticker = false;
             next_command = true;
+            cout << "FINISHED FINDING STICKER" << endl;
         }
 
         // If we timed out, make sure to stop whatever it was we were doing
