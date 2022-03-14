@@ -11,7 +11,6 @@ double base_release_pos = 0;
 double base_release_target = 0;
 
 
-
 void run_base_lift(void* params) {
 
     bool just_toggled = false;
