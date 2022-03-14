@@ -485,36 +485,40 @@ void autonomous() {
             switch ((int) process_entry()) {
 
                 case TURN:
+                    // Robot will turn to face the specified angle
                     cout << "TURN" << endl;
                     drive_mode = DM_TURN;
                     drive_speed_target = 0;
-                    drive_turn_target = process_entry();
+                    drive_turn_target = process_entry();        // Angle to turn to (degrees)
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case FACE:
+                    // Robot will turn to face the specified point
                     cout << "FACE" << endl;
                     drive_mode = DM_FACE;
                     drive_speed_target = 0;
-                    drive_target_x = process_entry();
-                    drive_target_y = process_entry();
+                    drive_target_x = process_entry();   // X target (field coord in inches)
+                    drive_target_y = process_entry();   // Y target (field coord in inches)
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case DRIVE:
-                    cout << "DRIVETIME" << endl;
+                    // Robot will drive in a direction, at a speed, for a time
+                    cout << "DRIVE" << endl;
                     drive_mode = DM_TIME;
-                    drive_speed_target = process_entry();
-                    drive_turn_target = process_entry();
+                    drive_speed_target = process_entry();   // Speed to drive (-127, 127)
+                    drive_turn_target = process_entry();    // Direction to face (degrees)
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case DRIVEDIST:
+                    // Robot will drive in a direction, at a speed, for a distance
                     cout << "DRIVEDIST" << endl;
                     drive_mode = DM_DISTANCE;
-                    drive_speed_target = process_entry();
-                    drive_turn_target = process_entry();
-                    drive_distance_target = process_entry();
+                    drive_speed_target = process_entry();   // Speed to drive (-127, 127)
+                    drive_turn_target = process_entry();    // Direction to face (degrees)
+                    drive_distance_target = process_entry();    // Distance to drive (inches)
                 
                     // Record starting position
                     drive_starting_x = robot_x;
@@ -524,51 +528,58 @@ void autonomous() {
                     break;
 
                 case LIFTPOS:
+                    // Move the four-bar lift to a speficied height
                     cout << "LIFTPOS" << endl;
                     spike_arm_state = -1;
                     base_right_state = -1;
                     lift_state = -1;
-                    lift_target = process_entry();
+                    lift_target = process_entry();  // Height for the lift (encoder ticks)
                     next_command = true;
                     break;
 
                 case WRISTPOS:
+                    // Move the spike wrist to a specified angle
                     cout << "WRISTPOS" << endl;
                     spike_arm_state = -1;
                     base_right_state = -1;
                     lift_state = -1;
-                    spike_wrist_target = process_entry();
+                    spike_wrist_target = process_entry();   // Angle for the wrist (degrees rel. to floor)
                     next_command = true;
                     break;
 
                 case ARMPOS:
+                    // Move the spike arm to a specified position
                     cout << "ARMPOS" << endl;
                     spike_arm_state = -1;
                     base_right_state = -1;
                     lift_state = -1;
-                    spike_arm_target = process_entry();
+                    spike_arm_target = process_entry(); // Position for the arm (encoder ticks)
                     next_command = true;
                     break;
 
                 case END:
+                    // End of routine
                     cout << "END" << endl;
                     controller.print(0,0,"E");
                     // Just chill bruh
                     break;
 
                 case PAUSE:
+                    // Do nothhing for a time
                     cout << "PAUSE" << endl;
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case WAIT:
+                    // Do nothing until condition is met, eg. WAIT, LIFTABOVE, 1000, 5,
                     cout << "WAIT" << endl;
-                    wait_condition = (int)process_entry();
-                    wait_parameter = process_entry();
+                    wait_condition = (int)process_entry();  // What to wait for (keyword)
+                    wait_parameter = process_entry();       // Value to wait until (number)
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case DROP:
+                    // Drops rings from spike
                     cout << "DROP" << endl;
                     spike_drop = true;
                     command_time_out = process_entry() * 1000;
@@ -578,6 +589,7 @@ void autonomous() {
                     break;
 
                 case DEPLOY:
+                    // Deploys the robot
                     cout << "DEPLOY" << endl;
                     yeet_state = 10;
                     belly_grab_state = BELLYDOWN;
@@ -586,47 +598,57 @@ void autonomous() {
                     break;
 
                 case CHILLYEET:
+                    // Deactivates yeet release piston
                     cout << "CHILLYEET" << endl;
                     yeet_state = 11;
                     next_command = true;
                     break;
 
                 case DRIVETO:
+                    // Robot will drive to target position on field
                     cout << "DRIVETO" << endl;
                     drive_mode = DM_GOTO;
-                    drive_speed_target = process_entry();
+                    drive_speed_target = process_entry();   // How fast to drive (-127, 127)
 
-                    drive_target_x = process_entry();
-                    drive_target_y = process_entry();
+                    drive_target_x = process_entry();   // X target (field coord in inches)
+                    drive_target_y = process_entry();   // Y target (field coord in inches)
                     
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case SETPOS:
-                    cout << "STEPOS" << endl;
-                    set_position(process_entry(), process_entry());
+                    // Sets the robot's position on the field
+                    cout << "SETPOS" << endl;
+                    double x_pos = process_entry(); // X coord (field coord in inches)
+                    double y_pos = process_entry(); // Y coord (field coord in inches)
+                    set_position(x_pos, y_pos);
                     next_command = true;
                     break;
 
                 case SETDIR:
-                    cout << "STEDIR" << endl;
-                    set_direction(process_entry());
+                    // Sets the robot's direction on the field
+                    cout << "SETDIR" << endl;
+                    double dir = process_entry(); // Direction (degrees)
+                    set_direction(dir);
                     next_command = true;
                     break;
 
                 case BELLYPOS:
+                    // Moves bellygrab to desired position
                     cout << "BELLYPOS" << endl;
-                    belly_grab_state = (int)process_entry();
+                    belly_grab_state = (int)process_entry();    // Position (keyword)
                     next_command = true;
                     break;
 
                 case BASEPOS:
+                    // Moves base lift-turner to desired position
                     cout << "BASEPOS" << endl;
-                    base_lift_state = (int)process_entry();
+                    base_lift_state = (int)process_entry(); // Position (keyword)
                     next_command = true;
                     break;
 
                 case READYSPIKE:
+                    // Moves the spike to the ready position
                     cout << "READYSPIKE" << endl;
                     lift_state = -1;
                     base_right_state = -1;
@@ -635,16 +657,21 @@ void autonomous() {
                     break;
 
                 case YEET:
+                    // Hekkin yeeeeet
+                    cout << "YEET" << endl;
                     yeet_state = 1;
                     command_time_out = process_entry() * 1000;
                     break;
 
                 case RETRACTYEET:
+                    // Retracts the yeet wheel such that drive wheels are on the ground
+                    cout << "RETRACTYEET" << endl;
                     yeet_state = 10;
                     next_command = true;
                     break;
 
                 case COLLECTRING:
+                    // Stamps down with the spike to pick up a ring
                     cout << "COLLECTRING" << endl;
                     lift_state = -1;
                     base_right_state = -1;
@@ -653,14 +680,16 @@ void autonomous() {
                     break;
 
                 case DEPOSITPOS:
+                    // Moves the spike to the desired position for scoring
                     cout << "DEPOSITPOS" << endl;
-                    lift_state = (int)process_entry();
+                    lift_state = (int)process_entry();  // Scoring position (keyword)
                     base_right_state = -1;
                     spike_arm_state = -1;
                     next_command = true;
                     break;
 
                 case SPIKEBACKWARDSCORE:
+                    // Moves the spike to the position for backwards scoring on a alliance goal
                     cout << "SPIKEBACKWARDSCORE" << endl;
                     spike_arm_state = -1;
                     base_right_state = -1;
@@ -671,7 +700,8 @@ void autonomous() {
                     next_command = true;
                     break;
 
-                default:        // Command not recognised
+                default:
+                    // Command not recognised
                     cout << "BAD COMMAND" << endl;
                     break;
 
