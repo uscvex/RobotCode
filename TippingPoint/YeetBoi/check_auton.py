@@ -1,7 +1,7 @@
-from pprint import pprint
-
-SWITCH_START = "switch ((int) process_entry()) {"
-
+# Checks auton routines in auton.cpp
+# To run: python3 check_auton.py
+# Auto-generates documentation for each command, output to commands.md
+# Outputs warnings for each auton routine if something is broken
 
 class Command:
     def __init__(self, source):
@@ -183,7 +183,7 @@ class AutonChecker:
             self.routines[this_routine["pointer"]] = this_routine
 
     def read_commands(self):
-        start_of_switch = self.auton_file.find(SWITCH_START) + len(SWITCH_START)
+        start_of_switch = self.auton_file.find("switch ((int) process_entry()) {") + len("switch ((int) process_entry()) {")
         end_of_switch = start_of_switch
         number_brackets = 1
         while (number_brackets > 0):
