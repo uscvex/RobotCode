@@ -482,6 +482,11 @@ void autonomous() {
             
             cout << ((millis() - auton_start_time) / 1000) << ": ";
 
+            // can't declare vars in switch case (but should really just make new scope within)
+            double x_pos;
+            double y_pos;
+            double dir;
+
             switch ((int) process_entry()) {
 
                 case TURN:
@@ -619,8 +624,8 @@ void autonomous() {
                 case SETPOS:
                     // Sets the robot's position on the field
                     cout << "SETPOS" << endl;
-                    double x_pos = process_entry(); // X coord (field coord in inches)
-                    double y_pos = process_entry(); // Y coord (field coord in inches)
+                    x_pos = process_entry(); // X coord (field coord in inches)
+                    y_pos = process_entry(); // Y coord (field coord in inches)
                     set_position(x_pos, y_pos);
                     next_command = true;
                     break;
@@ -628,7 +633,7 @@ void autonomous() {
                 case SETDIR:
                     // Sets the robot's direction on the field
                     cout << "SETDIR" << endl;
-                    double dir = process_entry(); // Direction (degrees)
+                    dir = process_entry(); // Direction (degrees)
                     set_direction(dir);
                     next_command = true;
                     break;
