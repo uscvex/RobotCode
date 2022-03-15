@@ -32,9 +32,10 @@
 
 #define CHILLYEET 26        // CHILLYEET
 
-
 #define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
-#define SPIKEBACKWARDSCORE 28    // SPIKE_BACKWARDS_SCORE
+#define SPINCOMPLETE 28
+#define SPIKEBACKWARDSCORE 29    // SPIKE_BACKWARDS_SCORE
+
 // Depost Locations
 #define FORWARD 1
 #define LOWER 2
@@ -53,6 +54,7 @@
 #define LIFTBELOW 1
 #define LIFTABOVE 2
 #define TIME 3
+#define SPINCOMPLETE 4
 
 
 int which_auton = 0;
@@ -723,6 +725,7 @@ void autonomous() {
                 case SPINOPTICAL:
                     cout << "SPINOPTICAL" << endl;
                     seek_sticker = true;
+                    next_command = true;
                     break;
 
                 default:
@@ -771,7 +774,11 @@ void autonomous() {
                         cout << "Wait time done\n";
                     }
                     break;
-                    
+                case SPINCOMPLETE:
+                    if (!seek_sticker){
+                        finished_wait = true;
+                        cout << "Sticker found\n";
+                    }
             }
             
             // If condition is met then we are done
@@ -800,7 +807,6 @@ void autonomous() {
         // we just saw the sticker -- stop
         if (seek_sticker && has_base && is_sticker){
             seek_sticker = false;
-            next_command = true;
             cout << "FINISHED FINDING STICKER" << endl;
         }
 
@@ -832,6 +838,10 @@ void autonomous() {
             // If we were grabbing ring
             if ((spike_arm_state == 2) || (spike_arm_state == 10)) {
                 spike_arm_state = 1;
+            }
+
+            if (seek_sticker){
+                seek_sticker = false;
             }
 
         }
