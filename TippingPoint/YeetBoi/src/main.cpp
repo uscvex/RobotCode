@@ -60,11 +60,13 @@ void init_positions() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    void* params;
     calibrate_robot_params();
     yeet_release.set_value(0);
     yeet_retract.set_value(0);
     init_tracking();
     init_positions();
+    init_optical(params);
     delay(200);
     pros::Task drive_task(run_drive, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Drive Task");
     pros::Task display_task(run_display, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Display Task");

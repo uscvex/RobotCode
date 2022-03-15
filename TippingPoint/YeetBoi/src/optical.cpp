@@ -22,13 +22,17 @@ bool is_sticker = false;
 
 bool seek_sticker = false;
 bool finished_autoscore = false;
-// optical sensor readings and state changes
-void set_optical(void* params){
+ofstream o;
 
+// optical sensor readings and state changes
+void init_optical(void* params){
     optical.disable_gesture();
     optical.set_led_pwm(100);
-    ofstream o;
     o.open("../bin/colors.txt");
+}
+
+void set_optical(void* params){
+
     while(true){
         double base_rotate_speed = 0;
         is_sticker = false;
@@ -66,5 +70,4 @@ void set_optical(void* params){
 
         delay(20);
     }
-    o.close();
 }

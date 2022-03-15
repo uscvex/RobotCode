@@ -53,6 +53,7 @@ extern void run_belly_grab(void* params);
 extern void run_base_lift(void* params);
 extern void run_lift(void* params);
 extern void run_yeet(void* params);
+extern void init_optical(void* params);
 extern void set_optical(void* params);
 
 // Global functions - Position tracking
