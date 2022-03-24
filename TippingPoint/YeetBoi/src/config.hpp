@@ -30,6 +30,15 @@ using namespace std;
 #define SPEED E_MOTOR_GEARSET_18
 #define TORQUE E_MOTOR_GEARSET_36
 
+//optical states
+#define DO_NOTHING  1
+#define LOOK_FOR_STICKER 2
+#define LOOK_FOR_YELLOW 3
+#define FUCK_GO_BACK 4
+
+#define SATURATION_THRESHOLD 0.27
+#define HUE_THRESHOLD 50
+
 extern double* auton_ptr[];
 extern double mid_auton[];
 extern double left_auton[];
@@ -147,11 +156,14 @@ extern int32_t proximity;
 extern double saturation;
 extern pros::c::optical_rgb_s_t RGB_values;
 
-extern bool has_base;
-extern bool is_sticker;
-
-extern bool seek_sticker;
+extern int base_lift_state;
 extern bool finished_autoscore;
+extern int optical_state;
+
+
+extern bool is_black;
+extern bool is_yellow;
+extern bool is_red;
 
 // Pistons
 extern ADIDigitalOut yeet_release;

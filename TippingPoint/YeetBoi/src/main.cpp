@@ -8,7 +8,7 @@ Controller controller(E_CONTROLLER_MASTER);
 
 RobotParams this_robot;
 
-int which_robot = 0;
+int which_robot = 1;
 int num_robots = 2;
 string robot_names[] = {"WHT", "BLK"};
 
@@ -24,7 +24,6 @@ void calibrate_robot_params() {
             break;
     }
 }
-
 
 void init_positions() {
 

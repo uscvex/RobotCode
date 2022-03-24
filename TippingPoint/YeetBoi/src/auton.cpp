@@ -33,8 +33,9 @@
 #define CHILLYEET 26        // CHILLYEET
 
 #define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
-#define SPINCOMPLETE 28
-#define SPIKEBACKWARDSCORE 29    // SPIKE_BACKWARDS_SCORE
+#define SPIKEBACKWARDSCORE 28    // SPIKE_BACKWARDS_SCORE
+#define SCOREHIGH 29
+
 
 // Depost Locations
 #define FORWARD 1
@@ -59,20 +60,35 @@
 
 int which_auton = 0;
 int num_autons = 4;
-string auton_names[] = {"MID", "LEFT", "RING_P", "SPINNER"};//, "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0], &spinner[0]};//, &right_skills[0], &left_skills[0]};
+string auton_names[] = {"SPINNER", "MID", "LEFT", "RING_P"};//, "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&spinner[0], &mid_auton[0], &left_auton[0], &ring_practice_auton[0]};//, &right_skills[0], &left_skills[0]};
 
+// sample auton to test optical sensor
 double spinner[] = {
 
     0,0,0, // first line should always be robot position
-    
-    BASEPOS, BASEREADY, //get ready to grab the base
-    PAUSE, 5, //pause for 5seconds
+
+    // BASEPOS, BASEREADY, //get ready to grab the base
+    // PAUSE, 5, //pause for 5seconds
     BASEPOS, BASEHOLD, // basepos is command, basehold is argument 
+    
+    PAUSE, 1, //pause
+    DEPOSITPOS, UPPER, //drop dose rings
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 300,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+                                // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    PAUSE, 1,
+    DROP, 1.5, 
 
     SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 300,    
+    PAUSE, 1,
+    DROP, 1,
+    PAUSE, 0.5,
+    DROP, 1,
 
-    BASEPOS, BASEDROP,
+    READYSPIKE, //drop dose rings
+    // BASEPOS, BASEDROP, //release the base (this is mostly to relax the motors for easy reset)
 
     END,
 
@@ -722,14 +738,14 @@ void autonomous() {
                     lift_target = 0;
                     next_command = true;
                     break;
+
                 case SPINOPTICAL:
                     cout << "SPINOPTICAL" << endl;
-                    seek_sticker = true;
+                    optical_state = LOOK_FOR_YELLOW;
                     next_command = true;
                     break;
 
-                default:
-                    // Command not recognised
+                default:        // Command not recognised
                     cout << "BAD COMMAND" << endl;
                     break;
 
@@ -775,7 +791,7 @@ void autonomous() {
                     }
                     break;
                 case SPINCOMPLETE:
-                    if (!seek_sticker){
+                    if (optical_state == DO_NOTHING){
                         finished_wait = true;
                         cout << "Sticker found\n";
                     }
@@ -804,11 +820,6 @@ void autonomous() {
             }
         }
 
-        // we just saw the sticker -- stop
-        if (seek_sticker && has_base && is_sticker){
-            seek_sticker = false;
-            cout << "FINISHED FINDING STICKER" << endl;
-        }
 
         // If we timed out, make sure to stop whatever it was we were doing
         if (command_timed_out) {
@@ -839,13 +850,7 @@ void autonomous() {
             if ((spike_arm_state == 2) || (spike_arm_state == 10)) {
                 spike_arm_state = 1;
             }
-
-            if (seek_sticker){
-                seek_sticker = false;
-            }
-
         }
-
         if (finished_drive) {
             drive_turn_target = -1;
             drive_speed_target = 0;

@@ -4,6 +4,7 @@ Motor base_lift(19, SPEED, 1);
 Motor base_release(10, SPEED, 1);
 Motor base_rotate(20, SPEED, 1);
 
+
 int base_lift_state = -1;
 double base_lift_pos = 0;
 double base_lift_target = 0;
@@ -26,7 +27,17 @@ void run_base_lift(void* params) {
         base_release_pos = base_release.get_position();
 
         bool next_state = false;
+
+        // if we're looking for the sticker and haven't seen it yet
+        if ((optical_state == LOOK_FOR_YELLOW) || (optical_state == LOOK_FOR_STICKER)){
+            if (is_black) base_rotate_speed = 50; //needs to be a positive speed
+            else base_rotate_speed = 127;
+        }
+        else if (optical_state == FUCK_GO_BACK){
+            base_rotate_speed = -50;
+        }
         if (controller.get_digital(DIGITAL_A)) {
+            optical_state = DO_NOTHING;
             base_lift_state = 2;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = -127;
@@ -36,9 +47,9 @@ void run_base_lift(void* params) {
                 base_right_state = -1;
                 lift_state = 3;
             }
-
         }
         if (controller.get_digital(DIGITAL_Y)) {
+            optical_state = DO_NOTHING;
             base_lift_state = 2;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = 127;
@@ -113,6 +124,7 @@ void run_base_lift(void* params) {
 
         // Abort button
         if (controller.get_digital(DIGITAL_UP)) {
+            optical_state = DO_NOTHING;
             base_lift_target = -1;
             base_release_target = -1;
             base_lift_speed = 0;
@@ -123,6 +135,6 @@ void run_base_lift(void* params) {
         base_release.move_voltage((12000 * base_release_speed) / 127);
         base_rotate.move_voltage((12000 * base_rotate_speed) / 127);
 
-        pros::delay(20);
+        pros::delay(10);
     }
 }

@@ -200,7 +200,7 @@ Moves the spike to the position for backwards scoring on a alliance goal
   
 ## SPINOPTICAL:  
   
-*BLOCKING, NO TIMEOUT*  
+*non-blocking, NO TIMEOUT*  
 ### Usage:
   > SPINOPTICAL,   
 ### Warnings: (1)  

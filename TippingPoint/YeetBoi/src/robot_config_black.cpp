@@ -71,7 +71,7 @@ void init_robot_black() {
 
     // Scoring for high branches
     this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 129.0;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4030.0;
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4090.0;
     this_robot.LIFT_HIGH_GOAL_POS = 3700.0;
 
     // Base grab P-controller tuning
@@ -88,7 +88,8 @@ void init_robot_black() {
     this_robot.BASE_LIFT_DROP_POS = 100;
 
     // How much to lower the base for spinnage
-    this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
+    // this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
+    this_robot.BASE_SPIN_OFFSET = 0;
 
     // Base grabber release lever positions
     this_robot.BASE_RELEASE_DROP_POS = -800;
