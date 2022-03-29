@@ -60,8 +60,8 @@
 
 int which_auton = 0;
 int num_autons = 4;
-string auton_names[] = {"SPINNER", "MID", "LEFT", "RING_P"};//, "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&spinner[0], &mid_auton[0], &left_auton[0], &ring_practice_auton[0]};//, &right_skills[0], &left_skills[0]};
+stristring auton_names[] = {"MID", "LEFT", "SPINNER", "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &spinner[0], &left_skills[0], &right_skills[0]};
 
 // sample auton to test optical sensor
 double spinner[] = {
