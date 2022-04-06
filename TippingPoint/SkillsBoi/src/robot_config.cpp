@@ -12,8 +12,8 @@ void init_robot() {
 
     this_robot.BACK_LIFT_READY_POS = 220;
     this_robot.BACK_LIFT_HOLD_POS = 2700;
-    this_robot.BACK_WOBBLE_AMP = 200;
-    this_robot.FRONT_LIFT_READY_POS = -3500;
+    this_robot.FRONT_WOBBLE_AMP = 600;
+    this_robot.FRONT_LIFT_READY_POS = -3300;
     this_robot.FRONT_LIFT_HOLD_POS = 0;
 
     // Step size for driver control slew (burn-out protection)

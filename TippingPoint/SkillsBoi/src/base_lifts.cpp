@@ -19,7 +19,7 @@ double front_lift_pos = 0;
 double front_lift_target = 0;
 
 bool tip_latch = false;
-bool wobble_back = false;
+bool wobble_front = false;
 
 void run_base_lifts(void* params) {
 
@@ -40,7 +40,7 @@ void run_base_lifts(void* params) {
 
         if (controller.get_digital(DIGITAL_A)) {
             if (!just_toggled_back_wobble) {
-                wobble_back = !wobble_back;
+                wobble_front = !wobble_front;
             }
             just_toggled_back_wobble = true;
         }
@@ -106,9 +106,6 @@ void run_base_lifts(void* params) {
                 break;
             case 2:  // Hold base state
                 back_lift_target = this_robot.BACK_LIFT_HOLD_POS;
-                if (wobble_back) {
-                    back_lift_target += this_robot.BACK_WOBBLE_AMP * (sin(millis() / 200.0) - 1);
-                }
                 if (next_state_back)
                     back_lift_state = 1;
                 break;
@@ -130,6 +127,9 @@ void run_base_lifts(void* params) {
                 break;
             case 2:  // Hold base state
                 front_lift_target = this_robot.FRONT_LIFT_HOLD_POS;
+                if (wobble_front) {
+                    front_lift_target += this_robot.FRONT_WOBBLE_AMP * (sin(millis() / 100.0) - 1);
+                }
                 if (next_state_front)
                     front_lift_state = 1;
                 break;
@@ -156,7 +156,7 @@ void run_base_lifts(void* params) {
             front_latch.set_value(0);
             tip_latch = false;
             back_tip.set_value(0);
-            wobble_back = false;
+            wobble_front = false;
         }
 
         back_lift_right.move_voltage((12000 * back_lift_speed) / 127);

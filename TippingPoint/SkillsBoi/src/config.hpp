@@ -132,7 +132,7 @@ struct RobotParams {
 
     double BACK_LIFT_READY_POS;
     double BACK_LIFT_HOLD_POS;
-    double BACK_WOBBLE_AMP;
+    double FRONT_WOBBLE_AMP;
 
     double FRONT_LIFT_READY_POS;
     double FRONT_LIFT_HOLD_POS;
