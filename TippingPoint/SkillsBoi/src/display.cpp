@@ -20,6 +20,7 @@ void run_display(void* params) {
 
         screen::print(TEXT_MEDIUM, 3, "Back Lift: %.2f %.2f", back_lift_pos, back_lift_target);
         screen::print(TEXT_MEDIUM, 4, "Front Lift: %.2f %.2f", front_lift_pos, front_lift_target);
+        screen::print(TEXT_MEDIUM, 4, "Front Lift: %.2f %.2f", front_lift_pos, front_lift_target);
     
         // screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
 

@@ -100,6 +100,9 @@ void run_base_lifts(void* params) {
                 break;
             case 1:  // Ready to grab state
                 back_lift_target = this_robot.BACK_LIFT_READY_POS;
+                if (controller.get_digital(DIGITAL_R2)) {
+                    back_lift_target -= this_robot.BACK_LIFT_HEIGHT_DROP;
+                }
                 
                 if (next_state_back)
                     back_lift_state = 2;
@@ -121,6 +124,9 @@ void run_base_lifts(void* params) {
                 break;
             case 1:  // Ready to grab state
                 front_lift_target = this_robot.FRONT_LIFT_READY_POS;
+                if (controller.get_digital(DIGITAL_L2)) {
+                    front_lift_target -= this_robot.FRONT_LIFT_HEIGHT_DROP;
+                }
                 
                 if (next_state_front)
                     front_lift_state = 2;

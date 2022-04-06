@@ -130,12 +130,23 @@ struct RobotParams {
     string name;
     double BASE_LIFT_YEET_POS;
 
+    double INTAKE_VOMIT_THRESHOLD;
+    double INTAKE_VOMIT_TIMEOUT;
+    double INTAKE_VOMIT_TIME;
+
+    double INTAKE_WOBBLE_IN;
+    double INTAKE_WOBBLE_OUT;
+    int INTAKE_WOBBLE_PERIOD_LEFT;
+    int INTAKE_WOBBLE_PERIOD_RIGHT;
+
     double BACK_LIFT_READY_POS;
     double BACK_LIFT_HOLD_POS;
     double FRONT_WOBBLE_AMP;
 
     double FRONT_LIFT_READY_POS;
     double FRONT_LIFT_HOLD_POS;
+    double BACK_LIFT_HEIGHT_DROP;
+    double FRONT_LIFT_HEIGHT_DROP;
 
     double BACK_LIFT_RATE;
     double FRONT_LIFT_RATE;

@@ -18,8 +18,8 @@ void calibrate_robot_params() {
 
 void init_positions() {
 
-    back_lift_right.move_voltage(-3000);
-    back_lift_left.move_voltage(-3000);
+    back_lift_right.move_voltage(-5000);
+    back_lift_left.move_voltage(-5000);
     front_lift_right.move_voltage(3000);
     front_lift_left.move_voltage(3000);
     

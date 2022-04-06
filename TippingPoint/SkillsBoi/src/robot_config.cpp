@@ -10,15 +10,27 @@ void init_robot() {
     this_robot.BACK_LIFT_RATE = 1.0;
     this_robot.FRONT_LIFT_RATE = 1.0;
 
+    this_robot.INTAKE_VOMIT_THRESHOLD = 150;
+    this_robot.INTAKE_VOMIT_TIMEOUT = 100;
+    this_robot.INTAKE_VOMIT_TIME = 300;
+
+
+    this_robot.INTAKE_WOBBLE_IN = -60;
+    this_robot.INTAKE_WOBBLE_OUT = 60;
+    this_robot.INTAKE_WOBBLE_PERIOD_RIGHT = 550;
+    this_robot.INTAKE_WOBBLE_PERIOD_LEFT = (double(this_robot.INTAKE_WOBBLE_PERIOD_RIGHT) / 2);
+
     this_robot.BACK_LIFT_READY_POS = 220;
+    this_robot.BACK_LIFT_HEIGHT_DROP = 100;
     this_robot.BACK_LIFT_HOLD_POS = 2700;
     this_robot.FRONT_WOBBLE_AMP = 600;
-    this_robot.FRONT_LIFT_READY_POS = -3300;
+    this_robot.FRONT_LIFT_READY_POS = -3100;
     this_robot.FRONT_LIFT_HOLD_POS = 0;
+    this_robot.FRONT_LIFT_HEIGHT_DROP = 200;
 
     // Step size for driver control slew (burn-out protection)
-    this_robot.SLEW_STEP_FORWARD = 15;
-    this_robot.SLEW_STEP_TURN = 15;
+    this_robot.SLEW_STEP_FORWARD = 5;
+    this_robot.SLEW_STEP_TURN = 5;
 
     // How many inches of travel does the robot move per tick of the encoder
     this_robot.INCHES_PER_TICK = 0.02836160034;
