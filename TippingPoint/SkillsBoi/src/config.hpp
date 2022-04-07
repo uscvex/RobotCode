@@ -80,6 +80,8 @@ extern Motor back_lift_left;
 extern Motor front_lift_right;
 extern Motor front_lift_left;
 
+extern Motor side_lift;
+
 extern Motor intake_right;
 extern Motor intake_left;
 extern Motor intake_funnel_right;
@@ -113,6 +115,9 @@ extern double back_lift_target;
 extern int front_lift_state;
 extern double front_lift_pos;
 extern double front_lift_target;
+
+extern double side_lift_pos;
+extern double side_lift_target;
 
 extern bool intake;
 extern bool intake_wobble;
@@ -151,8 +156,12 @@ struct RobotParams {
     double BACK_LIFT_HEIGHT_DROP;
     double FRONT_LIFT_HEIGHT_DROP;
 
+    double SIDE_LIFT_READY_POS;
+    double SIDE_LIFT_HOLD_POS;
+
     double BACK_LIFT_RATE;
     double FRONT_LIFT_RATE;
+    double SIDE_LIFT_RATE;
 
     double LIFT_RATE;
 

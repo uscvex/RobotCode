@@ -22,6 +22,7 @@ void init_positions() {
     back_lift_left.move_voltage(-5000);
     front_lift_right.move_voltage(3000);
     front_lift_left.move_voltage(3000);
+    side_lift.move_voltage(3000);
     
     delay(1000);
     while (controller.get_digital(DIGITAL_UP)) {
@@ -32,11 +33,13 @@ void init_positions() {
     back_lift_left.tare_position();
     front_lift_right.tare_position();
     front_lift_left.tare_position();
+    side_lift.tare_position();
 
     back_lift_right.move_voltage(0);
     back_lift_left.move_voltage(0);
     front_lift_right.move_voltage(0);
     front_lift_left.move_voltage(0);
+    side_lift.move_voltage(0);
 }
 
 /**
