@@ -51,6 +51,8 @@ void run_base_lifts(void* params) {
         if (controller.get_digital(DIGITAL_B)) {
             if (!just_toggled_tip) {
                 tip_latch = !tip_latch;
+                intake = tip_latch;
+                intake_wobble = tip_latch;
             }
             just_toggled_tip = true;
         }

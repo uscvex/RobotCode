@@ -114,6 +114,9 @@ extern int front_lift_state;
 extern double front_lift_pos;
 extern double front_lift_target;
 
+extern bool intake;
+extern bool intake_wobble;
+
 // Sensors
 extern ADIEncoder left_encoder;
 extern ADIEncoder middle_encoder;
