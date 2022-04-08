@@ -52,6 +52,8 @@ extern void run_intake(void* params);
 extern void run_display(void* params);
 extern void run_base_lifts(void* params);
 extern void run_yeet(void* params);
+extern void run_current_control(void* params);
+
 
 // Global functions - Position tracking
 extern void track_position();
@@ -71,9 +73,11 @@ extern Controller controller;
 extern Motor drive_right_1;
 extern Motor drive_right_2;
 extern Motor drive_right_3;
+extern Motor drive_right_4;
 extern Motor drive_left_1;
 extern Motor drive_left_2;
 extern Motor drive_left_3;
+extern Motor drive_left_4;
 
 extern Motor back_lift_right;
 extern Motor back_lift_left;
@@ -84,11 +88,15 @@ extern Motor side_lift;
 
 extern Motor intake_right;
 extern Motor intake_left;
-extern Motor intake_funnel_right;
-extern Motor intake_funnel_left;
+extern Motor intake_wobble_left;
+extern Motor intake_wobble_right;
 
 
 // Global variables
+extern bool limit_current;
+extern double average_temp;
+extern double average_current;
+
 extern double robot_theta;
 extern double robot_x;
 extern double robot_y;
@@ -155,6 +163,7 @@ struct RobotParams {
     double FRONT_LIFT_HOLD_POS;
     double BACK_LIFT_HEIGHT_DROP;
     double FRONT_LIFT_HEIGHT_DROP;
+    double FRONT_LIFT_PARK_POS;
 
     double SIDE_LIFT_READY_POS;
     double SIDE_LIFT_HOLD_POS;

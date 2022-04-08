@@ -7,10 +7,12 @@ using namespace pros;
 Motor drive_right_1(11, SPEED, 1);
 Motor drive_right_2(12, SPEED, 0);
 Motor drive_right_3(13, SPEED, 1);
+Motor drive_right_4(16, SPEED, 1);
 
 Motor drive_left_1(1, SPEED, 0);
 Motor drive_left_2(2, SPEED, 1);
 Motor drive_left_3(3, SPEED, 0);
+Motor drive_left_4(4, SPEED, 0);
 
 int drive_mode = DM_USER;
 
@@ -248,9 +250,11 @@ void run_drive(void* params) {
         drive_right_1.move_voltage(12000 * (forward_speed - turn_speed) / 127);
         drive_right_2.move_voltage(12000 * (forward_speed - turn_speed) / 127);
         drive_right_3.move_voltage(12000 * (forward_speed - turn_speed) / 127);
+        drive_right_4.move_voltage(12000 * (forward_speed - turn_speed) / 127);
         drive_left_1.move_voltage(12000 * (forward_speed + turn_speed) / 127);
         drive_left_2.move_voltage(12000 * (forward_speed + turn_speed) / 127);
         drive_left_3.move_voltage(12000 * (forward_speed + turn_speed) / 127);
+        drive_left_4.move_voltage(12000 * (forward_speed + turn_speed) / 127);
 
         delay(10);
     }

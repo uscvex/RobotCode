@@ -31,6 +31,13 @@ void run_display(void* params) {
         if (display_count % 3 == 1)
             controller.print(0, 0, "%s %s: %s           ", this_robot.name, robot_names[which_robot], auton_names[which_auton]);
 
+        string meme = "Normal:";
+        if (limit_current) {
+            meme = "Boost:";
+        }
+        if (display_count % 3 == 2)
+            controller.print(1, 0, "%s %.2f %.2f           ", meme, average_temp, average_current);
+
         delay(60);
     }
 }

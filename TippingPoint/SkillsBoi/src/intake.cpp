@@ -26,6 +26,8 @@ void run_intake(void* params) {
             if (!just_toggled_intake) {
                 intake = !intake;
                 intake_wobble = intake;
+                if (intake)
+                    limit_current = false;
             }
             just_toggled_intake = true;
         }
@@ -36,6 +38,8 @@ void run_intake(void* params) {
         if (controller.get_digital(DIGITAL_RIGHT)) {
             if (!just_toggled_intake_wobble) {
                 intake_wobble = !intake_wobble;
+                if (intake_wobble)
+                    limit_current = false;
             }
             just_toggled_intake_wobble = true;
         }
@@ -44,6 +48,7 @@ void run_intake(void* params) {
         }
 
         if (controller.get_digital(DIGITAL_DOWN)) {
+            limit_current = false;
             intake_speed = -127;
             intake = false;
         }
@@ -93,6 +98,7 @@ void run_intake(void* params) {
         if (controller.get_digital(DIGITAL_UP)) {
             intake = false;
             intake_wobble = false;
+            limit_current = false;
         }
 
         intake_wobble_left.move_voltage((12000 * intake_wobble_speed_left) / 127);

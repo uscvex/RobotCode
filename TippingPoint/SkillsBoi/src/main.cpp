@@ -17,6 +17,23 @@ void calibrate_robot_params() {
 }
 
 void init_positions() {
+    drive_right_1.set_current_limit(2500);        
+    drive_right_2.set_current_limit(2500);
+    drive_right_3.set_current_limit(2500);
+    drive_right_4.set_current_limit(2500);
+    drive_left_1.set_current_limit(2500);
+    drive_left_2.set_current_limit(2500);
+    drive_left_3.set_current_limit(2500);
+    drive_left_4.set_current_limit(2500);
+    back_lift_right.set_current_limit(2500);
+    back_lift_left.set_current_limit(2500);
+    front_lift_right.set_current_limit(2500);
+    front_lift_left.set_current_limit(2500);
+    side_lift.set_current_limit(2500);
+    intake_right.set_current_limit(2500);
+    intake_left.set_current_limit(2500);
+    intake_wobble_left.set_current_limit(2500);
+    intake_wobble_right.set_current_limit(2500);
 
     back_lift_right.move_voltage(-5000);
     back_lift_left.move_voltage(-5000);
@@ -59,6 +76,7 @@ void initialize() {
     pros::Task display_task(run_display, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Display Task");
     pros::Task base_lift_task(run_base_lifts, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Base Lift Task");
     pros::Task inatke_task(run_intake, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Intake Task");
+    pros::Task current_control_task(run_current_control, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Current Control Task");
     
     // pros::Task yeet_task(run_yeet, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Yeet Task");
 }
@@ -86,9 +104,23 @@ void opcontrol() {
     yeet_state = 0;             // Retract the piston from yeet
     drive_mode = DM_USER;       // Stop any unfinished drive move
 
-
+    bool just_toggled_limit = false;
     bool just_toggled_auton = false;
     while (true) {
+
+        if (controller.get_digital(DIGITAL_X)) {
+            if (!just_toggled_limit) {
+                limit_current = !limit_current;
+            }
+            just_toggled_limit = true;
+        }
+        else {
+            just_toggled_limit = false;
+        }
+
+        if (controller.get_digital(DIGITAL_UP)) {
+            limit_current = false;
+        }
 
         // Toggle between robots and autons
         if (controller.get_digital(DIGITAL_UP) && controller.get_digital(DIGITAL_X)) {
@@ -106,6 +138,6 @@ void opcontrol() {
             just_toggled_auton = false;
         }
 
-        delay(50);
+        delay(20);
     }
 }

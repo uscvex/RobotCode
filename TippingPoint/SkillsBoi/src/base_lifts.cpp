@@ -48,16 +48,11 @@ void run_base_lifts(void* params) {
         side_lift_pos = side_lift.get_position();
 
         if (controller.get_digital(DIGITAL_A)) {
-            if (!just_toggled_back_wobble) {
-                wobble_front = !wobble_front;
-            }
-            just_toggled_back_wobble = true;
-        }
-        else {
-            just_toggled_back_wobble = false;
+            front_lift_state = 5;
         }
 
         if (controller.get_digital(DIGITAL_Y)) {
+            limit_current = false;
             if (!just_toggled_side) {
                 if (side_lift_target != this_robot.SIDE_LIFT_HOLD_POS) {
                     side_lift_target = this_robot.SIDE_LIFT_HOLD_POS;
@@ -86,6 +81,7 @@ void run_base_lifts(void* params) {
         back_tip.set_value(tip_latch);
 
         if (controller.get_digital(DIGITAL_R1)) {
+            limit_current = false;
             if (!just_toggled_back) {
                 next_state_back = true;
             }
@@ -103,6 +99,7 @@ void run_base_lifts(void* params) {
         }
 
         if (controller.get_digital(DIGITAL_L1)) {
+            limit_current = false;
             if (!just_toggled_front) {
                 next_state_front = true;
             }
@@ -166,6 +163,12 @@ void run_base_lifts(void* params) {
                     front_lift_state = 1;
                 break;
 
+            case 5:  // Park state
+                front_lift_target = this_robot.FRONT_LIFT_PARK_POS;
+                if (next_state_front)
+                    front_lift_state = 2;
+                break;
+
             default:
                 front_lift_state = -1;
         }
@@ -183,6 +186,7 @@ void run_base_lifts(void* params) {
 
         // Abort button
         if (controller.get_digital(DIGITAL_UP)) {
+            limit_current = false;
             back_lift_target = -1;
             front_lift_target = -1;
             back_lift_state = -1;
