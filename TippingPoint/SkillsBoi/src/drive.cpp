@@ -10,7 +10,7 @@ Motor drive_right_3(13, SPEED, 1);
 Motor drive_right_4(16, SPEED, 1);
 
 Motor drive_left_1(1, SPEED, 0);
-Motor drive_left_2(2, SPEED, 1);
+Motor drive_left_2(5, SPEED, 1);
 Motor drive_left_3(3, SPEED, 0);
 Motor drive_left_4(4, SPEED, 0);
 

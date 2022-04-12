@@ -11,15 +11,15 @@ void run_current_control(void* params) {
         counter++;
 
         if (counter % 10 == 0) {
-            cout << "\n\nML1: " << drive_left_1.get_current_draw() << "    " << drive_left_1.get_temperature() << endl;
-            cout << "ML2: " << drive_left_2.get_current_draw() << "    " << drive_left_2.get_temperature() << endl;
-            cout << "ML3: " << drive_left_3.get_current_draw() << "    " << drive_left_3.get_temperature() << endl;
-            cout << "ML4: " << drive_left_4.get_current_draw() << "    " << drive_left_4.get_temperature() << endl;
+            // cout << "\n\nML1: " << drive_left_1.get_current_draw() << "    " << drive_left_1.get_temperature() << endl;
+            // cout << "ML2: " << drive_left_2.get_current_draw() << "    " << drive_left_2.get_temperature() << endl;
+            // cout << "ML3: " << drive_left_3.get_current_draw() << "    " << drive_left_3.get_temperature() << endl;
+            // cout << "ML4: " << drive_left_4.get_current_draw() << "    " << drive_left_4.get_temperature() << endl;
 
-            cout << "\nMR1: " << drive_right_1.get_current_draw() << "    " << drive_right_1.get_temperature() << endl;
-            cout << "MR2: " << drive_right_2.get_current_draw() << "    " << drive_right_2.get_temperature() << endl;
-            cout << "MR3: " << drive_right_3.get_current_draw() << "    " << drive_right_3.get_temperature() << endl;
-            cout << "MR4: " << drive_right_4.get_current_draw() << "    " << drive_right_4.get_temperature() << endl;
+            // cout << "\nMR1: " << drive_right_1.get_current_draw() << "    " << drive_right_1.get_temperature() << endl;
+            // cout << "MR2: " << drive_right_2.get_current_draw() << "    " << drive_right_2.get_temperature() << endl;
+            // cout << "MR3: " << drive_right_3.get_current_draw() << "    " << drive_right_3.get_temperature() << endl;
+            // cout << "MR4: " << drive_right_4.get_current_draw() << "    " << drive_right_4.get_temperature() << endl;
             
             average_current = (drive_left_1.get_current_draw() +
                                      drive_left_2.get_current_draw() + 
@@ -28,7 +28,7 @@ void run_current_control(void* params) {
                                      drive_right_1.get_current_draw() + 
                                      drive_right_2.get_current_draw() + 
                                      drive_right_3.get_current_draw() + 
-                                     drive_right_4.get_current_draw()) / 8.0; 
+                                     drive_right_4.get_current_draw()); 
 
             average_temp = (drive_left_1.get_temperature() +
                                      drive_left_2.get_temperature() + 
@@ -38,7 +38,7 @@ void run_current_control(void* params) {
                                      drive_right_2.get_temperature() + 
                                      drive_right_3.get_temperature() + 
                                      drive_right_4.get_temperature()) / 8.0; 
-            cout << "\nAvg: " << average_current <<  "    " << average_temp << endl;
+            // cout << "\nAvg: " << average_current <<  "    " << average_temp << endl;
 
         }
 

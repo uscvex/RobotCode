@@ -3,10 +3,13 @@
 Motor intake_left(14, SPEED, 1);
 Motor intake_right(15, SPEED, 0);
 Motor intake_wobble_left(8, SPEED, 1);
-Motor intake_wobble_right(18, SPEED, 0);
+Motor intake_wobble_right(17, SPEED, 0);
+
+ADIDigitalOut back_tip(2, false);
 
 bool intake = false;
 bool intake_wobble = false;
+bool tip_latch = false;
 
 void run_intake(void* params) {
 
@@ -15,12 +18,43 @@ void run_intake(void* params) {
     double last_wobble_time = millis();
     double intake_stuck_start = millis();
     double intake_backwards_until = 0;
+    bool just_toggled_tip = false;
+    double intake_start_time = -1;
     
     while (true) {
         double intake_speed = 0;
         double intake_wobble_speed_left = 0;
         double intake_wobble_speed_right = 0;
         double intake_current_speed = (intake_left.get_actual_velocity() + intake_right.get_actual_velocity()) / 2.0;
+
+        if (controller.get_digital(DIGITAL_B)) {
+            if (!just_toggled_tip) {
+                tip_latch = !tip_latch;
+                if (tip_latch) {
+                    intake_start_time = millis() + 1500;
+                }
+                else {
+                    intake = false;;
+                    intake_wobble = false;
+                    intake_start_time = -1;
+                }
+            }
+            just_toggled_tip = true;
+        }
+        else {
+            just_toggled_tip = false;
+        }
+        back_tip.set_value(tip_latch);
+
+        if (intake_start_time != -1) {
+            if (millis() > intake_start_time) {
+                if (tip_latch) {
+                    intake = true;
+                    intake_wobble = true;
+                }
+                intake_start_time = -1;
+            }
+        }
 
         if (controller.get_digital(DIGITAL_LEFT)) {
             if (!just_toggled_intake) {
@@ -99,6 +133,7 @@ void run_intake(void* params) {
             intake = false;
             intake_wobble = false;
             limit_current = false;
+            intake_start_time = -1;
         }
 
         intake_wobble_left.move_voltage((12000 * intake_wobble_speed_left) / 127);

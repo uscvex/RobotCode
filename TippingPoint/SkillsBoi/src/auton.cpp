@@ -6,26 +6,15 @@
 #define TURN 1              // TURN, <FACEDIR>, <TIMEOUT>
 #define DRIVE 2             // DRIVE, <SPEED>, <DRIVEDIR>, <TIMEOUT>
 #define DRIVEDIST 3         // DRIVEDIST, <SPEED>, <DRIVEDIR>, <DISTANCE> <TIMEOUT>
-#define LIFTPOS 4           // LIFTPOS, <POSITION>
-#define WRISTPOS 5          // WRISTPOS, <POSITION>
-#define ARMPOS 6            // ARMPOS <POSITION>
 #define END 7               // END
 #define PAUSE 8             // PAUSE, <TIMEOUT>
 #define WAIT 9              // WAIT, <CONDITION>, <PARAMETER>, <TIMEOUT>
-#define DROP 13             // DROP, <TIME>,
 #define DEPLOY 14           // DEPLOY
 #define DRIVETO 15          // DRIVETO, <SPEED>, <X>, <Y>, <TIMOUT>
 #define SETPOS 16           // SETPOS, <X>, <Y>
 
-#define BELLYPOS 17         // BELLYPOS <STATE>
-#define BASEPOS 18          // BASEPOS <STATE>
-
-#define READYSPIKE 19       // READYSPIKE
 #define YEET 20             // YEET, DISTANCE, <TIMEOUT>
 #define RETRACTYEET 21      // RETRACTYEET
-
-#define COLLECTRING 22      // COLLECTRING, <TIMEOUT>
-#define DEPOSITPOS 23       // DEPOSITPOS, <LOCATION>
 
 #define SETDIR 24           // SETDIR, <DIRECTION>
 #define FACE 25             // TURNTO, <X>, <Y>, <TIMEOUT>
@@ -34,19 +23,18 @@
 
 #define SPIKEBACKWARDSCORE 27    // SPIKE_BACKWARDS_SCORE
 
-// Depost Locations
-#define FORWARD 1
-#define LOWER 2
-#define UPPER 3
+#define INTAKE 28           // INTAKE, <true/false>
+#define WOBBLE 29           // WOBBLE, <true/false>
+#define FRONTARM 30         // FRONTARM, <pos>
+#define BACKARM 31          // FRONTARM, <pos>
+#define TIPBASE 32          // TIPBASE, <true/false>
+#define FRONTDROP 33        // FRONTDROP,  <true/false>
+#define BACKDROP 34         // BACKDROP, <true/false>
+#define SIDEARM 35          // SIDEARM, <pos>
 
-#define BASEREADY 1
-#define BASEHOLD 2
-#define BASEDROP 3
-#define BASELOWLOW 119
 
-#define BELLYCOAST 1
-#define BELLYDOWN 2
-#define BELLYUP 3
+#define ON true
+#define OFF false
 
 // Wait conditions
 #define LIFTBELOW 1
@@ -61,6 +49,41 @@ double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skil
 
 double test_auton[] = {
     0, 0, 0,
+
+    INTAKE, ON, 
+    PAUSE, 1, 
+    WOBBLE, ON, 
+    PAUSE, 1, 
+    INTAKE, OFF, 
+    WOBBLE, OFF, 
+
+    PAUSE, 2, 
+    FRONTARM, HOLD, 
+    BACKARM, HOLD, 
+    PAUSE, 1, 
+    FRONTDROP, ON, 
+    PAUSE, 1, 
+    BACKDROP, ON, 
+    PAUSE, 1,
+    FRONTDROP, OFF,
+    BACKDROP, OFF,  
+    PAUSE,1,
+    FRONTARM, READY, 
+    BACKARM, READY, 
+
+    PAUSE, 2, 
+    TIPBASE, ON,
+    PAUSE, 1, 
+    TIPBASE, OFF,
+    PAUSE, 1,
+
+    SIDEARM, READY, 
+    PAUSE, 1,
+    SIDEARM, HOLD, 
+    PAUSE, 1,
+
+    
+
 
     END,
 };
@@ -140,6 +163,7 @@ void autonomous() {
             double x_pos;
             double y_pos;
             double dir;
+            double pos;
 
             switch ((int) process_entry()) {
 
@@ -265,6 +289,67 @@ void autonomous() {
                     yeet_state = 10;
                     next_command = true;
                     break;
+
+                case INTAKE:
+                    // Turns intake on or off
+                    cout << "INTAKE" << endl;
+                    intake = process_entry();
+                    next_command = true;
+                    break;
+
+                case WOBBLE:
+                    // Turns wobble on or off
+                    cout << "WOBBLE" << endl;
+                    intake_wobble = process_entry();
+                    next_command = true;
+                    break;
+
+                case FRONTARM:
+                    // Move front arm to a positon
+                    cout << "FRONTARM" << endl;
+                    front_lift_state = process_entry();
+                    next_command = true;
+                    break;
+
+                case BACKARM:
+                    // Move back arm to a positon
+                    cout << "BACKARM" << endl;
+                    back_lift_state = process_entry();
+                    next_command = true;
+                    break;
+
+                case TIPBASE:
+                    // Turns back tip latch on or off
+                    cout << "TIPBASE" << endl;
+                    tip_latch = process_entry();
+                    next_command = true;
+                    break;
+
+                case FRONTDROP:
+                    // Turns front base latch on or off
+                    cout << "FRONTDROP" << endl;
+                    front_latch_on = process_entry();
+                    next_command = true;
+                    break;
+
+                case BACKDROP:
+                    // Turns back base latch on or off
+                    cout << "BACKDROP" << endl;
+                    back_latch_on = process_entry();
+                    next_command = true;
+                    break;
+
+                case SIDEARM:
+                    // Move side arm to a positon
+                    cout << "SIDEARM" << endl;
+                    pos = process_entry();
+                    if (pos == HOLD)
+                        side_lift_target = this_robot.SIDE_LIFT_HOLD_POS;
+                    else
+                        side_lift_target = this_robot.SIDE_LIFT_READY_POS;
+                    next_command = true;
+                    break;
+
 
                 default:
                     // Command not recognised

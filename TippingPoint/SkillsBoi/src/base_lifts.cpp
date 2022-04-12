@@ -6,11 +6,10 @@ Motor back_lift_left(10, SPEED, 0);
 Motor front_lift_right(19, SPEED, 1);
 Motor front_lift_left(20, SPEED, 0);
 
-Motor side_lift(17, SPEED, 0);
+Motor side_lift(18, SPEED, 0);
 
 ADIDigitalOut front_latch(4, false);
 ADIDigitalOut back_latch(3, false);
-ADIDigitalOut back_tip(2, false);
 
 int back_lift_state = -1;
 double back_lift_pos = 0;
@@ -23,16 +22,20 @@ double front_lift_target = -1;
 double side_lift_pos = 0;
 double side_lift_target = -1;
 
-bool tip_latch = false;
 bool wobble_front = false;
+
+bool front_latch_on = false;
+bool back_latch_on = false;
 
 void run_base_lifts(void* params) {
 
     bool just_toggled_back = false;
     bool just_toggled_front = false;
-    bool just_toggled_tip = false;
     bool just_toggled_back_wobble = false;
     bool just_toggled_side = false;
+
+    bool just_toggled_latch_front = false;
+    bool just_toggled_latch_back = false;
     
     while (true) {
         bool next_state_back = false;
@@ -67,19 +70,6 @@ void run_base_lifts(void* params) {
             just_toggled_side = false;
         }
 
-        if (controller.get_digital(DIGITAL_B)) {
-            if (!just_toggled_tip) {
-                tip_latch = !tip_latch;
-                intake = tip_latch;
-                intake_wobble = tip_latch;
-            }
-            just_toggled_tip = true;
-        }
-        else {
-            just_toggled_tip = false;
-        }
-        back_tip.set_value(tip_latch);
-
         if (controller.get_digital(DIGITAL_R1)) {
             limit_current = false;
             if (!just_toggled_back) {
@@ -92,10 +82,14 @@ void run_base_lifts(void* params) {
         }
 
         if (controller.get_digital(DIGITAL_R2)) {
-            back_latch.set_value(1);
+            back_latch_on = true;
+            just_toggled_latch_back = true;
         }
         else {
-            back_latch.set_value(0);
+            if (just_toggled_latch_back) {
+                just_toggled_latch_back = false;
+                back_latch_on = false;
+            }
         }
 
         if (controller.get_digital(DIGITAL_L1)) {
@@ -110,10 +104,14 @@ void run_base_lifts(void* params) {
         }
 
         if (controller.get_digital(DIGITAL_L2)) {
-            front_latch.set_value(1);
+            front_latch_on = true;
+            just_toggled_latch_front = true;
         }
         else {
-            front_latch.set_value(0);
+            if (just_toggled_latch_front) {
+                just_toggled_latch_front = false;
+                front_latch_on = false;
+            }
         }
 
         switch (back_lift_state) {
@@ -121,16 +119,16 @@ void run_base_lifts(void* params) {
                 if (next_state_back)
                     back_lift_state = 1;
                 break;
-            case 1:  // Ready to grab state
+            case READY:  // Ready to grab state
                 back_lift_target = this_robot.BACK_LIFT_READY_POS;
-                if (controller.get_digital(DIGITAL_R2)) {
+                if (back_latch_on) {
                     back_lift_target -= this_robot.BACK_LIFT_HEIGHT_DROP;
                 }
                 
                 if (next_state_back)
                     back_lift_state = 2;
                 break;
-            case 2:  // Hold base state
+            case HOLD:  // Hold base state
                 back_lift_target = this_robot.BACK_LIFT_HOLD_POS;
                 if (next_state_back)
                     back_lift_state = 1;
@@ -145,25 +143,28 @@ void run_base_lifts(void* params) {
                 if (next_state_front)
                     front_lift_state = 1;
                 break;
-            case 1:  // Ready to grab state
+            case READY:  // Ready to grab state
                 front_lift_target = this_robot.FRONT_LIFT_READY_POS;
-                if (controller.get_digital(DIGITAL_L2)) {
+                if (front_latch_on) {
                     front_lift_target -= this_robot.FRONT_LIFT_HEIGHT_DROP;
                 }
                 
                 if (next_state_front)
                     front_lift_state = 2;
                 break;
-            case 2:  // Hold base state
+            case HOLD:  // Hold base state
                 front_lift_target = this_robot.FRONT_LIFT_HOLD_POS;
-                if (wobble_front) {
+                if (front_latch_on) {
+                    front_lift_target -= this_robot.FRONT_LIFT_HEIGHT_DROP_HIGH;
+                }
+                else if (wobble_front) {
                     front_lift_target += this_robot.FRONT_WOBBLE_AMP * (sin(millis() / 100.0) - 1);
                 }
                 if (next_state_front)
                     front_lift_state = 1;
                 break;
 
-            case 5:  // Park state
+            case PARK:  // Park state
                 front_lift_target = this_robot.FRONT_LIFT_PARK_POS;
                 if (next_state_front)
                     front_lift_state = 2;
@@ -184,6 +185,9 @@ void run_base_lifts(void* params) {
             side_lift_speed = (side_lift_target - side_lift_pos) * this_robot.SIDE_LIFT_RATE;
         }
 
+        back_latch.set_value(back_latch_on);
+        front_latch.set_value(front_latch_on);
+
         // Abort button
         if (controller.get_digital(DIGITAL_UP)) {
             limit_current = false;
@@ -193,10 +197,10 @@ void run_base_lifts(void* params) {
             front_lift_state = -1;
             back_latch.set_value(0);
             front_latch.set_value(0);
-            tip_latch = false;
-            back_tip.set_value(0);
             wobble_front = false;
             side_lift_target = -1;
+            front_latch_on = false;
+            back_latch_on = false;
         }
 
         side_lift.move_voltage((12000 * side_lift_speed) / 127);

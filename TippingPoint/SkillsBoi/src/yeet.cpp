@@ -1,7 +1,7 @@
 #include "main.h"
 
 
-ADIDigitalOut yeet_release(5, false);
+ADIDigitalOut yeet_release(8, false);
 ADIDigitalOut yeet_retract(1, false);
 
 int yeet_state = 0;
@@ -37,26 +37,18 @@ void run_yeet(void* params) {
                 // No break, just go to next state now
             case 2:
                 cout << (millis() - yeet_start_time) << "\t" << pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) << endl;
-                yeet_release.set_value(0);
-                yeet_retract.set_value(0);
-                if ((millis() - yeet_start_time) > (125)) {
-                    yeet_state = 3;
-                }
-                break;
-            case 3:
-                cout << (millis() - yeet_start_time) << "\t" << pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) << endl;
                 yeet_release.set_value(1);
                 yeet_retract.set_value(0);
                 if (yeet_distance <= pythag(robot_x, robot_y, yeet_start_x, yeet_start_y)) {
-                    yeet_state = 4;
+                    yeet_state = 3;
                 }
-                else if ((millis() - yeet_start_time) > 1500) {
-                    yeet_state = 4;
+                else if ((millis() - yeet_start_time) > 800) {
+                    yeet_state = 3;
                 }
                 else {
                     break;
                 }
-            case 4:
+            case 3:
                 yeet_release.set_value(1);
                 yeet_retract.set_value(1);
                 break;

@@ -30,6 +30,10 @@ using namespace std;
 #define SPEED E_MOTOR_GEARSET_18
 #define TORQUE E_MOTOR_GEARSET_36
 
+#define READY 1
+#define HOLD 2
+#define PARK 5
+
 extern double* auton_ptr[];
 extern double mid_auton[];
 extern double left_auton[];
@@ -129,6 +133,9 @@ extern double side_lift_target;
 
 extern bool intake;
 extern bool intake_wobble;
+extern bool tip_latch;
+extern bool front_latch_on;
+extern bool back_latch_on;
 
 // Sensors
 extern ADIEncoder left_encoder;
@@ -163,6 +170,7 @@ struct RobotParams {
     double FRONT_LIFT_HOLD_POS;
     double BACK_LIFT_HEIGHT_DROP;
     double FRONT_LIFT_HEIGHT_DROP;
+    double FRONT_LIFT_HEIGHT_DROP_HIGH;
     double FRONT_LIFT_PARK_POS;
 
     double SIDE_LIFT_READY_POS;

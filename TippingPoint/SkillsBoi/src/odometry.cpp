@@ -3,9 +3,9 @@
 using namespace pros;
 
 // Define encoder ports and direction
-ADIEncoder left_encoder(10, 11, false);
-ADIEncoder middle_encoder(12, 13, false);
-ADIEncoder right_encoder(14, 15, false);
+ADIEncoder left_encoder ({7, 5, 6}, false);
+ADIEncoder middle_encoder({7, 1, 2}, false);
+ADIEncoder right_encoder({7, 3, 4}, true);
 
 // Global variables to track the position of the robot
 double robot_theta = 0;
@@ -73,7 +73,7 @@ void track_position() {
     //angle_change /= 2;
     
     // Take out the rotational component from strafe wheel
-    // middle_change -= angle_change / 2;
+    middle_change -= angle_change / 1.5;
     
     // Convert ticks to inches
     angle_change *= this_robot.INCHES_PER_TICK;
@@ -106,8 +106,8 @@ void track_position() {
     double change_y = -strafe_change * sin(robot_theta_rad) - forward_change * cos(robot_theta_rad);
     
     // Calculate new global position
-    robot_x += change_x;
-    robot_y += change_y;
+    robot_x -= change_x;
+    robot_y -= change_y;
 
     if (controller.get_digital(DIGITAL_UP)) {
         set_position(0, 0, 0);
