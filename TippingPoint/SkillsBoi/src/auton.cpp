@@ -48,44 +48,103 @@ string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
 
 double test_auton[] = {
-    0, 0, 0,
+    -61.9, -42.5, 235,
 
-    INTAKE, ON, 
-    PAUSE, 1, 
-    WOBBLE, ON, 
-    PAUSE, 1, 
-    INTAKE, OFF, 
-    WOBBLE, OFF, 
+    FRONTARM, HOLD,                     // HOLD FRONT ARM UP
+    YEET, 48, 2,                        // YEET
+    DRIVE, 127, 235, 0.25,              // BRAKE
+    BACKARM, HOLD,                      // LIFT GOAL   
 
-    PAUSE, 2, 
-    FRONTARM, HOLD, 
-    BACKARM, HOLD, 
-    PAUSE, 1, 
-    FRONTDROP, ON, 
-    PAUSE, 1, 
-    BACKDROP, ON, 
-    PAUSE, 1,
-    FRONTDROP, OFF,
-    BACKDROP, OFF,  
-    PAUSE,1,
-    FRONTARM, READY, 
-    BACKARM, READY, 
+    TURN, 0, 1,                         // SPIN GOAL OUT OF THE WAY
+    TURN, 90, 0.5,                      // TURN TO START SPIN IN CORRECT DIRECTION
+    CHILLYEET,                          // TURN YEET OFF
+    FACE, 0, -36, 1.5,                    // TURN TO FACE GOAL
+    FRONTARM, READY,                    // MOVE ARM DOWN
+    DRIVEDIST, 127, 180, 5, 2,          // DRIVE INTO GOAL TO COLLECT IT
+    FACE, 0, -36, 1,                    // TURN TO FACE GOAL
+    PAUSE, 0.5,
+    DRIVETO, 127, 0, -36, 2,            // DRIVE TO GOAL
+    DRIVEDIST, 127, 180, 30, 2,         // DRIVE INTO GOAL TO COLLECT IT
+    FRONTARM, HOLD,                     // LIFT GOAL
 
-    PAUSE, 2, 
-    TIPBASE, ON,
-    PAUSE, 1, 
-    TIPBASE, OFF,
-    PAUSE, 1,
+    TIPBASE, OFF,                       // OPEN BACK GRAB
+    DRIVETO, -127, 0, -24, 2,           // DRIVE AWAY FROM GOAL
+    TURN, 270, 1,                       // TURN TO FACE WALL
+    DRIVETO, 127, -60, -48, 4,           // DRIVE NEAR WALL
+    DRIVEDIST, 127, 270, 20, 1,         // DRIVE INTO WALL
 
-    SIDEARM, READY, 
-    PAUSE, 1,
-    SIDEARM, HOLD, 
-    PAUSE, 1,
+    DRIVEDIST, -80, 270, 15, 2,         // DRIVE AWAY FROM WALL
+
+    TURN, 0, 1,                         // TURN READY FOR GOAL
+    DRIVEDIST, -60, 0, 30, 2,           // DRIVE INTO GOAL
+    PAUSE, 0.25,
+    DRIVE, -50, 0, 0.25,                 // DRIVE INTO GOAL
+    TIPBASE, ON,                        // GRAB GOAL
+    DRIVE, -50, 0, 0.5,                 // DRIVE INTO GOAL
+    // PAUSE, 1,
+
+    DRIVE, 127, 0, 0.25,                // DRIVE AWAY FROM WALL
+    DRIVE, -127, 0, 0.5,                // DRIVE INTO WALL
+    DRIVEDIST, 127, 0, 10, 2,           // DRIVE AWAY FROM WALL
+
+    INTAKE, ON,                         // TURN INTAKE ON
+    WOBBLE, ON,
+    DRIVETO, 127, -24, -24, 4,           // DRIVE READY FOR RINGS
+
+    DRIVETO, 50, -30, 40, 20,           // DRIVE TO INTAKE RINGS
+    TURN, 180, 2,
+    DRIVETO, 60, -24, -24, 20,           // DRIVE BACKWARDS
+
+    TURN, 45, 2, 
+    DRIVEDIST, -127, 45, 48, 4,           // DRIVE INTO CORNER
+    TIPBASE, OFF,                          // DROP GOAL IN CORNER
+    INTAKE, OFF,                         // TURN INTAKE OFF
+    WOBBLE, OFF,
+    PAUSE, 1, 
+
+    DRIVETO, 127, -40, -48, 3,           // DRIVE OUT OF CORNER
+    TURN, 180, 1, 
+    BACKARM, HOLD,
+    DRIVETO, -100, -36, 0, 5, 
+
+    END,
+
+    // INTAKE, ON, 
+    // PAUSE, 1, 
+    // WOBBLE, ON, 
+    // PAUSE, 1, 
+    // INTAKE, OFF, 
+    // WOBBLE, OFF, 
+
+    // PAUSE, 2, 
+    // FRONTARM, HOLD, 
+    // BACKARM, HOLD, 
+    // PAUSE, 1, 
+    // FRONTDROP, ON, 
+    // PAUSE, 1, 
+    // BACKDROP, ON, 
+    // PAUSE, 1,
+    // FRONTDROP, OFF,
+    // BACKDROP, OFF,  
+    // PAUSE,1,
+    // FRONTARM, READY, 
+    // BACKARM, READY, 
+
+    // PAUSE, 2, 
+    // TIPBASE, ON,
+    // PAUSE, 1, 
+    // TIPBASE, OFF,
+    // PAUSE, 1,
+
+    // SIDEARM, READY, 
+    // PAUSE, 1,
+    // SIDEARM, HOLD, 
+    // PAUSE, 1,
 
     
 
 
-    END,
+    // END,
 };
 
 
@@ -410,7 +469,7 @@ void autonomous() {
         }
 
         if (yeeting) {
-            if (yeet_state == 4) {
+            if (yeet_state == 10) {
                 next_command = true;
                 yeeting = false;
                 cout << "Yeet done\n";
@@ -446,7 +505,8 @@ void autonomous() {
             next_command = true;
         }
 
-        delay(10);
+        if (!next_command)
+            delay(10);
     }
 
 }

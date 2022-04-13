@@ -36,21 +36,27 @@ void run_yeet(void* params) {
                 yeet_state = 2;
                 // No break, just go to next state now
             case 2:
+                back_lift_state = -1;
+                back_lift_target = -2000;
+                tip_latch = true;
                 cout << (millis() - yeet_start_time) << "\t" << pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) << endl;
                 yeet_release.set_value(1);
                 yeet_retract.set_value(0);
                 if (yeet_distance <= pythag(robot_x, robot_y, yeet_start_x, yeet_start_y)) {
                     yeet_state = 3;
                 }
-                else if ((millis() - yeet_start_time) > 800) {
+                else if ((millis() - yeet_start_time) > 2000) {
                     yeet_state = 3;
                 }
                 else {
                     break;
                 }
             case 3:
+                back_lift_state = READY;
+                tip_latch = false;
                 yeet_release.set_value(1);
                 yeet_retract.set_value(1);
+                yeet_state = 10;
                 break;
 
             case 10:    // DEPLOY

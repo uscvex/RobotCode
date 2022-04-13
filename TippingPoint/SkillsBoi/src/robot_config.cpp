@@ -23,9 +23,9 @@ void init_robot() {
 
     this_robot.BACK_LIFT_READY_POS = 220;
     this_robot.BACK_LIFT_HEIGHT_DROP = 100;
-    this_robot.BACK_LIFT_HOLD_POS = 2700;
+    this_robot.BACK_LIFT_HOLD_POS = 3000;
     this_robot.FRONT_WOBBLE_AMP = 600;
-    this_robot.FRONT_LIFT_READY_POS = -3300;
+    this_robot.FRONT_LIFT_READY_POS = -3450;
     this_robot.FRONT_LIFT_HOLD_POS = 0;
     this_robot.FRONT_LIFT_HEIGHT_DROP = 150;
     this_robot.FRONT_LIFT_HEIGHT_DROP_HIGH = 1200;
