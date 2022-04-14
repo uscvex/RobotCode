@@ -28,7 +28,7 @@ void run_current_control(void* params) {
                                      drive_right_1.get_current_draw() + 
                                      drive_right_2.get_current_draw() + 
                                      drive_right_3.get_current_draw() + 
-                                     drive_right_4.get_current_draw()); 
+                                     drive_right_4.get_current_draw()) / 1000.0; 
 
             average_temp = (drive_left_1.get_temperature() +
                                      drive_left_2.get_temperature() + 

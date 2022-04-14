@@ -51,11 +51,11 @@ void init_robot() {
     
     // Auton drive tuning
     this_robot.DRIVE_TURN_RATE = 3.0;
-    this_robot.DRIVE_DRIVE_TURN_RATE = 8.0;
+    this_robot.DRIVE_DRIVE_TURN_RATE = 6.0;
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
     this_robot.MAX_TURN_SPEED = 127.0;
-    this_robot.MIN_TURN_SPEED = 30.0;
+    this_robot.MIN_TURN_SPEED = 20.0;
     this_robot.TURN_PULSE_ON = 1;
     this_robot.TURN_PULSE_OFF = 10;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
