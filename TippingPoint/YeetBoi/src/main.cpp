@@ -59,13 +59,13 @@ void init_positions() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    void* params;
+
     calibrate_robot_params();
     yeet_release.set_value(0);
     yeet_retract.set_value(0);
     init_tracking();
     init_positions();
-    init_optical(params);
+    init_optical();
     delay(200);
     pros::Task drive_task(run_drive, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Drive Task");
     pros::Task display_task(run_display, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Display Task");
@@ -73,7 +73,7 @@ void initialize() {
     pros::Task base_grab_task(run_base_lift, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Base Grab Task");
     pros::Task lift_task(run_lift, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Lift Task");
     pros::Task yeet_task(run_yeet, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Yeet Task");
-    pros::Task optical_task(set_optical, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Optical Sensor Task");
+    pros::Task optical_task(run_optical, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Optical Sensor Task");
 }
 
 /**

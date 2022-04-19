@@ -31,7 +31,7 @@ using namespace std;
 #define TORQUE E_MOTOR_GEARSET_36
 
 //optical states
-#define DO_NOTHING  1
+#define DO_NOTHING  -1
 #define LOOK_FOR_STICKER 2
 #define LOOK_FOR_YELLOW 3
 #define FUCK_GO_BACK 4
@@ -62,8 +62,10 @@ extern void run_belly_grab(void* params);
 extern void run_base_lift(void* params);
 extern void run_lift(void* params);
 extern void run_yeet(void* params);
-extern void init_optical(void* params);
-extern void set_optical(void* params);
+
+//Optical sensor functions
+extern void init_optical();
+extern void run_optical(void* params);
 
 // Global functions - Position tracking
 extern void track_position();
@@ -156,10 +158,8 @@ extern int32_t proximity;
 extern double saturation;
 extern pros::c::optical_rgb_s_t RGB_values;
 
-extern int base_lift_state;
-extern bool finished_autoscore;
 extern int optical_state;
-
+extern bool has_base;
 
 extern bool is_black;
 extern bool is_yellow;
