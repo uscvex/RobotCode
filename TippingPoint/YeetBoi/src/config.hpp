@@ -31,7 +31,7 @@ using namespace std;
 #define TORQUE E_MOTOR_GEARSET_36
 
 //optical states
-#define DO_NOTHING  1
+#define DO_NOTHING  -1
 #define LOOK_FOR_STICKER 2
 #define LOOK_FOR_YELLOW 3
 #define FUCK_GO_BACK 4
