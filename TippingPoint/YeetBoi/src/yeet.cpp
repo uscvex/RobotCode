@@ -5,6 +5,7 @@ ADIDigitalOut yeet_release(1, false);
 ADIDigitalOut yeet_retract(2, false);
 
 int yeet_state = 0;
+double yeet_distance = 45;
 
 void run_yeet(void* params) {
 
@@ -13,7 +14,7 @@ void run_yeet(void* params) {
     double yeet_start_time = 0;
     double yeet_start_x = 0;
     double yeet_start_y = 0;
-    double yeet_distance = 45;
+    
     double yeet_last_time = millis();
 
     while (true) {
@@ -38,54 +39,49 @@ void run_yeet(void* params) {
                     yeet_state = 1;
                 }
                 break;
-            // case 1: // Pre start
-            //     yeet_last_time = millis();
-            //     yeet_state = 2;
-            // case 2:
-            //     belly_grab_target = 0;
-            //     if (millis() - yeet_last_time > 100) {
-            //         yeet_state = 3;
-            //     }
-            //     break;
-            // case 3:
-            //     belly_grab_target = -1234;
-            //     break;
-            case 1:  // Pre-yeet
+            case 1:  // Pre-yeet -- record current time & position
                 yeet_start_time = millis();
                 yeet_start_x = robot_x;
                 yeet_start_y = robot_y;
                 yeet_state = 2;
-                yeet_release.set_value(1);
-                yeet_retract.set_value(0);
-                break;
+                // No break, just go to next state now
             case 2:
-                belly_grab_state = -1;
-                lift_target = 0;
-                belly_grab_target = -1000;
-                spike_arm_target = 1600;
-                base_release_target = 200;
-                base_lift_target = this_robot.BASE_LIFT_YEET_POS;
-                yeet_release.set_value(1);
+                cout << (millis() - yeet_start_time) << "\t" << pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) << endl;
+                yeet_release.set_value(0);
                 yeet_retract.set_value(0);
-                drive_mode = DM_YEET_FORWARD;
-                if ((next_yeet_state) || (pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) >= yeet_distance)) {
+                spike_arm_target = -2000;
+                lift_target = 0;
+                base_lift_target = this_robot.BASE_LIFT_YEET_POS;
+                base_release_target = this_robot.BASE_RELEASE_READY_POS;
+                spike_wrist_target = 65.0;
+                if ((millis() - yeet_start_time) > (0.0)) {
                     yeet_state = 3;
-                    yeet_last_time = millis();
-                    yeet_start_x = robot_x;
-                    yeet_start_y = robot_y;
-                    drive_mode = DM_USER;
                 }
                 break;
             case 3:
-                belly_grab_target = 0;
-                base_lift_target = 3133;
-                drive_mode = DM_YEET_BACKWARD;
+                cout << (millis() - yeet_start_time) << "\t" << pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) << endl;
+                yeet_release.set_value(1);
+                yeet_retract.set_value(0);
+                spike_arm_target = -2000;
+                lift_target = 0;
+                base_lift_target = this_robot.BASE_LIFT_YEET_POS;
+                base_release_target = this_robot.BASE_RELEASE_READY_POS;
+                spike_wrist_target = 65.0;
+                if (yeet_distance <= pythag(robot_x, robot_y, yeet_start_x, yeet_start_y)) {
+                    yeet_state = 4;
+                }
+                else if ((millis() - yeet_start_time) > 1500) {
+                    yeet_state = 4;
+                }
+                else {
+                    break;
+                }
+            case 4:
+                spike_arm_target = 0;
+                spike_wrist_target = this_robot.SPIKE_WRIST_STORE_POS;
+                lift_target = 0;
                 yeet_release.set_value(1);
                 yeet_retract.set_value(1);
-                if (next_yeet_state || (millis() - yeet_last_time > 3000) || (pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) >= yeet_distance / 2)) {
-                    yeet_state = 10;
-                    drive_mode = DM_USER;
-                }
                 break;
 
             case 10:    // DEPLOY

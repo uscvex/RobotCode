@@ -84,7 +84,7 @@ void init_robot_white() {
     this_robot.BASE_LIFT_DROP_POS = 100;
 
     // How much to lower the base for spinnage
-    this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
+    this_robot.BASE_SPIN_OFFSET = 0;//3100 - 1934;
     
     // Base grabber release lever positions
     this_robot.BASE_RELEASE_DROP_POS = -800;

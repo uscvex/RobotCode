@@ -44,6 +44,7 @@ extern double left_auton[];
 extern double ring_practice_auton[];
 extern double right_skills[];
 extern double left_skills[];
+extern double test_auton[];
 extern double spinner[];
 
 extern int which_robot;
@@ -132,6 +133,7 @@ extern int lift_state;
 extern int base_right_state;
 
 extern int yeet_state;
+extern double yeet_distance;
 extern int belly_grab_state;
 
 extern int drive_mode;

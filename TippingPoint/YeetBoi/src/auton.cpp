@@ -21,7 +21,7 @@
 #define BASEPOS 18          // BASEPOS <STATE>
 
 #define READYSPIKE 19       // READYSPIKE
-#define YEET 20             // YEET, <TIMEOUT>
+#define YEET 20             // YEET, DISTANCE, <TIMEOUT>
 #define RETRACTYEET 21      // RETRACTYEET
 
 #define COLLECTRING 22      // COLLECTRING, <TIMEOUT>
@@ -58,10 +58,23 @@
 #define SPINCOMPLETE 4
 
 
-int which_auton = 0;
-int num_autons = 4;
-string auton_names[] = {"MID", "LEFT", "SPINNER", "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &spinner[0], &left_skills[0], &right_skills[0]};
+int which_auton = 2;
+int num_autons = 5;
+string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
+
+double test_auton[] = {
+    0, 0, 0,
+
+    YEET, 39, 4,
+    DRIVE, 127, 0, 0.125,
+
+    BASEPOS, BASEHOLD,
+
+    CHILLYEET,
+
+    END,
+};
 
 // sample auton to test optical sensor
 double spinner[] = {
@@ -93,6 +106,7 @@ double spinner[] = {
     END,
 
 };
+
 
 double mid_auton[] = {
     -52, -38, 234,      // STARTING POS
@@ -493,7 +507,7 @@ void autonomous() {
     
     int wait_condition = -1;                 // Condition type to wait until
     double wait_parameter = -1;              // Parameter to decide when wait is done
-
+    
     // Point to correct auton routine
     next_entry = auton_ptr[which_auton];
     cout << auton_names[which_auton] << " Auton Starting\n";
@@ -502,6 +516,7 @@ void autonomous() {
     set_position(process_entry(),process_entry(),process_entry());
 
     bool next_command = true;
+    bool yeeting = false;
 
     while (true) {
 
@@ -698,8 +713,10 @@ void autonomous() {
                 case YEET:
                     // Hekkin yeeeeet
                     cout << "YEET" << endl;
+                    yeet_distance = process_entry();
                     yeet_state = 1;
                     command_time_out = process_entry() * 1000;
+                    yeeting = true;
                     break;
 
                 case RETRACTYEET:
@@ -739,7 +756,7 @@ void autonomous() {
                     next_command = true;
                     break;
 
-                case SPINOPTICAL:
+                    case SPINOPTICAL:
                     cout << "SPINOPTICAL" << endl;
                     optical_state = LOOK_FOR_YELLOW;
                     next_command = true;
@@ -820,6 +837,13 @@ void autonomous() {
             }
         }
 
+        if (yeeting) {
+            if (yeet_state == 4) {
+                next_command = true;
+                yeeting = false;
+                cout << "Yeet done\n";
+            }
+        }
 
         // If we timed out, make sure to stop whatever it was we were doing
         if (command_timed_out) {
@@ -843,6 +867,7 @@ void autonomous() {
 
             // If we were yeeting
             if (yeet_state != 10) {
+                yeeting = false;
                 yeet_state = 10;
             }
 
@@ -850,7 +875,9 @@ void autonomous() {
             if ((spike_arm_state == 2) || (spike_arm_state == 10)) {
                 spike_arm_state = 1;
             }
+
         }
+
         if (finished_drive) {
             drive_turn_target = -1;
             drive_speed_target = 0;
@@ -858,7 +885,7 @@ void autonomous() {
             next_command = true;
         }
 
-        delay(20);
+        delay(10);
     }
 
 }
