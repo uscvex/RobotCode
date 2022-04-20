@@ -36,8 +36,7 @@ using namespace std;
 #define LOOK_FOR_YELLOW 3
 #define FUCK_GO_BACK 4
 
-#define SATURATION_THRESHOLD 0.27
-#define HUE_THRESHOLD 50
+
 
 extern double* auton_ptr[];
 extern double mid_auton[];

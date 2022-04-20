@@ -2,7 +2,7 @@
 // to do: two modes: one for auton where we don't know we have the base.
 // the other is for driver control when we do know we have it
 
-
+#define SATURATION_THRESHOLD 0.27
 #define PROXIMITY_THRESHOLD 244
 #define HUE_THRESHOLD 50
 #define MIN_HUE_THRESHOLD 20
