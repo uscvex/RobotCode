@@ -19,11 +19,11 @@ void init_robot() {
     this_robot.INTAKE_WOBBLE_IN = -60;
     this_robot.INTAKE_WOBBLE_OUT = 60;
     this_robot.INTAKE_WOBBLE_PERIOD_RIGHT = 550;
-    this_robot.INTAKE_WOBBLE_PERIOD_LEFT = (double(this_robot.INTAKE_WOBBLE_PERIOD_RIGHT) / 2);
+    this_robot.INTAKE_WOBBLE_PERIOD_LEFT = (double(this_robot.INTAKE_WOBBLE_PERIOD_RIGHT) / 2); // WAS DIV 2
 
-    this_robot.BACK_LIFT_READY_POS = 220;
+    this_robot.BACK_LIFT_READY_POS = -2600;
     this_robot.BACK_LIFT_HEIGHT_DROP = 100;
-    this_robot.BACK_LIFT_HOLD_POS = 3000;
+    this_robot.BACK_LIFT_HOLD_POS = 0;
     this_robot.FRONT_WOBBLE_AMP = 600;
     this_robot.FRONT_LIFT_READY_POS = -3450;
     this_robot.FRONT_LIFT_HOLD_POS = 0;
@@ -51,15 +51,17 @@ void init_robot() {
     
     // Auton drive tuning
     this_robot.DRIVE_TURN_RATE = 3.0;
-    this_robot.DRIVE_DRIVE_TURN_RATE = 6.0;
-    this_robot.DRIVE_RATE = 8.0;
-    this_robot.MIN_DRIVE_SPEED = 30.0;
+    this_robot.DRIVE_DRIVE_TURN_RATE = 5.0;
+    this_robot.DRIVE_RATE = 0.075;
+    this_robot.MIN_DRIVE_SPEED = 25.0;
     this_robot.MAX_TURN_SPEED = 127.0;
-    this_robot.MIN_TURN_SPEED = 20.0;
-    this_robot.TURN_PULSE_ON = 1;
-    this_robot.TURN_PULSE_OFF = 10;
-    this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
-    this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision
+    this_robot.MIN_TURN_SPEED = 40.0;
+    this_robot.TURN_PULSE_ON = 10;
+    this_robot.TURN_PULSE_OFF = 7;
+    this_robot.TURN_PRECISION = 2;  // +/- 2.5 degress precision
+    this_robot.DRIVE_PRECISION = 2;  // +/- 3 inches precision
+
+    this_robot.TURN_CORRECT_TIME = 10;
 
 }
 

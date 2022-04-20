@@ -35,8 +35,8 @@ void init_positions() {
     intake_wobble_left.set_current_limit(2500);
     intake_wobble_right.set_current_limit(2500);
 
-    back_lift_right.move_voltage(-5000);
-    back_lift_left.move_voltage(-5000);
+    back_lift_right.move_voltage(5000);
+    back_lift_left.move_voltage(5000);
     front_lift_right.move_voltage(3000);
     front_lift_left.move_voltage(3000);
     side_lift.move_voltage(3000);
@@ -66,6 +66,10 @@ void init_positions() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    imu_sensor.reset();
+    while (imu_sensor.is_calibrating()) {
+        delay(10);
+    }
     calibrate_robot_params();
     yeet_release.set_value(0);
     yeet_retract.set_value(0);

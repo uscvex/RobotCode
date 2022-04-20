@@ -25,6 +25,7 @@ using namespace std;
 #define DM_GOTO 5      // Drive to a location
 #define DM_TURN 6       // Turn on spot to angle
 #define DM_FACE 7       // Turn on spot to face point
+#define DM_BRAKE 8      // Don't move
 
 #define TURBO E_MOTOR_GEARSET_6
 #define SPEED E_MOTOR_GEARSET_18
@@ -73,6 +74,8 @@ extern void init_robot();
 // Controller
 extern Controller controller;
 
+extern IMU imu_sensor;
+
 // Motors
 extern Motor drive_right_1;
 extern Motor drive_right_2;
@@ -117,6 +120,7 @@ extern double drive_target_y;
 extern double drive_starting_x;
 extern double drive_starting_y;
 extern double drive_distance_target;
+extern bool turn_correct;
 
 extern double last_auton_time;
 
@@ -207,6 +211,7 @@ struct RobotParams {
     int TURN_PULSE_OFF;
     int TURN_PRECISION;
     double DRIVE_PRECISION;
+    int TURN_CORRECT_TIME;
 };
 
 extern RobotParams this_robot;

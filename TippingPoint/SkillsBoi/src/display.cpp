@@ -26,17 +26,17 @@ void run_display(void* params) {
 
         // Controller display
         if (display_count % 3 == 0)
-            controller.print(2, 0, "%.2f, %.2f, %.3f                     ", robot_x, robot_y, robot_theta);
+            controller.print(2, 0, "%.1f, %.1f, %.1f, %.1f                     ", robot_x, robot_y, robot_theta, imu_sensor.get_pitch());
             // controller.print(2, 0, "%d, %.3f                     ", (left_encoder.get_value() + right_encoder.get_value()), robot_theta);
-        // if (display_count % 3 == 1)
-        //     controller.print(0, 0, "%s %s: %s           ", this_robot.name, robot_names[which_robot], auton_names[which_auton]);
+        if (display_count % 3 == 1)
+            controller.print(0, 0, "%s %s: %s           ", this_robot.name, robot_names[which_robot], auton_names[which_auton]);
 
         string meme = "Normal:";
         if (limit_current) {
             meme = "Boost:";
         }
         if (display_count % 3 == 2)
-            controller.print(1, 0, "%s %.2f %.2f           ", meme, average_temp, average_current);
+            controller.print(1, 0, "%s %.1f %.1f           ", meme, average_temp, average_current);
 
         delay(60);
     }

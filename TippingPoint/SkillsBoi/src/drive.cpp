@@ -4,6 +4,8 @@
 
 using namespace pros;
 
+Imu imu_sensor(6);
+
 Motor drive_right_1(11, SPEED, 1);
 Motor drive_right_2(12, SPEED, 0);
 Motor drive_right_3(13, SPEED, 1);
@@ -24,6 +26,8 @@ double drive_starting_x = 0;
 double drive_starting_y = 0;
 double drive_distance_target = 0;
 
+bool turn_correct = false;
+
 
 void run_drive(void* params) {
 
@@ -32,6 +36,7 @@ void run_drive(void* params) {
 
     int turn_pulse_counter = 0;
     int counter = 0;
+    int turn_correct_count = 0;
 
     while (true) {
         counter++;
@@ -76,7 +81,6 @@ void run_drive(void* params) {
         if (controller.get_digital(DIGITAL_UP)) {
             drive_mode = DM_USER;
         }
-
 
         if (drive_mode != DM_USER) {
             if (drive_mode == DM_YEET_FORWARD) {
@@ -128,7 +132,7 @@ void run_drive(void* params) {
                     //     std::cout << "drive_turn_target: " << drive_turn_target << endl;
 
                     // If we are very close to target, stop turning
-                    if (pythag(drive_target_x, drive_target_y, robot_x, robot_y) <= this_robot.DRIVE_PRECISION) {
+                    if (pythag(drive_target_x, drive_target_y, robot_x, robot_y) <= this_robot.DRIVE_PRECISION * 2) {
                         drive_turn_target = robot_theta;
                     }
 
@@ -155,7 +159,7 @@ void run_drive(void* params) {
                 }
                 else if (drive_mode == DM_GOTO) {
                     double remaining_dist = pythag(drive_target_x, drive_target_y, robot_x, robot_y);
-                    forward_power =  remaining_dist * this_robot.DRIVE_RATE * (drive_speed_target / (double)abs(drive_speed_target));
+                    forward_power =  remaining_dist * this_robot.DRIVE_RATE * drive_speed_target;
                     if (abs(forward_power) < this_robot.MIN_DRIVE_SPEED) {
                         if (forward_power > 0) {
                             forward_power = this_robot.MIN_DRIVE_SPEED;
@@ -192,6 +196,13 @@ void run_drive(void* params) {
 
                 if (abs(turn_error) <= this_robot.TURN_PRECISION) {
                     turn_power = 0;
+                    turn_correct_count++;
+                    if (turn_correct_count > this_robot.TURN_CORRECT_TIME) {
+                        turn_correct = true;
+                    }
+                }
+                else {
+                    turn_correct_count = 0;
                 }
 
                 // Always turn least possible distance
@@ -244,6 +255,32 @@ void run_drive(void* params) {
 
             }
 
+        }
+
+        if (drive_mode == DM_BRAKE) {
+            forward_speed = 0;
+            turn_speed = 0;
+
+            drive_left_1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_left_2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_left_3.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_left_4.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+
+            drive_right_1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_right_2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_right_3.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_right_4.set_brake_mode(E_MOTOR_BRAKE_HOLD);            
+        }
+        else {
+            drive_left_1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_left_2.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_left_3.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_left_4.set_brake_mode(E_MOTOR_BRAKE_COAST);
+
+            drive_right_1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_right_2.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_right_3.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_right_4.set_brake_mode(E_MOTOR_BRAKE_COAST);
         }
 
         // Sent values to drive motors

@@ -37,7 +37,7 @@ void run_yeet(void* params) {
                 // No break, just go to next state now
             case 2:
                 back_lift_state = -1;
-                back_lift_target = -2000;
+                back_lift_target = -100000;
                 tip_latch = true;
                 cout << (millis() - yeet_start_time) << "\t" << pythag(robot_x, robot_y, yeet_start_x, yeet_start_y) << endl;
                 yeet_release.set_value(1);

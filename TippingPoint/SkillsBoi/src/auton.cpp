@@ -31,6 +31,9 @@
 #define FRONTDROP 33        // FRONTDROP,  <true/false>
 #define BACKDROP 34         // BACKDROP, <true/false>
 #define SIDEARM 35          // SIDEARM, <pos>
+#define BRAKE 36
+#define ULTRABOOST 37
+#define UNBOOST 38
 
 
 #define ON true
@@ -48,6 +51,105 @@ string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
 
 double test_auton[] = {
+    0, 0, 0,
+    DRIVE, 40, 0, 1, 
+    DRIVEDIST, -60, 0, 4.5, 2, 
+    DRIVE, 40, 0, 0.05, 
+    FRONTARM, READY, 
+    PAUSE, 2, 
+    ULTRABOOST,
+    FRONTARM, PARK, 
+    DRIVEDIST, 12700, 0, 42, 10,    // 38 FOR BALANCED
+    DRIVE, -40, 0, 0.05, 
+    // DRIVEDIST, -12700, 0, 1, 2,
+    BRAKE, 10, 
+    END,
+};
+
+
+double mid_auton[] = {
+   -61.9, -42.5, 235,                  // STARTING POSITION
+
+    // HEKKIN YEET TO THE MIDDLE GOAL, LIFT AND SPIN
+    FRONTARM, HOLD,                     // HOLD FRONT ARM UP
+    YEET, 48, 2,                        // YEET
+    DRIVE, 127, 235, 0.25,              // BRAKE
+    BACKARM, HOLD,                      // LIFT GOAL  
+    DRIVEDIST, 127, 235, 10, 2,         // DRIVE BACK
+    TURN, 0, 1,                         // SPIN GOAL OUT OF THE WAY
+    TURN, 45, 1,                        // TURN TO START SPIN IN CORRECT DIRECTION
+    DRIVEDIST, -127, 45, 24, 45,        // DRIVE AWAY FROM CENTER, DON'T DO ANYTHING ELSE IF WE ARE STUCK
+    CHILLYEET,                          // TURN YEET OFF
+
+    // DRIVE READY FOR ALLIANCE GOAL
+    TIPBASE, OFF,                       // OPEN BACK GRAB
+    DRIVETO, -127, -38, -36, 4,         // DRIVE TO LINE UP FOR GOAL
+    DRIVE, 60, 45, 0.1,                 // BREAK
+    TURN, 0, 2,                         // TURN READY FOR GOAL
+
+    // GRAB ALLIANCE GOAL, BUMP INTO WALL TO GET IT UP
+    DRIVEDIST, -70, 0, 30, 2,           // DRIVE INTO GOAL
+    TIPBASE, ON,                        // GRAB GOAL
+    DRIVE, 90, 0, 0.125,                // DRIVE AWAY FROM WALL
+    DRIVE, -90, 0, 0.5,                 // DRIVE INTO WALL
+
+    // LINE UP FOR ROW OF RINGS, GET THEM AND CLOSE YELLOW GOAL
+    SIDEARM, READY,                     // LOWER SIDE ARM
+    // DRIVETO, 127, -36, -48, 2,           // DRIVE TO ALIGN FOR RING ROW
+    DRIVEDIST, 127, 0, 8, 2,            // DRIVE TO ALIGN FOR RING ROW
+    DRIVE, -50, 0, 0.05,                 // BREAK
+    TURN, 90, 2,                        // TURN READY FOR RINGS
+    INTAKE, ON,                         // TURN INTAKE ON
+    WOBBLE, ON,                         // TURN WOBBLE ON
+    DRIVETO, 60, 5, -48, 6,             // DRIVE FOR RINGS
+    SIDEARM, HOLD,                      // LIFT GOAL
+    PAUSE, 0.75,                        // WAIT FOR GOAL LIFT
+
+    // LINE UP FOR FLOWER RINGS, GET THEM AND RETURN
+    DRIVETO, -127, -24, -36, 6,         // DRIVE TO LINE UP FOR FLOWERS
+    TURN, 0, 2,                         // TURN TO FACE FLOWERS
+    DRIVETO, 35, -24, 30, 20,           // DRIVE TO INTAKE RINGS
+    TURN, 180, 2,                       // TURN AROUND
+    DRIVETO, 90, -24, -36, 20,          // DRIVE BACK TO START
+
+    // DROP OFF ALLIANCE GOAL, TURN AND GRAB IT WITH FRONT GRAB
+    TURN, 45, 2,                        // TURN READY TO DROP OFF GOAL
+    FRONTARM, READY,                    // LOWER ARM IN ANTICIPATION
+    DRIVETO, -127, -40, -40, 4,         // DRIVE INTO CORNER
+    TURN, 45, 2,                        // TURN READY TO DROP OFF GOAL
+    INTAKE, OFF,                        // TURN INTAKE OFF
+    WOBBLE, OFF,                        // TURN WOBBLE OFF
+    TIPBASE, OFF,                       // DROP GOAL
+    PAUSE, 0.75,                        // WAIT FOR DROP
+    DRIVEDIST, 90, 45, 20, 3,           // DRIVE AWAY FROM GOAL
+    TURN, 0, 0.5,                       // START TURN IN CORRECT DIRECTION
+    TURN, 225, 2,                       // TURN TO AIM AT GOAL
+    DRIVEDIST, 127, 225, 30, 2,         // DRIVE TO GRAB GOAL
+    FRONTARM, HOLD,                     // LIFT GOAL
+
+    // GO DOCK WITH OTHER BOT
+    DRIVETO, -127, -40, -36, 5,         // DRIVE TO ALIGN FOR DOCK
+    DRIVE, 50, 225, 0.05,               // BREAK
+    BACKARM, READY,                     // LOWER BACK ARM
+    TURN, 180, 2,                       // TURN READY FOR DOCK
+    DRIVETO, -90, -49, 0, 10,           // GO DOCK
+
+    END,
+};
+
+double left_auton[] = {
+    -43, 49, 278,      // STARTING POS
+    
+    END,
+};
+
+double right_skills[] = {
+    0, 0, 0,
+
+    END,
+};
+
+double left_skills[] = {
     -60, 43, 0,
 
     DRIVEDIST, -60, 0, 3, 2,        // DRIVE BACKWARDS INTO GOAL
@@ -154,193 +256,6 @@ double test_auton[] = {
 };
 
 
-double mid_auton[] = {
-    -61.9, -42.5, 235,
-
-    FRONTARM, HOLD,                     // HOLD FRONT ARM UP
-    YEET, 48, 2,                        // YEET
-    DRIVE, 127, 235, 0.25,              // BRAKE
-    BACKARM, HOLD,                      // LIFT GOAL   
-
-    TURN, 0, 1,                         // SPIN GOAL OUT OF THE WAY
-    TURN, 90, 0.5,                      // TURN TO START SPIN IN CORRECT DIRECTION
-    CHILLYEET,                          // TURN YEET OFF
-    FACE, 0, -36, 1.5,                    // TURN TO FACE GOAL
-    FRONTARM, READY,                    // MOVE ARM DOWN
-    DRIVEDIST, 127, 180, 5, 2,          // DRIVE INTO GOAL TO COLLECT IT
-    FACE, 0, -36, 1,                    // TURN TO FACE GOAL
-    PAUSE, 0.5,
-    DRIVETO, 127, 0, -36, 2,            // DRIVE TO GOAL
-    DRIVEDIST, 127, 180, 30, 2,         // DRIVE INTO GOAL TO COLLECT IT
-    FRONTARM, HOLD,                     // LIFT GOAL
-
-    TIPBASE, OFF,                       // OPEN BACK GRAB
-    DRIVETO, -127, 0, -24, 2,           // DRIVE AWAY FROM GOAL
-    TURN, 270, 1,                       // TURN TO FACE WALL
-    DRIVETO, 127, -60, -48, 4,           // DRIVE NEAR WALL
-    DRIVEDIST, 127, 270, 20, 1,         // DRIVE INTO WALL
-
-    DRIVEDIST, -80, 270, 15, 2,         // DRIVE AWAY FROM WALL
-
-    TURN, 0, 1,                         // TURN READY FOR GOAL
-    DRIVEDIST, -60, 0, 30, 2,           // DRIVE INTO GOAL
-    PAUSE, 0.25,
-    DRIVE, -50, 0, 0.25,                 // DRIVE INTO GOAL
-    TIPBASE, ON,                        // GRAB GOAL
-    DRIVE, -50, 0, 0.5,                 // DRIVE INTO GOAL
-    // PAUSE, 1,
-
-    DRIVE, 127, 0, 0.25,                // DRIVE AWAY FROM WALL
-    DRIVE, -127, 0, 0.5,                // DRIVE INTO WALL
-    DRIVEDIST, 127, 0, 10, 2,           // DRIVE AWAY FROM WALL
-
-    INTAKE, ON,                         // TURN INTAKE ON
-    WOBBLE, ON,
-    DRIVETO, 127, -24, -24, 4,           // DRIVE READY FOR RINGS
-
-    DRIVETO, 50, -30, 40, 20,           // DRIVE TO INTAKE RINGS
-    TURN, 180, 2,
-    DRIVETO, 60, -24, -24, 20,           // DRIVE BACKWARDS
-
-    TURN, 45, 2, 
-    DRIVEDIST, -127, 45, 48, 4,           // DRIVE INTO CORNER
-    TIPBASE, OFF,                          // DROP GOAL IN CORNER
-    INTAKE, OFF,                         // TURN INTAKE OFF
-    WOBBLE, OFF,
-    PAUSE, 1, 
-
-    DRIVETO, 127, -40, -48, 3,           // DRIVE OUT OF CORNER
-    TURN, 180, 1, 
-    BACKARM, HOLD,
-    DRIVETO, -100, -36, 0, 5, 
-
-    END,
-};
-
-double left_auton[] = {
-    -43, 49, 278,      // STARTING POS
-    
-    END,
-};
-
-double right_skills[] = {
-    0, 0, 0,
-
-    END,
-};
-
-double left_skills[] = {
-    -60, 43, 0,
-    // DRIVEDIST, -60, 0, 3, 2,        // DRIVE BACKWARDS INTO GOAL
-    // TIPBASE, ON,                    // GRAB GOAL
-    // PAUSE, 0.5,                     // WAIT FOR GRAB
-    // TURN, 45, 0.5, 
-    // DRIVETO, 127, -48, 50, 2,        // DRIVE FORWARD
-
-    // FACE, 60, 44, 1.5,              // TURN READY FOR RING COLLECT
-
-    // INTAKE, ON,                     // TURN INTAKE ON
-    // WOBBLE, ON, 
-    // DRIVETO, 127, -15, 44, 3,       // DRIVE ALMOST TO ROW OF RINGS
-    // DRIVETO, 50, 10, 46, 10,        // DRIVE INTO RINGS
-    // DRIVETO, 50, 60, 32, 10,        // DRIVE INTO RINGS
-    
-    // PAUSE, 0.5, 
-    
-    // TURN, 0, 0.5,                   // TURN READY TO DROP BASE
-    // TURN, 270, 2,                   // TURN READY TO DROP BASE
-
-    // TIPBASE, OFF,                   // DROP BASE
-    // INTAKE, OFF,                    // TURN INTAKE OFF
-    // WOBBLE, OFF, 
-
-    // FACE, 36, 30, 1,
-    // DRIVETO, 70, 37, 30, 4,         // DRIVE READY FOR NEXT GOAL
-    // TURN, 180, 1.5, 
-    // DRIVEDIST, -50, 180, 20, 2,     // DRIVE READY TO GRAB GOAL
-
-    // TIPBASE, ON,                    // GRAB BASE
-    // PAUSE, 0.5,                     // WAIT FOR GRAB
-    // FACE, 24, 24, 1.5,              // TURN TO FACE NEXT RINGS
-
-    // INTAKE, ON,                     // TURN INTAKE ON
-    // WOBBLE, ON, 
-    // DRIVETO, 127, 24, 24, 4,        // DRIVE READY FOR NEXT RINGS
-
-    // DRIVETO, 40, 24, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
-    // PAUSE, 0.5,
-    // DRIVETO, 40, 24, -60, 16,       // DRIVE TO COLLECT NEXT RINGS
-
-    // TURN, 270, 2,                   // TURN READY TO PUSH GOAL INTO WALL
-    
-    // TIPBASE, OFF,                   // DROP BASE
-    // INTAKE, OFF,                    // TURN INTAKE OFF
-    // WOBBLE, OFF, 
-
-    // DRIVETO, -90, 60, -60, 2,       // DRIVE INTO WALL
-    // DRIVETO, 90, 36, -60, 2,        // DRIVE AWAY FROM WALL
-    // BACKARM, READY,                 // MOVE ARM DOWN
-    // BACKDROP, OFF,  
-    // PAUSE, 2,
-    // DRIVETO, -90, 60, -60, 2,       // DRIVE INTO WALL
-    // BACKARM, HOLD, 
-    // DRIVE, 90, 270, 0.25,
-    // PAUSE, 1.5, 
-    // DRIVETO, -90, 62, -60, 3,       // DRIVE TO LINE UP FOR NEXT GOAL
-    // PAUSE, 0.25,
-    // TURN, 180, 2,
-
-    // // DRIVETO, -80, 62, -45, 4,       // DRIVE TO GRAB NEXT GOAL
-    // DRIVEDIST, -80, 183, 15, 3,       // DRIVE TO GRAB NEXT GOAL
-    // TIPBASE, ON,                    // GRAB BASE
-    // PAUSE, 0.5,
-    // TURN, 225, 1, 
-    // SIDEARM, READY,
-    // DRIVETO, 127, 48, -55, 3,       // DRIVE AWAY FROM PLATFORM
-    // INTAKE, ON,                     // TURN INTAKE ON
-    // WOBBLE, ON, 
-    // FACE, 24, -24, 1,
-    // DRIVETO, 90, 24, -24, 3,       // DRIVE TO LINE UP FOR YELLOW GOAL
-    // TURN, 270, 2, 
-    // DRIVETO, 127, -9, -24, 3,       // DRIVE TO GRAB YELLOW
-    // SIDEARM, HOLD,
-    // DRIVETO, 127, -28, -24, 3,       // CONTINUE DRIVING
-    // TURN, 0, 2,
-
-    // DRIVETO, 40, -28, 0, 16,       // DRIVE TO COLLECT NEXT RINGS
-    // FACE, 48, 20, 2,  
-
-    // DRIVETO, 60, 27, 10, 5,         // DRIVE READY TO GRAB BLUE GOAL
-    // FRONTARM, READY, 
-    // WOBBLE, OFF,
-    // INTAKE, OFF, 
-    // TURN, 0, 1, 
-    // DRIVETO, 80, 27, 40, 5,         // DRIVE READY TO GRAB BLUE GOAL
-    // TURN, 90, 2, 
-    // DRIVETO, 80, 72, 40, 2,         // DRIVE READY TO GRAB BLUE GOAL
-    // FRONTARM, HOLD, 
-    // DRIVEDIST, -60, 90, 10, 2, 
-    // PAUSE, 2, 
-    // TURN, 135, 2, 
-    // DRIVEDIST, 90, 135, 10, 1, 
-    // FRONTDROP, ON, 
-    // PAUSE, 0.5,
-    // DRIVEDIST, -90, 135, 10, 1, 
-    // FRONTDROP, OFF, 
-    // FACE, 0, 36, 2, 
-    // DRIVEDIST, -127, 270, 5, 1, 
-    // FRONTARM, READY, 
-
-    // DRIVETO, 127, -10, 36, 2,         // DRIVE TO GRAB GOAL
-    // FRONTARM, HOLD, 
-    // DRIVETO, 127, -60, 50, 2,         // DRIVE TO GRAB GOAL
-    // TURN, 180, 2, 
-    
-    END,
-};
-
-
-
 double* next_entry = NULL;
 double last_auton_time = 0;
 
@@ -396,6 +311,7 @@ void autonomous() {
                 case TURN:
                     // Robot will turn to face the specified angle
                     cout << "TURN" << endl;
+                    turn_correct = false;
                     drive_mode = DM_TURN;
                     drive_speed_target = 0;
                     drive_turn_target = process_entry();        // Angle to turn to (degrees)
@@ -405,6 +321,7 @@ void autonomous() {
                 case FACE:
                     // Robot will turn to face the specified point
                     cout << "FACE" << endl;
+                    turn_correct = false;
                     drive_mode = DM_FACE;
                     drive_speed_target = 0;
                     drive_target_x = process_entry();   // X target (field coord in inches)
@@ -479,6 +396,11 @@ void autonomous() {
 
                     drive_target_x = process_entry();   // X target (field coord in inches)
                     drive_target_y = process_entry();   // Y target (field coord in inches)
+
+                    drive_starting_x = robot_x;
+                    drive_starting_y = robot_y;
+
+                    drive_distance_target = pythag(drive_starting_x, drive_starting_y, drive_target_x, drive_target_y);
                     
                     command_time_out = process_entry() * 1000;
                     break;
@@ -519,6 +441,7 @@ void autonomous() {
                 case INTAKE:
                     // Turns intake on or off
                     cout << "INTAKE" << endl;
+                    limit_current = false;
                     intake = process_entry();
                     next_command = true;
                     break;
@@ -526,6 +449,7 @@ void autonomous() {
                 case WOBBLE:
                     // Turns wobble on or off
                     cout << "WOBBLE" << endl;
+                    limit_current = false;
                     intake_wobble = process_entry();
                     next_command = true;
                     break;
@@ -533,6 +457,7 @@ void autonomous() {
                 case FRONTARM:
                     // Move front arm to a positon
                     cout << "FRONTARM" << endl;
+                    limit_current = false;
                     front_lift_state = process_entry();
                     next_command = true;
                     break;
@@ -540,6 +465,7 @@ void autonomous() {
                 case BACKARM:
                     // Move back arm to a positon
                     cout << "BACKARM" << endl;
+                    limit_current = false;
                     back_lift_state = process_entry();
                     next_command = true;
                     break;
@@ -568,6 +494,7 @@ void autonomous() {
                 case SIDEARM:
                     // Move side arm to a positon
                     cout << "SIDEARM" << endl;
+                    limit_current = false;
                     pos = process_entry();
                     if (pos == HOLD)
                         side_lift_target = this_robot.SIDE_LIFT_HOLD_POS;
@@ -575,7 +502,27 @@ void autonomous() {
                         side_lift_target = this_robot.SIDE_LIFT_READY_POS;
                     next_command = true;
                     break;
+                
+                case BRAKE:
+                    // Hold drive in current position
+                    cout << "BRAKE" << endl;
+                    drive_mode = DM_BRAKE;
+                    command_time_out = process_entry() * 1000;
+                    break;
 
+                case ULTRABOOST:
+                    // Give all power to drive
+                    cout << "ULTRABOOST" << endl;
+                    limit_current = true;
+                    next_command = true;
+                    break;
+
+                case UNBOOST:
+                    // Give all power to drive
+                    cout << "UNBOOST" << endl;
+                    limit_current = false;
+                    next_command = true;
+                    break;
 
                 default:
                     // Command not recognised
@@ -629,8 +576,17 @@ void autonomous() {
             }
         }
         if (drive_mode == DM_GOTO) {
+            /////// HACK for mitigating violent turn
+            if (drive_distance_target - this_robot.DRIVE_PRECISION < pythag(drive_starting_x, drive_starting_y, robot_x, robot_y)) {
+                finished_drive = true;
+            }
             // If we've moved at least as far as we wanted to
             if (pythag(drive_target_x, drive_target_y, robot_x, robot_y) <= this_robot.DRIVE_PRECISION) {     // Drive within tolerance
+                finished_drive = true;
+            }
+        }
+        if ((drive_mode == DM_FACE) || (drive_mode == DM_TURN)) {
+            if (turn_correct) {
                 finished_drive = true;
             }
         }
