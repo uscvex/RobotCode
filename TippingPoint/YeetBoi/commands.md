@@ -1,6 +1,6 @@
 # Auton Commands  
   
-*24 Commands auto-generated from "src/auton.cpp"*  
+*25 Commands auto-generated from "src/auton.cpp"*  
 
 ---
 
@@ -127,18 +127,18 @@ Robot will drive to target position on field
 Sets the robot's position on the field  
 *non-blocking, NO TIMEOUT*  
 ### Usage:
-  > SETPOS, double x_pos, double y_pos,  
+  > SETPOS, x_pos, y_pos,  
 ### Arguments: (2)
-  * **double x_pos**:	X coord (field coord in inches)
-  * **double y_pos**:	Y coord (field coord in inches)  
+  * **x_pos**:	X coord (field coord in inches)
+  * **y_pos**:	Y coord (field coord in inches)  
   
 ## SETDIR:  
 Sets the robot's direction on the field  
 *non-blocking, NO TIMEOUT*  
 ### Usage:
-  > SETDIR, double dir,  
+  > SETDIR, dir,  
 ### Arguments: (1)
-  * **double dir**:	Direction (degrees)  
+  * **dir**:	Direction (degrees)  
   
 ## BELLYPOS:  
 Moves bellygrab to desired position  
@@ -197,4 +197,12 @@ Moves the spike to the position for backwards scoring on a alliance goal
 *non-blocking, NO TIMEOUT*  
 ### Usage:
   > SPIKEBACKWARDSCORE,   
+  
+## SPINOPTICAL:  
+  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > SPINOPTICAL,   
+### Warnings: (1)  
+* Command is missing description  
   

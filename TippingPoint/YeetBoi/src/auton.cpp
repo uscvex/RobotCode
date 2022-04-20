@@ -32,7 +32,10 @@
 
 #define CHILLYEET 26        // CHILLYEET
 
-#define SPIKEBACKWARDSCORE 27    // SPIKE_BACKWARDS_SCORE
+#define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
+#define SPIKEBACKWARDSCORE 28    // SPIKE_BACKWARDS_SCORE
+#define SCOREHIGH 29
+
 
 // Depost Locations
 #define FORWARD 1
@@ -52,13 +55,44 @@
 #define LIFTBELOW 1
 #define LIFTABOVE 2
 #define TIME 3
+#define SPINCOMPLETE 4
 
 
 int which_auton = 0;
-int num_autons = 5;
-string auton_names[] = {"MID", "LEFT", "RING_P", "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &ring_practice_auton[0], &left_skills[0], &right_skills[0]};
+int num_autons = 4;
+string auton_names[] = {"MID", "LEFT", "SPINNER", "SK_LEFT", "SK_RGHT"};
+double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &spinner[0], &left_skills[0], &right_skills[0]};
 
+// sample auton to test optical sensor
+double spinner[] = {
+
+    0,0,0, // first line should always be robot position
+
+    // BASEPOS, BASEREADY, //get ready to grab the base
+    // PAUSE, 5, //pause for 5seconds
+    BASEPOS, BASEHOLD, // basepos is command, basehold is argument 
+    
+    PAUSE, 1, //pause
+    DEPOSITPOS, UPPER, //drop dose rings
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 300,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+                                // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    PAUSE, 1,
+    DROP, 1.5, 
+
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 300,    
+    PAUSE, 1,
+    DROP, 1,
+    PAUSE, 0.5,
+    DROP, 1,
+
+    READYSPIKE, //drop dose rings
+    // BASEPOS, BASEDROP, //release the base (this is mostly to relax the motors for easy reset)
+
+    END,
+
+};
 
 double mid_auton[] = {
     -52, -38, 234,      // STARTING POS
@@ -459,7 +493,7 @@ void autonomous() {
     
     int wait_condition = -1;                 // Condition type to wait until
     double wait_parameter = -1;              // Parameter to decide when wait is done
-    
+
     // Point to correct auton routine
     next_entry = auton_ptr[which_auton];
     cout << auton_names[which_auton] << " Auton Starting\n";
@@ -705,8 +739,13 @@ void autonomous() {
                     next_command = true;
                     break;
 
-                default:
-                    // Command not recognised
+                case SPINOPTICAL:
+                    cout << "SPINOPTICAL" << endl;
+                    optical_state = LOOK_FOR_YELLOW;
+                    next_command = true;
+                    break;
+
+                default:        // Command not recognised
                     cout << "BAD COMMAND" << endl;
                     break;
 
@@ -751,10 +790,14 @@ void autonomous() {
                         cout << "Wait time done\n";
                     }
                     break;
-                    
+                case SPINCOMPLETE:
+                    if (optical_state == DO_NOTHING){
+                        finished_wait = true;
+                        cout << "Sticker found\n";
+                    }
             }
             
-            // If condition is met the we are done
+            // If condition is met then we are done
             if (finished_wait) {
                 wait_condition = -1;     // Stop waiting
                 wait_parameter = -1;     // Reset parameter
@@ -776,6 +819,7 @@ void autonomous() {
                 finished_drive = true;
             }
         }
+
 
         // If we timed out, make sure to stop whatever it was we were doing
         if (command_timed_out) {
@@ -806,9 +850,7 @@ void autonomous() {
             if ((spike_arm_state == 2) || (spike_arm_state == 10)) {
                 spike_arm_state = 1;
             }
-
         }
-
         if (finished_drive) {
             drive_turn_target = -1;
             drive_speed_target = 0;

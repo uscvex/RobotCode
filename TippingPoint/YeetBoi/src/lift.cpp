@@ -27,8 +27,8 @@ int spike_arm_state = -1;
 int lift_state = -1;
 int base_right_state = -1;
 
-
 void run_lift(void* params) {
+
 
     bool just_manual_dropped = false;
     bool just_toggled_collect = false;
@@ -408,7 +408,8 @@ void run_lift(void* params) {
             // If high scoring
             if ((lift_state == 3) || (lift_state == 2)) {
                 // And spinning
-                if (controller.get_digital(DIGITAL_A) || controller.get_digital(DIGITAL_Y)) {
+
+                if (controller.get_digital(DIGITAL_A) || controller.get_digital(DIGITAL_Y) || (optical_state != DO_NOTHING)) {
                     spike_wrist_get_out_way_spin = -300;      // Spike move for goal spin
                 }
             }

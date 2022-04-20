@@ -1,0 +1,2 @@
+Transferring V5 to download channel
+WARNING - pros.serial.terminal.terminal:stop - Stopping terminal

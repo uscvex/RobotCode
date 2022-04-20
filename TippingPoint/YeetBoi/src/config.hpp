@@ -30,12 +30,21 @@ using namespace std;
 #define SPEED E_MOTOR_GEARSET_18
 #define TORQUE E_MOTOR_GEARSET_36
 
+//optical states
+#define DO_NOTHING  -1
+#define LOOK_FOR_STICKER 2
+#define LOOK_FOR_YELLOW 3
+#define FUCK_GO_BACK 4
+
+
+
 extern double* auton_ptr[];
 extern double mid_auton[];
 extern double left_auton[];
 extern double ring_practice_auton[];
 extern double right_skills[];
 extern double left_skills[];
+extern double spinner[];
 
 extern int which_robot;
 extern string robot_names[];
@@ -52,6 +61,10 @@ extern void run_belly_grab(void* params);
 extern void run_base_lift(void* params);
 extern void run_lift(void* params);
 extern void run_yeet(void* params);
+
+//Optical sensor functions
+extern void init_optical();
+extern void run_optical(void* params);
 
 // Global functions - Position tracking
 extern void track_position();
@@ -137,6 +150,19 @@ extern double last_auton_time;
 extern ADIEncoder left_encoder;
 extern ADIEncoder middle_encoder;
 extern ADIEncoder right_encoder;
+
+extern double brightness;
+extern double hue;
+extern int32_t proximity;
+extern double saturation;
+extern pros::c::optical_rgb_s_t RGB_values;
+
+extern int optical_state;
+extern bool has_base;
+
+extern bool is_black;
+extern bool is_yellow;
+extern bool is_red;
 
 // Pistons
 extern ADIDigitalOut yeet_release;
