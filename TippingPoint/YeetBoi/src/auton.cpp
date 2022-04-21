@@ -64,14 +64,75 @@ string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
 
 double test_auton[] = {
-    0, 0, 0,
+    // -43, 49, 278,      // STARTING POS
+    // DEPLOY, 
+    // BASEPOS, BASEREADY,
+    // WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
-    YEET, 39, 4,
-    DRIVE, 127, 0, 0.125,
+    // // FIRST YEET
+    // DRIVEDIST, -10000000, 276, 41, 3, 
+    // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    // BASEPOS, BASEHOLD,
+    // BELLYPOS, BELLYDOWN,
 
-    BASEPOS, BASEHOLD,
+    // DROP, 0.1,
+    // DRIVETO, 127, -24, 60, 50, 
+    // DEPOSITPOS, FORWARD, 
+    
+    // CHILLYEET,
 
-    CHILLYEET,
+    // FACE, -60, 34, 2, 
+    // DRIVETO, 80, -60, 34, 2, 
+    // DROP, 0.5, 
+    // PAUSE, 0.5,
+    // DROP, 1, 
+
+    // DRIVETO, -127, -24, 60, 3, 
+    // READYSPIKE, 
+    // TURN, 270, 2,
+    // DRIVEDIST, 127, 270, 48, 3,
+
+    // HACK START
+    0, 0, 270,
+    DRIVEDIST, 127, 270, 48, 1,
+    // END HACK START
+
+    // DRIVE BACK
+    DRIVEDIST, -127, 270, 5, 2,
+    DRIVE, 50, 270, 0.05,
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 1
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 2
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 3
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 4
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 5
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 6
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 7
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 8
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 9
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 10
+
+    PAUSE, 1.25, 
+    COLLECTRING, 0.75,      // 11
+    
 
     END,
 };
@@ -647,7 +708,8 @@ void autonomous() {
                     cout << "DEPLOY" << endl;
                     yeet_state = 10;
                     belly_grab_state = BELLYDOWN;
-                    spike_arm_target = 1600;
+                    spike_arm_target = -2000;
+                    lift_target = 0;
                     next_command = true;
                     break;
 

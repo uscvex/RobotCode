@@ -30,8 +30,8 @@ void init_robot_black() {
     this_robot.SPIKE_ARM_GRAB_POS = 0;
 
     // Angle for when waiting to grab ring
-    this_robot.SPIKE_WRIST_READY_POS = 201;
-    this_robot.SPIKE_ARM_READY_POS = 1400;
+    this_robot.SPIKE_WRIST_READY_POS = 204;
+    this_robot.SPIKE_ARM_READY_POS = 1500;
     
     // Overall range of motion for the wrist
     this_robot.SPIKE_WRIST_RANGE = 2740;
@@ -42,7 +42,7 @@ void init_robot_black() {
     this_robot.SPIKE_WRIST_CHASSIS_COLLIDE = 130;
 
     // Safety position
-    this_robot.SPIKE_WRIST_STORE_POS = 20;
+    this_robot.SPIKE_WRIST_STORE_POS = 40;
     this_robot.SPIKE_ARM_STORE_POS = 400;
 
     // Back alliance goal spike position
@@ -61,17 +61,17 @@ void init_robot_black() {
 
     // Alliance goal forward position
     this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 236;
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2300;
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2500;
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
     // Scoring for middle branches
     this_robot.SPIKE_WRIST_LOW_GOAL_POS = 131.97;
-    this_robot.SPIKE_ARM_LOW_GOAL_POS = 2910.0;
+    this_robot.SPIKE_ARM_LOW_GOAL_POS = 3010.0;
     this_robot.LIFT_LOW_GOAL_POS = 1050.0;
 
     // Scoring for high branches
     this_robot.SPIKE_WRIST_HIGH_GOAL_POS = 129.0;
-    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4090.0;
+    this_robot.SPIKE_ARM_HIGH_GOAL_POS = 4210.0;
     this_robot.LIFT_HIGH_GOAL_POS = 3700.0;
 
     // Base grab P-controller tuning
@@ -83,7 +83,7 @@ void init_robot_black() {
     this_robot.SPIKE_ARM_ADJUST_AMOUNT = 60;
 
     // Base grabber heights for grab, lift, drop        -- change these for tuning the new snake teeth
-    this_robot.BASE_LIFT_READY_POS = 1736;  // 1800
+    this_robot.BASE_LIFT_READY_POS = 1636;  // 1736
     this_robot.BASE_LIFT_HOLD_POS = 3100;
     this_robot.BASE_LIFT_DROP_POS = 100;
 
@@ -120,14 +120,14 @@ void init_robot_black() {
     this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1830.0) * (1800.0 / 1797.0) * (3600.0 / 3592.0);
     
     // Auton drive tuning
-    this_robot.DRIVE_TURN_RATE = 3.0;
+    this_robot.DRIVE_TURN_RATE = 6.0;
     this_robot.DRIVE_DRIVE_TURN_RATE = 10.0;
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
     this_robot.MAX_TURN_SPEED = 127.0;
     this_robot.MIN_TURN_SPEED = 50.0;
-    this_robot.TURN_PULSE_ON = 1;
-    this_robot.TURN_PULSE_OFF = 10;
+    this_robot.TURN_PULSE_ON = 5;
+    this_robot.TURN_PULSE_OFF = 7;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
     this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision
 
