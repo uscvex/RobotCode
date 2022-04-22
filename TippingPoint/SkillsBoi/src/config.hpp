@@ -152,6 +152,7 @@ extern ADIDigitalOut yeet_retract;
 extern ADIDigitalOut back_tip;
 extern ADIDigitalOut back_latch;
 extern ADIDigitalOut front_latch;
+// extern ADIDigitalOut encoder_lift;
 
 struct RobotParams {
     string name;

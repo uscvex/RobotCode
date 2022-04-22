@@ -10,6 +10,7 @@ Motor side_lift(18, SPEED, 0);
 
 ADIDigitalOut front_latch(4, false);
 ADIDigitalOut back_latch(3, false);
+// ADIDigitalOut encoder_lift ( {{ 7 , 8 }});
 
 int back_lift_state = -1;
 double back_lift_pos = 0;

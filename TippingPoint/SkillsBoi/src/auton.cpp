@@ -289,6 +289,9 @@ void autonomous() {
 
     while (true) {
 
+        // Hekkin make sure te encoder wheels are down
+        ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
+
         if (next_command) {
             last_auton_time = (millis() - auton_start_time) / 1000; // Record time
             controller.print(0,0,"T: %f", last_auton_time);

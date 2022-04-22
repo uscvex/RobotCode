@@ -82,6 +82,7 @@ void initialize() {
     pros::Task inatke_task(run_intake, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Intake Task");
     pros::Task current_control_task(run_current_control, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Current Control Task");   
     pros::Task yeet_task(run_yeet, (void*)"PROS", TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Yeet Task");
+    ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
 }
 
 /**
@@ -89,7 +90,11 @@ void initialize() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void disabled() {
+    ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
+    back_latch.set_value(0);
+    front_latch.set_value(0); 
+}
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -100,7 +105,11 @@ void disabled() {}
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+    ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
+    back_latch.set_value(0);
+    front_latch.set_value(0);
+}
 
 
 void opcontrol() {
@@ -112,6 +121,7 @@ void opcontrol() {
     while (true) {
 
         if (controller.get_digital(DIGITAL_X)) {
+            ADIDigitalOut encoder_lift ( { 7 , 8 }, true);
             if (!just_toggled_limit) {
                 limit_current = !limit_current;
             }
@@ -123,6 +133,7 @@ void opcontrol() {
 
         if (controller.get_digital(DIGITAL_UP)) {
             limit_current = false;
+            ADIDigitalOut encoder_lift ( { 7 , 8 }, true);
         }
 
         // Toggle between robots and autons
