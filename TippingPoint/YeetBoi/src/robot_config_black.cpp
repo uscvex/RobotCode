@@ -15,7 +15,7 @@ void init_robot_black() {
     this_robot.BASE_LIFT_YEET_POS = 1100;
 
     // How long to spike for
-    this_robot.SPIKE_STAMP_TIME = 250;
+    this_robot.SPIKE_STAMP_TIME = 400;
 
     // Base righting positions
     this_robot.BASE_RIGHT_WRIST_POS_1 = 265;
@@ -30,8 +30,8 @@ void init_robot_black() {
     this_robot.SPIKE_ARM_GRAB_POS = 0;
 
     // Angle for when waiting to grab ring
-    this_robot.SPIKE_WRIST_READY_POS = 204;
-    this_robot.SPIKE_ARM_READY_POS = 1500;
+    this_robot.SPIKE_WRIST_READY_POS = 205;
+    this_robot.SPIKE_ARM_READY_POS = 1600;
     
     // Overall range of motion for the wrist
     this_robot.SPIKE_WRIST_RANGE = 2740;
@@ -120,13 +120,13 @@ void init_robot_black() {
     this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1830.0) * (1800.0 / 1797.0) * (3600.0 / 3592.0);
     
     // Auton drive tuning
-    this_robot.DRIVE_TURN_RATE = 6.0;
-    this_robot.DRIVE_DRIVE_TURN_RATE = 10.0;
+    this_robot.DRIVE_TURN_RATE = 3.0;
+    this_robot.DRIVE_DRIVE_TURN_RATE = 8.0;
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
     this_robot.MAX_TURN_SPEED = 127.0;
     this_robot.MIN_TURN_SPEED = 50.0;
-    this_robot.TURN_PULSE_ON = 5;
+    this_robot.TURN_PULSE_ON = 2;
     this_robot.TURN_PULSE_OFF = 7;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
     this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision

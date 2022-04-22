@@ -64,75 +64,70 @@ string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
 
 double test_auton[] = {
-    // -43, 49, 278,      // STARTING POS
-    // DEPLOY, 
-    // BASEPOS, BASEREADY,
-    // WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    -43, 49, 278,      // STARTING POS
+    DEPLOY, 
+    BASEPOS, BASEREADY,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
-    // // FIRST YEET
-    // DRIVEDIST, -10000000, 276, 41, 3, 
-    // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
-    // BASEPOS, BASEHOLD,
-    // BELLYPOS, BELLYDOWN,
+    // FIRST YEET
+    DRIVEDIST, -10000000, 276, 41, 3, 
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    BASEPOS, BASEHOLD,
+    BELLYPOS, BELLYDOWN,
 
-    // DROP, 0.1,
-    // DRIVETO, 127, -24, 60, 50, 
-    // DEPOSITPOS, FORWARD, 
+    DROP, 0.1,
+    DRIVETO, 127, -24, 60, 50, 
+    DEPOSITPOS, FORWARD, 
     
-    // CHILLYEET,
+    CHILLYEET,
 
-    // FACE, -60, 34, 2, 
-    // DRIVETO, 80, -60, 34, 2, 
-    // DROP, 0.5, 
-    // PAUSE, 0.5,
-    // DROP, 1, 
+    FACE, -60, 34, 2, 
+    DRIVETO, 80, -60, 34, 2, 
+    DROP, 0.5, 
+    PAUSE, 0.5,
+    DROP, 1, 
 
-    // DRIVETO, -127, -24, 60, 3, 
-    // READYSPIKE, 
-    // TURN, 270, 2,
-    // DRIVEDIST, 127, 270, 48, 3,
+    DRIVETO, -127, -24, 60, 3, 
+    READYSPIKE, 
+    TURN, 270, 2,
 
-    // HACK START
-    0, 0, 270,
-    DRIVEDIST, 127, 270, 48, 1,
-    // END HACK START
+    // STARTING HACK
+    // 0, 0, 270,
+    // END STARTING HACK
+
+    DRIVEDIST, 127, 270, 48, 2.5,
 
     // DRIVE BACK
     DRIVEDIST, -127, 270, 5, 2,
     DRIVE, 50, 270, 0.05,
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 1
+    COLLECTRING, 1.5,      // 1
+    COLLECTRING, 1.5,      // 2
+    COLLECTRING, 1.5,      // 3
+    COLLECTRING, 1.5,      // 4
+    COLLECTRING, 1.5,      // 5
+    COLLECTRING, 1.5,      // 6
+    COLLECTRING, 1.5,      // 7
+    COLLECTRING, 1.5,      // 8
+    COLLECTRING, 1.5,      // 9
+    COLLECTRING, 1.5,      // 10
+    COLLECTRING, 1.5,      // 11
 
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 2
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 3
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 4
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 5
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 6
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 7
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 8
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 9
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 10
-
-    PAUSE, 1.25, 
-    COLLECTRING, 0.75,      // 11
-    
+    TURN, 135, 2,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    DRIVEDIST, -127, 135, 10, 2, 
+    BASEPOS, BASEDROP,
+    PAUSE, 1, 
+    DRIVEDIST, 127, 135, 15, 2, 
+    DRIVE, -60, 135, 0.05,
+    TURN, 315, 2,
+    DRIVEDIST, 80, 315, 20, 2, 
+    BELLYPOS, BELLYUP,
+    BASEPOS, BASEREADY,
+    PAUSE, 1, 
+    DRIVETO, -100, -30, 36, 3,
+    TURN, 0, 2,
+    DRIVETO, -127, -30, 0, 3,
 
     END,
 };
@@ -928,9 +923,9 @@ void autonomous() {
             }
 
             // If we were yeeting
-            if (yeet_state != 10) {
+            if (yeet_state != 11) {
                 yeeting = false;
-                yeet_state = 10;
+                yeet_state = 11;
             }
 
             // If we were grabbing ring
