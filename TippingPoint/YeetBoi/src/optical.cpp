@@ -38,7 +38,7 @@ void run_optical(void* params){
     while(true){
         double base_rotate_speed = 0;
         has_base = false;
-
+        optical.set_led_pwm(100);
         brightness = optical.get_brightness();
         hue = optical.get_hue();
         saturation = optical.get_saturation();

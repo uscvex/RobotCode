@@ -291,7 +291,7 @@ void run_lift(void* params) {
                 base_right_state = -1;
                 lift_state = -1;
                 spike_wrist_target = this_robot.SPIKE_WRIST_LOCK_BELLY;
-                spike_arm_target = this_robot.SPIKE_ARM_STORE_POS;
+                spike_arm_target = this_robot.SPIKE_ARM_LOCK_BELLY;;
                 lift_target = -50;
                 belly_grab_state = 1;
             }

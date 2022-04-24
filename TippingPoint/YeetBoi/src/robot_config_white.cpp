@@ -132,5 +132,6 @@ void init_robot_white() {
 
     // Spike lock position
     this_robot.SPIKE_WRIST_LOCK_BELLY = 75;
+    this_robot.SPIKE_ARM_LOCK_BELLY = 0;
 }
 
