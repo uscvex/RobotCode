@@ -12,7 +12,7 @@ void init_robot_black() {
     this_robot.SPIKE_SHAKE_AMPLITUDE = 3;
 
     // How high to hold base grab during yeet (lower than normal grab due to extra wheels)
-    this_robot.BASE_LIFT_YEET_POS = 1100;
+    this_robot.BASE_LIFT_YEET_POS = 700;
 
     // How long to spike for
     this_robot.SPIKE_STAMP_TIME = 400;
@@ -83,7 +83,7 @@ void init_robot_black() {
     this_robot.SPIKE_ARM_ADJUST_AMOUNT = 60;
 
     // Base grabber heights for grab, lift, drop        -- change these for tuning the new snake teeth
-    this_robot.BASE_LIFT_READY_POS = 1636;  // 1736
+    this_robot.BASE_LIFT_READY_POS = 1636;  // 1736 
     this_robot.BASE_LIFT_HOLD_POS = 3100;
     this_robot.BASE_LIFT_DROP_POS = 100;
 

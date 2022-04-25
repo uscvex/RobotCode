@@ -58,31 +58,35 @@
 #define SPINCOMPLETE 4
 
 
-int which_auton = 2;
+int which_auton = 0;
 int num_autons = 5;
-string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
-double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
+string auton_names[] = {"LEFT_YY", "LEFT_NoY", "TEST", "RING_PRACTICE", "SK_RT"};
+double* auton_ptr[] = {&left_auton_yeet[0], &left_auton_no_yeet[0], &test_auton[0], &ring_practice_auton[0], &right_skills[0]};
 
 double test_auton[] = {
-    -43, 49, 278,      // STARTING POS
-    DEPLOY, 
-    BASEPOS, BASEREADY,
-    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    0, 0, 0,
 
-    // FIRST YEET
-    DRIVEDIST, -10000000, 276, 41, 3, 
+    END,
+};
+
+double left_auton_yeet[] = {
+    -43, 49, 278,      // STARTING POS
+    YEET, 39, 2,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYDOWN,
 
     DROP, 0.1,
-    DRIVETO, 127, -24, 60, 50, 
+    DRIVETO, 127, -24, 60, 50,
+    BELLYPOS, BELLYUP,
     DEPOSITPOS, FORWARD, 
     
     CHILLYEET,
 
     FACE, -60, 34, 2, 
-    DRIVETO, 80, -60, 34, 2, 
+    BELLYPOS, BELLYDOWN,
+    DRIVETO, 80, -52, 35, 2, 
     DROP, 0.5, 
     PAUSE, 0.5,
     DROP, 1, 
@@ -90,10 +94,6 @@ double test_auton[] = {
     DRIVETO, -127, -24, 60, 3, 
     READYSPIKE, 
     TURN, 270, 2,
-
-    // STARTING HACK
-    // 0, 0, 270,
-    // END STARTING HACK
 
     DRIVEDIST, 127, 270, 48, 2.5,
 
@@ -120,14 +120,14 @@ double test_auton[] = {
     PAUSE, 1, 
     DRIVEDIST, 127, 135, 15, 2, 
     DRIVE, -60, 135, 0.05,
-    TURN, 315, 2,
-    DRIVEDIST, 80, 315, 20, 2, 
+    TURN, 309, 2,
+    DRIVEDIST, 80, 309, 20, 2, 
     BELLYPOS, BELLYUP,
     BASEPOS, BASEREADY,
     PAUSE, 1, 
-    DRIVETO, -100, -30, 36, 3,
+    DRIVETO, -100, -31, 36, 3,
     TURN, 0, 2,
-    DRIVETO, -127, -30, 0, 3,
+    DRIVETO, -127, -31, 0, 3,
 
     END,
 };
@@ -162,7 +162,6 @@ double spinner[] = {
     END,
 
 };
-
 
 double mid_auton[] = {
     -52, -38, 234,      // STARTING POS
@@ -321,126 +320,71 @@ double mid_auton[] = {
     END,
 };
 
-double left_auton[] = {
+// Same left auton, but without doing the yeet
+double left_auton_no_yeet[] = {
     -43, 49, 278,      // STARTING POS
     DEPLOY, 
     BASEPOS, BASEREADY,
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
-
-    // TO ALLOW FOR NEW METHOD OF DEPLOY
-    LIFTPOS, 200,
-
-
     // FIRST YEET
     DRIVEDIST, -10000000, 276, 41, 3, 
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
-    // BASEPOS, BASELOWLOW,
-    BELLYPOS, BELLYUP,
-
-
-    // TO ALLOW FOR NEW METHOD OF DEPLOY
-    LIFTPOS, 0,
-
-
-    DRIVETO, 127, -18, 50, 50,  // TO STOP US CONTINUING IF STUCK
-    BASEPOS, BASEHOLD,
-    TURN, 180, 1, 
-    DRIVETO, -127, -18, 60, 2,
-    CHILLYEET,
-
-
-    // TO ALLOW FOR NEW METHOD OF DEPLOY
-    LIFTPOS, -1,
-
+    BELLYPOS, BELLYDOWN,
 
     DROP, 0.1,
-    BELLYPOS, BELLYDOWN,
-    READYSPIKE,
-    TURN, 180, 1.5, 
-
-    DRIVEDIST, 60, 180, 11, 2, 
-    COLLECTRING, 0.5,               // 1
-    PAUSE, 0.2, 
-    COLLECTRING, 0.5,
-    PAUSE, 0.5, 
-
-
-    TURN, 200, 0.25, 
-    TURN, 180, 0.5, 
-    DRIVEDIST, 50, 180, 3, 4, 
-    COLLECTRING, 0.5,               // 2
-    PAUSE, 0.2, 
-    COLLECTRING, 0.5,
-    PAUSE, 0.5, 
-
-    TURN, 160, 0.25, 
-    TURN, 180, 0.5, 
-    DRIVEDIST, 50, 180, 4, 2, 
-    COLLECTRING, 0.5,               // 3
-    PAUSE, 0.2, 
-    COLLECTRING, 0.5,
-    PAUSE, 0.5, 
-
-    TURN, 200, 0.25, 
-    TURN, 180, 0.5, 
-    DRIVEDIST, 50, 180, 4, 2, 
-    COLLECTRING, 0.5,               // 4
-    PAUSE, 0.2, 
-    COLLECTRING, 0.5,
-    PAUSE, 0.5, 
-
-    TURN, 160, 0.25, 
-    TURN, 180, 0.5, 
-    DRIVEDIST, 50, 180, 4, 2, 
-    COLLECTRING, 0.5,               // 5
-    PAUSE, 0.2, 
-    COLLECTRING, 0.5,
-    PAUSE, 0.5, 
-
-    TURN, 200, 0.25, 
-    TURN, 180, 0.5, 
-    DRIVEDIST, 50, 180, 4, 2, 
-    COLLECTRING, 0.5,               // 6
-    PAUSE, 0.2, 
-    COLLECTRING, 0.5,
-    PAUSE, 0.5,
-
-
-    DRIVETO, -127, -20, 52, 3,
-    TURN, 90, 1,                    // LINE UP FOR ROW OF RINGS
-    DRIVEDIST, 60, 90, 12, 2,
-
-    PAUSE, 0.2,
-    COLLECTRING, 0.5,               // 1
-
-    DRIVEDIST, 100, 90, 1.5, 1, 
-    PAUSE, 0.2,
-    COLLECTRING, 0.5,               // 2
-
-    DRIVEDIST, 100, 90, 1.5, 1, 
-    PAUSE, 0.2,
-    COLLECTRING, 0.5,               // 4
-    PAUSE, 0.2,
-    COLLECTRING, 0.5,               // MAKE SURE NICE
-
+    DRIVETO, 127, -24, 60, 50,
+    BELLYPOS, BELLYUP,
     DEPOSITPOS, FORWARD, 
-    DRIVETO, -127, -27, 60, 2, 
-    FACE, -60, 34, 1.5, 
-    DRIVETO, 80, -60, 34, 1.5, 
-    TURN, 270, 1.5, 
-    DRIVEDIST, -80, 270, 5, 1.5, 
-    DRIVEDIST, 50, 270, 7, 1.5, 
+    
+    CHILLYEET,
 
-    DROP, 0.75, 
-    PAUSE, 0.5, 
-    DROP, 0.75, 
-    PAUSE, 0.5, 
-    DROP, 0.75, 
+    FACE, -60, 34, 2, 
+    BELLYPOS, BELLYDOWN,
+    DRIVETO, 80, -59, 35, 2, 
+    DROP, 0.5, 
+    PAUSE, 0.5,
+    DROP, 1, 
 
-    DRIVETO, 127, -60, 60, 2, 
-    DRIVEDIST, -127, 315, 5, 1.5, 
+    DRIVETO, -127, -24, 60, 3, 
+    READYSPIKE, 
+    TURN, 270, 2,
+
+    DRIVEDIST, 127, 270, 48, 2.5,
+
+    // DRIVE BACK
+    DRIVEDIST, -127, 270, 5, 2,
+    DRIVE, 50, 270, 0.05,
+    COLLECTRING, 1.5,      // 1
+    COLLECTRING, 1.5,      // 2
+    COLLECTRING, 1.5,      // 3
+    COLLECTRING, 1.5,      // 4
+    COLLECTRING, 1.5,      // 5
+    COLLECTRING, 1.5,      // 6
+    COLLECTRING, 1.5,      // 7
+    COLLECTRING, 1.5,      // 8
+    COLLECTRING, 1.5,      // 9
+    COLLECTRING, 1.5,      // 10
+    COLLECTRING, 1.5,      // 11
+
+    TURN, 135, 2,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    DRIVEDIST, -127, 135, 10, 2, 
+    BASEPOS, BASEDROP,
+    PAUSE, 1, 
+    DRIVEDIST, 127, 135, 15, 2, 
+    DRIVE, -60, 135, 0.05,
+    TURN, 315, 2,
+    DRIVEDIST, 80, 300, 20, 2, 
+    BELLYPOS, BELLYUP,
+    BASEPOS, BASEREADY,
+    PAUSE, 1, 
+    DRIVETO, -100, -30, 36, 3,
+    TURN, 0, 2,
+    DRIVETO, -127, -30, 0, 3,
 
     END,
 };
@@ -462,82 +406,20 @@ double right_skills[] = {
     END,
 };
 
-double left_skills[] = {
-    -60, 48, 0,
-    DEPLOY,
-    BASEPOS, BASEREADY,
-    PAUSE, 1, 
-
-    DRIVEDIST, -127, 0, 10, 2, 
-    DRIVEDIST, 127, 30, 10, 2,
-
-    FACE, 0, 36, 2,
-
-    DRIVETO, 127, 0, 36, 10,
-    DRIVEDIST, 127, 90, 100, 2,
-
-    END,
-};
-
 
 double ring_practice_auton[] = {
-    0, 0, 315,      // STARTING POS
-    DEPLOY, 
-
-    READYSPIKE, 
-    PAUSE, 5, 
-    CHILLYEET,
-
-    // AS MANY MATCH LOADS AS POSSIBLE
-
-    DRIVEDIST, 60, 315, 1, 2, 
-    COLLECTRING, 0.75,               // 1
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 2
-    PAUSE, 0.5, 
-    
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 3
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 4
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 5
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 6
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 7
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 8
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 9
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 10
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 11
-    PAUSE, 0.5, 
-
-    DRIVEDIST, 70, 315, 0.5, 2, 
-    COLLECTRING, 0.5,               // 12
-    PAUSE, 0.5, 
-
+    0, 0, 0,
+    COLLECTRING, 1.5,      // 1
+    COLLECTRING, 1.5,      // 2
+    COLLECTRING, 1.5,      // 3
+    COLLECTRING, 1.5,      // 4
+    COLLECTRING, 1.5,      // 5
+    COLLECTRING, 1.5,      // 6
+    COLLECTRING, 1.5,      // 7
+    COLLECTRING, 1.5,      // 8
+    COLLECTRING, 1.5,      // 9
+    COLLECTRING, 1.5,      // 10
+    COLLECTRING, 1.5,      // 11
     END,
 };
 

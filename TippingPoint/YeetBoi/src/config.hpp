@@ -40,10 +40,10 @@ using namespace std;
 
 extern double* auton_ptr[];
 extern double mid_auton[];
-extern double left_auton[];
+extern double left_auton_no_yeet[];
 extern double ring_practice_auton[];
 extern double right_skills[];
-extern double left_skills[];
+extern double left_auton_yeet[];
 extern double test_auton[];
 extern double spinner[];
 
