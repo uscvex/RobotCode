@@ -58,11 +58,11 @@ void run_base_lifts(void* params) {
         if (controller.get_digital(DIGITAL_Y)) {
             limit_current = false;
             if (!just_toggled_side) {
-                if (side_lift_target != this_robot.SIDE_LIFT_HOLD_POS) {
-                    side_lift_target = this_robot.SIDE_LIFT_HOLD_POS;
+                if (side_lift_target != this_robot.SIDE_LIFT_READY_POS) {
+                    side_lift_target = this_robot.SIDE_LIFT_READY_POS;
                 }
                 else {
-                    side_lift_target = this_robot.SIDE_LIFT_READY_POS;
+                    side_lift_target = this_robot.SIDE_LIFT_HOLD_POS;
                 }
             }
             just_toggled_side = true;

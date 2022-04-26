@@ -16,13 +16,13 @@ void init_robot() {
     this_robot.INTAKE_VOMIT_TIME = 200;
 
 
-    this_robot.INTAKE_WOBBLE_IN = -60;
+    this_robot.INTAKE_WOBBLE_IN = -50;
     this_robot.INTAKE_WOBBLE_OUT = 60;
-    this_robot.INTAKE_WOBBLE_PERIOD_RIGHT = 550;
+    this_robot.INTAKE_WOBBLE_PERIOD_RIGHT = 1000;
     this_robot.INTAKE_WOBBLE_PERIOD_LEFT = (double(this_robot.INTAKE_WOBBLE_PERIOD_RIGHT) / 2); // WAS DIV 2
 
-    this_robot.BACK_LIFT_READY_POS = -2600;
-    this_robot.BACK_LIFT_HEIGHT_DROP = 100;
+    this_robot.BACK_LIFT_READY_POS = -2500;
+    this_robot.BACK_LIFT_HEIGHT_DROP = 200;
     this_robot.BACK_LIFT_HOLD_POS = 0;
     this_robot.FRONT_WOBBLE_AMP = 600;
     this_robot.FRONT_LIFT_READY_POS = -3450;

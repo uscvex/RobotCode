@@ -34,6 +34,8 @@
 #define BRAKE 36
 #define ULTRABOOST 37
 #define UNBOOST 38
+#define AUTOPARK 39
+#define SETTILT 40
 
 
 #define ON true
@@ -52,17 +54,18 @@ double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skil
 
 double test_auton[] = {
     0, 0, 0,
+
+    SETTILT, 0,
+
     DRIVE, 40, 0, 1, 
     DRIVEDIST, -60, 0, 4.5, 2, 
     DRIVE, 40, 0, 0.05, 
-    FRONTARM, READY, 
+    FRONTARM, READY,
     PAUSE, 2, 
-    ULTRABOOST,
     FRONTARM, PARK, 
-    DRIVEDIST, 12700, 0, 42, 10,    // 38 FOR BALANCED
-    DRIVE, -40, 0, 0.05, 
-    // DRIVEDIST, -12700, 0, 1, 2,
-    BRAKE, 10, 
+    DRIVEDIST, 12700, 0, 10, 10,
+    ULTRABOOST,
+    AUTOPARK, 0,        // AUTOPARK FACING 0 DEGREES
     END,
 };
 
@@ -152,35 +155,32 @@ double right_skills[] = {
 double left_skills[] = {
     -60, 43, 0,
 
-    DRIVEDIST, -60, 0, 3, 2,        // DRIVE BACKWARDS INTO GOAL
+    DRIVEDIST, -127, 0, 3, 2,        // DRIVE BACKWARDS INTO GOAL
+    WOBBLE, ON,
     TIPBASE, ON,                    // GRAB GOAL
-    PAUSE, 0.25,                     // WAIT FOR GRAB
-    TURN, 45, 0.5, 
+    // TURN, 45, 0.5, 
+    WOBBLE, ON,
     DRIVETO, 127, -48, 50, 2,        // DRIVE FORWARD
 
     FACE, 60, 44, 1,              // TURN READY FOR RING COLLECT
 
     INTAKE, ON,                     // TURN INTAKE ON
-    WOBBLE, ON, 
     DRIVETO, 127, -7, 46, 3,        // DRIVE ALMOST TO ROW OF RINGS
-    DRIVETO, 45, 10, 44, 10,        // DRIVE INTO RINGS
-    DRIVETO, 45, 28, 44, 10,        // DRIVE INTO RINGS
-    PAUSE, 0.5,
+    DRIVETO, 127, 10, 44, 10,        // DRIVE INTO RINGS
+    DRIVETO, 100, 28, 44, 10,        // DRIVE INTO RINGS
 
     TURN, 180, 1,                   // DRIVE SO BASE IS AGAINST WALL
     TIPBASE, OFF,
     INTAKE, OFF, 
     WOBBLE, OFF, 
     TURN, 180, 0.5, 
-    DRIVEDIST, -70, 180, 5, 2, 
-    DRIVEDIST, 70, 180, 1, 2, 
-    TURN, 225, 1.5, 
-    DRIVEDIST, -80, 225, 15, 2,
-
+    DRIVEDIST, -90, 180, 5, 2, 
+    DRIVEDIST, 127, 180, 1, 2, 
     FRONTARM, READY,  
-    TIPBASE, ON, 
-    DRIVEDIST, -80, 225, 1, 1,
-    PAUSE, 0.25, 
+    TURN, 225, 1.5, 
+    DRIVEDIST, -127, 225, 15, 2,
+    
+    TIPBASE, ON,
 
     FACE, 0, 36, 1.5,
     DRIVETO, 127, 0, 30, 3,       // DRIVE TO GET GOAL
@@ -201,56 +201,65 @@ double left_skills[] = {
     // WOBBLE, ON, 
     ////////////////////////////////////////////////////////////////////////
 
-    DRIVETO, 40, 26, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 80, 26, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
     PAUSE, 0.5,
-    DRIVETO, 40, 26, -56, 16,       // DRIVE TO COLLECT NEXT RINGS
-    PAUSE, 0.25, 
+    DRIVETO, 80, 26, -56, 16,       // DRIVE TO COLLECT NEXT RINGS
+    
+    // SWAP BACK GOAL TO HIGH ARM
     TURN, 270, 1.5, 
     TIPBASE, OFF, 
     INTAKE, OFF, 
     WOBBLE, OFF, 
-    DRIVEDIST, -50, 270, 30, 2,       // DRIVE INTO WALL
-    DRIVEDIST, 80, 270, 10, 3,       // DRIVE AWAY FROM WALL
+    DRIVEDIST, -127, 270, 30, 2,       // DRIVE INTO WALL
+    DRIVEDIST, 12700, 270, 2, 3,       // DRIVE AWAY FROM WALL
     BACKARM, READY,
-    PAUSE, 2, 
-    DRIVEDIST, -80, 270, 15, 2,       // DRIVE INTO WALL
+    DRIVEDIST, 127, 270, 8, 3,       // DRIVE AWAY FROM WALL
+    WAIT, LIFTBELOW, this_robot.BACK_LIFT_READY_POS * 0.95, 2,
+    PAUSE, 0.5,
+    DRIVEDIST, -70, 270, 15, 1,       // DRIVE INTO WALL
+    DRIVEDIST, -127, 270, 15, 0.25,       // DRIVE INTO WALL HARDER
     BACKARM, HOLD,                      // LIFT GOAL
-    DRIVEDIST, 100, 270, 5, 1,          // DRIVE AWAY FROM WALL
-    DRIVEDIST, -100, 270, 20, 1.5,         // DRIVE INTO WALL FULLY
-    PAUSE, 0.5, 
+    DRIVEDIST, 100, 270, 8, 2,          // DRIVE AWAY FROM WALL
+    WAIT, LIFTABOVE, this_robot.BACK_LIFT_READY_POS * 0.4, 2,
+    DRIVEDIST, -100, 270, 22, 1.5,         // DRIVE INTO WALL FULLY
     DRIVE, 70, 270, 0.2,         // DRIVE OUT OF WALL A LITTLE
 
     TURN, 190, 2,                       // TURN READY FOR RED GOAL
     DRIVEDIST, -60, 190, 9, 5,         // DRIVE INTO GOAL
     TIPBASE, ON,                    // GRAB GOAL
     PAUSE, 0.5,                     // WAIT FOR GOAL GRAB
-    DRIVEDIST, 80, 225, 10, 2,      // DRIVE AWAY FROM GOAL
+    DRIVEDIST, 127, 225, 10, 2,      // DRIVE AWAY FROM GOAL
 
     SIDEARM, READY, 
     TURN, 315, 1, 
     INTAKE, ON, 
     WOBBLE, ON, 
-    DRIVETO, 100, 24, -26, 2, 
+    DRIVETO, 127, 24, -28, 2, 
     TURN, 270, 2, 
 
-    DRIVETO, 100, -3, -26, 2, 
+    DRIVETO, 100, -8, -28, 2, 
     SIDEARM, HOLD, 
-    DRIVETO, 100, -23, -26, 2, 
+    DRIVETO, 127, -23, -28, 2, 
     TURN, 0, 2,
 
-    DRIVETO, 40, -23, 10, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 80, -23, 10, 16,       // DRIVE TO COLLECT NEXT RINGS
     PAUSE, 0.5,
-    DRIVETO, 40, -23, 48, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 80, -23, 48, 16,       // DRIVE TO COLLECT NEXT RINGS
 
     FACE, -63, 43, 2, 
-    DRIVETO, 90, -63, 43, 3,       // DRIVE READY FOR PARK
+    DRIVETO, 90, -63, 40, 3,       // DRIVE READY FOR PARK
+    ULTRABOOST,
     TURN, 180, 2,                   // FACE PLATFORM
-    DRIVEDIST, 100, 180, 4, 2,    // DRIVE INTO PLATFORM
-    DRIVE, -50, 180, 0.1,    // BREAK
-    FRONTARM, PARK,             // PULL PLATFORM DOWN
-    PAUSE, 2,               // WAIT FOR IT TO COME
-    DRIVEDIST, 127, 180, 12, 2,    // DRIVE ONTO PLATFORM
-    DRIVEDIST, 127, 180, 24, 2,    // DRIVE ONTO PLATFORM
+    DRIVEDIST, 90, 180, 20, 3,      // DRIVE TO PLATFORM
+
+    // PARK LMAO THERE'S NO WAY
+    DRIVEDIST, -60, 180, 4.5, 2, 
+    DRIVE, 40, 180, 0.05, 
+    UNBOOST,
+    FRONTARM, PARK,
+    PAUSE, 2,
+    ULTRABOOST,
+    AUTOPARK, 180,
 
     END,
 };
@@ -287,10 +296,10 @@ void autonomous() {
     bool next_command = true;
     bool yeeting = false;
 
-    while (true) {
+    // Hekkin make sure te encoder wheels are down
+    ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
 
-        // Hekkin make sure te encoder wheels are down
-        ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
+    while (true) {
 
         if (next_command) {
             last_auton_time = (millis() - auton_start_time) / 1000; // Record time
@@ -527,6 +536,26 @@ void autonomous() {
                     next_command = true;
                     break;
 
+                case AUTOPARK:
+                    // Autopark the robot
+                    cout << "AUTOPARK" << endl;
+                    limit_current = false;
+                    drive_mode = DM_AUTO_PARK;
+                    drive_turn_target = process_entry();
+                    // Record starting position
+                    drive_starting_x = robot_x;
+                    drive_starting_y = robot_y;
+                    auto_park_min_power = 0;
+                    drive_speed_target = 127;
+                    max_tilt = 0;
+                    break;
+
+                case SETTILT:
+                    // Set the tilt of the imu to 0
+                    imu_sensor.set_pitch(process_entry());
+                    next_command = true;
+                    break;
+
                 default:
                     // Command not recognised
                     cout << "BAD COMMAND" << endl;
@@ -557,6 +586,18 @@ void autonomous() {
                     if (millis() - auton_start_time > 1000 * wait_parameter) {
                         finished_wait = true;
                         cout << "Wait time done\n";
+                    }
+                    break;
+                case LIFTABOVE:
+                    if (back_lift_pos >= wait_parameter) {
+                        finished_wait = true;
+                        cout << "Wait lift above done\n";
+                    }
+                    break;
+                case LIFTBELOW:
+                    if (back_lift_pos <= wait_parameter) {
+                        finished_wait = true;
+                        cout << "Wait lift below done\n";
                     }
                     break;
                     

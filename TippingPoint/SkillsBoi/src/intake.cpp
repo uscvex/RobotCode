@@ -59,6 +59,7 @@ void run_intake(void* params) {
         if (controller.get_digital(DIGITAL_LEFT)) {
             if (!just_toggled_intake) {
                 intake = !intake;
+                // if (!intake)
                 intake_wobble = intake;
                 if (intake)
                     limit_current = false;

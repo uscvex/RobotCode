@@ -26,6 +26,8 @@ using namespace std;
 #define DM_TURN 6       // Turn on spot to angle
 #define DM_FACE 7       // Turn on spot to face point
 #define DM_BRAKE 8      // Don't move
+#define DM_AUTO_PARK 9      // Auto park
+#define DM_FINAL_BALANCE 10      // Auto park stage 2
 
 #define TURBO E_MOTOR_GEARSET_6
 #define SPEED E_MOTOR_GEARSET_18
@@ -121,6 +123,8 @@ extern double drive_starting_x;
 extern double drive_starting_y;
 extern double drive_distance_target;
 extern bool turn_correct;
+extern double auto_park_min_power;
+extern double max_tilt;
 
 extern double last_auton_time;
 

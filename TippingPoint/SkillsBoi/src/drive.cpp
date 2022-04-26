@@ -26,7 +26,10 @@ double drive_starting_x = 0;
 double drive_starting_y = 0;
 double drive_distance_target = 0;
 
+double auto_park_min_power = 0;
+
 bool turn_correct = false;
+double max_tilt = 0;
 
 
 void run_drive(void* params) {
@@ -37,6 +40,9 @@ void run_drive(void* params) {
     int turn_pulse_counter = 0;
     int counter = 0;
     int turn_correct_count = 0;
+
+    double last_park_distance = 0;
+    double last_tilt = 0;
 
     while (true) {
         counter++;
@@ -178,6 +184,7 @@ void run_drive(void* params) {
                         forward_power = 0;
                     }
                 }
+
                 if (forward_power > abs(drive_speed_target)) forward_power = abs(drive_speed_target);
                 if (forward_power < -abs(drive_speed_target)) forward_power = -abs(drive_speed_target);
                 // Power becomes forward speed, later sent to the motors
@@ -252,6 +259,68 @@ void run_drive(void* params) {
                 //
                 // END CALCULATIONS FOR TURNING
                 ////////////////////////////////////
+
+            }
+
+            if (drive_mode == DM_AUTO_PARK) {      // AUTO PARK
+                double tilt = -imu_sensor.get_pitch();
+                double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
+                double this_distance = tot_displacement - last_park_distance;
+                last_park_distance = tot_displacement;
+
+                if (this_distance <= 0.05) {
+                    auto_park_min_power += 10;
+                }
+                else {
+                    auto_park_min_power -= 5;
+                }
+
+                max_tilt = max(max_tilt, tilt);
+                if ((tilt < max_tilt * 0.7) && max_tilt > 24) {
+                    drive_mode = DM_BRAKE;
+                    auto_park_min_power = 0;
+                }
+
+                forward_speed = auto_park_min_power;
+
+                if (counter % 2 == 0)
+                    cout << "dist " << this_distance << " pow" << forward_speed << " mtilt" << max_tilt << " tilt" << tilt << endl;
+
+            }
+
+            if (drive_mode == DM_FINAL_BALANCE) {      // AUTO PARK
+                double tilt = -imu_sensor.get_pitch();
+                double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
+                double this_distance = tot_displacement - last_park_distance;
+                last_park_distance = tot_displacement;
+
+                if (last_tilt * tilt <= 0) { // we've just hit level (sign mis-match on tilt and last tilt)
+                    auto_park_min_power = 0;
+                }
+
+                last_tilt = tilt;
+                if (tilt > 0) {
+                    if (this_distance <= 0.01) {
+                        auto_park_min_power += 1;
+                    }
+                    else {
+                        auto_park_min_power -= 0.5;
+                    }
+                }
+                else {
+                    if (this_distance >= -0.01) {
+                        auto_park_min_power -= 1;
+                    }
+                    else {
+                        auto_park_min_power += 0.5;
+                    }
+                }
+                
+
+                forward_speed = auto_park_min_power;
+
+                if (counter % 10 == 0)
+                    cout << "POW: " << forward_speed << " tilt: " << tilt << endl;
 
             }
 
