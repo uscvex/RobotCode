@@ -43,6 +43,8 @@ void run_drive(void* params) {
 
     double last_park_distance = 0;
     double last_tilt = 0;
+    double time_tilting_down = 0;
+    double time_not_tilting_down = 0;
 
     while (true) {
         counter++;
@@ -262,29 +264,44 @@ void run_drive(void* params) {
 
             }
 
+            if (auto_park_min_power > 127) auto_park_min_power = 127;
+            if (auto_park_min_power < -127) auto_park_min_power = -127;
             if (drive_mode == DM_AUTO_PARK) {      // AUTO PARK
                 double tilt = -imu_sensor.get_pitch();
                 double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
                 double this_distance = tot_displacement - last_park_distance;
                 last_park_distance = tot_displacement;
 
-                if (this_distance <= 0.05) {
-                    auto_park_min_power += 10;
+                if (this_distance <= 0.02) {
+                    auto_park_min_power += 2;
                 }
                 else {
-                    auto_park_min_power -= 5;
+                    auto_park_min_power -= 1;
                 }
 
                 max_tilt = max(max_tilt, tilt);
-                if ((tilt < max_tilt * 0.7) && max_tilt > 24) {
-                    drive_mode = DM_BRAKE;
+                if ((tilt < max_tilt * 0.75) && max_tilt > 20) {
+                    drive_mode = DM_FINAL_BALANCE;
+                    drive_starting_x = robot_x;
+                    drive_starting_y = robot_y;
                     auto_park_min_power = 0;
+                }
+
+                if (tilt - last_tilt < -0.1) {
+                    time_tilting_down++;
+                    time_not_tilting_down = 0;
+                }
+                else if (tilt - last_tilt > -0.1) {
+                    time_not_tilting_down++;
+                }
+                if (time_not_tilting_down > 0) {
+                    time_tilting_down = 0;
                 }
 
                 forward_speed = auto_park_min_power;
 
-                if (counter % 2 == 0)
-                    cout << "dist " << this_distance << " pow" << forward_speed << " mtilt" << max_tilt << " tilt" << tilt << endl;
+                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.75 << "," << tilt << "," << drive_mode-9 << endl;
+                last_tilt = tilt;
 
             }
 
@@ -293,34 +310,23 @@ void run_drive(void* params) {
                 double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
                 double this_distance = tot_displacement - last_park_distance;
                 last_park_distance = tot_displacement;
-
-                if (last_tilt * tilt <= 0) { // we've just hit level (sign mis-match on tilt and last tilt)
-                    auto_park_min_power = 0;
-                }
-
-                last_tilt = tilt;
-                if (tilt > 0) {
-                    if (this_distance <= 0.01) {
-                        auto_park_min_power += 1;
-                    }
-                    else {
-                        auto_park_min_power -= 0.5;
-                    }
-                }
-                else {
-                    if (this_distance >= -0.01) {
-                        auto_park_min_power -= 1;
-                    }
-                    else {
-                        auto_park_min_power += 0.5;
-                    }
-                }
+                max_tilt = max(max_tilt, tilt);
                 
+                auto_park_min_power = -127;
+
+                // if (tilt > max_tilt * 0.5) {
+                //     auto_park_min_power = 0;
+                //     drive_starting_x = robot_x;
+                //     drive_starting_y = robot_y;
+                // }
+
+                if (tot_displacement > 0.5) {
+                    drive_mode = DM_BRAKE;
+                }
 
                 forward_speed = auto_park_min_power;
 
-                if (counter % 10 == 0)
-                    cout << "POW: " << forward_speed << " tilt: " << tilt << endl;
+                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.5 << "," << tilt << "," << drive_mode-9 << endl;
 
             }
 

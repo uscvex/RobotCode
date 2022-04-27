@@ -54,17 +54,16 @@ double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skil
 
 double test_auton[] = {
     0, 0, 0,
-
     SETTILT, 0,
 
     DRIVE, 40, 0, 1, 
     DRIVEDIST, -60, 0, 4.5, 2, 
     DRIVE, 40, 0, 0.05, 
-    FRONTARM, READY,
+    FRONTARM, PARK,
     PAUSE, 2, 
-    FRONTARM, PARK, 
-    DRIVEDIST, 12700, 0, 10, 10,
+    // FRONTARM, PARK, 
     ULTRABOOST,
+    DRIVEDIST, 12700, 0, 35, 10,
     AUTOPARK, 0,        // AUTOPARK FACING 0 DEGREES
     END,
 };
@@ -539,13 +538,13 @@ void autonomous() {
                 case AUTOPARK:
                     // Autopark the robot
                     cout << "AUTOPARK" << endl;
-                    limit_current = false;
+                    limit_current = true;
                     drive_mode = DM_AUTO_PARK;
                     drive_turn_target = process_entry();
                     // Record starting position
                     drive_starting_x = robot_x;
                     drive_starting_y = robot_y;
-                    auto_park_min_power = 0;
+                    auto_park_min_power = 127;
                     drive_speed_target = 127;
                     max_tilt = 0;
                     break;
