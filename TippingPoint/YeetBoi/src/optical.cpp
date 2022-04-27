@@ -13,7 +13,7 @@
 // #include <fstream>
 // #include <stdio.h>
 
-Optical optical(12);
+Optical optical(2);
 double brightness = 0;
 double hue = 0;
 int32_t proximity = 0;
@@ -83,6 +83,9 @@ void run_optical(void* params){
                     cout << "went back " << millis() << endl;
                     optical_state = DO_NOTHING;
                 }
+                break;
+            case FORCE_SPIN:
+                break;
         }
 
         delay(10);

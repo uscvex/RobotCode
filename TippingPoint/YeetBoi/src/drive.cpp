@@ -6,11 +6,13 @@ using namespace pros;
 
 Motor drive_right_1(17, SPEED, 0);
 Motor drive_right_2(15, SPEED, 0);
-Motor drive_right_3(14, SPEED, 0);
+Motor drive_right_3(12, SPEED, 0);
 
 Motor drive_left_1(16, SPEED, 1);
 Motor drive_left_2(6, SPEED, 1);
 Motor drive_left_3(11, SPEED, 1);
+
+Imu imu_sensor(14);
 
 int drive_mode = DM_USER;
 
@@ -21,7 +23,10 @@ double drive_target_y = 0;
 double drive_starting_x = 0;
 double drive_starting_y = 0;
 double drive_distance_target = 0;
-
+double auto_park_min_power = 0;
+double drive_slow_speed_target = 0;
+double max_tilt = 0;
+int done_auto_park = 0;
 
 void run_drive(void* params) {
 
@@ -30,6 +35,11 @@ void run_drive(void* params) {
 
     int turn_pulse_counter = 0;
     int counter = 0;
+
+    double last_park_distance = 0;
+    double last_tilt = 0;
+    double time_tilting_down = 0;
+    double time_not_tilting_down = 0;
 
     while (true) {
         counter++;
@@ -244,6 +254,89 @@ void run_drive(void* params) {
 
             }
 
+            if (auto_park_min_power > 127) auto_park_min_power = 127;
+            if (auto_park_min_power < -127) auto_park_min_power = -127;
+            if (drive_mode == DM_AUTOPARK) {      // AUTO PARK
+                double tilt = imu_sensor.get_pitch();
+                double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
+                double this_distance = tot_displacement - last_park_distance;
+                last_park_distance = tot_displacement;
+
+                if (this_distance <= 0.04) {
+                    auto_park_min_power += 2;
+                }
+                else {
+                    auto_park_min_power -= 1;
+                }
+
+                max_tilt = max(max_tilt, tilt);
+                if ((tilt < max_tilt * 0.75) && max_tilt > 20) {
+                    drive_mode = DM_FINAL_BALANCE;
+                    drive_starting_x = robot_x;
+                    drive_starting_y = robot_y;
+                    auto_park_min_power = 0;
+                }
+
+                if (tilt - last_tilt < -0.1) {
+                    time_tilting_down++;
+                    time_not_tilting_down = 0;
+                }
+                else if (tilt - last_tilt > -0.1) {
+                    time_not_tilting_down++;
+                }
+                if (time_not_tilting_down > 0) {
+                    time_tilting_down = 0;
+                }
+
+                forward_speed = auto_park_min_power;
+
+                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.75 << "," << tilt << "," << drive_mode-9 << endl;
+                last_tilt = tilt;
+
+            }
+
+            if (drive_mode == DM_FINAL_BALANCE) {      // AUTO PARK
+                double tilt = imu_sensor.get_pitch();
+                double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
+                double this_distance = tot_displacement - last_park_distance;
+                last_park_distance = tot_displacement;
+                max_tilt = max(max_tilt, tilt);
+                
+                auto_park_min_power = -127;
+
+                if (tot_displacement > 1) {
+                    drive_mode = DM_BRAKE;
+                    done_auto_park = 2;
+                }
+
+                forward_speed = auto_park_min_power;
+
+                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.5 << "," << tilt << "," << drive_mode-9 << endl;
+
+            }
+
+        }
+
+        if (drive_mode == DM_BRAKE) {
+            forward_speed = 0;
+            turn_speed = 0;
+
+            drive_left_1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_left_2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_left_3.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+
+            drive_right_1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_right_2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+            drive_right_3.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+        }
+        else {
+            drive_left_1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_left_2.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_left_3.set_brake_mode(E_MOTOR_BRAKE_COAST);
+
+            drive_right_1.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_right_2.set_brake_mode(E_MOTOR_BRAKE_COAST);
+            drive_right_3.set_brake_mode(E_MOTOR_BRAKE_COAST);
         }
 
         // Sent values to drive motors

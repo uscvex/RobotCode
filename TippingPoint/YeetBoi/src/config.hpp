@@ -25,6 +25,10 @@ using namespace std;
 #define DM_GOTO 5      // Drive to a location
 #define DM_TURN 6       // Turn on spot to angle
 #define DM_FACE 7       // Turn on spot to face point
+#define DM_DISTANCE_SLOW 8       // Drive straight for distance (but really slow)
+#define DM_BRAKE 9
+#define DM_AUTOPARK 10
+#define DM_FINAL_BALANCE 11
 
 #define TURBO E_MOTOR_GEARSET_6
 #define SPEED E_MOTOR_GEARSET_18
@@ -35,7 +39,7 @@ using namespace std;
 #define LOOK_FOR_STICKER 2
 #define LOOK_FOR_YELLOW 3
 #define FUCK_GO_BACK 4
-
+#define FORCE_SPIN 5
 
 
 extern double* auton_ptr[];
@@ -81,6 +85,8 @@ extern void init_robot_black();
 
 // Controller
 extern Controller controller;
+
+extern Imu imu_sensor;
 
 // Motors
 extern Motor drive_right_1;
@@ -146,7 +152,12 @@ extern double drive_starting_x;
 extern double drive_starting_y;
 extern double drive_distance_target;
 
+extern double auto_park_min_power;
+extern double drive_slow_speed_target;
+extern double max_tilt;
+
 extern double last_auton_time;
+extern int done_auto_park;
 
 // Sensors
 extern ADIEncoder left_encoder;

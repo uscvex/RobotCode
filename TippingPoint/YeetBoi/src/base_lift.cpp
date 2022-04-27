@@ -28,13 +28,16 @@ void run_base_lift(void* params) {
 
         bool next_state = false;
 
+        if (optical_state == FORCE_SPIN) {
+            base_rotate_speed = 127;
+        }
         // if we're looking for the sticker and haven't seen it yet
         if ((optical_state == LOOK_FOR_YELLOW) || (optical_state == LOOK_FOR_STICKER)){
-            if (is_black) base_rotate_speed = 50; //needs to be a positive speed
+            if (is_black) base_rotate_speed = 80; //needs to be a positive speed
             else base_rotate_speed = 127;
         }
         else if (optical_state == FUCK_GO_BACK){
-            base_rotate_speed = -50;
+            base_rotate_speed = -80;
         }
         if (controller.get_digital(DIGITAL_A)) {
             optical_state = DO_NOTHING;

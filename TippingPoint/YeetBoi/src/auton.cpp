@@ -35,6 +35,10 @@
 #define SPINOPTICAL 27     // SCORES 8 RINGS ON THE TOP GOAL
 #define SPIKEBACKWARDSCORE 28    // SPIKE_BACKWARDS_SCORE
 #define SCOREHIGH 29
+#define BRAKE 31
+#define AUTOPARK 32
+#define SETTILT 33
+#define SPINTIME 34     // SPIN GOAL FOR TIME
 
 
 // Depost Locations
@@ -58,13 +62,52 @@
 #define SPINCOMPLETE 4
 
 
-int which_auton = 0;
-int num_autons = 5;
-string auton_names[] = {"LEFT_YY", "LEFT_NoY", "TEST", "RING_PRACTICE", "SK_RT"};
-double* auton_ptr[] = {&left_auton_yeet[0], &left_auton_no_yeet[0], &test_auton[0], &ring_practice_auton[0], &right_skills[0]};
+int which_auton = 2;
+int num_autons = 6;
+string auton_names[] = {"LEFT_YY", "LEFT_NoY", "TEST", "RING_PRACTICE", "SK_RT", "SPIN"};
+double* auton_ptr[] = {&left_auton_yeet[0], &left_auton_no_yeet[0], &test_auton[0], &ring_practice_auton[0], &right_skills[0], &spinner[0]};
 
 double test_auton[] = {
     0, 0, 0,
+
+    SETTILT, 0,
+    BELLYPOS, BELLYUP,
+    BASEPOS, BASEHOLD,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    DRIVE, -90, 0, 1,
+    DRIVEDIST, 90, 0, 9, 2, 
+    BELLYPOS, BELLYDOWN,
+    PAUSE, 1, 
+    DRIVEDIST, 127, 0, 20, 2, 
+    BELLYPOS, BELLYUP,
+    DRIVEDIST, 127, 0, 12, 2, 
+    AUTOPARK, 0,
+    PAUSE, 1,
+    BELLYPOS, BELLYCOAST,
+    BRAKE,
+    DEPOSITPOS, UPPER,
+    DRIVEDIST, 20, 0, 1.5, 1,
+    BRAKE,
+
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 300,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+                                // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    PAUSE, 0.5,
+    DROP, 1.5, 
+    SPINTIME, 2,
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 300,    
+    PAUSE, 0.5,
+    DROP, 1,
+    PAUSE, 0.5,
+    DROP, 1,
+
+    READYSPIKE, //drop dose rings
+    PAUSE, 0.25,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    PAUSE, 0.25,
 
     END,
 };
@@ -489,6 +532,14 @@ void autonomous() {
                     command_time_out = process_entry() * 1000;
                     break;
 
+                case BRAKE:
+                    // turn brakeing on for drive motors
+                    cout << "BRAKE" << endl;
+                    drive_mode = DM_BRAKE;
+                    next_command = true;
+                    break;
+
+
                 case FACE:
                     // Robot will turn to face the specified point
                     cout << "FACE" << endl;
@@ -699,9 +750,34 @@ void autonomous() {
                     next_command = true;
                     break;
 
-                    case SPINOPTICAL:
+                case SPINOPTICAL:
                     cout << "SPINOPTICAL" << endl;
                     optical_state = LOOK_FOR_YELLOW;
+                    next_command = true;
+                    break;
+
+                case SPINTIME:
+                    cout << "SPINOPTICAL" << endl;
+                    optical_state = FORCE_SPIN;
+                    command_time_out = process_entry() * 1000;
+                    break;
+
+                case AUTOPARK:
+                    // Autopark the robot
+                    cout << "AUTOPARK" << endl;
+                    drive_mode = DM_AUTOPARK;
+                    drive_turn_target = process_entry();
+                    // Record starting position
+                    drive_starting_x = robot_x;
+                    drive_starting_y = robot_y;
+                    auto_park_min_power = 127;
+                    drive_speed_target = 127;
+                    max_tilt = 0;
+                    done_auto_park = 1;
+                    break;
+                case SETTILT:
+                    // Set the tilt of the imu to 0
+                    imu_sensor.set_pitch(process_entry());
                     next_command = true;
                     break;
 
@@ -765,9 +841,14 @@ void autonomous() {
             }
         }
 
+        if (done_auto_park == 2) {
+            next_command = true;
+            done_auto_park = 0;
+        }
+
         bool finished_drive = false;
         // Check if we've driven far enough
-        if (drive_mode == DM_DISTANCE) {
+        if ((drive_mode == DM_DISTANCE) || (drive_mode == DM_DISTANCE_SLOW)) {
             // If we've moved at least as far as we wanted to
             if (drive_distance_target < pythag(drive_starting_x, drive_starting_y, robot_x, robot_y)) {
                 finished_drive = true;
@@ -817,6 +898,10 @@ void autonomous() {
             // If we were grabbing ring
             if ((spike_arm_state == 2) || (spike_arm_state == 10)) {
                 spike_arm_state = 1;
+            }
+
+            if (optical_state == FORCE_SPIN) {
+                optical_state = DO_NOTHING;
             }
 
         }

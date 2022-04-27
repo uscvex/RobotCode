@@ -59,7 +59,10 @@ void init_positions() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-
+    imu_sensor.reset();
+    while (imu_sensor.is_calibrating()) {
+        delay(10);
+    }
     calibrate_robot_params();
     yeet_release.set_value(0);
     yeet_retract.set_value(0);

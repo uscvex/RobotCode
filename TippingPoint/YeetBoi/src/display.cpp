@@ -31,7 +31,7 @@ void run_display(void* params) {
         screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
 
         screen::print(TEXT_MEDIUM, 10, "Hue: %f Sat:%f Brightness:%f", hue, saturation, RGB_values.brightness);
-        screen::print(TEXT_MEDIUM, 11, "Has base%d", has_base);
+        screen::print(TEXT_MEDIUM, 11, "R:%s Y:%s B:%s", is_red?"t":"f", is_yellow?"t":"f", is_black?"t":"f");
 
 
         // if (!(display_count % 45)) {

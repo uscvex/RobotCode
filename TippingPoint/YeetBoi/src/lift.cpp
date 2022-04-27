@@ -199,7 +199,7 @@ void run_lift(void* params) {
             case 3:  // Move arm to score on high neutral goals
                 spike_wrist_target = this_robot.SPIKE_WRIST_HIGH_GOAL_POS;
                 if ( (lift_pos < 0.8 * lift_target) || (spike_arm_pos < 0.8 * spike_arm_target) ) {
-                    spike_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR;
+                    // spike_wrist_target = this_robot.SPIKE_WRIST_CHASSIS_CLEAR;
                 }
                 if (spike_adjust != 0) {
                     this_robot.SPIKE_ARM_HIGH_GOAL_POS += spike_adjust * this_robot.SPIKE_ARM_ADJUST_AMOUNT;
