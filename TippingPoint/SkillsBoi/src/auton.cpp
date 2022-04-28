@@ -47,24 +47,19 @@
 #define TIME 3
 
 
-int which_auton = 2;
+int which_auton = 3;
 int num_autons = 5;
-string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SK_RGHT"};
+string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SPARE"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
 
 double test_auton[] = {
     0, 0, 0,
-    SETTILT, 0,
-
-    DRIVE, 40, 0, 1, 
-    DRIVEDIST, -60, 0, 4.5, 2, 
-    DRIVE, 40, 0, 0.05, 
-    FRONTARM, PARK,
-    PAUSE, 2, 
-    // FRONTARM, PARK, 
-    ULTRABOOST,
-    DRIVEDIST, 12700, 0, 35, 10,
-    AUTOPARK, 0,        // AUTOPARK FACING 0 DEGREES
+    BACKARM, READY,
+    WAIT, LIFTBELOW, -2500.0 * 0.95, 2,
+    BACKARM, HOLD,                      // LIFT GOAL
+    WAIT, LIFTABOVE, -2500.0 * 0.2, 2,
+    BACKARM, READY,
+    WAIT, LIFTBELOW, -2500.0 * 0.95, 2,
     END,
 };
 
@@ -154,7 +149,8 @@ double right_skills[] = {
 double left_skills[] = {
     -60, 43, 0,
 
-    DRIVEDIST, -127, 0, 3, 2,        // DRIVE BACKWARDS INTO GOAL
+    UNBOOST,
+    DRIVEDIST, -127, 0, 4, 2,        // DRIVE BACKWARDS INTO GOAL
     WOBBLE, ON,
     TIPBASE, ON,                    // GRAB GOAL
     // TURN, 45, 0.5, 
@@ -177,7 +173,7 @@ double left_skills[] = {
     DRIVEDIST, 127, 180, 1, 2, 
     FRONTARM, READY,  
     TURN, 225, 1.5, 
-    DRIVEDIST, -127, 225, 15, 2,
+    DRIVEDIST, -127, 225, 14, 2,
     
     TIPBASE, ON,
 
@@ -200,34 +196,34 @@ double left_skills[] = {
     // WOBBLE, ON, 
     ////////////////////////////////////////////////////////////////////////
 
-    DRIVETO, 80, 26, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 70, 28, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
     PAUSE, 0.5,
-    DRIVETO, 80, 26, -56, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 75, 28, -56, 16,       // DRIVE TO COLLECT NEXT RINGS
     
     // SWAP BACK GOAL TO HIGH ARM
     TURN, 270, 1.5, 
     TIPBASE, OFF, 
     INTAKE, OFF, 
     WOBBLE, OFF, 
-    DRIVEDIST, -127, 270, 30, 2,       // DRIVE INTO WALL
+    DRIVEDIST, -90, 270, 30, 2.5,       // DRIVE INTO WALL
     DRIVEDIST, 12700, 270, 2, 3,       // DRIVE AWAY FROM WALL
     BACKARM, READY,
     DRIVEDIST, 127, 270, 8, 3,       // DRIVE AWAY FROM WALL
-    WAIT, LIFTBELOW, this_robot.BACK_LIFT_READY_POS * 0.95, 2,
-    PAUSE, 0.5,
+    WAIT, LIFTBELOW, -2500.0 * 0.95, 2,
+    PAUSE, 0.125,
     DRIVEDIST, -70, 270, 15, 1,       // DRIVE INTO WALL
     DRIVEDIST, -127, 270, 15, 0.25,       // DRIVE INTO WALL HARDER
     BACKARM, HOLD,                      // LIFT GOAL
     DRIVEDIST, 100, 270, 8, 2,          // DRIVE AWAY FROM WALL
-    WAIT, LIFTABOVE, this_robot.BACK_LIFT_READY_POS * 0.4, 2,
+    WAIT, LIFTABOVE, -2500.0 * 0.2, 2,
+
     DRIVEDIST, -100, 270, 22, 1.5,         // DRIVE INTO WALL FULLY
     DRIVE, 70, 270, 0.2,         // DRIVE OUT OF WALL A LITTLE
-
     TURN, 190, 2,                       // TURN READY FOR RED GOAL
     DRIVEDIST, -60, 190, 9, 5,         // DRIVE INTO GOAL
     TIPBASE, ON,                    // GRAB GOAL
-    PAUSE, 0.5,                     // WAIT FOR GOAL GRAB
-    DRIVEDIST, 127, 225, 10, 2,      // DRIVE AWAY FROM GOAL
+    PAUSE, 0.125,                     // WAIT FOR GOAL GRAB
+    DRIVEDIST, 12700, 225, 10, 2,      // DRIVE AWAY FROM GOAL
 
     SIDEARM, READY, 
     TURN, 315, 1, 
@@ -236,29 +232,33 @@ double left_skills[] = {
     DRIVETO, 127, 24, -28, 2, 
     TURN, 270, 2, 
 
-    DRIVETO, 100, -8, -28, 2, 
+    DRIVETO, 100, -6, -29, 2, 
     SIDEARM, HOLD, 
-    DRIVETO, 127, -23, -28, 2, 
-    TURN, 0, 2,
-
-    DRIVETO, 80, -23, 10, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 127, -23, -29, 3, 
+    TURN, 0, 1,
+    
+    DRIVETO, 70, -23, 10, 16,       // DRIVE TO COLLECT NEXT RINGS
     PAUSE, 0.5,
-    DRIVETO, 80, -23, 48, 16,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 75, -23, 48, 16,       // DRIVE TO COLLECT NEXT RINGS
 
+    ULTRABOOST,
     FACE, -63, 43, 2, 
     DRIVETO, 90, -63, 40, 3,       // DRIVE READY FOR PARK
-    ULTRABOOST,
-    TURN, 180, 2,                   // FACE PLATFORM
-    DRIVEDIST, 90, 180, 20, 3,      // DRIVE TO PLATFORM
+    
+    TURN, 200, 1,                   // FACE PLATFORM
+    DRIVEDIST, 90, 200, 20, 2,      // DRIVE TO PLATFORM
 
     // PARK LMAO THERE'S NO WAY
-    DRIVEDIST, -60, 180, 4.5, 2, 
+    SETTILT, 0,
+    WOBBLE, OFF, 
+    DRIVEDIST, -12700, 180, 4, 2, 
     DRIVE, 40, 180, 0.05, 
     UNBOOST,
     FRONTARM, PARK,
-    PAUSE, 2,
+    PAUSE, 1.5, 
     ULTRABOOST,
-    AUTOPARK, 180,
+    DRIVEDIST, 12700, 180, 35, 10,
+    AUTOPARK, 180,        // AUTOPARK FACING 0 DEGREES
 
     END,
 };
@@ -274,9 +274,9 @@ double process_entry() {
     return result;
 }
 
-
+double auton_start_time = millis();       // Start time of auton mode
 void autonomous() {
-    double auton_start_time = millis();       // Start time of auton mode
+    auton_start_time = millis();       // Start time of auton mode
     double command_start_time = millis();     // Start time of each command
 
     double command_time_out = -1;             // Time-out limit of each command
@@ -590,13 +590,13 @@ void autonomous() {
                 case LIFTABOVE:
                     if (back_lift_pos >= wait_parameter) {
                         finished_wait = true;
-                        cout << "Wait lift above done\n";
+                        cout << back_lift_pos << ", " << wait_parameter << ", Wait lift above done\n";
                     }
                     break;
                 case LIFTBELOW:
                     if (back_lift_pos <= wait_parameter) {
                         finished_wait = true;
-                        cout << "Wait lift below done\n";
+                        cout << back_lift_pos << ", " << wait_parameter << ", Wait lift below done\n";
                     }
                     break;
                     

@@ -50,7 +50,8 @@ void run_drive(void* params) {
         counter++;
 
         // Call track_position to update the odometry
-        track_position();
+        if (counter % 2) 
+            track_position();
 
         // Get user input for manual control of drive (arcade-style)
         double input_forward = controller.get_analog(ANALOG_LEFT_Y);
@@ -282,6 +283,7 @@ void run_drive(void* params) {
                 max_tilt = max(max_tilt, tilt);
                 if ((tilt < max_tilt * 0.75) && max_tilt > 20) {
                     drive_mode = DM_FINAL_BALANCE;
+                    cout << ((millis() - auton_start_time) / 1000) << ": PARK TIPPING";
                     drive_starting_x = robot_x;
                     drive_starting_y = robot_y;
                     auto_park_min_power = 0;
@@ -300,7 +302,7 @@ void run_drive(void* params) {
 
                 forward_speed = auto_park_min_power;
 
-                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.75 << "," << tilt << "," << drive_mode-9 << endl;
+                // cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.75 << "," << tilt << "," << drive_mode-9 << endl;
                 last_tilt = tilt;
 
             }
@@ -314,19 +316,14 @@ void run_drive(void* params) {
                 
                 auto_park_min_power = -127;
 
-                // if (tilt > max_tilt * 0.5) {
-                //     auto_park_min_power = 0;
-                //     drive_starting_x = robot_x;
-                //     drive_starting_y = robot_y;
-                // }
-
                 if (tot_displacement > 0.5) {
                     drive_mode = DM_BRAKE;
+                    cout << ((millis() - auton_start_time) / 1000) << ": PARK DONE";
                 }
 
                 forward_speed = auto_park_min_power;
 
-                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.5 << "," << tilt << "," << drive_mode-9 << endl;
+                // cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.5 << "," << tilt << "," << drive_mode-9 << endl;
 
             }
 

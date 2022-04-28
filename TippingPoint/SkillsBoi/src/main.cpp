@@ -94,6 +94,10 @@ void disabled() {
     ADIAnalogIn encoder_lift ( {{ 7 , 8 }});
     back_latch.set_value(0);
     front_latch.set_value(0); 
+    if (which_auton == 3) {
+        tip_latch = false;
+        back_tip.set_value(0);
+    }
 }
 
 /**

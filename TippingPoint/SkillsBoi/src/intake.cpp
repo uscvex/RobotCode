@@ -1,6 +1,6 @@
 #include "main.h"
 
-Motor intake_left(14, SPEED, 1);
+Motor intake_left(14, SPEED, 0);
 Motor intake_right(15, SPEED, 0);
 Motor intake_wobble_left(8, SPEED, 1);
 Motor intake_wobble_right(17, SPEED, 0);
@@ -25,7 +25,7 @@ void run_intake(void* params) {
         double intake_speed = 0;
         double intake_wobble_speed_left = 0;
         double intake_wobble_speed_right = 0;
-        double intake_current_speed = (intake_left.get_actual_velocity() + intake_right.get_actual_velocity()) / 2.0;
+        double intake_current_speed = (-intake_left.get_actual_velocity() + intake_right.get_actual_velocity()) / 2.0;
 
         if (controller.get_digital(DIGITAL_B)) {
             if (!just_toggled_tip) {
@@ -140,7 +140,7 @@ void run_intake(void* params) {
         intake_wobble_left.move_voltage((12000 * intake_wobble_speed_left) / 127);
         intake_wobble_right.move_voltage((12000 * intake_wobble_speed_right) / 127);
 
-        intake_left.move_voltage((12000 * intake_speed) / 127);
+        intake_left.move_voltage(-(12000 * intake_speed) / 127);
         intake_right.move_voltage((12000 * intake_speed) / 127);
 
         pros::delay(10);

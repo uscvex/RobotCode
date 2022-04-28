@@ -11,9 +11,9 @@ void init_robot() {
     this_robot.FRONT_LIFT_RATE = 1.0;
     this_robot.SIDE_LIFT_RATE = 2.0;
 
-    this_robot.INTAKE_VOMIT_THRESHOLD = 150;
+    this_robot.INTAKE_VOMIT_THRESHOLD = 160;
     this_robot.INTAKE_VOMIT_TIMEOUT = 100;
-    this_robot.INTAKE_VOMIT_TIME = 200;
+    this_robot.INTAKE_VOMIT_TIME = 300;
 
 
     this_robot.INTAKE_WOBBLE_IN = -50;
@@ -31,7 +31,7 @@ void init_robot() {
     this_robot.FRONT_LIFT_HEIGHT_DROP_HIGH = 1200;
     this_robot.FRONT_LIFT_PARK_POS = -2450;
 
-    this_robot.SIDE_LIFT_READY_POS = -1800;
+    this_robot.SIDE_LIFT_READY_POS = -1500;
     this_robot.SIDE_LIFT_HOLD_POS = 0;
 
     // Step size for driver control slew (burn-out protection)

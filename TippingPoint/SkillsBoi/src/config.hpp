@@ -48,6 +48,7 @@ extern double test_auton[];
 extern int which_robot;
 extern string robot_names[];
 
+extern double auton_start_time;
 extern int num_autons;
 extern int which_auton;
 extern string auton_names[];
