@@ -62,7 +62,7 @@ void run_optical(void* params){
 
         switch (optical_state){
             case DO_NOTHING: // default, does nothing
-                optical.set_led_pwm(0);
+                optical.set_led_pwm(100);
                 break;
             case LOOK_FOR_YELLOW: // look for the yellowness of the base
                 // if it's yellow specifically

@@ -427,6 +427,8 @@ void run_lift(void* params) {
             lift_speed_right = (lift_target - lift_pos_right + this_robot.LEFT_LIFT_OFFSET) * this_robot.LIFT_RATE;
         }
 
+        
+
         if (controller.get_digital(DIGITAL_UP)) {
             spike_drop = false;
             base_right_state = -1;
@@ -437,6 +439,9 @@ void run_lift(void* params) {
             lift_state = -1;
             spike_speed = 0;
             collision_avoid_state = -1;
+            if (controller.get_digital(DIGITAL_DOWN)) {
+                spike_arm_speed = -127;
+            }
         }
 
         spike.move_voltage((12000 * spike_speed) / 127);

@@ -26,12 +26,12 @@ void init_robot_black() {
     this_robot.BASE_RIGHT_ARM_POS_3 = 2200;
 
     // Spike positions for plunging down on ring
-    this_robot.SPIKE_WRIST_GRAB_POS = 202;
+    this_robot.SPIKE_WRIST_GRAB_POS = 201;
     this_robot.SPIKE_ARM_GRAB_POS = 0;
 
     // Angle for when waiting to grab ring
-    this_robot.SPIKE_WRIST_READY_POS = 206;
-    this_robot.SPIKE_ARM_READY_POS = 1750;
+    this_robot.SPIKE_WRIST_READY_POS = 203;
+    this_robot.SPIKE_ARM_READY_POS = 1500;
     
     // Overall range of motion for the wrist
     this_robot.SPIKE_WRIST_RANGE = 2740;

@@ -69,142 +69,254 @@ double* auton_ptr[] = {&left_auton_yeet[0], &left_auton_no_yeet[0], &test_auton[
 
 
 double right_skills[] = {
-    -55.5, -40, 180,      // STARTING POS
+    -54.5, -40, 270,      // STARTING POS
     DEPLOY, 
-
-    TURN, 225, 1,
-    BELLYPOS, BELLYUP,
-    DEPOSITPOS, FORWARD,
+    PAUSE, 0.9,
     DROP, 0.1,
-    BASEPOS, BASEREADY,
-    DRIVETO, -127, 10, 5, 4,
-    DRIVE, -127, 225, 0.3,
-    BASEPOS, BASEHOLD,
+    READYSPIKE, 
     BELLYPOS, BELLYDOWN,
-    DRIVE, 127, 235, 0.75,
-    READYSPIKE,
-    DRIVETO, 127, -36, -38, 3,
-    TURN, 270, 1.5,
 
-    // FACE ALLIANCE GOAL, SCORE PRELOADS, BACK OUT
-    // DRIVEDIST, 100, 180, 13, 2, 
-    // PAUSE, 0.25,
-    // DROP, 0.5, 
-    // DRIVEDIST, -100, 180, 9, 2, 
-    // READYSPIKE,
-    // DRIVE, 60, 180, 0.05,
-
-    // GO GET MIDDLE GOAL, COME BACK
-    // TURN, 270, 1.5, 
-    DRIVEDIST, 127, 270, 10, 1,
-
-    // COLLECT MATCH-LOAD RINGS
-    COLLECTRING, 1.5,      // 1
-    COLLECTRING, 1.5,      // 2
-    COLLECTRING, 1.5,      // 3
-    COLLECTRING, 1.5,      // 4
-    COLLECTRING, 1.5,      // 5
-    COLLECTRING, 1.5,      // 6
-    COLLECTRING, 1.5,      // 7
-    COLLECTRING, 1.5,      // 8
-    COLLECTRING, 1,        // 9
-    
-    // GRAB ALLIANCE GOAL
-    WRISTPOS, 30,
-    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
-    DRIVEDIST, -127, 270, 3, 1, 
+    DRIVEDIST, -100, 270, 10, 2, 
     DRIVE, 60, 270, 0.05,
+    PAUSE, 2, 
 
-    TURN, 225, 1.25, 
-    DRIVEDIST, -127, 225, 8, 1.5,
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
 
-    TURN, 180, 1.25, 
-    DRIVEDIST, 127, 180, 15, 1.5,
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+
+    DRIVETO, -100, -36, -30, 2,
+    TURN, 180, 1,
+    DRIVEDIST, 100, 180, 15, 1,
     BELLYPOS, BELLYUP,
-    PAUSE, 1,
-    DRIVEDIST, 127, 135, 10, 2, 
-    DRIVEDIST, -127, 110, 1, 1, 
-    DRIVEDIST, 127, 125, 5, 1, 
-    DRIVEDIST, -127, 90, 3, 1, 
-    BELLYPOS, BELLYDOWN,
-    PAUSE, 0.5,
-    DRIVEDIST, 127, 90, 10, 2, 
+    PAUSE, 0.75,
+    BASEPOS, BASEREADY,
+    DRIVEDIST, -127, 180, 15, 1,
+    TURN, 225, 1, 
+    DRIVETO, -127, 5, 5, 3,
 
-    // TRY SCORING HIGH FIRST, JUST TO SEE
     DEPOSITPOS, UPPER,
-    DRIVEDIST, 20, 0, 1.5, 1,
-    BRAKE,
-    PAUSE, 1.5, 
+    DRIVETO, -127, 75, 65, 3,
+    BASEPOS, BASEHOLD,
+
+    // DRIVEDIST, -127, 235, 20, 1, 
+    BELLYPOS, BELLYDOWN,
+    DRIVEDIST, 100, 235, 1, 2, 
+
     SPINOPTICAL,
     WAIT, SPINCOMPLETE, -1, 7,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
-                                // waits 5 seconds for the bot to find the sticker and stop spinning the base
     PAUSE, 0.5,
     DROP, 2, 
     SPINTIME, 2,
+
     SPINOPTICAL,
     WAIT, SPINCOMPLETE, -1, 2,    
     PAUSE, 0.5,
-    DROP, 1,
+    DROP, 0.75,
     PAUSE, 0.5,
-    DROP, 1.5,
+    DROP, 1.25,
 
     READYSPIKE, //drop dose rings
     PAUSE, 0.25,
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
-    SPINTIME, 0.5, 
-    // END OF SCORING HIGH, JUST TO SEE
-
-    WAIT, TIME, 36, 15,             // WAIT TO GIVE TIME FOR BIG BOT TO GET OUT
-
-    DRIVEDIST, 127, 90, 50, 4, 
-    DRIVEDIST, 60, 90, 20, 2, 
-    PAUSE, 0.125,
-    BELLYPOS, BELLYUP,
-    SPINTIME, 0.5, 
-    DRIVEDIST, -90, 90, 1, 1, 
-    
-    TURN, 45, 1, 
-    DRIVEDIST, 127, 45, 10, 2, 
-    DRIVEDIST, -60, 10, 2, 1, 
-    TURN, 10, 1, 
+    BASEPOS, BASEDROP,
+    PAUSE, 1, 
     SETTILT, 0,
-    DRIVEDIST, 127, 5, 10, 2, 
-    BELLYPOS, BELLYDOWN,
+    DRIVETO, 80, 30, 30, 2,
+    BELLYPOS, BELLYUP,
+    BASEPOS, BASEREADY,
+    PAUSE, 0.5,
+    TURN, 180, 1.5, 
+    DRIVEDIST, -127, 180, 15, 1.5, 
+    DRIVE, -127, 180, 0.75, 
+    BASEPOS, BASEHOLD,
+    DRIVEDIST, 127, 180, 3, 1,
+    TURN, 45, 0.25, 
+    TURN, 0, 0.25, 
+    TURN, 90, 1.5, 
+    DRIVEDIST, 127, 90, 40, 2.5,
+    DRIVEDIST, -127, 90, 2, 1,
 
-    // AUTO PARK, ETC.
-    PAUSE, 0.5, 
-    SPINTIME, 0.25, 
-    DRIVEDIST, 127, 0, 20, 3, 
+    // TURN, 135, 2, 
+    DRIVEDIST, 127, 180, 5, 1,
+    // TURN, 180, 1, 
+    DRIVEDIST, -127, 180, 2, 1,
+    DRIVEDIST, 127, 180, 2, 1,
+    DRIVEDIST, -127, 170, 1, 1,
+    DRIVEDIST, 80, 170, 10, 1,
+    // DRIVEDIST, -1270, 170, 0.5, 1,
+
+    BELLYPOS, BELLYDOWN,
+    PAUSE, 1.5,
+    DRIVEDIST, 127, 180, 20, 3, 
     WRISTPOS, 1,
     BELLYPOS, BELLYUP,
-    DRIVEDIST, 127, 0, 16, 3, 
-    AUTOPARK, 0,
-    PAUSE, 1,
-    BELLYPOS, BELLYCOAST,
+    DRIVEDIST, 127, 180, 16, 3, 
+    AUTOPARK, 180,
     BRAKE,
+    PAUSE, 0.5,
+    BELLYPOS, BELLYCOAST,
+
+    // TURN, 225, 1,
+    // BELLYPOS, BELLYUP,
+    // DEPOSITPOS, FORWARD,
+    // DROP, 0.1,
+    // BASEPOS, BASEREADY,
+    // DRIVETO, -127, 10, 5, 4,
+    // DRIVE, -127, 225, 0.3,
+    // BASEPOS, BASEHOLD,
+    // BELLYPOS, BELLYDOWN,
+    // DRIVE, 127, 235, 0.75,
+    // READYSPIKE,
+    // DRIVETO, 127, -36, -38, 3,
+    // TURN, 270, 1.5,
+
+    // // FACE ALLIANCE GOAL, SCORE PRELOADS, BACK OUT
+    // // DRIVEDIST, 100, 180, 13, 2, 
+    // // PAUSE, 0.25,
+    // // DROP, 0.5, 
+    // // DRIVEDIST, -100, 180, 9, 2, 
+    // // READYSPIKE,
+    // // DRIVE, 60, 180, 0.05,
+
+    // // GO GET MIDDLE GOAL, COME BACK
+    // // TURN, 270, 1.5, 
+    // DRIVEDIST, 127, 270, 10, 1,
+
+    // // COLLECT MATCH-LOAD RINGS
+    // COLLECTRING, 1.5,      // 1
+    // COLLECTRING, 1.5,      // 2
+    // COLLECTRING, 1.5,      // 3
+    // COLLECTRING, 1.5,      // 4
+    // COLLECTRING, 1.5,      // 5
+    // COLLECTRING, 1.5,      // 6
+    // COLLECTRING, 1.5,      // 7
+    // COLLECTRING, 1.5,      // 8
+    // COLLECTRING, 1,        // 9
+    
+    // // GRAB ALLIANCE GOAL
+    // WRISTPOS, 30,
+    // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    // DRIVEDIST, -127, 270, 3, 1, 
+    // DRIVE, 60, 270, 0.05,
+
+    // TURN, 225, 1.25, 
+    // DRIVEDIST, -127, 225, 8, 1.5,
+
+    // TURN, 180, 1.25, 
+    // DRIVEDIST, 127, 180, 15, 1.5,
+    // BELLYPOS, BELLYUP,
+    // PAUSE, 1,
+    // DRIVEDIST, 127, 135, 10, 2, 
+    // DRIVEDIST, -127, 110, 1, 1, 
+    // DRIVEDIST, 127, 125, 5, 1, 
+    // DRIVEDIST, -127, 90, 3, 1, 
+    // BELLYPOS, BELLYDOWN,
+    // PAUSE, 0.5,
+    // DRIVEDIST, 127, 90, 10, 2, 
+
+    // // TRY SCORING HIGH FIRST, JUST TO SEE
     // DEPOSITPOS, UPPER,
     // DRIVEDIST, 20, 0, 1.5, 1,
     // BRAKE,
-    // PAUSE, 1, 
+    // PAUSE, 1.5, 
     // SPINOPTICAL,
-    // WAIT, SPINCOMPLETE, -1, 8,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+    // WAIT, SPINCOMPLETE, -1, 7,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
     //                             // waits 5 seconds for the bot to find the sticker and stop spinning the base
     // PAUSE, 0.5,
-    // DROP, 1.5, 
+    // DROP, 2, 
     // SPINTIME, 2,
     // SPINOPTICAL,
     // WAIT, SPINCOMPLETE, -1, 2,    
     // PAUSE, 0.5,
     // DROP, 1,
     // PAUSE, 0.5,
-    // DROP, 1,
+    // DROP, 1.5,
 
     // READYSPIKE, //drop dose rings
     // PAUSE, 0.25,
     // WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
-    // PAUSE, 0.25,
+    // SPINTIME, 0.5, 
+    // // END OF SCORING HIGH, JUST TO SEE
+
+    // WAIT, TIME, 36, 15,             // WAIT TO GIVE TIME FOR BIG BOT TO GET OUT
+
+    // DRIVEDIST, 127, 90, 50, 4, 
+    // DRIVEDIST, 60, 90, 20, 2, 
+    // PAUSE, 0.125,
+    // BELLYPOS, BELLYUP,
+    // SPINTIME, 0.5, 
+    // DRIVEDIST, -90, 90, 1, 1, 
+    
+    // TURN, 45, 1, 
+    // DRIVEDIST, 127, 45, 10, 2, 
+    // DRIVEDIST, -60, 10, 2, 1, 
+    // TURN, 10, 1, 
+    // SETTILT, 0,
+    // DRIVEDIST, 127, 5, 10, 2, 
+    // BELLYPOS, BELLYDOWN,
+
+    // // AUTO PARK, ETC.
+    // PAUSE, 0.5, 
+    // SPINTIME, 0.25, 
+    // DRIVEDIST, 127, 0, 20, 3, 
+    // WRISTPOS, 1,
+    // BELLYPOS, BELLYUP,
+    // DRIVEDIST, 127, 0, 16, 3, 
+    // AUTOPARK, 0,
+    // PAUSE, 1,
+    // BELLYPOS, BELLYCOAST,
+    // BRAKE,
+    // // DEPOSITPOS, UPPER,
+    // // DRIVEDIST, 20, 0, 1.5, 1,
+    // // BRAKE,
+    // // PAUSE, 1, 
+    // // SPINOPTICAL,
+    // // WAIT, SPINCOMPLETE, -1, 8,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+    // //                             // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    // // PAUSE, 0.5,
+    // // DROP, 1.5, 
+    // // SPINTIME, 2,
+    // // SPINOPTICAL,
+    // // WAIT, SPINCOMPLETE, -1, 2,    
+    // // PAUSE, 0.5,
+    // // DROP, 1,
+    // // PAUSE, 0.5,
+    // // DROP, 1,
+
+    // // READYSPIKE, //drop dose rings
+    // // PAUSE, 0.25,
+    // // WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    // // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    // // PAUSE, 0.25,
 
     END,
 };

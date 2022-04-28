@@ -45,7 +45,8 @@ void run_drive(void* params) {
         counter++;
 
         // Call track_position to update the odometry
-        track_position();
+        if (counter % 2)
+            track_position();
 
         // Get user input for manual control of drive (arcade-style)
         double input_forward = controller.get_analog(ANALOG_LEFT_Y);
@@ -304,7 +305,7 @@ void run_drive(void* params) {
                 
                 auto_park_min_power = -127;
 
-                if (tot_displacement > 1) {
+                if (tot_displacement > 0.5) {
                     drive_mode = DM_BRAKE;
                     done_auto_park = 2;
                 }
