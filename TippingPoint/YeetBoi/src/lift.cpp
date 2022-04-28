@@ -77,10 +77,8 @@ void run_lift(void* params) {
 
         bool next_collect_state = false;
         if (controller.get_digital(DIGITAL_L2)) {
-            // For skills, drop base when spike ready
-            if ((which_auton == 4) && (lift_state == 3)) {
-                base_lift_state = 3;
-            }
+        
+            
             lift_state = -1;
             base_right_state = -1;
             if (!just_toggled_collect) {
@@ -311,9 +309,9 @@ void run_lift(void* params) {
         if (spike_drop) {
             if (spike_wrist_target != -1) {
                 double skills_amplitude = 1.0;
-                if (which_auton == 4) {
-                    skills_amplitude = 1.35;
-                }
+                // if (which_auton == 4) {
+                //     skills_amplitude = 1.35;
+                // }
                 spike_wrist_target_offset = skills_amplitude * this_robot.SPIKE_SHAKE_AMPLITUDE * (sin(millis() / 15) + sin(millis() / 18));
             }
             spike_speed = this_robot.SPIKE_DROP_SPEED;

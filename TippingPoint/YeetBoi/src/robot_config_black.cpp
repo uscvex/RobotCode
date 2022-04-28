@@ -26,12 +26,12 @@ void init_robot_black() {
     this_robot.BASE_RIGHT_ARM_POS_3 = 2200;
 
     // Spike positions for plunging down on ring
-    this_robot.SPIKE_WRIST_GRAB_POS = 201;
+    this_robot.SPIKE_WRIST_GRAB_POS = 202;
     this_robot.SPIKE_ARM_GRAB_POS = 0;
 
     // Angle for when waiting to grab ring
-    this_robot.SPIKE_WRIST_READY_POS = 203;
-    this_robot.SPIKE_ARM_READY_POS = 1400;
+    this_robot.SPIKE_WRIST_READY_POS = 206;
+    this_robot.SPIKE_ARM_READY_POS = 1750;
     
     // Overall range of motion for the wrist
     this_robot.SPIKE_WRIST_RANGE = 2740;
@@ -61,7 +61,7 @@ void init_robot_black() {
 
     // Alliance goal forward position
     this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 236;
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2500;
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2400;
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
     // Scoring for middle branches
@@ -88,8 +88,8 @@ void init_robot_black() {
     this_robot.BASE_LIFT_DROP_POS = 100;
 
     // How much to lower the base for spinnage
-    // this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
-    this_robot.BASE_SPIN_OFFSET = 0;
+    this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
+    // this_robot.BASE_SPIN_OFFSET = 0;
 
     // Base grabber release lever positions
     this_robot.BASE_RELEASE_DROP_POS = -800;
@@ -125,8 +125,8 @@ void init_robot_black() {
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
     this_robot.MAX_TURN_SPEED = 127.0;
-    this_robot.MIN_TURN_SPEED = 50.0;
-    this_robot.TURN_PULSE_ON = 2;
+    this_robot.MIN_TURN_SPEED = 60.0;
+    this_robot.TURN_PULSE_ON = 5;
     this_robot.TURN_PULSE_OFF = 7;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
     this_robot.DRIVE_PRECISION = 3;  // +/- 3 inches precision

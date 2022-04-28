@@ -62,10 +62,153 @@
 #define SPINCOMPLETE 4
 
 
-int which_auton = 2;
+int which_auton = 4;
 int num_autons = 6;
 string auton_names[] = {"LEFT_YY", "LEFT_NoY", "TEST", "RING_PRACTICE", "SK_RT", "SPIN"};
 double* auton_ptr[] = {&left_auton_yeet[0], &left_auton_no_yeet[0], &test_auton[0], &ring_practice_auton[0], &right_skills[0], &spinner[0]};
+
+
+double right_skills[] = {
+    -55.5, -40, 180,      // STARTING POS
+    DEPLOY, 
+
+    TURN, 225, 1,
+    BELLYPOS, BELLYUP,
+    DEPOSITPOS, FORWARD,
+    DROP, 0.1,
+    BASEPOS, BASEREADY,
+    DRIVETO, -127, 10, 5, 4,
+    DRIVE, -127, 225, 0.3,
+    BASEPOS, BASEHOLD,
+    BELLYPOS, BELLYDOWN,
+    DRIVE, 127, 235, 0.75,
+    READYSPIKE,
+    DRIVETO, 127, -36, -38, 3,
+    TURN, 270, 1.5,
+
+    // FACE ALLIANCE GOAL, SCORE PRELOADS, BACK OUT
+    // DRIVEDIST, 100, 180, 13, 2, 
+    // PAUSE, 0.25,
+    // DROP, 0.5, 
+    // DRIVEDIST, -100, 180, 9, 2, 
+    // READYSPIKE,
+    // DRIVE, 60, 180, 0.05,
+
+    // GO GET MIDDLE GOAL, COME BACK
+    // TURN, 270, 1.5, 
+    DRIVEDIST, 127, 270, 10, 1,
+
+    // COLLECT MATCH-LOAD RINGS
+    COLLECTRING, 1.5,      // 1
+    COLLECTRING, 1.5,      // 2
+    COLLECTRING, 1.5,      // 3
+    COLLECTRING, 1.5,      // 4
+    COLLECTRING, 1.5,      // 5
+    COLLECTRING, 1.5,      // 6
+    COLLECTRING, 1.5,      // 7
+    COLLECTRING, 1.5,      // 8
+    COLLECTRING, 1,        // 9
+    
+    // GRAB ALLIANCE GOAL
+    WRISTPOS, 30,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    DRIVEDIST, -127, 270, 3, 1, 
+    DRIVE, 60, 270, 0.05,
+
+    TURN, 225, 1.25, 
+    DRIVEDIST, -127, 225, 8, 1.5,
+
+    TURN, 180, 1.25, 
+    DRIVEDIST, 127, 180, 15, 1.5,
+    BELLYPOS, BELLYUP,
+    PAUSE, 1,
+    DRIVEDIST, 127, 135, 10, 2, 
+    DRIVEDIST, -127, 110, 1, 1, 
+    DRIVEDIST, 127, 125, 5, 1, 
+    DRIVEDIST, -127, 90, 3, 1, 
+    BELLYPOS, BELLYDOWN,
+    PAUSE, 0.5,
+    DRIVEDIST, 127, 90, 10, 2, 
+
+    // TRY SCORING HIGH FIRST, JUST TO SEE
+    DEPOSITPOS, UPPER,
+    DRIVEDIST, 20, 0, 1.5, 1,
+    BRAKE,
+    PAUSE, 1.5, 
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 7,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+                                // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    PAUSE, 0.5,
+    DROP, 2, 
+    SPINTIME, 2,
+    SPINOPTICAL,
+    WAIT, SPINCOMPLETE, -1, 2,    
+    PAUSE, 0.5,
+    DROP, 1,
+    PAUSE, 0.5,
+    DROP, 1.5,
+
+    READYSPIKE, //drop dose rings
+    PAUSE, 0.25,
+    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    SPINTIME, 0.5, 
+    // END OF SCORING HIGH, JUST TO SEE
+
+    WAIT, TIME, 36, 15,             // WAIT TO GIVE TIME FOR BIG BOT TO GET OUT
+
+    DRIVEDIST, 127, 90, 50, 4, 
+    DRIVEDIST, 60, 90, 20, 2, 
+    PAUSE, 0.125,
+    BELLYPOS, BELLYUP,
+    SPINTIME, 0.5, 
+    DRIVEDIST, -90, 90, 1, 1, 
+    
+    TURN, 45, 1, 
+    DRIVEDIST, 127, 45, 10, 2, 
+    DRIVEDIST, -60, 10, 2, 1, 
+    TURN, 10, 1, 
+    SETTILT, 0,
+    DRIVEDIST, 127, 5, 10, 2, 
+    BELLYPOS, BELLYDOWN,
+
+    // AUTO PARK, ETC.
+    PAUSE, 0.5, 
+    SPINTIME, 0.25, 
+    DRIVEDIST, 127, 0, 20, 3, 
+    WRISTPOS, 1,
+    BELLYPOS, BELLYUP,
+    DRIVEDIST, 127, 0, 16, 3, 
+    AUTOPARK, 0,
+    PAUSE, 1,
+    BELLYPOS, BELLYCOAST,
+    BRAKE,
+    // DEPOSITPOS, UPPER,
+    // DRIVEDIST, 20, 0, 1.5, 1,
+    // BRAKE,
+    // PAUSE, 1, 
+    // SPINOPTICAL,
+    // WAIT, SPINCOMPLETE, -1, 8,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+    //                             // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    // PAUSE, 0.5,
+    // DROP, 1.5, 
+    // SPINTIME, 2,
+    // SPINOPTICAL,
+    // WAIT, SPINCOMPLETE, -1, 2,    
+    // PAUSE, 0.5,
+    // DROP, 1,
+    // PAUSE, 0.5,
+    // DROP, 1,
+
+    // READYSPIKE, //drop dose rings
+    // PAUSE, 0.25,
+    // WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    // PAUSE, 0.25,
+
+    END,
+};
+
 
 double test_auton[] = {
     0, 0, 0,
@@ -81,9 +224,9 @@ double test_auton[] = {
     PAUSE, 1, 
     DRIVEDIST, 127, 0, 20, 2, 
     BELLYPOS, BELLYUP,
-    DRIVEDIST, 127, 0, 12, 2, 
+    DRIVEDIST, 127, 0, 15, 2, 
     AUTOPARK, 0,
-    PAUSE, 1,
+    PAUSE, 0.5,
     BELLYPOS, BELLYCOAST,
     BRAKE,
     DEPOSITPOS, UPPER,
@@ -432,23 +575,6 @@ double left_auton_no_yeet[] = {
     DRIVETO, -100, -31, 36, 3,
     TURN, 0, 2,
     DRIVETO, -127, -31, 0, 3,
-
-    END,
-};
-
-double right_skills[] = {
-    0, 0, 0,
-    DEPLOY,
-    BASEPOS, BASEREADY,
-    PAUSE,0.5, 
-
-    SPIKEBACKWARDSCORE, 
-    DRIVEDIST, -127, 0, 100, 2,
-    DROP, 1, 
-    DRIVEDIST, -127, 0, 100, 0.5,
-    DROP, 2,
-    DRIVEDIST, -127, 0, 100, 2,
-    DROP, 10,
 
     END,
 };

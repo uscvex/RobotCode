@@ -30,14 +30,18 @@ void run_base_lift(void* params) {
 
         if (optical_state == FORCE_SPIN) {
             base_rotate_speed = 127;
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
         }
         // if we're looking for the sticker and haven't seen it yet
         if ((optical_state == LOOK_FOR_YELLOW) || (optical_state == LOOK_FOR_STICKER)){
-            if (is_black) base_rotate_speed = 80; //needs to be a positive speed
+            if (is_black) base_rotate_speed = 100; //needs to be a positive speed
             else base_rotate_speed = 127;
+            if (optical_state == LOOK_FOR_YELLOW) {
+                base_spin_offset = this_robot.BASE_SPIN_OFFSET;
+            }
         }
         else if (optical_state == FUCK_GO_BACK){
-            base_rotate_speed = -80;
+            base_rotate_speed = -90;
         }
         if (controller.get_digital(DIGITAL_A)) {
             optical_state = DO_NOTHING;
@@ -45,11 +49,7 @@ void run_base_lift(void* params) {
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = -127;
 
-            if (which_auton == 4) {
-                spike_arm_state = -1;
-                base_right_state = -1;
-                lift_state = 3;
-            }
+            
         }
         if (controller.get_digital(DIGITAL_Y)) {
             optical_state = DO_NOTHING;
@@ -57,11 +57,7 @@ void run_base_lift(void* params) {
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = 127;
 
-            if (which_auton == 4) {
-                spike_arm_state = -1;
-                base_right_state = -1;
-                lift_state = 3;
-            }
+            
             
         }
         if (controller.get_digital(DIGITAL_R1)) {
@@ -74,12 +70,12 @@ void run_base_lift(void* params) {
             just_toggled = false;
         }
 
-        if (controller.get_digital(DIGITAL_RIGHT) && (which_auton == 4)) {
-            base_lift_state = 1;    // Ready to grab
-        }
-        if (controller.get_digital(DIGITAL_LEFT) && (which_auton == 4)) {
-            base_lift_state = 2;    // Hold base
-        }
+        // if (controller.get_digital(DIGITAL_RIGHT) && (which_auton == 4)) {
+        //     base_lift_state = 1;    // Ready to grab
+        // }
+        // if (controller.get_digital(DIGITAL_LEFT) && (which_auton == 4)) {
+        //     base_lift_state = 2;    // Hold base
+        // }
         
         switch (base_lift_state) {
             case -1:  // Do nothing (abort state)

@@ -105,12 +105,12 @@ void opcontrol() {
     drive_mode = DM_USER;       // Stop any unfinished drive move
 
     // If this is a skills run, deploy and put robot into good state
-    if ((which_auton == 3) || (which_auton == 4)) {
-        yeet_state = 10;            // Yeet release (auto-deploy for driver skills)
-        lift_state = -1;            // Don't be scoring rings
-        base_right_state = -1;      // Don't be righting bases
-        spike_arm_state = 1;        // Do be ready to spike for match-loads
-    }
+    // if ((which_auton == 3) || (which_auton == 4)) {
+    //     yeet_state = 10;            // Yeet release (auto-deploy for driver skills)
+    //     lift_state = -1;            // Don't be scoring rings
+    //     base_right_state = -1;      // Don't be righting bases
+    //     spike_arm_state = 1;        // Do be ready to spike for match-loads
+    // }
 
     bool just_toggled_auton = false;
     while (true) {

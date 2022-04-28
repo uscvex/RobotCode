@@ -38,7 +38,6 @@ void run_optical(void* params){
     while(true){
         double base_rotate_speed = 0;
         has_base = false;
-        optical.set_led_pwm(100);
         brightness = optical.get_brightness();
         hue = optical.get_hue();
         saturation = optical.get_saturation();
@@ -63,21 +62,25 @@ void run_optical(void* params){
 
         switch (optical_state){
             case DO_NOTHING: // default, does nothing
+                optical.set_led_pwm(0);
                 break;
             case LOOK_FOR_YELLOW: // look for the yellowness of the base
                 // if it's yellow specifically
+                optical.set_led_pwm(100);
                 if (is_yellow) {
                     cout << "found yellow " << millis() << endl;
                     optical_state = LOOK_FOR_STICKER;
                 }
                 break;
             case LOOK_FOR_STICKER: //look for the sticker
+                optical.set_led_pwm(100);
                 if (is_red){
                     cout << "found sticker " << millis() << endl;
                     optical_state = FUCK_GO_BACK; // mission complete
                 }
                 break;
             case FUCK_GO_BACK:
+                optical.set_led_pwm(100);
                 // if it's not red (could be black or yellow)
                 if (is_black){
                     cout << "went back " << millis() << endl;

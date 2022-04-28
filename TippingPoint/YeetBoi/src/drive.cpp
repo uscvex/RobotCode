@@ -52,10 +52,10 @@ void run_drive(void* params) {
         double input_turn = controller.get_analog(ANALOG_RIGHT_X);
 
         // Quick fix to allow tank-style controls
-        if (USE_TANK_DRIVE && (which_auton == 4)) {
-            input_forward = (controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_Y)) / 2;
-            input_turn = (controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_Y)) / 2;
-        }
+        // if (USE_TANK_DRIVE && (which_auton == 4)) {
+        //     input_forward = (controller.get_analog(ANALOG_LEFT_Y) + controller.get_analog(ANALOG_RIGHT_Y)) / 2;
+        //     input_turn = (controller.get_analog(ANALOG_LEFT_Y) - controller.get_analog(ANALOG_RIGHT_Y)) / 2;
+        // }
 
         if (drive_slew_forward > input_forward + this_robot.SLEW_STEP_FORWARD) {
             drive_slew_forward -= this_robot.SLEW_STEP_FORWARD;
@@ -290,7 +290,7 @@ void run_drive(void* params) {
 
                 forward_speed = auto_park_min_power;
 
-                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.75 << "," << tilt << "," << drive_mode-9 << endl;
+                // cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.75 << "," << tilt << "," << drive_mode-9 << endl;
                 last_tilt = tilt;
 
             }
@@ -311,7 +311,7 @@ void run_drive(void* params) {
 
                 forward_speed = auto_park_min_power;
 
-                cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.5 << "," << tilt << "," << drive_mode-9 << endl;
+                // cout << (forward_speed / 127.0) << "," << tot_displacement << "," << max_tilt * 0.5 << "," << tilt << "," << drive_mode-9 << endl;
 
             }
 
