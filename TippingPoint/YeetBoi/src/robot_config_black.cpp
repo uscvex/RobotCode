@@ -61,7 +61,7 @@ void init_robot_black() {
 
     // Alliance goal forward position
     this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 236;
-    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2400;
+    this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2500;
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
     // Scoring for middle branches
