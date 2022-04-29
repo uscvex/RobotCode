@@ -163,7 +163,7 @@ double right_skills[] = {
     TURN, 90, 1.5, 
     DRIVEDIST, 127, 90, 40, 2.5,
     DRIVEDIST, -127, 90, 2, 1,
-
+    
     // TURN, 135, 2, 
     DRIVEDIST, 127, 180, 5, 1,
     // TURN, 180, 1, 
@@ -182,6 +182,7 @@ double right_skills[] = {
     AUTOPARK, 180,
     BRAKE,
     PAUSE, 0.5,
+    BASEPOS, BASEDROP,
     BELLYPOS, BELLYCOAST,
 
     // TURN, 225, 1,
