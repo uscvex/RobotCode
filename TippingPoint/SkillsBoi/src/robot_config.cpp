@@ -11,9 +11,9 @@ void init_robot() {
     this_robot.FRONT_LIFT_RATE = 1.0;
     this_robot.SIDE_LIFT_RATE = 2.0;
 
-    this_robot.INTAKE_VOMIT_THRESHOLD = 160;
+    this_robot.INTAKE_VOMIT_THRESHOLD = 50;
     this_robot.INTAKE_VOMIT_TIMEOUT = 100;
-    this_robot.INTAKE_VOMIT_TIME = 300;
+    this_robot.INTAKE_VOMIT_TIME = 1000;
 
 
     this_robot.INTAKE_WOBBLE_IN = -50;
@@ -55,7 +55,7 @@ void init_robot() {
     this_robot.DRIVE_RATE = 0.075;
     this_robot.MIN_DRIVE_SPEED = 25.0;
     this_robot.MAX_TURN_SPEED = 127.0;
-    this_robot.MIN_TURN_SPEED = 40.0;
+    this_robot.MIN_TURN_SPEED = 25.0;
     this_robot.TURN_PULSE_ON = 10;
     this_robot.TURN_PULSE_OFF = 7;
     this_robot.TURN_PRECISION = 2;  // +/- 2.5 degress precision
