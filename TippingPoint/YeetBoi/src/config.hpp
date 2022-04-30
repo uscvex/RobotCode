@@ -40,6 +40,8 @@ using namespace std;
 #define LOOK_FOR_YELLOW 3
 #define FUCK_GO_BACK 4
 #define FORCE_SPIN 5
+#define SPIN_LEFT 6
+#define SPIN_RIGHT 7
 
 
 extern double* auton_ptr[];

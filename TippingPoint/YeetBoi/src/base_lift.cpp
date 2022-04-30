@@ -28,6 +28,15 @@ void run_base_lift(void* params) {
 
         bool next_state = false;
 
+        if (optical_state == SPIN_RIGHT) {
+            base_rotate_speed = 127;
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
+        }
+        if (optical_state == SPIN_LEFT) {
+            base_rotate_speed = -127;
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
+        }
+
         if (optical_state == FORCE_SPIN) {
             base_rotate_speed = 127;
             base_spin_offset = this_robot.BASE_SPIN_OFFSET;

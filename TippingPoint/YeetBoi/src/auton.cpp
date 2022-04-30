@@ -39,6 +39,9 @@
 #define AUTOPARK 32
 #define SETTILT 33
 #define SPINTIME 34     // SPIN GOAL FOR TIME
+#define SPINGOALRIGHT 35
+#define SPINGOALLEFT 36
+#define STOPSPIN 37
 
 
 // Depost Locations
@@ -157,28 +160,39 @@ double right_skills[] = {
     DRIVEDIST, -127, 180, 15, 1.5, 
     DRIVE, -127, 180, 0.75, 
     BASEPOS, BASEHOLD,
-    DRIVEDIST, 127, 180, 3, 1,
+    DRIVEDIST, 127, 180, 1, 1,
+    SPINGOALRIGHT,
     TURN, 45, 0.25, 
     TURN, 0, 0.25, 
     TURN, 90, 1.5, 
+    BELLYPOS, BELLYDOWN,
+    STOPSPIN,
     DRIVEDIST, 127, 90, 40, 2.5,
-    DRIVEDIST, -127, 90, 2, 1,
+    BELLYPOS, BELLYUP,
+    SPINGOALLEFT, 
+    TURN, 145, 1, 
+    STOPSPIN,
     
     // TURN, 135, 2, 
-    DRIVEDIST, 127, 180, 5, 1,
-    // TURN, 180, 1, 
-    DRIVEDIST, -127, 180, 2, 1,
-    DRIVEDIST, 127, 180, 2, 1,
-    DRIVEDIST, -127, 170, 1, 1,
-    DRIVEDIST, 80, 170, 10, 1,
+    // DRIVEDIST, 127, 180, 5, 1,
+    // // TURN, 180, 1, 
+    // DRIVEDIST, -127, 180, 2, 1,
+    // DRIVEDIST, 127, 180, 2, 1,
+    // DRIVEDIST, -127, 170, 1, 1,
+    // DRIVEDIST, 80, 170, 10, 1,
     // DRIVEDIST, -1270, 170, 0.5, 1,
+
+    DRIVEDIST, 90, 145, 9, 2, 
+    SPINGOALLEFT, 
+    TURN, 180, 1, 
+    STOPSPIN,
 
     BELLYPOS, BELLYDOWN,
     PAUSE, 1.5,
     DRIVEDIST, 127, 180, 20, 3, 
     WRISTPOS, 1,
     BELLYPOS, BELLYUP,
-    DRIVEDIST, 127, 180, 16, 3, 
+    DRIVEDIST, 127, 180, 15, 3, 
     AUTOPARK, 180,
     BRAKE,
     PAUSE, 0.5,
@@ -333,37 +347,48 @@ double test_auton[] = {
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     DRIVE, -90, 0, 1,
     DRIVEDIST, 90, 0, 9, 2, 
+
     BELLYPOS, BELLYDOWN,
-    PAUSE, 1, 
-    DRIVEDIST, 127, 0, 20, 2, 
+    PAUSE, 1.5,
+    DRIVEDIST, 127, 0, 20, 3, 
+    WRISTPOS, 1,
     BELLYPOS, BELLYUP,
-    DRIVEDIST, 127, 0, 15, 2, 
+    DRIVEDIST, 127, 0, 15, 3, 
     AUTOPARK, 0,
+    BRAKE,
     PAUSE, 0.5,
+    BASEPOS, BASEDROP,
     BELLYPOS, BELLYCOAST,
-    BRAKE,
-    DEPOSITPOS, UPPER,
-    DRIVEDIST, 20, 0, 1.5, 1,
-    BRAKE,
+    PAUSE, 1, 
+    // DRIVEDIST, 127, 0, 20, 2, 
+    // BELLYPOS, BELLYUP,
+    // DRIVEDIST, 127, 0, 15, 2, 
+    // AUTOPARK, 0,
+    // PAUSE, 0.5,
+    // BELLYPOS, BELLYCOAST,
+    // BRAKE,
+    // DEPOSITPOS, UPPER,
+    // DRIVEDIST, 20, 0, 1.5, 1,
+    // BRAKE,
 
-    SPINOPTICAL,
-    WAIT, SPINCOMPLETE, -1, 300,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
-                                // waits 5 seconds for the bot to find the sticker and stop spinning the base
-    PAUSE, 0.5,
-    DROP, 1.5, 
-    SPINTIME, 2,
-    SPINOPTICAL,
-    WAIT, SPINCOMPLETE, -1, 300,    
-    PAUSE, 0.5,
-    DROP, 1,
-    PAUSE, 0.5,
-    DROP, 1,
+    // SPINOPTICAL,
+    // WAIT, SPINCOMPLETE, -1, 300,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
+    //                             // waits 5 seconds for the bot to find the sticker and stop spinning the base
+    // PAUSE, 0.5,
+    // DROP, 1.5, 
+    // SPINTIME, 2,
+    // SPINOPTICAL,
+    // WAIT, SPINCOMPLETE, -1, 300,    
+    // PAUSE, 0.5,
+    // DROP, 1,
+    // PAUSE, 0.5,
+    // DROP, 1,
 
-    READYSPIKE, //drop dose rings
-    PAUSE, 0.25,
-    WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
-    ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
-    PAUSE, 0.25,
+    // READYSPIKE, //drop dose rings
+    // PAUSE, 0.25,
+    // WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
+    // ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    // PAUSE, 0.25,
 
     END,
 };
@@ -737,6 +762,11 @@ void autonomous() {
     cout << auton_names[which_auton] << " Auton Starting\n";
 
     // Starting position
+    init_tracking();
+    init_tracking();
+    init_tracking();
+    init_tracking();
+    init_tracking();    // maybe fix issue where robot 'remembers' where it was before being disabled, causing issue with auton reliability
     set_position(process_entry(),process_entry(),process_entry());
 
     bool next_command = true;
@@ -1017,6 +1047,24 @@ void autonomous() {
                 case SETTILT:
                     // Set the tilt of the imu to 0
                     imu_sensor.set_pitch(process_entry());
+                    next_command = true;
+                    break;
+
+                case STOPSPIN:
+                    // stop the goal spinning
+                    optical_state = DO_NOTHING;
+                    next_command = true;
+                    break;
+
+                case SPINGOALRIGHT:
+                    // stop the goal spinning
+                    optical_state = SPIN_RIGHT;
+                    next_command = true;
+                    break;
+
+                case SPINGOALLEFT:
+                    // stop the goal spinning
+                    optical_state = SPIN_LEFT;
                     next_command = true;
                     break;
 

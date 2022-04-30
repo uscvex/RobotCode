@@ -91,6 +91,10 @@ void run_optical(void* params){
                 break;
         }
 
+        if (controller.get_digital(DIGITAL_UP)) {
+            optical_state = DO_NOTHING;
+        }
+
         delay(10);
     }
 }

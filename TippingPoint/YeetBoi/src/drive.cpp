@@ -271,7 +271,7 @@ void run_drive(void* params) {
                 }
 
                 max_tilt = max(max_tilt, tilt);
-                if ((tilt < max_tilt * 0.75) && max_tilt > 20) {
+                if ((tilt < max_tilt * 0.8)){// && max_tilt > 20) {
                     drive_mode = DM_FINAL_BALANCE;
                     drive_starting_x = robot_x;
                     drive_starting_y = robot_y;

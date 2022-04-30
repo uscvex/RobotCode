@@ -120,7 +120,7 @@ void init_robot_black() {
     this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1830.0) * (1800.0 / 1797.0) * (3600.0 / 3592.0);
     
     // Auton drive tuning
-    this_robot.DRIVE_TURN_RATE = 3.0;
+    this_robot.DRIVE_TURN_RATE = 5.0;
     this_robot.DRIVE_DRIVE_TURN_RATE = 8.0;
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
