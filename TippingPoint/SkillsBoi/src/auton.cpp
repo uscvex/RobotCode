@@ -161,8 +161,8 @@ double left_skills[] = {
 
     INTAKE, ON,                     // TURN INTAKE ON
     DRIVETO, 80, -7, 46, 3,        // DRIVE ALMOST TO ROW OF RINGS
-    DRIVETO, 70, 10, 44, 10,        // DRIVE INTO RINGS
-    DRIVETO, 60, 29, 44, 10,        // DRIVE INTO RINGS
+    DRIVETO, 70, 29, 44, 10,        // DRIVE INTO RINGS was dist=10
+    // DRIVETO, 60, 29, 44, 10,        // DRIVE INTO RINGS
 
     INTAKE, OFF, 
     TURN, 180, 1,                   // DRIVE SO BASE IS AGAINST WALL
@@ -177,16 +177,16 @@ double left_skills[] = {
     
     TIPBASE, ON,
 
-    FACE, 0, 36, 1.5,
+    FACE, 0, 36, 1,
     DRIVETO, 127, 0, 30, 3,       // DRIVE TO GET GOAL
     FRONTARM, HOLD, 
     
-    FACE, 27, 15, 1,
+    FACE, 27, 15, 0.75,
     INTAKE, ON,                     // TURN INTAKE ON
     WOBBLE, ON, 
     DRIVETO, 127, 27, 15, 4,        // DRIVE READY FOR NEXT RINGS
 
-    TURN, 180, 1.5, 
+    TURN, 180, 1, 
 
     ////////////////////////////////////////////////////////////////////////
     // 26, 0, 180,                 // HACK FOR START HALF WAY THROUGH
@@ -196,11 +196,11 @@ double left_skills[] = {
     // WOBBLE, ON, 
     ////////////////////////////////////////////////////////////////////////
 
-    DRIVETO, 60, 28, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
-    PAUSE, 0.75,
+    DRIVETO, 60, 30, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
+    PAUSE, 0.5,
     FRONTARM, PARK, 
-    DRIVETO, 60, 28, -56, 16,       // DRIVE TO COLLECT NEXT RINGS
-    DRIVEDIST, 100, 180, 10, 0.5, 
+    DRIVETO, 70, 30, -50, 5,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVE, 127, 180, 0.5, 
     FRONTARM, HOLD,
     PAUSE, 0.5,
     DRIVEDIST, 100, 180, 6, 1, 
@@ -247,14 +247,14 @@ double left_skills[] = {
     DRIVETO, 127, 24, -26, 2, 
     TURN, 270, 1.5, 
 
-    DRIVETO, 100, -10, -27.5, 2, 
+    DRIVETO, 100, -11, -27.5, 2, 
     SIDEARM, HOLD, 
     DRIVETO, 127, -20, -27.5, 3, 
     DRIVEDIST, -90, 270, 10, 1, 
-    TURN, 0, 1,
+    FACE, -35, 45, 1,
 
     FRONTARM, PARK,
-    DRIVETO, 90, -35, 45, 5,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 127, -35, 45, 5,       // DRIVE TO COLLECT NEXT RINGS
 
     DRIVEDIST, 127, 315, 10, 1, 
     DRIVEDIST, 127, 300, 20, 2, 
@@ -262,16 +262,18 @@ double left_skills[] = {
     PAUSE, 0.5,
     DRIVEDIST, 127, 270, 10, 2, 
     ULTRABOOST,
-    TURN, 195, 2, 
+    TURN, 195, 1, 
     UNBOOST,
-    DRIVEDIST, 127, 195, 12, 1.5,      // DRIVE TO PLATFORM
+    DRIVEDIST, 127, 195, 9, 1,      // DRIVE TO PLATFORM
+    DRIVEDIST, 127, 185, 10, 1,      // DRIVE TO PLATFORM
+    DRIVEDIST, -12700, 185, 0.5, 0.5, 
 
     FRONTARM, PARK,
     
-    PAUSE, 1.5,
+    PAUSE, 1.25,
     ULTRABOOST,
-    DRIVEDIST, 12700, 180, 34, 10,
-    AUTOPARK, 180,        // AUTOPARK FACING 0 DEGREES
+    DRIVEDIST, 12700, 185, 34, 10,
+    AUTOPARK, 180,        // AUTOPARK FACING 180 DEGREES
 
     END,
 
