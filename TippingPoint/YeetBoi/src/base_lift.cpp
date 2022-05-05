@@ -43,6 +43,7 @@ void run_base_lift(void* params) {
         }
         // if we're looking for the sticker and haven't seen it yet
         if ((optical_state == LOOK_FOR_YELLOW) || (optical_state == LOOK_FOR_STICKER)){
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             if (is_black) base_rotate_speed = 100; //needs to be a positive speed
             else base_rotate_speed = 127;
             if (optical_state == LOOK_FOR_YELLOW) {
@@ -50,6 +51,7 @@ void run_base_lift(void* params) {
             }
         }
         else if (optical_state == FUCK_GO_BACK){
+            base_spin_offset = this_robot.BASE_SPIN_OFFSET;
             base_rotate_speed = -90;
         }
         if (controller.get_digital(DIGITAL_A)) {

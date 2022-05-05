@@ -16,8 +16,8 @@ void run_display(void* params) {
         screen::erase();
 
         // Print position info to screen
-        screen::print(TEXT_MEDIUM, 1, "(%d, %d, %d)", left_encoder.get_value(), middle_encoder.get_value(), right_encoder.get_value());
-        screen::print(TEXT_MEDIUM, 2, "(%.2f, %.2f, %.2f)", robot_x, robot_y, robot_theta);
+        screen::print(TEXT_MEDIUM, 10, "(%d, %d, %d)", left_encoder.get_value(), middle_encoder.get_value(), right_encoder.get_value());
+        screen::print(TEXT_MEDIUM, 11, "(%.2f, %.2f, %.2f)", robot_x, robot_y, robot_theta);
 
         screen::print(TEXT_MEDIUM, 3, "Belly Grab: %.2f %.2f", belly_grab_pos, belly_grab_target);
         screen::print(TEXT_MEDIUM, 4, "Base Lift: %.2f %.2f", base_lift_pos, base_lift_target);
@@ -30,8 +30,8 @@ void run_display(void* params) {
 
         screen::print(TEXT_MEDIUM, 9, "Yeet: %d", yeet_state);
 
-        screen::print(TEXT_MEDIUM, 10, "Hue: %f Sat:%f Brightness:%f", hue, saturation, RGB_values.brightness);
-        screen::print(TEXT_MEDIUM, 11, "R:%s Y:%s B:%s", is_red?"t":"f", is_yellow?"t":"f", is_black?"t":"f");
+        screen::print(TEXT_MEDIUM, 1, "Hue: %f Sat:%f Brightness:%f", hue, saturation, RGB_values.brightness);
+        screen::print(TEXT_MEDIUM, 2, "R:%s Y:%s B:%s", is_red?"t":"f", is_yellow?"t":"f", is_black?"t":"f");
 
         screen::print(TEXT_MEDIUM, 0, "L1:%.1f, 2:%.1f, 3:%.1f, R1:%.1f, 2:%.1f, 3:%.1f", drive_left_1.get_temperature(), drive_left_2.get_temperature(), drive_left_3.get_temperature(), drive_right_1.get_temperature(), drive_right_2.get_temperature(), drive_right_3.get_temperature());
 

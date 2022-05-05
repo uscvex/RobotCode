@@ -1,6 +1,6 @@
 # Auton Commands  
   
-*25 Commands auto-generated from "src/auton.cpp"*  
+*32 Commands auto-generated from "src/auton.cpp"*  
 
 ---
 
@@ -12,6 +12,12 @@ Robot will turn to face the specified angle
 ### Arguments: (2)
   * **drive_turn_target**:	Angle to turn to (degrees)
   * **command_time_out**:	Timout for command (seconds)  
+  
+## BRAKE:  
+turn brakeing on for drive motors  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > BRAKE,   
   
 ## FACE:  
 Robot will turn to face the specified point  
@@ -166,9 +172,12 @@ Moves the spike to the ready position
 Hekkin yeeeeet  
 *BLOCKING, has timeout*  
 ### Usage:
-  > YEET, command_time_out,  
-### Arguments: (1)
+  > YEET, yeet_distance, command_time_out,  
+### Arguments: (2)
+  * **yeet_distance**:	ARG;
   * **command_time_out**:	Timout for command (seconds)  
+### Warnings: (1)  
+* Argument yeet_distance is missing a description  
   
 ## RETRACTYEET:  
 Retracts the yeet wheel such that drive wheels are on the ground  
@@ -205,4 +214,60 @@ Moves the spike to the position for backwards scoring on a alliance goal
   > SPINOPTICAL,   
 ### Warnings: (1)  
 * Command is missing description  
+  
+## SPINTIME:  
+  
+*BLOCKING, has timeout*  
+### Usage:
+  > SPINTIME, command_time_out,  
+### Arguments: (1)
+  * **command_time_out**:	Timout for command (seconds)  
+### Warnings: (2)  
+* Command is missing description  
+* Command needs to print name: cout << "SPINTIME" << endl;  
+  
+## AUTOPARK:  
+Autopark the robot  
+*BLOCKING, NO TIMEOUT*  
+### Usage:
+  > AUTOPARK, drive_turn_target,  
+### Arguments: (1)
+  * **drive_turn_target**:	ARG;  
+### Warnings: (1)  
+* Argument drive_turn_target is missing a description  
+  
+## SETTILT:  
+Set the tilt of the imu to 0  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > SETTILT, imu_sensor.set_pitch(process_entry()),  
+### Arguments: (1)
+  * **imu_sensor.set_pitch(process_entry())**:	imu_sensor.set_pitch(ARG);  
+### Warnings: (2)  
+* Argument imu_sensor.set_pitch(process_entry()) is missing a description  
+* Command needs to print name: cout << "SETTILT" << endl;  
+  
+## STOPSPIN:  
+stop the goal spinning  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > STOPSPIN,   
+### Warnings: (1)  
+* Command needs to print name: cout << "STOPSPIN" << endl;  
+  
+## SPINGOALRIGHT:  
+stop the goal spinning  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > SPINGOALRIGHT,   
+### Warnings: (1)  
+* Command needs to print name: cout << "SPINGOALRIGHT" << endl;  
+  
+## SPINGOALLEFT:  
+stop the goal spinning  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > SPINGOALLEFT,   
+### Warnings: (1)  
+* Command needs to print name: cout << "SPINGOALLEFT" << endl;  
   

@@ -84,10 +84,10 @@ double right_skills[] = {
     PAUSE, 2, 
 
     DRIVEDIST, 80, 270, 3, 1,
-    COLLECTRING, 1, 
+    COLLECTRING, 0.75, 
 
     DRIVEDIST, 80, 270, 3, 1,
-    COLLECTRING, 1, 
+    COLLECTRING, 0.75, 
 
     DRIVEDIST, 100, 270, 5, 0.5,
     DRIVEDIST, -100, 270, 14, 2, 
@@ -95,10 +95,10 @@ double right_skills[] = {
     PAUSE, 0.5, 
 
     DRIVEDIST, 80, 270, 3, 1,
-    COLLECTRING, 1, 
+    COLLECTRING, 0.75, 
 
     DRIVEDIST, 80, 270, 3, 1,
-    COLLECTRING, 1, 
+    COLLECTRING, 0.75, 
 
     DRIVEDIST, 100, 270, 5, 0.5,
     DRIVEDIST, -100, 270, 14, 2, 
@@ -106,10 +106,10 @@ double right_skills[] = {
     PAUSE, 0.5, 
 
     DRIVEDIST, 80, 270, 3, 1,
-    COLLECTRING, 1, 
+    COLLECTRING, 0.75, 
 
     DRIVEDIST, 80, 270, 3, 1,
-    COLLECTRING, 1, 
+    COLLECTRING, 0.75, 
 
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
@@ -130,7 +130,7 @@ double right_skills[] = {
 
     // DRIVEDIST, -127, 235, 20, 1, 
     BELLYPOS, BELLYDOWN,
-    DRIVEDIST, 100, 235, 1, 2, 
+    DRIVEDIST, 100, 235, 2, 2, 
 
     SPINOPTICAL,
     WAIT, SPINCOMPLETE, -1, 7,  //wait requires an integer parameter that we won't use, I just put -1 arbitrarily
@@ -140,52 +140,86 @@ double right_skills[] = {
 
     SPINOPTICAL,
     WAIT, SPINCOMPLETE, -1, 2,    
-    PAUSE, 0.5,
+    SPINGOALRIGHT,
+    PAUSE, 0.07,
+    STOPSPIN,
+    PAUSE, 0.4,
     DROP, 0.75,
     PAUSE, 0.5,
-    DROP, 1.25,
+    DROP, 1.75,
 
     READYSPIKE, //drop dose rings
     PAUSE, 0.25,
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
-    BASEPOS, BASEDROP,
-    PAUSE, 1, 
+    BASEPOS, BASEDROP,          // DROP HIGH GOAL
+    DRIVE, -70, 225, 0.2,
+    PAUSE, 0.8, 
     SETTILT, 0,
-    DRIVETO, 80, 30, 30, 2,
+    DRIVETO, 80, 28, 30, 2, // make this more negative x-- was missing the blue goal
     BELLYPOS, BELLYUP,
     BASEPOS, BASEREADY,
     PAUSE, 0.5,
     TURN, 180, 1.5, 
-    DRIVEDIST, -127, 180, 15, 1.5, 
+    DRIVEDIST, -127, 180, 15, 1.5,
     DRIVE, -127, 180, 0.75, 
-    BASEPOS, BASEHOLD,
-    DRIVEDIST, 127, 180, 1, 1,
-    SPINGOALRIGHT,
-    TURN, 45, 0.25, 
-    TURN, 0, 0.25, 
-    TURN, 90, 1.5, 
-    BELLYPOS, BELLYDOWN,
-    STOPSPIN,
-    DRIVEDIST, 127, 90, 40, 2.5,
-    BELLYPOS, BELLYUP,
-    SPINGOALLEFT, 
-    TURN, 145, 1, 
-    STOPSPIN,
-    
-    // TURN, 135, 2, 
-    // DRIVEDIST, 127, 180, 5, 1,
-    // // TURN, 180, 1, 
-    // DRIVEDIST, -127, 180, 2, 1,
-    // DRIVEDIST, 127, 180, 2, 1,
-    // DRIVEDIST, -127, 170, 1, 1,
-    // DRIVEDIST, 80, 170, 10, 1,
-    // DRIVEDIST, -1270, 170, 0.5, 1,
+    BASEPOS, BASEHOLD,          // GRAB BIG BOT ALLIANCE GOAL
 
-    DRIVEDIST, 90, 145, 9, 2, 
-    SPINGOALLEFT, 
+
+    DRIVEDIST, 127, 180, 25, 1, // DRIVE AWAY FROM WALL
+    DRIVE, -60, 180, 0.05,      // BRAKE
+
+    TURN, 225, 2,               // AIM FOR GOAL
+    DRIVEDIST, -80, 225, 35, 3.5,     // DRIVE BETWEEN GOALS
+    TURN, 135, 2, 
+    DRIVEDIST, 80, 135, 8.5, 2, 
     TURN, 180, 1, 
-    STOPSPIN,
+    DRIVEDIST, 80, 180, 3, 1, 
+
+
+    // OLD PARK ALIGN
+    // BELLYPOS, BELLYDOWN,
+    // STOPSPIN,
+    // DRIVEDIST, 127, 90, 20, 2.5,
+    // BELLYPOS, BELLYUP,
+    // DRIVEDIST, -127, 90, 1, 0.5,
+    // PAUSE, 1, 
+    // SPINGOALLEFT, 
+    // TURN, 155, 1, 
+    // STOPSPIN,
+
+    // DRIVEDIST, 127, 180, 1, 1,
+    // SPINGOALRIGHT,
+    // TURN, 45, 0.25, 
+    // TURN, 0, 0.25, 
+    // TURN, 90, 1.5, 
+    // BELLYPOS, BELLYDOWN,
+    // STOPSPIN,
+    // DRIVEDIST, 127, 90, 40, 2.5,
+    // BELLYPOS, BELLYUP,
+    // DRIVEDIST, -127, 90, 1, 0.5,
+    // PAUSE, 1, 
+    // SPINGOALLEFT, 
+    // TURN, 155, 1, 
+    // STOPSPIN,
+    
+    // // TURN, 135, 2, 
+    // // DRIVEDIST, 127, 180, 5, 1,
+    // // // TURN, 180, 1, 
+    // // DRIVEDIST, -127, 180, 2, 1,
+    // // DRIVEDIST, 127, 180, 2, 1,
+    // // DRIVEDIST, -127, 170, 1, 1,
+    // // DRIVEDIST, 80, 170, 10, 1,
+    // // DRIVEDIST, -1270, 170, 0.5, 1,
+
+    // DRIVEDIST, 90, 155, 10, 2, 
+    // DRIVEDIST, -80, 170, 1, 2, 
+    // DRIVEDIST, 80, 170, 3, 2, 
+    // SPINGOALLEFT, 
+    // TURN, 180, 1, 
+    // STOPSPIN,
+    // END OLD PARK ALIGN
+
 
     BELLYPOS, BELLYDOWN,
     PAUSE, 1.5,
@@ -345,6 +379,7 @@ double test_auton[] = {
     BASEPOS, BASEHOLD,
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
+    PAUSE, 1,
     DRIVE, -90, 0, 1,
     DRIVEDIST, 90, 0, 9, 2, 
 
@@ -396,13 +431,14 @@ double test_auton[] = {
 double left_auton_yeet[] = {
     -43, 49, 278,      // STARTING POS
     YEET, 39, 2,
+    
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYDOWN,
 
     DROP, 0.1,
-    DRIVETO, 127, -24, 60, 50,
+    DRIVETO, 127, -24, 55, 30,
     BELLYPOS, BELLYUP,
     DEPOSITPOS, FORWARD, 
     
@@ -410,7 +446,7 @@ double left_auton_yeet[] = {
 
     FACE, -60, 34, 2, 
     BELLYPOS, BELLYDOWN,
-    DRIVETO, 80, -41.75, 46.6, 2, 
+    DRIVETO, 80, -41.75, 44.6, 2, 
     DRIVEDIST, 80, 235, 5, 1.25, 
     PAUSE, 0.25,
     DROP, 0.5, 
@@ -423,22 +459,71 @@ double left_auton_yeet[] = {
 
     DRIVEDIST, 127, 270, 48, 2.5,
 
-    // DRIVE BACK
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
     DRIVEDIST, -127, 270, 5, 2,
     DRIVE, 50, 270, 0.05,
-    COLLECTRING, 1.5,      // 1
-    COLLECTRING, 1.5,      // 2
-    COLLECTRING, 1.5,      // 3
-    COLLECTRING, 1.5,      // 4
-    COLLECTRING, 1.5,      // 5
-    COLLECTRING, 1.5,      // 6
-    COLLECTRING, 1.5,      // 7
-    COLLECTRING, 1.5,      // 8
-    COLLECTRING, 1.5,      // 9
-    COLLECTRING, 1.5,      // 10
-    COLLECTRING, 1.5,      // 11
 
-    TURN, 135, 2,
+    // // DRIVE BACK
+    // DRIVEDIST, -127, 270, 5, 2,
+    // DRIVE, 50, 270, 0.05,
+    // COLLECTRING, 1.5,      // 1
+    // COLLECTRING, 1.5,      // 2
+    // COLLECTRING, 1.5,      // 3
+    // COLLECTRING, 1.5,      // 4
+    // COLLECTRING, 1.5,      // 5
+    // COLLECTRING, 1.5,      // 6
+    // COLLECTRING, 1.5,      // 7
+    // COLLECTRING, 1.5,      // 8
+    // COLLECTRING, 1.5,      // 9
+    // COLLECTRING, 1.5,      // 10
+    // COLLECTRING, 1.5,      // 11
+
+    TURN, 135, 0.5,
+    TURN, 90, 0.5,
+    TURN, 135, 1,
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     DRIVEDIST, -127, 135, 10, 2, 
@@ -451,9 +536,9 @@ double left_auton_yeet[] = {
     BELLYPOS, BELLYUP,
     BASEPOS, BASEREADY,
     PAUSE, 1, 
-    DRIVETO, -100, -31, 36, 3,
+    DRIVETO, -100, -30, 36, 3,
     TURN, 0, 2,
-    DRIVETO, -127, -31, 0, 3,
+    DRIVETO, -127, -30, 0, 3,
 
     END,
 };
@@ -477,6 +562,9 @@ double spinner[] = {
 
     SPINOPTICAL,
     WAIT, SPINCOMPLETE, -1, 300,    
+    SPINGOALRIGHT,
+    PAUSE, 0.07,
+    STOPSPIN,
     PAUSE, 1,
     DROP, 1,
     PAUSE, 0.5,
@@ -654,14 +742,14 @@ double left_auton_no_yeet[] = {
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
 
     // FIRST YEET
-    DRIVEDIST, -10000000, 276, 41, 3, 
+    DRIVEDIST, -10000000, 276, 44, 3, 
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     BASEPOS, BASEHOLD,
     BELLYPOS, BELLYDOWN,
 
     DROP, 0.1,
-    DRIVETO, 127, -24, 60, 50,
+    DRIVETO, 127, -24, 55, 30,
     BELLYPOS, BELLYUP,
     DEPOSITPOS, FORWARD, 
     
@@ -669,7 +757,7 @@ double left_auton_no_yeet[] = {
 
     FACE, -60, 34, 2, 
     BELLYPOS, BELLYDOWN,
-    DRIVETO, 80, -41.75, 46.6, 2, 
+    DRIVETO, 80, -41.75, 44.6, 2, 
     DRIVEDIST, 80, 235, 5, 1.25, 
     PAUSE, 0.25,
     DROP, 0.5, 
@@ -682,22 +770,71 @@ double left_auton_no_yeet[] = {
 
     DRIVEDIST, 127, 270, 48, 2.5,
 
-    // DRIVE BACK
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
+    DRIVEDIST, -100, 270, 14, 2, 
+    DRIVE, 60, 270, 0.05,
+    PAUSE, 0.5, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 80, 270, 3, 1,
+    COLLECTRING, 1, 
+
+    DRIVEDIST, 100, 270, 5, 0.5,
     DRIVEDIST, -127, 270, 5, 2,
     DRIVE, 50, 270, 0.05,
-    COLLECTRING, 1.5,      // 1
-    COLLECTRING, 1.5,      // 2
-    COLLECTRING, 1.5,      // 3
-    COLLECTRING, 1.5,      // 4
-    COLLECTRING, 1.5,      // 5
-    COLLECTRING, 1.5,      // 6
-    COLLECTRING, 1.5,      // 7
-    COLLECTRING, 1.5,      // 8
-    COLLECTRING, 1.5,      // 9
-    COLLECTRING, 1.5,      // 10
-    COLLECTRING, 1.5,      // 11
 
-    TURN, 135, 2,
+    // // DRIVE BACK
+    // DRIVEDIST, -127, 270, 5, 2,
+    // DRIVE, 50, 270, 0.05,
+    // COLLECTRING, 1.5,      // 1
+    // COLLECTRING, 1.5,      // 2
+    // COLLECTRING, 1.5,      // 3
+    // COLLECTRING, 1.5,      // 4
+    // COLLECTRING, 1.5,      // 5
+    // COLLECTRING, 1.5,      // 6
+    // COLLECTRING, 1.5,      // 7
+    // COLLECTRING, 1.5,      // 8
+    // COLLECTRING, 1.5,      // 9
+    // COLLECTRING, 1.5,      // 10
+    // COLLECTRING, 1.5,      // 11
+
+    TURN, 135, 0.5,
+    TURN, 90, 0.5,
+    TURN, 135, 1,
     WRISTPOS, this_robot.SPIKE_WRIST_STORE_POS,
     ARMPOS, this_robot.SPIKE_ARM_STORE_POS,
     DRIVEDIST, -127, 135, 10, 2, 
@@ -710,9 +847,9 @@ double left_auton_no_yeet[] = {
     BELLYPOS, BELLYUP,
     BASEPOS, BASEREADY,
     PAUSE, 1, 
-    DRIVETO, -100, -31, 36, 3,
+    DRIVETO, -100, -30, 36, 3,
     TURN, 0, 2,
-    DRIVETO, -127, -31, 0, 3,
+    DRIVETO, -127, -30, 0, 3,
 
     END,
 };

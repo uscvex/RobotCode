@@ -249,7 +249,7 @@ struct RobotParams {
 
 
     double BELLY_GRAB_RATE_DOWN;
-    double BELLY_GRAB_RATE_UP;
+    double BELLY_GRAB_RATE_UP; 
 
     double BELLY_GRAB_DOWN;
     double BELLY_GRAB_UP;

@@ -60,7 +60,7 @@ void init_robot_black() {
     this_robot.LEFT_LIFT_OFFSET = 80;
 
     // Alliance goal forward position
-    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 236;
+    this_robot.SPIKE_WRIST_ALLIANCE_GOAL_POS = 242;
     this_robot.SPIKE_ARM_ALLIANCE_GOAL_POS = 2500;
     this_robot.LIFT_ALLIANCE_GOAL_POS = 0;
 
@@ -83,12 +83,12 @@ void init_robot_black() {
     this_robot.SPIKE_ARM_ADJUST_AMOUNT = 60;
 
     // Base grabber heights for grab, lift, drop        -- change these for tuning the new snake teeth
-    this_robot.BASE_LIFT_READY_POS = 1636;  // 1736 
+    this_robot.BASE_LIFT_READY_POS = 1500;  // 1636 
     this_robot.BASE_LIFT_HOLD_POS = 3100;
     this_robot.BASE_LIFT_DROP_POS = 100;
 
     // How much to lower the base for spinnage
-    this_robot.BASE_SPIN_OFFSET = 3100 - 1934;
+    this_robot.BASE_SPIN_OFFSET = 3100 - 2300;//1934;
     // this_robot.BASE_SPIN_OFFSET = 0;
 
     // Base grabber release lever positions
@@ -120,12 +120,12 @@ void init_robot_black() {
     this_robot.ROTATIONAL_FUDGE_FACTOR = (0.99699 / (3.25 / 2.75)) * (360.0/367.0) * (360.0/357.0) * (1800.0 / 1830.0) * (1800.0 / 1797.0) * (3600.0 / 3592.0);
     
     // Auton drive tuning
-    this_robot.DRIVE_TURN_RATE = 5.0;
-    this_robot.DRIVE_DRIVE_TURN_RATE = 8.0;
+    this_robot.DRIVE_TURN_RATE = 4.0;
+    this_robot.DRIVE_DRIVE_TURN_RATE = 6.0;
     this_robot.DRIVE_RATE = 8.0;
     this_robot.MIN_DRIVE_SPEED = 30.0;
     this_robot.MAX_TURN_SPEED = 127.0;
-    this_robot.MIN_TURN_SPEED = 60.0;
+    this_robot.MIN_TURN_SPEED = 45.0;
     this_robot.TURN_PULSE_ON = 5;
     this_robot.TURN_PULSE_OFF = 7;
     this_robot.TURN_PRECISION = 1;  // +/- 1 degress precision
