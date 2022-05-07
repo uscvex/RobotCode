@@ -1,6 +1,6 @@
 # Auton Commands  
   
-*24 Commands auto-generated from "src/auton.cpp"*  
+*27 Commands auto-generated from "src/auton.cpp"*  
 
 ---
 
@@ -44,30 +44,6 @@ Robot will drive in a direction, at a speed, for a distance
   * **drive_distance_target**:	Distance to drive (inches)
   * **command_time_out**:	Timout for command (seconds)  
   
-## LIFTPOS:  
-Move the four-bar lift to a speficied height  
-*non-blocking, NO TIMEOUT*  
-### Usage:
-  > LIFTPOS, lift_target,  
-### Arguments: (1)
-  * **lift_target**:	Height for the lift (encoder ticks)  
-  
-## WRISTPOS:  
-Move the spike wrist to a specified angle  
-*non-blocking, NO TIMEOUT*  
-### Usage:
-  > WRISTPOS, spike_wrist_target,  
-### Arguments: (1)
-  * **spike_wrist_target**:	Angle for the wrist (degrees rel. to floor)  
-  
-## ARMPOS:  
-Move the spike arm to a specified position  
-*non-blocking, NO TIMEOUT*  
-### Usage:
-  > ARMPOS, spike_arm_target,  
-### Arguments: (1)
-  * **spike_arm_target**:	Position for the arm (encoder ticks)  
-  
 ## END:  
 End of routine  
 *BLOCKING, NO TIMEOUT*  
@@ -90,14 +66,6 @@ Do nothing until condition is met, eg. WAIT, LIFTABOVE, 1000, 5,
 ### Arguments: (3)
   * **wait_condition**:	What to wait for (keyword)
   * **wait_parameter**:	Value to wait until (number)
-  * **command_time_out**:	Timout for command (seconds)  
-  
-## DROP:  
-Drops rings from spike  
-*non-blocking, has timeout*  
-### Usage:
-  > DROP, command_time_out,  
-### Arguments: (1)
   * **command_time_out**:	Timout for command (seconds)  
   
 ## DEPLOY:  
@@ -140,28 +108,6 @@ Sets the robot's direction on the field
 ### Arguments: (1)
   * **dir**:	Direction (degrees)  
   
-## BELLYPOS:  
-Moves bellygrab to desired position  
-*non-blocking, NO TIMEOUT*  
-### Usage:
-  > BELLYPOS, belly_grab_state,  
-### Arguments: (1)
-  * **belly_grab_state**:	Position (keyword)  
-  
-## BASEPOS:  
-Moves base lift-turner to desired position  
-*non-blocking, NO TIMEOUT*  
-### Usage:
-  > BASEPOS, base_lift_state,  
-### Arguments: (1)
-  * **base_lift_state**:	Position (keyword)  
-  
-## READYSPIKE:  
-Moves the spike to the ready position  
-*non-blocking, NO TIMEOUT*  
-### Usage:
-  > READYSPIKE,   
-  
 ## YEET:  
 Hekkin yeeeeet  
 *BLOCKING, has timeout*  
@@ -179,25 +125,124 @@ Retracts the yeet wheel such that drive wheels are on the ground
 ### Usage:
   > RETRACTYEET,   
   
-## COLLECTRING:  
-Stamps down with the spike to pick up a ring  
+## INTAKE:  
+Turns intake on or off  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > INTAKE, intake,  
+### Arguments: (1)
+  * **intake**:	ARG;  
+### Warnings: (1)  
+* Argument intake is missing a description  
+  
+## WOBBLE:  
+Turns wobble on or off  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > WOBBLE, intake_wobble,  
+### Arguments: (1)
+  * **intake_wobble**:	ARG;  
+### Warnings: (1)  
+* Argument intake_wobble is missing a description  
+  
+## FRONTARM:  
+Move front arm to a positon  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > FRONTARM, front_lift_state,  
+### Arguments: (1)
+  * **front_lift_state**:	ARG;  
+### Warnings: (1)  
+* Argument front_lift_state is missing a description  
+  
+## BACKARM:  
+Move back arm to a positon  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > BACKARM, back_lift_state,  
+### Arguments: (1)
+  * **back_lift_state**:	ARG;  
+### Warnings: (1)  
+* Argument back_lift_state is missing a description  
+  
+## TIPBASE:  
+Turns back tip latch on or off  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > TIPBASE, tip_latch,  
+### Arguments: (1)
+  * **tip_latch**:	ARG;  
+### Warnings: (1)  
+* Argument tip_latch is missing a description  
+  
+## FRONTDROP:  
+Turns front base latch on or off  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > FRONTDROP, front_latch_on,  
+### Arguments: (1)
+  * **front_latch_on**:	ARG;  
+### Warnings: (1)  
+* Argument front_latch_on is missing a description  
+  
+## BACKDROP:  
+Turns back base latch on or off  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > BACKDROP, back_latch_on,  
+### Arguments: (1)
+  * **back_latch_on**:	ARG;  
+### Warnings: (1)  
+* Argument back_latch_on is missing a description  
+  
+## SIDEARM:  
+Move side arm to a positon  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > SIDEARM, pos,  
+### Arguments: (1)
+  * **pos**:	ARG;  
+### Warnings: (1)  
+* Argument pos is missing a description  
+  
+## BRAKE:  
+Hold drive in current position  
 *BLOCKING, has timeout*  
 ### Usage:
-  > COLLECTRING, command_time_out,  
+  > BRAKE, command_time_out,  
 ### Arguments: (1)
   * **command_time_out**:	Timout for command (seconds)  
   
-## DEPOSITPOS:  
-Moves the spike to the desired position for scoring  
+## ULTRABOOST:  
+Give all power to drive  
 *non-blocking, NO TIMEOUT*  
 ### Usage:
-  > DEPOSITPOS, lift_state,  
-### Arguments: (1)
-  * **lift_state**:	Scoring position (keyword)  
+  > ULTRABOOST,   
   
-## SPIKEBACKWARDSCORE:  
-Moves the spike to the position for backwards scoring on a alliance goal  
+## UNBOOST:  
+Give all power to drive  
 *non-blocking, NO TIMEOUT*  
 ### Usage:
-  > SPIKEBACKWARDSCORE,   
+  > UNBOOST,   
+  
+## AUTOPARK:  
+Autopark the robot  
+*BLOCKING, NO TIMEOUT*  
+### Usage:
+  > AUTOPARK, drive_turn_target,  
+### Arguments: (1)
+  * **drive_turn_target**:	ARG;  
+### Warnings: (1)  
+* Argument drive_turn_target is missing a description  
+  
+## SETTILT:  
+Set the tilt of the imu to 0  
+*non-blocking, NO TIMEOUT*  
+### Usage:
+  > SETTILT, imu_sensor.set_pitch(process_entry()),  
+### Arguments: (1)
+  * **imu_sensor.set_pitch(process_entry())**:	imu_sensor.set_pitch(ARG);  
+### Warnings: (2)  
+* Argument imu_sensor.set_pitch(process_entry()) is missing a description  
+* Command needs to print name: cout << "SETTILT" << endl;  
   

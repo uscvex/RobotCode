@@ -17,8 +17,8 @@ void init_robot() {
 
 
     this_robot.INTAKE_WOBBLE_IN = -50;
-    this_robot.INTAKE_WOBBLE_OUT = 60;
-    this_robot.INTAKE_WOBBLE_PERIOD_RIGHT = 1000;
+    this_robot.INTAKE_WOBBLE_OUT = 50;
+    this_robot.INTAKE_WOBBLE_PERIOD_RIGHT = 750;
     this_robot.INTAKE_WOBBLE_PERIOD_LEFT = (double(this_robot.INTAKE_WOBBLE_PERIOD_RIGHT) / 2); // WAS DIV 2
 
     this_robot.BACK_LIFT_READY_POS = -2500;

@@ -305,7 +305,7 @@ void run_drive(void* params) {
                 
                 auto_park_min_power = -127;
 
-                if (tot_displacement > 0.5) {
+                if (tot_displacement > 0.6) {//.5
                     drive_mode = DM_BRAKE;
                     done_auto_park = 2;
                 }

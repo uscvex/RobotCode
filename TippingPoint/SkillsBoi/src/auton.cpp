@@ -47,7 +47,7 @@
 #define TIME 3
 
 
-int which_auton = 3;
+int which_auton = 0;
 int num_autons = 5;
 string auton_names[] = {"MID", "LEFT", "TEST", "SK_LEFT", "SPARE"};
 double* auton_ptr[] = {&mid_auton[0], &left_auton[0], &test_auton[0], &left_skills[0], &right_skills[0]};
@@ -65,23 +65,30 @@ double test_auton[] = {
 
 
 double mid_auton[] = {
-   -61.9, -42.5, 235,                  // STARTING POSITION
+   -62, -42.5, 240,                  // STARTING POSITION
 
     // HEKKIN YEET TO THE MIDDLE GOAL, LIFT AND SPIN
     FRONTARM, HOLD,                     // HOLD FRONT ARM UP
-    YEET, 48, 2,                        // YEET
-    DRIVE, 127, 235, 0.25,              // BRAKE
+    YEET, 49, 2,                        // YEET
     BACKARM, HOLD,                      // LIFT GOAL  
-    DRIVEDIST, 127, 235, 10, 2,         // DRIVE BACK
+    DRIVE, 127, 225, 0.25,              // BRAKE
+    DRIVEDIST, 127, 225, 10, 2,         // DRIVE BACK
     TURN, 0, 1,                         // SPIN GOAL OUT OF THE WAY
     TURN, 45, 1,                        // TURN TO START SPIN IN CORRECT DIRECTION
-    DRIVEDIST, -127, 45, 24, 45,        // DRIVE AWAY FROM CENTER, DON'T DO ANYTHING ELSE IF WE ARE STUCK
+    DRIVEDIST, -127, 45, 10, 45,        // DRIVE AWAY FROM CENTER, DON'T DO ANYTHING ELSE IF WE ARE STUCK
     CHILLYEET,                          // TURN YEET OFF
 
     // DRIVE READY FOR ALLIANCE GOAL
     TIPBASE, OFF,                       // OPEN BACK GRAB
-    DRIVETO, -127, -38, -36, 4,         // DRIVE TO LINE UP FOR GOAL
-    DRIVE, 60, 45, 0.1,                 // BREAK
+    DRIVETO, -127, -30, -44, 4,         // DRIVE TO LINE UP FOR GOAL
+    // DRIVE, 60, 45, 0.05,                 // BREAK
+
+    // NOW HIT WALL TO GET CORRECT DISTANCE
+    TURN, 270, 2,
+    DRIVEDIST, 127, 270, 27, 1.5,
+    DRIVEDIST, -127, 270, 27, 1.5,
+    DRIVE, 60, 270, 0.05, // BRAKE
+
     TURN, 0, 2,                         // TURN READY FOR GOAL
 
     // GRAB ALLIANCE GOAL, BUMP INTO WALL TO GET IT UP
@@ -93,26 +100,27 @@ double mid_auton[] = {
     // LINE UP FOR ROW OF RINGS, GET THEM AND CLOSE YELLOW GOAL
     SIDEARM, READY,                     // LOWER SIDE ARM
     // DRIVETO, 127, -36, -48, 2,           // DRIVE TO ALIGN FOR RING ROW
-    DRIVEDIST, 127, 0, 8, 2,            // DRIVE TO ALIGN FOR RING ROW
+    DRIVEDIST, 127, 0, 12, 2,            // DRIVE TO ALIGN FOR RING ROW
     DRIVE, -50, 0, 0.05,                 // BREAK
     TURN, 90, 2,                        // TURN READY FOR RINGS
     INTAKE, ON,                         // TURN INTAKE ON
     WOBBLE, ON,                         // TURN WOBBLE ON
-    DRIVETO, 60, 5, -48, 6,             // DRIVE FOR RINGS
+    // DRIVETO, 55, 5, -48, 6,             // DRIVE FOR RINGS
+    DRIVEDIST, 55, 90, 39, 6,            // DRIVE TO ALIGN FOR RING ROW
     SIDEARM, HOLD,                      // LIFT GOAL
     PAUSE, 0.75,                        // WAIT FOR GOAL LIFT
 
     // LINE UP FOR FLOWER RINGS, GET THEM AND RETURN
-    DRIVETO, -127, -24, -36, 6,         // DRIVE TO LINE UP FOR FLOWERS
+    DRIVETO, -127, -26, -36, 6,         // DRIVE TO LINE UP FOR FLOWERS
     TURN, 0, 2,                         // TURN TO FACE FLOWERS
-    DRIVETO, 35, -24, 30, 20,           // DRIVE TO INTAKE RINGS
+    DRIVETO, 35, -28, 15, 20,           // DRIVE TO INTAKE RINGS
     TURN, 180, 2,                       // TURN AROUND
-    DRIVETO, 90, -24, -36, 20,          // DRIVE BACK TO START
+    DRIVETO, 90, -30, -43, 20,          // DRIVE BACK TO START
 
     // DROP OFF ALLIANCE GOAL, TURN AND GRAB IT WITH FRONT GRAB
     TURN, 45, 2,                        // TURN READY TO DROP OFF GOAL
     FRONTARM, READY,                    // LOWER ARM IN ANTICIPATION
-    DRIVETO, -127, -40, -40, 4,         // DRIVE INTO CORNER
+    DRIVETO, -127, -56, -56, 4,         // DRIVE INTO CORNER
     TURN, 45, 2,                        // TURN READY TO DROP OFF GOAL
     INTAKE, OFF,                        // TURN INTAKE OFF
     WOBBLE, OFF,                        // TURN WOBBLE OFF
@@ -140,8 +148,29 @@ double left_auton[] = {
     END,
 };
 
+// THIS IS NOT A SKILLS RUN, THIS IS A SPARE ROUTINE, IGNORE NAME!
 double right_skills[] = {
     0, 0, 0,
+
+    DRIVEDIST, 127, 0, 24, 2, 
+    TURN, 90, 2, 
+    DRIVEDIST, 127, 90, 24, 2, 
+    TURN, 180, 2, 
+    DRIVEDIST, 127, 180, 24, 2, 
+    TURN, 270, 2, 
+    DRIVEDIST, 127, 270, 24, 2, 
+    TURN, 0, 2, 
+
+    PAUSE, 3, 
+    FACE, 0, 24, 1, 
+    DRIVETO, 127, 0, 24, 2,
+    FACE, 24, 24, 1, 
+    DRIVETO, 127, 24, 24, 2, 
+    FACE, 24, 0, 1, 
+    DRIVETO, 127, 24, 0, 2, 
+    FACE, 0, 0, 1, 
+    DRIVETO, 127, 0, 0, 2, 
+    FACE, 0, 24, 1, 
 
     END,
 };
@@ -154,14 +183,15 @@ double left_skills[] = {
     WOBBLE, ON,
     TIPBASE, ON,                    // GRAB GOAL
     // TURN, 45, 0.5, 
-    WOBBLE, OFF,
+    WOBBLE, ON,
     DRIVETO, 127, -48, 50, 2,        // DRIVE FORWARD
 
     FACE, 60, 44, 1,              // TURN READY FOR RING COLLECT
 
     INTAKE, ON,                     // TURN INTAKE ON
     DRIVETO, 80, -7, 46, 3,        // DRIVE ALMOST TO ROW OF RINGS
-    DRIVETO, 70, 29, 44, 10,        // DRIVE INTO RINGS was dist=10
+    DRIVETO, 70, 28, 47, 10,        // DRIVE INTO RINGS was dist=10
+    PAUSE, 1,
     // DRIVETO, 60, 29, 44, 10,        // DRIVE INTO RINGS
 
     INTAKE, OFF, 
@@ -170,23 +200,19 @@ double left_skills[] = {
     TIPBASE, OFF,
     WOBBLE, OFF, 
     DRIVEDIST, -90, 180, 5, 1, 
-    DRIVEDIST, 100, 180, 2, 2, 
-    FRONTARM, READY,  
-    TURN, 225, 1.5, 
-    DRIVEDIST, -127, 225, 15, 2,
-    
-    TIPBASE, ON,
+    DRIVEDIST, 100, 180, 5, 2, 
+    FRONTARM, READY, 
 
-    FACE, 0, 36, 1,
-    DRIVETO, 127, 0, 30, 3,       // DRIVE TO GET GOAL
+    // DON'T GRAB ALLIANCE GOAL RED
+    // TURN, 225, 1.5, 
+    // DRIVEDIST, -127, 225, 15, 1.5,
+    // TIPBASE, ON,
+
+    FACE, 0, 30, 1,
+    DRIVETO, 127, 0, 29, 3,       // DRIVE TO GET GOAL first yellow 
     FRONTARM, HOLD, 
     
     FACE, 27, 15, 0.75,
-    INTAKE, ON,                     // TURN INTAKE ON
-    WOBBLE, ON, 
-    DRIVETO, 127, 27, 15, 4,        // DRIVE READY FOR NEXT RINGS
-
-    TURN, 180, 1, 
 
     ////////////////////////////////////////////////////////////////////////
     // 26, 0, 180,                 // HACK FOR START HALF WAY THROUGH
@@ -196,10 +222,23 @@ double left_skills[] = {
     // WOBBLE, ON, 
     ////////////////////////////////////////////////////////////////////////
 
-    DRIVETO, 60, 30, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
-    PAUSE, 0.5,
+    // SLOW TO GET RINGS NICELY
+    // DRIVETO, 127, 27, 15, 4,        // DRIVE READY FOR NEXT RINGS
+    // TURN, 180, 1, 
+    // DRIVETO, 60, 30, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
+    // PAUSE, 0.5,
+    // FRONTARM, PARK, 
+    // DRIVETO, 70, 30, -50, 5,       // DRIVE TO COLLECT NEXT RINGS
+    // END SKIP
+
+    DRIVETO, 127, 32, 15, 4,        // DRIVE READY FOR NEXT RINGS
+    TURN, 180, 1, 
+    INTAKE, ON,                     // TURN INTAKE ON
+    WOBBLE, ON, 
     FRONTARM, PARK, 
-    DRIVETO, 70, 30, -50, 5,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 127, 32, -50, 6,       // DRIVE TO COLLECT NEXT RINGS
+
+
     DRIVE, 127, 180, 0.5, 
     FRONTARM, HOLD,
     PAUSE, 0.5,
@@ -212,28 +251,33 @@ double left_skills[] = {
     
     // SWAP BACK GOAL TO HIGH ARM
     INTAKE, OFF,    // ADDED TO PREVENT RING CHAOS
-    TURN, 270, 1.5, 
     TIPBASE, OFF, 
     INTAKE, OFF, 
     WOBBLE, OFF, 
+    TURN, 270, 1.5, 
+    
     PAUSE, 0.25,
-    DRIVEDIST, -70, 270, 30, 1.5,       // DRIVE INTO WALL
-    DRIVEDIST, 12700, 270, 2, 3,       // DRIVE AWAY FROM WALL
-    BACKARM, READY,
-    DRIVEDIST, 127, 270, 8, 3,       // DRIVE AWAY FROM WALL
-    WAIT, LIFTBELOW, -2500.0 * 0.95, 2,
-    PAUSE, 0.125,
-    DRIVEDIST, -70, 270, 15, 1,       // DRIVE INTO WALL
-    DRIVEDIST, -127, 270, 15, 0.25,       // DRIVE INTO WALL HARDER
-    BACKARM, HOLD,                      // LIFT GOAL
-    DRIVEDIST, 100, 270, 8, 2,          // DRIVE AWAY FROM WALL
-    WAIT, LIFTABOVE, -2500.0 * 0.2, 2,
+    DRIVEDIST, -100, 270, 30, 1.5,       // DRIVE INTO WALL
 
-    DRIVEDIST, -100, 270, 22, 1.5,         // DRIVE INTO WALL FULLY
-    DRIVEDIST, 70, 270, 2, 1,         // DRIVE OUT OF WALL A LITTLE
+    // SKIP AS NO RED ALLIANCE GOAL
+    // DRIVEDIST, 12700, 270, 2, 3,       // DRIVE AWAY FROM WALL
+    // BACKARM, READY,
+    // DRIVEDIST, 127, 270, 8, 3,       // DRIVE AWAY FROM WALL
+    // WAIT, LIFTBELOW, -2500.0 * 0.95, 2,
+    // PAUSE, 0.125,
+    // DRIVEDIST, -70, 270, 15, 1,       // DRIVE INTO WALL
+    // DRIVEDIST, -127, 270, 15, 0.25,       // DRIVE INTO WALL HARDER
+    // BACKARM, HOLD,                      // LIFT GOAL
+    // DRIVEDIST, 100, 270, 8, 2,          // DRIVE AWAY FROM WALL
+    // WAIT, LIFTABOVE, -2500.0 * 0.2, 2,
+
+    // DRIVEDIST, -100, 270, 22, 1.5,         // DRIVE INTO WALL FULLY
+    // END SKIP
+
+    DRIVEDIST, 70, 270, 1, 1,         // DRIVE OUT OF WALL A LITTLE
     DRIVE, -50, 270, 0.05,
-    TURN, 180, 2,                       // TURN READY FOR RED GOAL
-    DRIVEDIST, -80, 180, 9, 5,         // DRIVE INTO GOAL
+    TURN, 190, 2,                       // TURN READY FOR RED GOAL
+    DRIVEDIST, -80, 190, 11, 5,         // DRIVE INTO GOAL
     TIPBASE, ON,                    // GRAB GOAL
     PAUSE, 0.125,                     // WAIT FOR GOAL GRAB
     TURN, 225, 0.5,
@@ -244,35 +288,47 @@ double left_skills[] = {
     // TURN, 315, 1, 
     INTAKE, ON, 
     WOBBLE, ON, 
-    DRIVETO, 127, 24, -26, 2, 
+    DRIVETO, 127, 24, -30, 2, 
     TURN, 270, 1.5, 
 
-    DRIVETO, 100, -11, -27.5, 2, 
+    DRIVETO, 100, -14, -30, 2, 
     SIDEARM, HOLD, 
-    DRIVETO, 127, -20, -27.5, 3, 
-    DRIVEDIST, -90, 270, 10, 1, 
-    FACE, -35, 45, 1,
+    DRIVETO, 127, -20, -30, 3, 
+    DRIVEDIST, -90, 0, 10, 1, 
+    FACE, -16, 45, 1,
 
     FRONTARM, PARK,
-    DRIVETO, 127, -35, 45, 5,       // DRIVE TO COLLECT NEXT RINGS
+    DRIVETO, 127, -16, 36, 3,       // DRIVE TO COLLECT NEXT RINGS
 
-    DRIVEDIST, 127, 315, 10, 1, 
-    DRIVEDIST, 127, 300, 20, 2, 
-    FRONTARM, HOLD,
-    PAUSE, 0.5,
-    DRIVEDIST, 127, 270, 10, 2, 
+
+    // ALIGN FOR PARK
+    DRIVEDIST, 127, 0, 40, 2,   // DRIVE INTO WALL
+    DRIVEDIST, -127, 0, 3, 2,   // DRIVE OUT
+    DRIVE, 50, 0, 0.05,         // BREAK
+
     ULTRABOOST,
-    TURN, 195, 1, 
+    TURN, 270, 2, 
     UNBOOST,
-    DRIVEDIST, 127, 195, 9, 1,      // DRIVE TO PLATFORM
-    DRIVEDIST, 127, 185, 10, 1,      // DRIVE TO PLATFORM
-    DRIVEDIST, -12700, 185, 0.5, 0.5, 
+    DRIVEDIST, 127, 270, 40, 2,   // DRIVE INTO WALL
+    FRONTARM, HOLD,
+    DRIVEDIST, -127, 270, 1, 2,   // DRIVE OUT
+    DRIVE, 60, 270, 0.05,         // BREAK
+    PAUSE, 1,
 
+    DRIVEDIST, 90, 270, 9, 2,   // DRIVE TO ALIGN
+
+    ULTRABOOST,
+    TURN, 185, 2, 
+
+    DRIVEDIST, 90, 185, 16, 2,   // DRIVE TO ALIGN
+    DRIVEDIST, -90, 185, 3, 2,   // DRIVE TO ALIGN
+
+    UNBOOST,
     FRONTARM, PARK,
     
     PAUSE, 1.25,
     ULTRABOOST,
-    DRIVEDIST, 12700, 185, 34, 10,
+    DRIVEDIST, 12700, 185, 30, 10,
     AUTOPARK, 180,        // AUTOPARK FACING 180 DEGREES
 
     END,
@@ -299,6 +355,168 @@ double left_skills[] = {
 
     END,
 };
+
+
+// FULL SKILLS -- TOO SLOW
+// double left_skills[] = {
+//     -60, 43, 0,
+
+//     DRIVE, -100, 0, 0.375, 
+//     // DRIVEDIST, -127, 0, 5, 2,        // DRIVE BACKWARDS INTO GOAL
+//     WOBBLE, ON,
+//     TIPBASE, ON,                    // GRAB GOAL
+//     // TURN, 45, 0.5, 
+//     WOBBLE, ON,
+//     DRIVETO, 127, -48, 50, 2,        // DRIVE FORWARD
+
+//     FACE, 60, 44, 1,              // TURN READY FOR RING COLLECT
+
+//     INTAKE, ON,                     // TURN INTAKE ON
+//     DRIVETO, 80, -7, 46, 3,        // DRIVE ALMOST TO ROW OF RINGS
+//     DRIVETO, 70, 28, 47, 10,        // DRIVE INTO RINGS was dist=10
+//     // DRIVETO, 60, 29, 44, 10,        // DRIVE INTO RINGS
+
+//     INTAKE, OFF, 
+//     TURN, 180, 1,                   // DRIVE SO BASE IS AGAINST WALL
+    
+//     TIPBASE, OFF,
+//     WOBBLE, OFF, 
+//     DRIVEDIST, -90, 180, 5, 1, 
+//     DRIVEDIST, 100, 180, 5, 2, 
+//     FRONTARM, READY,  
+//     TURN, 225, 1.5, 
+//     DRIVEDIST, -127, 225, 15, 1.5,
+    
+//     TIPBASE, ON,
+
+//     FACE, 0, 30, 1,
+//     DRIVETO, 127, 0, 29, 3,       // DRIVE TO GET GOAL first yellow 
+//     FRONTARM, HOLD, 
+    
+//     FACE, 27, 15, 0.75,
+//     INTAKE, ON,                     // TURN INTAKE ON
+//     WOBBLE, ON, 
+
+//     ////////////////////////////////////////////////////////////////////////
+//     // 26, 0, 180,                 // HACK FOR START HALF WAY THROUGH
+//     // TIPBASE, ON,
+//     // FRONTARM, HOLD,
+//     // INTAKE, ON, 
+//     // WOBBLE, ON, 
+//     ////////////////////////////////////////////////////////////////////////
+
+//     // SLOW TO GET RINGS NICELY
+//     // DRIVETO, 127, 27, 15, 4,        // DRIVE READY FOR NEXT RINGS
+//     // TURN, 180, 1, 
+//     // DRIVETO, 60, 30, -20, 16,       // DRIVE TO COLLECT NEXT RINGS
+//     // PAUSE, 0.5,
+//     // FRONTARM, PARK, 
+//     // DRIVETO, 70, 30, -50, 5,       // DRIVE TO COLLECT NEXT RINGS
+
+//     DRIVETO, 127, 32, 15, 4,        // DRIVE READY FOR NEXT RINGS
+//     TURN, 180, 1, 
+//     FRONTARM, PARK, 
+//     DRIVETO, 127, 32, -50, 6,       // DRIVE TO COLLECT NEXT RINGS
+
+
+//     DRIVE, 127, 180, 0.5, 
+//     FRONTARM, HOLD,
+//     PAUSE, 0.5,
+//     DRIVEDIST, 100, 180, 6, 1, 
+//     DRIVE, -60, 180, 0.05, 
+
+    
+//     // DRIVE, 80, 180, 1, 
+//     // DRIVEDIST, -80, 180, 10, 2, 
+    
+//     // SWAP BACK GOAL TO HIGH ARM
+//     INTAKE, OFF,    // ADDED TO PREVENT RING CHAOS
+//     TURN, 270, 1.5, 
+//     TIPBASE, OFF, 
+//     INTAKE, OFF, 
+//     WOBBLE, OFF, 
+//     PAUSE, 0.25,
+//     DRIVEDIST, -70, 270, 30, 1.5,       // DRIVE INTO WALL
+//     DRIVEDIST, 12700, 270, 2, 3,       // DRIVE AWAY FROM WALL
+//     BACKARM, READY,
+//     DRIVEDIST, 127, 270, 8, 3,       // DRIVE AWAY FROM WALL
+//     WAIT, LIFTBELOW, -2500.0 * 0.95, 2,
+//     PAUSE, 0.125,
+//     DRIVEDIST, -70, 270, 15, 1,       // DRIVE INTO WALL
+//     DRIVEDIST, -127, 270, 15, 0.25,       // DRIVE INTO WALL HARDER
+//     BACKARM, HOLD,                      // LIFT GOAL
+//     DRIVEDIST, 100, 270, 8, 2,          // DRIVE AWAY FROM WALL
+//     WAIT, LIFTABOVE, -2500.0 * 0.2, 2,
+
+//     DRIVEDIST, -100, 270, 22, 1.5,         // DRIVE INTO WALL FULLY
+//     DRIVEDIST, 70, 270, 2, 1,         // DRIVE OUT OF WALL A LITTLE
+//     DRIVE, -50, 270, 0.05,
+//     TURN, 180, 2,                       // TURN READY FOR RED GOAL
+//     DRIVEDIST, -80, 185, 11, 5,         // DRIVE INTO GOAL
+//     TIPBASE, ON,                    // GRAB GOAL
+//     PAUSE, 0.125,                     // WAIT FOR GOAL GRAB
+//     TURN, 225, 0.5,
+//     DRIVEDIST, 12700, 225, 5, 2,      // DRIVE AWAY FROM GOAL
+//     DRIVEDIST, 12700, 270, 5, 2,      // DRIVE AWAY FROM GOAL
+
+//     SIDEARM, READY, 
+//     // TURN, 315, 1, 
+//     INTAKE, ON, 
+//     WOBBLE, ON, 
+//     DRIVETO, 127, 24, -29, 2, 
+//     TURN, 270, 1.5, 
+
+//     DRIVETO, 100, -11, -29, 2, 
+//     SIDEARM, HOLD, 
+//     DRIVETO, 127, -20, -29, 3, 
+//     DRIVEDIST, -90, 0, 10, 1, 
+//     FACE, -16, 45, 1,
+
+//     FRONTARM, PARK,
+//     DRIVETO, 127, -16, 36, 3,       // DRIVE TO COLLECT NEXT RINGS
+
+//     DRIVEDIST, 127, 300, 40, 2, 
+//     FRONTARM, HOLD,
+//     PAUSE, 0.5,
+//     DRIVEDIST, 127, 270, 10, 2, 
+//     ULTRABOOST,
+//     TURN, 195, 1, 
+//     UNBOOST,
+//     DRIVEDIST, 127, 195, 9, 1,      // DRIVE TO PLATFORM
+//     DRIVEDIST, 127, 180, 10, 1.5,      // DRIVE TO PLATFORM
+//     DRIVEDIST, -12700, 180, 0.5, 0.5, 
+
+//     FRONTARM, PARK,
+    
+//     PAUSE, 1.25,
+//     ULTRABOOST,
+//     DRIVEDIST, 12700, 185, 36, 10,
+//     AUTOPARK, 180,        // AUTOPARK FACING 180 DEGREES
+
+//     END,
+
+//     // // FACE, -63, 43, 2, 
+//     // // DRIVETO, 127, -65, 40, 4,       // DRIVE READY FOR PARK
+//     // // DRIVE, 127, 270, 0.5, 
+//     // // DRIVEDIST, -127, 270, 1, 0.5, 
+//     // // DRIVE, 60, 270, 0.05, 
+    
+//     // TURN, 195, 1,                   // FACE PLATFORM
+//     // DRIVEDIST, 90, 195, 20, 1.5,      // DRIVE TO PLATFORM
+
+//     // // PARK LMAO THERE'S NO WAY
+//     // WOBBLE, OFF, 
+//     // DRIVEDIST, -12700, 180, 4, 2, 
+//     // DRIVE, 40, 180, 0.05, 
+//     // UNBOOST,
+//     // FRONTARM, PARK,
+//     // PAUSE, 1.5,
+//     // ULTRABOOST,
+//     // DRIVEDIST, 12700, 180, 36, 10,
+//     // AUTOPARK, 180,        // AUTOPARK FACING 0 DEGREES
+
+//     END,
+// };
 
 
 double* next_entry = NULL;

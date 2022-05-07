@@ -281,7 +281,7 @@ void run_drive(void* params) {
                 }
 
                 max_tilt = max(max_tilt, tilt);
-                if ((tilt < max_tilt * 0.75)) {// && max_tilt > 20) {
+                if ((tilt < max_tilt * 0.7)) {// && max_tilt > 20) { // 
                     drive_mode = DM_FINAL_BALANCE;
                     cout << ((millis() - auton_start_time) / 1000) << ": PARK TIPPING" << endl;
                     drive_starting_x = robot_x;
@@ -307,6 +307,7 @@ void run_drive(void* params) {
 
             }
 
+
             if (drive_mode == DM_FINAL_BALANCE) {      // AUTO PARK
                 double tilt = -imu_sensor.get_pitch();
                 double tot_displacement = pythag(robot_x, robot_y, drive_starting_x, drive_starting_y);
@@ -316,7 +317,7 @@ void run_drive(void* params) {
                 
                 auto_park_min_power = -127;
 
-                if (tot_displacement > 1) {
+                if (tot_displacement > 1.5) {//.5 
                     drive_mode = DM_BRAKE;
                     cout << ((millis() - auton_start_time) / 1000) << ": PARK DONE" << endl;
                 }
